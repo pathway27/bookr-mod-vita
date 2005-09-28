@@ -49,7 +49,7 @@ BKBook::~BKBook() {
 		}
 	}
 
-	setBookmark();	
+	setBookmark();
 }
 
 BKBook* BKBook::create(string& file, int size) {
@@ -72,8 +72,9 @@ BKBook* BKBook::create(string& file, int size) {
 	// Add bookmark support
 	int position = BKBookmark::get(b->path);
 	if (position > 0) {
-		// Since this is from page 1
-		b->skipPages(position);
+		// Since this is from page 1, substract one when working with line-counting
+		// based offsets
+		b->skipPages(position - 1);
 	}	
 
 	return b;

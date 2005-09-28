@@ -87,11 +87,12 @@ void BKUser::load() {
 	
 	fseek(f, 0, SEEK_END);
 	int size = ftell(f);
-	char* buffer = (char*)malloc(size);
-	memset((void*)buffer, 0, size);
+	char* buffer = (char*)malloc(size + 1);
+	memset((void*)buffer, 0, size + 1);
 	fseek(f, 0, SEEK_SET);
 	fread(buffer, size, 1, f);
 	fclose(f);
+	buffer[size] = 0;
 
 	TiXmlDocument *doc = new TiXmlDocument();
 	doc->Parse(buffer);
