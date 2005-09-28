@@ -55,6 +55,8 @@ BKBook::~BKBook() {
 BKBook* BKBook::create(string& file, int size) {
 	BKBook* b = new BKBook(file);
 	FILE* f = fopen(file.c_str(), "r");
+	if (size > 4*1024*1024)
+		size = 4*1024*1024;
 	b->textLen = size + 1;
 	b->text = (char*)memalign(16, size + 2);
 	fread(b->text, size, 1, f);
