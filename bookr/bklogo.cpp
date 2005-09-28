@@ -22,7 +22,7 @@
 
 #include "bklogo.h"
 
-BKLogo::BKLogo() : loading(false) {
+BKLogo::BKLogo() : loading(false), error(false) {
 }
 
 BKLogo::~BKLogo() {
@@ -30,6 +30,10 @@ BKLogo::~BKLogo() {
 
 void BKLogo::setLoading(bool v) {
 	loading = v;
+}
+
+void BKLogo::setError(bool v) {
+	error = v;
 }
 
 int BKLogo::update(unsigned int buttons) {
@@ -55,12 +59,22 @@ void BKLogo::render() {
 	drawPill(150, 240, 180, 20, 6, 31, 1);
 	fontBig->bindForDisplay();
 	FZScreen::ambientColor(0xff000000);
-	drawTextHC("Version 0.5.1", fontBig, 170);
+	drawTextHC("Version 0.5.2", fontBig, 170);
 	FZScreen::ambientColor(0xffffffff);
 	if (loading)
 		drawTextHC("Loading...", fontBig, 244);
-	else
+	else {
+		if (error) {
+			texUI->bindForDisplay();
+			FZScreen::ambientColor(0xf06060ff);
+			drawRect(0, 126, 480, 26, 6, 31, 1);
+			fontBig->bindForDisplay();
+			FZScreen::ambientColor(0xff222222);
+			drawTextHC("Error: invalid or corrupted file", fontBig, 130);
+		}
+		FZScreen::ambientColor(0xffffffff);
 		drawTextHC("Press Start", fontBig, 244);
+	}
 }
 
 BKLogo* BKLogo::create() {

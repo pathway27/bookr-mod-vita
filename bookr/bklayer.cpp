@@ -128,6 +128,16 @@ void BKLayer::drawTPill(int x, int y, int w, int h, int r, int tx, int ty) {
 	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,10,0,verts);
 }
 
+void BKLayer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
+	struct T32FV32F2D vertices[1*2] = {
+		{ tx + r, ty + r, x, y, 0 },
+		{ tx + r, ty + r, x + w, y + h, 0 }
+	};
+	T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2 * 1 * sizeof(struct T32FV32F2D));
+	memcpy(verts, vertices, 2 * 1 * sizeof(struct T32FV32F2D));
+	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
+}
+
 static int textW(char* t, FZFont* font) {
 	FZCharMetrics* fontChars = font->getMetrics();
 	// precalc vertex count

@@ -40,6 +40,7 @@ class BKPDF : public BKLayer {
 	int panX;
 	int panY;
 	bool loadNewPage;
+	bool pageError;
 	void panBuffer(int nx, int ny);
 	void redrawBuffer();
 

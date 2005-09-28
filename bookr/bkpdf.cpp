@@ -290,6 +290,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 
 	error = pdf_loadpage(&ctx->page, ctx->xref, obj);
 	if (error) {
+		printf("errLP1: %s\n", error->msg);
 		//pdfapp_error(app, error);
 		return -1;
 	}
@@ -328,7 +329,7 @@ static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h) {
 	return pix;
 }
 
-BKPDF::BKPDF(string& f) : path(f), ctx(0), bannerFrames(0), banner(""), panX(0), panY(0), loadNewPage(false) {
+BKPDF::BKPDF(string& f) : path(f), ctx(0), bannerFrames(0), banner(""), panX(0), panY(0), loadNewPage(false), pageError(false) {
 }
 
 static BKPDF* singleton = 0;
@@ -372,7 +373,7 @@ BKPDF* BKPDF::create(string& file) {
 		ctx->pageno = position;
 	}
 	
-	pdfLoadPage(ctx);
+	b->pageError = pdfLoadPage(ctx) != 0;
 
 	//if (bounce == NULL)
 	//	bounce = (char*)memalign(16, 480*272*4);
@@ -394,6 +395,16 @@ void BKPDF::render() {
 
 	FZScreen::copyImage(FZ_PSM_8888, 0, 0, 480, 272, 480, bounceBuffer, 0, 0, 512, (void*)(0x04000000+(unsigned int)FZScreen::framebuffer()));
 
+	if (pageError) {
+		texUI->bindForDisplay();
+		FZScreen::ambientColor(0xf06060ff);
+		drawRect(0, 126, 480, 26, 6, 31, 1);
+		fontBig->bindForDisplay();
+		FZScreen::ambientColor(0xff222222);
+		char t[256];
+		snprintf(t, 256, "Error in page %d", ctx->pageno);
+		drawTextHC(t, fontBig, 130);
+	}
 	if (loadNewPage) {
 		texUI->bindForDisplay();
 		FZScreen::ambientColor(0xf0222222);
@@ -444,6 +455,8 @@ extern "C" {
 
 
 void BKPDF::redrawBuffer() {
+	if (pageError)
+		return;
 	fz_pixmap* pix = pdfRenderTile(ctx, panX, panY, 480, 272);
 	// copy and shift colors
 	unsigned int* s = (unsigned int*)pix->samples;
@@ -455,6 +468,8 @@ void BKPDF::redrawBuffer() {
 }
 
 void BKPDF::panBuffer(int nx, int ny) {
+	if (pageError)
+		return;
 	if (ny != panY) {
 		int dy = ny - panY;
 		int ady = dy > 0 ? dy : -dy;
@@ -546,7 +561,7 @@ int BKPDF::update(unsigned int buttons) {
 			//pdfClose(oldctx);
 			delete oldctx;
 		}
-		pdfLoadPage(ctx);
+		pageError = pdfLoadPage(ctx) != 0;
 		redrawBuffer();
 		loadNewPage = false;
 		char t[256];
@@ -603,21 +618,23 @@ int BKPDF::update(unsigned int buttons) {
 		bannerFrames = 60;
 	}
 	// clip coords
-	if (ny < 0.0f) {
-		ny = 0.0f;
-	}
-	float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
-	h *= ctx->zoom;
-	if (ny >= h - 272.0f) {
-		ny = h - 273.0f;
-	}
-	if (nx < 0.0f) {
-		nx = 0.0f;
-	}
-	float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
-	w *= ctx->zoom;
-	if (nx >= w - 480.0f) {
-		nx = w - 481.0f;
+	if (!pageError) {
+		if (ny < 0.0f) {
+			ny = 0.0f;
+		}
+		float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
+		h *= ctx->zoom;
+		if (ny >= h - 272.0f) {
+			ny = h - 273.0f;
+		}
+		if (nx < 0.0f) {
+			nx = 0.0f;
+		}
+		float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
+		w *= ctx->zoom;
+		if (nx >= w - 480.0f) {
+			nx = w - 481.0f;
+		}
 	}
 	int inx = (int)nx;
 	int iny = (int)ny;

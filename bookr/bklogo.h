@@ -28,6 +28,7 @@ using namespace std;
 
 class BKLogo : public BKLayer {
 	bool loading;
+	bool error;
 
 	protected:
 	BKLogo();
@@ -38,6 +39,7 @@ class BKLogo : public BKLayer {
 	virtual int update(unsigned int buttons);
 	virtual void render();
 	void setLoading(bool v);
+	void setError(bool err);
 
 	static BKLogo* create();
 };

@@ -139,9 +139,18 @@ int main(int argc, char* argv[]) {
 				l->release();
 				// detect file type and add a new display layer
 				if (isPdf = isPDF(s)) {
-					layers.push_back(pdfOrTextLayer = BKPDF::create(s));
+					pdfOrTextLayer = BKPDF::create(s);
 				} else {
-					layers.push_back(pdfOrTextLayer = BKBook::create(s, de.size));
+					pdfOrTextLayer = BKBook::create(s, de.size);
+				}
+				if (pdfOrTextLayer == 0) {
+					// error, back to logo screen
+					BKLogo* l = BKLogo::create();
+					l->setError(true);
+					layers.push_back(l);
+				} else {
+					// file loads ok, add the layer
+					layers.push_back(pdfOrTextLayer);
 				}
 			} break;
 			case BK_CMD_INVOKE_MENU:
