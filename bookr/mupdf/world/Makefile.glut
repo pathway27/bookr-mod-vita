@@ -1,0 +1,30 @@
+TARGET_LIB=libworld.a
+OBJS:=node_toxml.o node_misc1.o node_misc2.o node_optimize.o node_path.o node_text.o node_tree.o
+OBJS+=res_colorspace.o res_font.o res_image.o res_shade.o
+
+CXX=g++
+CC=gcc
+OEX=o
+AR=ar
+ARFLAGS=rc
+
+CXXFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+
+all: $(TARGET_LIB)
+
+%.a: $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+	ranlib $@
+	cp $@ ../libs
+
+%.$(OEX): %.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+%.$(OEX): %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+clean:
+	rm -f  $(TARGET_LIB)
+	rm -Rf *.o
+	rm -f gmon.out

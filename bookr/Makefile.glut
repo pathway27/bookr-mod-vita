@@ -1,0 +1,59 @@
+CXX=g++
+CC=gcc
+CLINK=g++
+WINDRES=
+CDEPS=g++ -MM
+DEPEX=*.c*
+OEX=o
+AR=ar
+ARFLAGS=r
+
+CXXFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+LDFLAGS=-g3 -Wall -W -Wno-unused -O0 -pipe
+LIBS=-Lmupdf/libs -lmupdf -lraster -lworld -lfonts -lstream -lbase -lfreetype -lz -lpng -ljpeg -lglut -lGL -L/usr/X11R6/lib -lGLU -lX11 -lXext -lm
+
+EXE=bookr.glut
+
+all: $(EXE)
+
+OBJS:=bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o
+OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
+OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
+
+#bookrglut.cpp: fontpng.c
+
+#bkstrlines.cpp: fontdata.c
+
+#fontdata.c: bvs20-256x128.bnt
+#	bin2c bvs20-256x128.bnt fontdata.c fontdata
+
+#fontpng.c: bvs20-256x128_00.png
+#	bin2c bvs20-256x128_00.png fontpng.c fontpng
+
+
+$(EXE): $(OBJS)
+	@(cd mupdf; make -f Makefile.glut)
+	$(CLINK) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+
+#%.a: $(OBJS)
+#	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+%.$(OEX): %.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+%.$(OEX): %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+#%.$(OEX): %.asm
+#	$(NASM) $(NASMFLAGS) $< -o $@
+
+#%.$(OEX): %.rc
+#	$(WINDRES) $< -O coff -o $@
+
+clean:
+	rm -f  $(EXE)
+	rm -Rf *.o
+	rm -f gmon.out
+	@(cd mupdf; make -f Makefile.glut clean)
+

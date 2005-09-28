@@ -1,0 +1,60 @@
+CXX=g++
+CC=gcc
+CLINK=g++
+WINDRES=
+CDEPS=g++ -MM
+DEPEX=*.c*
+OEX=o
+AR=ar
+ARFLAGS=r
+
+CXXFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags` -DMAC
+CFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags` -DMAC
+LDFLAGS=-g3 -Wall -W -Wno-unused -O0 -pipe
+LIBS=-Lmupdf/libs -lapps -lmupdf -lraster -lworld -lfonts -lstream -lbase -lm -framework GLUT -framework OpenGL -framework AGL -framework Cocoa -framework Carbon -framework QuickTime -framework Foundation -ldl -lobjc -lstdc++ -L/usr/local/lib -lz -lpng -lfreetype -ljpeg
+
+EXE=bookr.glut
+
+all: $(EXE)
+
+OBJS:=bkbook.o bkpdf.o bklayer.o bkfilechooser.o bklogo.o bookr.o
+OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o
+#OBJS+=tinystr.o tinyxmlerror.o tinyxml.o
+
+#bookrglut.cpp: fontpng.c
+
+#bkstrlines.cpp: fontdata.c
+
+#fontdata.c: bvs20-256x128.bnt
+#	bin2c bvs20-256x128.bnt fontdata.c fontdata
+
+#fontpng.c: bvs20-256x128_00.png
+#	bin2c bvs20-256x128_00.png fontpng.c fontpng
+
+
+$(EXE): $(OBJS)
+	@(cd mupdf; make -f Makefile.glut)
+	$(CLINK) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+
+#%.a: $(OBJS)
+#	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+%.$(OEX): %.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+%.$(OEX): %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+#%.$(OEX): %.asm
+#	$(NASM) $(NASMFLAGS) $< -o $@
+
+#%.$(OEX): %.rc
+#	$(WINDRES) $< -O coff -o $@
+
+clean:
+	rm -f  $(EXE)
+	rm -Rf *.o
+	rm -f gmon.out
+	@(cd mupdf; make -f Makefile.glut clean)
+#	@(sm="$(SUBMAKES)"; for m in $$sm; do cd $$m; make -f $(MAKEFILENAME) clean; cd ..; done)
+
