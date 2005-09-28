@@ -17,42 +17,26 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef BKMAINMENU_H
-#define BKMAINMENU_H
+#ifndef BKBOOKMARK_H
+#define BKBOOKMARK_H
 
 #include "fzscreen.h"
 
 using namespace std;
 
-#include "bklayer.h"
+class BKBookmark {
 
-class BKMainMenu : public BKLayer {
-	#define BKMM_MAIN 0
-	#define BKMM_CONTROLS 1
-	#define BKMM_OPTIONS 2
+	private:
+	typedef map<string, int> bkBookmarks;
+	typedef map<string, int>::iterator bkBookmarksIt;
 	
-	int mode;
-	bool captureButton;
-	vector<BKMenuItem> mainItems;
-	vector<BKMenuItem> controlItems;
-	int updateMain(unsigned int buttons);
-	int updateControls(unsigned int buttons);
-	void buildControlMenu();
-	bool isPdf;
-	BKLayer* reader;
-
-	protected:
-	BKMainMenu(bool isPdf, BKLayer* pdfOrBookLayer);	
-	~BKMainMenu();
+	static void load(bkBookmarks &bookmarks);	
 
 	public:
-	virtual int update(unsigned int buttons);
-	virtual void render();
-	
-	static BKMainMenu* create(bool isPdf = false, BKLayer* pdfOrBookLayer = NULL);	
-	
-	typedef vector<BKMenuItem>::iterator bkMenuItemIt;
-	
+	// returns -1 if not found
+	static int get(string& filename);		
+	static void set(string& filename, int position);
+	static void clear();
 };
 
 #endif

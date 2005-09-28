@@ -50,6 +50,7 @@ class BKPDF : public BKLayer {
 	public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
+	virtual void setBookmark();
 
 	static BKPDF* create(string& file);
 };

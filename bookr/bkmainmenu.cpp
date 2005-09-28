@@ -21,10 +21,18 @@
 #include "fzscreen.h"
 
 #include "bkmainmenu.h"
+#include "bkpdf.h"
+#include "bkbook.h"
+#include "bkbookmark.h"
 
-BKMainMenu::BKMainMenu() : mode(BKMM_MAIN), captureButton(false) {
+BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN), captureButton(false),
+	isPdf(isPdeff), reader(pdfOrBookLayer) {
 	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
-	mainItems.push_back(BKMenuItem("Controls", "Select", 0));
+	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
+	if (reader)
+		mainItems.push_back(BKMenuItem("Set bookmark", "Select", 0));
+	else
+		mainItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
 	//mainItems.push_back(BKMenuItem("Options", "Select", 0));
 	buildControlMenu();
 }
@@ -101,13 +109,26 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 	int* b = FZScreen::ctrlReps();
 
 	if (b[FZ_REPS_CIRCLE] == 1) {
-		if (selItem == 0)
+		if (selItem == 0) {
 			return BK_CMD_INVOKE_OPEN_FILE;
+		}
 		if (selItem == 1) {
 			selItem = 0;
 			topItem = 0;
 			mode = BKMM_CONTROLS;
 			return BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == 2) {
+			if (reader != NULL) {
+				// Set bookmark now
+				if (isPdf)
+					((BKPDF*)reader)->setBookmark();
+				else
+					((BKBook*)reader)->setBookmark();
+			} else
+				BKBookmark::clear();
+				
+			return BK_CMD_CLOSE_TOP_LAYER;
 		}
 	}
 
@@ -204,8 +225,8 @@ void BKMainMenu::render() {
 	}
 }
 
-BKMainMenu* BKMainMenu::create() {
-	BKMainMenu* f = new BKMainMenu();
+BKMainMenu* BKMainMenu::create(bool isPdf, BKLayer* pdfOrBookLayer) {
+	BKMainMenu* f = new BKMainMenu(isPdf, pdfOrBookLayer);
 	FZScreen::resetReps();
 	return f;
 }

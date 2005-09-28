@@ -23,6 +23,8 @@
 #include <string.h>
 #include <time.h>
 
+#include "bkbookmark.h"
+
 #ifdef MAC
 static void* memalign(int t, int s) {
 	return malloc(s);
@@ -330,6 +332,8 @@ static BKPDF* singleton = 0;
 
 BKPDF::~BKPDF() {
 	if (ctx != 0) {
+		setBookmark();
+		
 		pdfClose(ctx);
 		delete ctx;
 	}
@@ -343,7 +347,7 @@ BKPDF* BKPDF::create(string& file) {
 		printf("cannot open more than 1 pdf at the same time\n");
 		return singleton;
 	}
-
+	
 	BKPDF* b = new BKPDF(file);
 	singleton = b;
 
@@ -358,6 +362,13 @@ BKPDF* BKPDF::create(string& file) {
 		return 0;
 	}
 	b->ctx = ctx;
+	
+	// Add bookmark support
+	int position = BKBookmark::get(b->path);
+	if (position > 0 && position <= pdf_getpagecount(ctx->pages)) {
+		ctx->pageno = position;
+	}
+	
 	pdfLoadPage(ctx);
 
 	//if (bounce == NULL)
@@ -660,3 +671,7 @@ int BKPDF::update(unsigned int buttons) {
 	return 0;
 }
 
+void BKPDF::setBookmark() {
+	// Save the last position		
+	BKBookmark::set(path, ctx->pageno);	
+}

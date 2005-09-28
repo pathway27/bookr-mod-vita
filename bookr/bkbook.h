@@ -69,15 +69,17 @@ class BKBook : public BKLayer {
 	int bannerFrames;
 
 	protected:
-	BKBook();
+	BKBook(string& file);
 	~BKBook();
 	void textLineMetrics(int width);
 	int countVerticesForLines(int from, int to);
 	void spritesForLines(int x, int y, int from, int to, BKVertex* vertices);
+	void skipPages(int offset);
 
 	public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
+	virtual void setBookmark();
 
 	static BKBook* create(string& file, int size);
 };

@@ -44,6 +44,8 @@ static bool isPDF(string& file) {
 }
 
 int main(int argc, char* argv[]) {
+	bool isPdf = false;
+	BKLayer* pdfOrTextLayer = NULL;
 	FZScreen::setupCallbacks();
 	FZScreen::open(argc, argv);
 	FZScreen::setupCtrl();
@@ -136,15 +138,15 @@ int main(int argc, char* argv[]) {
 				FZScreen::checkEvents();
 				l->release();
 				// detect file type and add a new display layer
-				if (isPDF(s)) {
-					layers.push_back(BKPDF::create(s));
+				if (isPdf = isPDF(s)) {
+					layers.push_back(pdfOrTextLayer = BKPDF::create(s));
 				} else {
-					layers.push_back(BKBook::create(s, de.size));
+					layers.push_back(pdfOrTextLayer = BKBook::create(s, de.size));
 				}
 			} break;
 			case BK_CMD_INVOKE_MENU:
 				// add a main menu layer
-				mm = BKMainMenu::create();
+				mm = BKMainMenu::create(isPdf, pdfOrTextLayer);
 				layers.push_back(mm);
 			break;
 			//BK_CMD_OPEN_MENU

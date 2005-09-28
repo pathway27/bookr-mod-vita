@@ -30,10 +30,11 @@ static void* memalign(int t, int s) {
 #endif
 
 #include "bkbook.h"
+#include "bkbookmark.h"
 #include "fzfont.h"
 
-BKBook::BKBook() : 
-	text(0), textLen(0), baseLine(0), page(1),
+BKBook::BKBook(string& file) : 
+	path(file), text(0), textLen(0), baseLine(0), page(1),
 	screenLines(0), totalLines(0),
 	bannerFrames(0) {
 }
@@ -47,10 +48,12 @@ BKBook::~BKBook() {
 			free(blocks[i]);
 		}
 	}
+
+	setBookmark();	
 }
 
 BKBook* BKBook::create(string& file, int size) {
-	BKBook* b = new BKBook();
+	BKBook* b = new BKBook(file);
 	FILE* f = fopen(file.c_str(), "r");
 	b->textLen = size + 1;
 	b->text = (char*)memalign(16, size + 2);
@@ -65,6 +68,13 @@ BKBook* BKBook::create(string& file, int size) {
 	b->screenLines = 257 / fontText->getLineHeight();
 
 	FZScreen::resetReps();
+	
+	// Add bookmark support
+	int position = BKBookmark::get(b->path);
+	if (position > 0) {
+		// Since this is from page 1
+		b->skipPages(position);
+	}	
 
 	return b;
 }
@@ -288,25 +298,28 @@ void BKBook::render() {
 	}
 }
 
+void BKBook::skipPages(int offset) {
+	int futureLine = baseLine + (offset * screenLines);
+	if (futureLine < 0) {
+		baseLine = 0;
+		page = 1;
+	} else if (futureLine <= totalLines) {
+		baseLine = futureLine;
+		page+=offset;
+	} // else do nothing		
+}
+
 int BKBook::update(unsigned int buttons) {
 	bannerFrames--;
 	if (bannerFrames < 0)
 		bannerFrames = 0;
 	int* b = FZScreen::ctrlReps();
 	if (b[BKUser::txtControls.previousPage] == 1 || b[BKUser::txtControls.previousPage] > 20) {
-		baseLine-=screenLines;
-		page--;
-		if (baseLine < 0) {
-			baseLine = 0;
-			page = 1;
-		}
+		skipPages(-1);
 		bannerFrames = 60;
 	}
 	if (b[BKUser::txtControls.nextPage] == 1 || b[BKUser::txtControls.nextPage] > 20) {
-		if ((baseLine + screenLines) <= totalLines) {
-			baseLine+=screenLines;
-			page++;
-		}
+		skipPages(+1);
 		bannerFrames = 60;
 	}
 	if (b[FZ_REPS_START] == 1) {
@@ -317,3 +330,7 @@ int BKBook::update(unsigned int buttons) {
 	return 0;
 }
 
+void BKBook::setBookmark() {
+	// Save the last position
+	BKBookmark::set(path, page);
+}
