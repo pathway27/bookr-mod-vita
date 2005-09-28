@@ -126,18 +126,20 @@ static PDFContext* pdfOpen(char *filename) {
 		return 0;
 	}
 
-
-	if (ctx->xref->crypt) {
-		printf("err5: %s\n", error->msg);
+	/*if (ctx->xref->crypt) {
+		//printf("err5: %s\n", error->msg);
+		printf("err5\n", error->msg);
 		delete ctx;
 		return 0;
-	}
+	}*/
 
-	/*if (app->xref->crypt)
-	{
-		error = pdf_setpassword(app->xref->crypt, password);
-		while (error)
-		{
+	if (ctx->xref->crypt) {
+		error = pdf_setpassword(ctx->xref->crypt, "");
+		if (error) {
+			printf("err5: encrypted file (tried empty password): %s\n", error->msg);
+			delete ctx;
+			return 0;
+			/*
 			fz_droperror(error);
 			password = winpassword(app, filename);
 			if (!password)
@@ -145,8 +147,9 @@ static PDFContext* pdfOpen(char *filename) {
 			error = pdf_setpassword(app->xref->crypt, password);
 			if (error)
 				pdfapp_warn(app, "Invalid password.");
+			*/
 		}
-	}*/
+	}
 
 	/*
 	 * Load page tree
