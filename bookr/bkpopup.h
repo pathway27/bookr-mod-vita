@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef BKMAINMENU_H
-#define BKMAINMENU_H
+#ifndef BKPOPUP_H
+#define BKPOPUP_H
 
 #include "fzscreen.h"
 
@@ -26,42 +26,22 @@ using namespace std;
 
 #include "bklayer.h"
 
-class BKMainMenu : public BKLayer {
-	#define BKMM_MAIN 0
-	#define BKMM_CONTROLS 1
-	#define BKMM_OPTIONS 2
-	
-	int mode;
-	bool captureButton;
-	vector<BKMenuItem> mainItems;
-	vector<BKMenuItem> controlItems;
-	vector<BKMenuItem> optionItems;
-	int updateMain(unsigned int buttons);
-	int updateControls(unsigned int buttons);
-	int updateOptions(unsigned int buttons);
-	void buildControlMenu();
-	void buildOptionMenu();
-	bool isPdf;
-	BKLayer* reader;
+#define BKPOPUP_WARNING		1
+#define BKPOPUP_ERROR		2
 
-	string popupText;
-	int popupMode;
+class BKPopup : public BKLayer {
+	int mode;
+	string text;
 
 	protected:
-	BKMainMenu(bool isPdf, BKLayer* pdfOrBookLayer);	
-	~BKMainMenu();
+	BKPopup(int m, string t);	
+	~BKPopup();
 
 	public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
 	
-	static BKMainMenu* create(bool isPdf = false, BKLayer* pdfOrBookLayer = NULL);	
-
-	string getPopupText();
-	int getPopupMode();
-
-	typedef vector<BKMenuItem>::iterator bkMenuItemIt;
-	
+	static BKPopup* create(int m, string t);	
 };
 
 #endif

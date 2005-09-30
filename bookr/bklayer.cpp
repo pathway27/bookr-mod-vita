@@ -314,6 +314,58 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
 }
 
+static int countLines(string& t) {
+	int lines = 1;
+	char* c = (char*)t.c_str();
+	while (*c != 0) {
+		if (*c == 0xa) ++lines;
+		++c;
+	}
+	return lines;
+}
+
+void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
+	texUI->bindForDisplay();
+	int l = countLines(text);
+	int h = 25 + 25*l;
+	int y = (272 - h) /2;
+	// back
+	FZScreen::ambientColor(bg1);
+	drawPill(40, y, 480 - 86, h, 6, 31, 1);
+	// title
+	FZScreen::ambientColor(bg2);
+	drawPill(45, 5 + y, 480 - 86 - 10, 20, 6, 31, 1);
+	// icons
+	FZScreen::ambientColor(fg);
+	drawImage(410, 9 + y, 20, 17, 31, 53);
+
+	fontBig->bindForDisplay();
+
+	FZScreen::ambientColor(fg);
+	drawText((char*)title.c_str(), fontBig, 51, y + 9);
+	drawText((char*)text.c_str(), fontBig, 51, y + 35);
+/*
+	// contents
+	for (int i = 0; i < 8; ++i) {
+		if (i + topItem == selItem)
+			continue;
+		if ((60 + (i+1)*fontBig->getLineHeight()) > 250)
+			break;
+		if ((i + topItem) >= (int)(items.size()))
+			break;
+		drawText((char*)items[i + topItem].label.c_str(), fontBig, 40 + 25, 60 + i*fontBig->getLineHeight() + scrY);
+	}
+	FZScreen::ambientColor(0xff000000);
+	drawText((char*)items[selItem].label.c_str(), fontBig, 40 + 25, 60 + scrY + selPos*fontBig->getLineHeight());
+	// labels
+	FZScreen::ambientColor(0xffcccccc);
+	if (triangleLabel.size() > 0) {
+		drawText((char*)triangleLabel.c_str(), fontBig, 37 + 25, 248 + scrY);
+	}
+	drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
+*/
+}
+
 void BKLayer::menuCursorUpdate(unsigned int buttons, int max) {
 	int* b = FZScreen::ctrlReps();
 	if (b[FZ_REPS_UP] == 1 || b[FZ_REPS_UP] > 20) {

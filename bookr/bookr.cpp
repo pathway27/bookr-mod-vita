@@ -23,6 +23,7 @@
 #include "bkfilechooser.h"
 #include "bkmainmenu.h"
 #include "bklogo.h"
+#include "bkpopup.h"
 
 #ifdef PSP
 #include <pspkernel.h>
@@ -112,18 +113,30 @@ int main(int argc, char* argv[]) {
 				fs = BKFileChooser::create();
 				layers.push_back(fs);
 			break;
-			case BK_CMD_OPEN_FILE: {
+			case BK_CMD_OPEN_FILE:
+			case BK_CMD_RELOAD: {
 				// open a file as a document
-				// get selected file
-				FZDirent de;
-				fs->getCurrentDirent(de);
 				string s;
-				fs->getFullPath(s);
-				fs = 0;
+				FZDirent de;
+				if (command == BK_CMD_RELOAD) {
+					// reload current file
+					if (isPdf) {
+						((BKPDF*)pdfOrTextLayer)->getPath(s);
+					} else {
+						((BKBook*)pdfOrTextLayer)->getPath(s);
+						de.size = ((BKBook*)pdfOrTextLayer)->getSize();
+					}
+				}
+				if (command == BK_CMD_OPEN_FILE) {
+					// open selected file
+					fs->getCurrentDirent(de);
+					fs->getFullPath(s);
+					fs = 0;
+				}
 				// clear layers
 				bkLayersIt it(layers.begin());
 				bkLayersIt end(layers.end());
-				while (it != end) {	
+				while (it != end) {
 					(*it)->release();
 					++it;
 				}
@@ -158,6 +171,13 @@ int main(int argc, char* argv[]) {
 				// add a main menu layer
 				mm = BKMainMenu::create(isPdf, pdfOrTextLayer);
 				layers.push_back(mm);
+			break;
+			case BK_CMD_MAINMENU_POPUP:
+				layers.push_back(BKPopup::create(
+						mm->getPopupMode(),
+						mm->getPopupText()
+					)
+				);
 			break;
 			case BK_CMD_EXIT: {
 					exitApp = true;

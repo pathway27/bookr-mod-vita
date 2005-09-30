@@ -26,6 +26,8 @@
 #define BK_CMD_CLOSE_TOP_LAYER 1
 #define BK_CMD_MARK_DIRTY 2
 #define BK_CMD_EXIT 3
+#define BK_CMD_RELOAD 4
+#define BK_CMD_MAINMENU_POPUP 5
 
 #define BK_CMD_OPEN_FILE 20
 #define BK_CMD_OPEN_FONT 21
@@ -67,6 +69,8 @@ class BKLayer : public FZRefCounted {
 	int selItem;
 	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items);
 	void menuCursorUpdate(unsigned int buttons, int max);
+
+	void drawPopup(string& text, string& title, int bg1, int bg2, int fg);
 
 	public:
 	virtual int update(unsigned int buttons) = 0;

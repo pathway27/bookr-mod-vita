@@ -24,6 +24,7 @@
 #include "bkpdf.h"
 #include "bkbook.h"
 #include "bkbookmark.h"
+#include "bkpopup.h"
 
 BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN), captureButton(false),
 	isPdf(isPdeff), reader(pdfOrBookLayer) {
@@ -40,6 +41,14 @@ BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN),
 }
 
 BKMainMenu::~BKMainMenu() {
+}
+
+string BKMainMenu::getPopupText() {
+	return popupText;
+}
+
+int BKMainMenu::getPopupMode() {
+	return popupMode;
 }
 
 void BKMainMenu::buildControlMenu() {
@@ -244,7 +253,9 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			BKUser::options.pdfFastScroll = !BKUser::options.pdfFastScroll;
 			BKUser::save();
 			buildOptionMenu();
-			return BK_CMD_MARK_DIRTY;
+			popupText = "Fast scroll will cause instability with many PDF files.\nDo not report bugs when using this feature.";
+			popupMode = BKPOPUP_WARNING;
+			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
 		}
 	}
 

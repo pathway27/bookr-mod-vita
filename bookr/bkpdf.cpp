@@ -44,6 +44,7 @@ extern "C" {
 static fz_renderer *fzrast = NULL;
 static unsigned int* bounceBuffer = NULL;
 static unsigned int* backBuffer = NULL;
+static fz_pixmap* fullPageBuffer = NULL;
 
 struct PDFContext {
 	/* current document params */
@@ -277,31 +278,6 @@ static fz_matrix pdfViewctm(PDFContext* ctx) {
 	return ctm;
 }
 
-
-static int pdfLoadPage(PDFContext* ctx) {
-	fz_error *error;
-	fz_obj *obj;
-
-	if (ctx->page)
-		pdf_droppage(ctx->page);
-	ctx->page = 0;
-
-	obj = pdf_getpageobject(ctx->pages, ctx->pageno - 1);
-
-	error = pdf_loadpage(&ctx->page, ctx->xref, obj);
-	if (error) {
-		printf("errLP1: %s\n", error->msg);
-		//pdfapp_error(app, error);
-		return -1;
-	}
-
-	/*sprintf(buf, "%s - %d/%d", app->doctitle,
-			app->pageno, pdf_getpagecount(app->pages));
-	wintitle(app, buf);*/
-
-	return 0;
-}
-
 static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h) {
 	fz_error *error;
 	fz_matrix ctm;
@@ -329,6 +305,56 @@ static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h) {
 	return pix;
 }
 
+static void pdfRenderFullPage(PDFContext* ctx) {
+	if (fullPageBuffer != NULL) {
+		fz_droppixmap(fullPageBuffer);
+		fullPageBuffer = NULL;
+	}
+	float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
+	float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
+	h *= ctx->zoom;
+	w *= ctx->zoom;
+	fullPageBuffer = pdfRenderTile(ctx,
+		(int)ctx->page->mediabox.x0,
+		(int)ctx->page->mediabox.y0,
+		(int)w, (int)h);
+	// precalc color shift
+	unsigned int* s = (unsigned int*)fullPageBuffer->samples;
+	unsigned int n = fullPageBuffer->w * fullPageBuffer->h;
+	for (unsigned int i = 0; i < n; ++i) {
+		*s >>= 8;
+		++s;
+	}
+}
+
+static int pdfLoadPage(PDFContext* ctx) {
+	if (fullPageBuffer != NULL) {
+		fz_droppixmap(fullPageBuffer);
+		fullPageBuffer = NULL;
+	}
+
+	fz_error *error;
+	fz_obj *obj;
+
+	if (ctx->page)
+		pdf_droppage(ctx->page);
+	ctx->page = 0;
+
+	obj = pdf_getpageobject(ctx->pages, ctx->pageno - 1);
+
+	error = pdf_loadpage(&ctx->page, ctx->xref, obj);
+	if (error) {
+		printf("errLP1: %s\n", error->msg);
+		//pdfapp_error(app, error);
+		return -1;
+	}
+
+	if (BKUser::options.pdfFastScroll) {
+		pdfRenderFullPage(ctx);
+	}
+	return 0;
+}
+
 BKPDF::BKPDF(string& f) : path(f), ctx(0), bannerFrames(0), banner(""), panX(0), panY(0), loadNewPage(false), pageError(false) {
 }
 
@@ -343,9 +369,14 @@ BKPDF::~BKPDF() {
 	}
 	ctx = 0;
 	singleton = 0;
+
+	if (fullPageBuffer != NULL) {
+		fz_droppixmap(fullPageBuffer);
+		fullPageBuffer = NULL;
+	}
 }
 
-//static char* bounce = NULL;
+static bool lastScrollFlag = false;
 BKPDF* BKPDF::create(string& file) {
 	if (singleton != 0) {
 		printf("cannot open more than 1 pdf at the same time\n");
@@ -375,13 +406,14 @@ BKPDF* BKPDF::create(string& file) {
 	
 	b->pageError = pdfLoadPage(ctx) != 0;
 
-	//if (bounce == NULL)
-	//	bounce = (char*)memalign(16, 480*272*4);
-
-	//pdfapp_close(&gapp);
 	FZScreen::resetReps();
 	b->redrawBuffer();
+	lastScrollFlag = BKUser::options.pdfFastScroll;
 	return b;
+}
+
+void BKPDF::getPath(string& s) {
+	s = path;
 }
 
 void BKPDF::render() {
@@ -457,6 +489,39 @@ extern "C" {
 void BKPDF::redrawBuffer() {
 	if (pageError)
 		return;
+	if (BKUser::options.pdfFastScroll && fullPageBuffer != NULL) {
+		// copy region of the full page buffer
+		int cw = 480;
+		bool fillGrey = false;
+		int dskip = 0;
+		int px = panX;
+		int py = panY;
+		if (fullPageBuffer->w < 480) {
+			px = 0;
+			cw = fullPageBuffer->w;
+			fillGrey = true;
+			dskip += (480 - fullPageBuffer->w) / 2;
+		}
+		int ch = 272;
+		if (fullPageBuffer->h < 272) {
+			py = 0;
+			ch = fullPageBuffer->h;
+			fillGrey = true;
+			dskip += ((272 - fullPageBuffer->h) / 2)*480;
+		}
+		unsigned int* s = (unsigned int*)fullPageBuffer->samples + px + (fullPageBuffer->w*py);
+		unsigned int* d = bounceBuffer;
+		if (fillGrey) {
+			memset(d, 0x50, 480*272*4);
+		}
+		d += dskip;
+		for (int j = 0; j < ch; ++j) {
+			bk_memcpy(d, s, cw*4);
+			d += 480;
+			s += fullPageBuffer->w;
+		}
+		return;
+	}
 	fz_pixmap* pix = pdfRenderTile(ctx, panX, panY, 480, 272);
 	// copy and shift colors
 	unsigned int* s = (unsigned int*)pix->samples;
@@ -468,6 +533,12 @@ void BKPDF::redrawBuffer() {
 }
 
 void BKPDF::panBuffer(int nx, int ny) {
+	if (BKUser::options.pdfFastScroll && fullPageBuffer != NULL) {
+		panX = nx;
+		panY = ny;
+		redrawBuffer();
+		return;
+	}
 	if (pageError)
 		return;
 	if (ny != panY) {
@@ -539,6 +610,9 @@ static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f,
 	1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
 int BKPDF::update(unsigned int buttons) {
+	if (lastScrollFlag != BKUser::options.pdfFastScroll)
+		return BK_CMD_RELOAD;
+
 	bannerFrames--;
 	if (bannerFrames < 0)
 		bannerFrames = 0;
@@ -594,6 +668,10 @@ int BKPDF::update(unsigned int buttons) {
 		--ctx->zoomLevel;
 		if (ctx->zoomLevel < 0)
 			ctx->zoomLevel = 0;
+		if (BKUser::options.pdfFastScroll && ctx->zoomLevel > 14) {
+			ctx->zoomLevel = 14;
+			ctx->zoom = 2.0f;
+		}
 		ctx->zoom = zoomLevels[ctx->zoomLevel];
 		fullRedraw = true;
 		nx *= ctx->zoom;
@@ -608,6 +686,10 @@ int BKPDF::update(unsigned int buttons) {
 		int n = sizeof(zoomLevels)/sizeof(float);
 		if (ctx->zoomLevel >= n)
 			ctx->zoomLevel = n - 1;
+		if (BKUser::options.pdfFastScroll && ctx->zoomLevel > 14) {
+			ctx->zoomLevel = 14;
+			ctx->zoom = 2.0f;
+		}
 		ctx->zoom = zoomLevels[ctx->zoomLevel];
 		fullRedraw = true;
 		nx *= ctx->zoom;
@@ -636,12 +718,18 @@ int BKPDF::update(unsigned int buttons) {
 			nx = w - 481.0f;
 		}
 	}
+
 	int inx = (int)nx;
 	int iny = (int)ny;
 	// redraw and/or pan
 	if (fullRedraw) {
 		panX = inx;
 		panY = iny;
+		if (BKUser::options.pdfFastScroll) {
+			//pdfRenderFullPage(ctx);
+			loadNewPage = true;
+			return BK_CMD_MARK_DIRTY;
+		}
 		redrawBuffer();
 		return BK_CMD_MARK_DIRTY;
 	}

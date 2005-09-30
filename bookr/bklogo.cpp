@@ -59,7 +59,7 @@ void BKLogo::render() {
 	drawPill(150, 240, 180, 20, 6, 31, 1);
 	fontBig->bindForDisplay();
 	FZScreen::ambientColor(0xff000000);
-	drawTextHC("Version 0.5.2", fontBig, 170);
+	drawTextHC("Version 0.5.3", fontBig, 170);
 	FZScreen::ambientColor(0xffffffff);
 	if (loading)
 		drawTextHC("Loading...", fontBig, 244);

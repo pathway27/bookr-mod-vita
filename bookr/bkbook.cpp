@@ -52,8 +52,17 @@ BKBook::~BKBook() {
 	setBookmark();
 }
 
+void BKBook::getPath(string& s) {
+	s = path;
+}
+
+int BKBook::getSize() {
+	return fileSize;
+}
+
 BKBook* BKBook::create(string& file, int size) {
 	BKBook* b = new BKBook(file);
+	b->fileSize = size;
 	FILE* f = fopen(file.c_str(), "r");
 	if (size > 4*1024*1024)
 		size = 4*1024*1024;

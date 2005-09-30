@@ -17,45 +17,39 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef BKPDF_H
-#define BKPDF_H
-
-#include <string>
-
+#include <string.h>
 #include "fzscreen.h"
-#include "fzfont.h"
 
-using namespace std;
+#include "bkpopup.h"
 
-#include "bklayer.h"
+BKPopup::BKPopup(int m, string t) : mode(m), text(t) {
+}
 
-struct PDFContext;
-class BKPDF : public BKLayer {
-	string path;
-	PDFContext* ctx;
+BKPopup::~BKPopup() {
+}
 
-	int bannerFrames;
-	string banner;
+int BKPopup::update(unsigned int buttons) {
+	int* b = FZScreen::ctrlReps();
 
-	int panX;
-	int panY;
-	bool loadNewPage;
-	bool pageError;
-	void panBuffer(int nx, int ny);
-	void redrawBuffer();
+	if (b[FZ_REPS_CROSS] == 1) {
+			return BK_CMD_CLOSE_TOP_LAYER;
+	}
 
-	protected:
-	BKPDF(string& f);
-	~BKPDF();
+	return 0;
+}
+		
+void BKPopup::render() {
+	string title;
+	if (mode == BKPOPUP_WARNING)
+		title = "Warning";
+	else
+		title = "Error";
+	drawPopup(text, title, 0xf02020a0, 0xf06060ff, 0xffffffff);
+}
 
-	public:
-	virtual int update(unsigned int buttons);
-	virtual void render();
-	virtual void setBookmark();
-	virtual void getPath(string&);
-
-	static BKPDF* create(string& file);
-};
-
-#endif
+BKPopup* BKPopup::create(int m, string t) {
+	BKPopup* f = new BKPopup(m, t);
+	FZScreen::resetReps();
+	return f;
+}
 

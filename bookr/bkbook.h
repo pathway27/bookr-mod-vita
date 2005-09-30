@@ -57,6 +57,7 @@ class BKBook : public BKLayer {
 	struct TextLineMetricsBlock* blocks[4096];
 
 	string path;
+	int fileSize;
 
 	char* text;
 	int textLen;
@@ -80,6 +81,9 @@ class BKBook : public BKLayer {
 	virtual int update(unsigned int buttons);
 	virtual void render();
 	virtual void setBookmark();
+
+	virtual void getPath(string&);
+	virtual int getSize();
 
 	static BKBook* create(string& file, int size);
 };
