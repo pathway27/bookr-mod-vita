@@ -62,7 +62,8 @@ int main(int argc, char* argv[]) {
 	FZScreen::dcacheWritebackAll();
 
 	bool dirty = true;
-	for (;;) {
+	bool exitApp = false;
+	while (!exitApp) {
 		if (dirty) {
 			FZScreen::startDirectList();
 			// render layers back to front
@@ -158,9 +159,10 @@ int main(int argc, char* argv[]) {
 				mm = BKMainMenu::create(isPdf, pdfOrTextLayer);
 				layers.push_back(mm);
 			break;
-			//BK_CMD_OPEN_MENU
-			//BK_CMD_OPEN_FONT
-			//BK_CMD_INVOKE_OPEN_FONT
+			case BK_CMD_EXIT: {
+					exitApp = true;
+			}
+			break;
 		}
 	}
 

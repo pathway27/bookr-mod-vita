@@ -25,6 +25,7 @@
 
 #define BK_CMD_CLOSE_TOP_LAYER 1
 #define BK_CMD_MARK_DIRTY 2
+#define BK_CMD_EXIT 3
 
 #define BK_CMD_OPEN_FILE 20
 #define BK_CMD_OPEN_FONT 21

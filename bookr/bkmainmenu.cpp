@@ -34,6 +34,7 @@ BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN),
 	else
 		mainItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
 	//mainItems.push_back(BKMenuItem("Options", "Select", 0));
+	mainItems.push_back(BKMenuItem("Exit", "Select", 0));
 	buildControlMenu();
 }
 
@@ -129,6 +130,9 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 				BKBookmark::clear();
 				
 			return BK_CMD_CLOSE_TOP_LAYER;
+		}
+		if (selItem == 3) {
+			return BK_CMD_EXIT;
 		}
 	}
 
