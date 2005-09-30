@@ -376,6 +376,24 @@ BKPDF::~BKPDF() {
 	}
 }
 
+// this will be a pooled memory system some day. for now just try to optimize
+// ptr align
+static void* bkmalloc(fz_memorycontext *mem, int n) {
+	if (n >= 64)
+		return memalign(16, n);
+	return malloc(n);
+}
+
+static void *bkrealloc(fz_memorycontext *mem, void *p, int n) {
+	return realloc(p, n);
+}
+
+static void bkfree(fz_memorycontext *mem, void *p) {
+	free(p);
+}
+
+static fz_memorycontext bkmem = { bkmalloc, bkrealloc, bkfree };
+
 static bool lastScrollFlag = false;
 BKPDF* BKPDF::create(string& file) {
 	if (singleton != 0) {
@@ -386,6 +404,7 @@ BKPDF* BKPDF::create(string& file) {
 	BKPDF* b = new BKPDF(file);
 	singleton = b;
 
+	fz_setmemorycontext(&bkmem);
 	fz_cpudetect();
 	fz_accelerate();
 
