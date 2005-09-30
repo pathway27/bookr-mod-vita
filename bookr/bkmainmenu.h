@@ -35,9 +35,12 @@ class BKMainMenu : public BKLayer {
 	bool captureButton;
 	vector<BKMenuItem> mainItems;
 	vector<BKMenuItem> controlItems;
+	vector<BKMenuItem> optionItems;
 	int updateMain(unsigned int buttons);
 	int updateControls(unsigned int buttons);
+	int updateOptions(unsigned int buttons);
 	void buildControlMenu();
+	void buildOptionMenu();
 	bool isPdf;
 	BKLayer* reader;
 

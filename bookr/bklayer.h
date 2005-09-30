@@ -59,6 +59,8 @@ class BKLayer : public FZRefCounted {
 		int flags;
 		BKMenuItem() : flags(0) { }
 		BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }
+		BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }
+		BKMenuItem(string& l, char* cl, int f) : label(l), circleLabel(cl), flags(f) { }
 		BKMenuItem(char* l, char* cl, int f) : label(l), circleLabel(cl), flags(f) { }
 	};
 	int topItem;

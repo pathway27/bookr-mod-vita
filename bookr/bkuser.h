@@ -28,6 +28,7 @@ class BKUser {
 	static void init();
 	static void save();
 	static void setDefaultControls();
+	static void setDefaultOptions();
 
 	struct Controls {
 		int previousPage;
@@ -43,6 +44,11 @@ class BKUser {
 	};
 	static Controls pdfControls;
 	static Controls txtControls;
+
+	struct Options {
+		bool pdfFastScroll;
+	};
+	static Options options;
 };
 
 #endif

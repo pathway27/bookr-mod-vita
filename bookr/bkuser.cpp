@@ -24,9 +24,11 @@
 
 BKUser::Controls BKUser::pdfControls;
 BKUser::Controls BKUser::txtControls;
+BKUser::Options BKUser::options;
 
 void BKUser::init() {
 	setDefaultControls();
+	setDefaultOptions();
 	load();
 }
 
@@ -46,6 +48,12 @@ void BKUser::setDefaultControls() {
 	pdfControls.panRight         = FZ_REPS_RIGHT;
 	pdfControls.zoomIn           = FZ_REPS_RTRIGGER;
 	pdfControls.zoomOut          = FZ_REPS_LTRIGGER;
+}
+
+void BKUser::setDefaultOptions() {
+	// set default options
+	memset((void*)&BKUser::options, 0, sizeof(BKUser::Options));
+	options.pdfFastScroll = false;
 }
 
 void BKUser::save() {
@@ -72,6 +80,12 @@ void BKUser::save() {
 	fprintf(f, "\t\t<bind action=\"pdfControls.zoomOut\" button=\"%d\" />\n", pdfControls.zoomOut);
 
 	fprintf(f, "\t</controls>\n");
+
+	fprintf(f, "\t<options>\n");
+
+	fprintf(f, "\t\t<set option=\"pdfFastScroll\" value=\"%d\" />\n", options.pdfFastScroll ? 1 : 0);
+
+	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
 
 	fclose(f);
@@ -105,30 +119,53 @@ void BKUser::load() {
 
 	TiXmlElement* root = doc->RootElement();
 	TiXmlElement* controls = root->FirstChildElement("controls");
-	TiXmlElement* bind = controls->FirstChildElement("bind");
-
-	while (bind) {
-		const char* action = bind->Attribute("action");
-		const char* button = bind->Attribute("button");
-		if (action == 0 || button == 0) {
-			printf("invalid user.xml in line %d\n", bind->Row());
-			break;
+	if (controls != 0) {
+		TiXmlElement* bind = controls->FirstChildElement("bind");
+	
+		while (bind) {
+			const char* action = bind->Attribute("action");
+			const char* button = bind->Attribute("button");
+			if (action == 0 || button == 0) {
+				printf("invalid user.xml in line %d\n", bind->Row());
+				break;
+			}
+			int b = atoi(button);
+				 if (strncmp(action, "txtControls.previousPage",    128) == 0) txtControls.previousPage    = b;
+			else if (strncmp(action, "txtControls.nextPage",        128) == 0) txtControls.nextPage        = b;
+			else if (strncmp(action, "pdfControls.previousPage",    128) == 0) pdfControls.previousPage    = b;
+			else if (strncmp(action, "pdfControls.nextPage",        128) == 0) pdfControls.nextPage        = b;
+			else if (strncmp(action, "pdfControls.previous10Pages", 128) == 0) pdfControls.previous10Pages = b;
+			else if (strncmp(action, "pdfControls.next10Pages",     128) == 0) pdfControls.next10Pages     = b;
+			else if (strncmp(action, "pdfControls.panUp",           128) == 0) pdfControls.panUp           = b;
+			else if (strncmp(action, "pdfControls.panDown",         128) == 0) pdfControls.panDown         = b;
+			else if (strncmp(action, "pdfControls.panLeft",         128) == 0) pdfControls.panLeft         = b;
+			else if (strncmp(action, "pdfControls.panRight",        128) == 0) pdfControls.panRight        = b;
+			else if (strncmp(action, "pdfControls.zoomIn",          128) == 0) pdfControls.zoomIn          = b;
+			else if (strncmp(action, "pdfControls.zoomOut",         128) == 0) pdfControls.zoomOut         = b;
+	
+			bind = bind->NextSiblingElement("bind"); 
 		}
-		int b = atoi(button);
-		     if (strncmp(action, "txtControls.previousPage",    128) == 0) txtControls.previousPage    = b;
-		else if (strncmp(action, "txtControls.nextPage",        128) == 0) txtControls.nextPage        = b;
-		else if (strncmp(action, "pdfControls.previousPage",    128) == 0) pdfControls.previousPage    = b;
-		else if (strncmp(action, "pdfControls.nextPage",        128) == 0) pdfControls.nextPage        = b;
-		else if (strncmp(action, "pdfControls.previous10Pages", 128) == 0) pdfControls.previous10Pages = b;
-		else if (strncmp(action, "pdfControls.next10Pages",     128) == 0) pdfControls.next10Pages     = b;
-		else if (strncmp(action, "pdfControls.panUp",           128) == 0) pdfControls.panUp           = b;
-		else if (strncmp(action, "pdfControls.panDown",         128) == 0) pdfControls.panDown         = b;
-		else if (strncmp(action, "pdfControls.panLeft",         128) == 0) pdfControls.panLeft         = b;
-		else if (strncmp(action, "pdfControls.panRight",        128) == 0) pdfControls.panRight        = b;
-		else if (strncmp(action, "pdfControls.zoomIn",          128) == 0) pdfControls.zoomIn          = b;
-		else if (strncmp(action, "pdfControls.zoomOut",         128) == 0) pdfControls.zoomOut         = b;
+	} else {
+		printf("no controls found in user.xml\n");
+	}
 
-		bind = bind->NextSiblingElement("bind"); 
+	TiXmlElement* eoptions = root->FirstChildElement("options");
+	if (eoptions != 0) {
+		TiXmlElement* eset = eoptions->FirstChildElement("set");
+	
+		while (eset) {
+			const char* option = eset->Attribute("option");
+			const char* value = eset->Attribute("value");
+			if (option == 0 || value == 0) {
+				printf("invalid user.xml in line %d\n", eset->Row());
+				break;
+			}
+			if (strncmp(option, "pdfFastScroll", 128) == 0) options.pdfFastScroll = atoi(value) != 0;
+	
+			eset = eset->NextSiblingElement("set"); 
+		}
+	} else {
+		printf("no options found in user.xml\n");
 	}
 
 	doc->Clear();
