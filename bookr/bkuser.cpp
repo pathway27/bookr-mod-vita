@@ -54,6 +54,7 @@ void BKUser::setDefaultOptions() {
 	// set default options
 	memset((void*)&BKUser::options, 0, sizeof(BKUser::Options));
 	options.pdfFastScroll = false;
+	options.txtRotation = 0;
 }
 
 void BKUser::save() {
@@ -84,6 +85,7 @@ void BKUser::save() {
 	fprintf(f, "\t<options>\n");
 
 	fprintf(f, "\t\t<set option=\"pdfFastScroll\" value=\"%d\" />\n", options.pdfFastScroll ? 1 : 0);
+	fprintf(f, "\t\t<set option=\"txtRotation\" value=\"%d\" />\n", options.txtRotation);
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -160,7 +162,8 @@ void BKUser::load() {
 				printf("invalid user.xml in line %d\n", eset->Row());
 				break;
 			}
-			if (strncmp(option, "pdfFastScroll", 128) == 0) options.pdfFastScroll = atoi(value) != 0;
+			     if (strncmp(option, "pdfFastScroll", 128) == 0) options.pdfFastScroll = atoi(value) != 0;
+			else if (strncmp(option, "txtRotation",   128) == 0) options.txtRotation   = atoi(value);
 	
 			eset = eset->NextSiblingElement("set"); 
 		}

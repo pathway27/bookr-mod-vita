@@ -115,6 +115,11 @@ void BKMainMenu::buildOptionMenu() {
 	string t("PDF - Fast scroll (zoom limited to 2x): ");
 	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
+	/*char txt[1024];
+	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));*/
 }
 
 int BKMainMenu::update(unsigned int buttons) {
@@ -262,6 +267,20 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			popupText = "Fast scroll will cause instability with many PDF files.\nDo not report bugs when using this feature.";
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == 2) {
+			if (BKUser::options.txtRotation == 0) {
+				BKUser::options.txtRotation = 90;
+			} else if (BKUser::options.txtRotation == 90) {
+				BKUser::options.txtRotation = 180;
+			} else if (BKUser::options.txtRotation == 180) {
+				BKUser::options.txtRotation = 270;
+			} else {
+				BKUser::options.txtRotation = 0;
+			}
+			BKUser::save();
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
 		}
 	}
 

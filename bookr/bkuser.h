@@ -47,6 +47,13 @@ class BKUser {
 
 	struct Options {
 		bool pdfFastScroll;
+
+		// why it is a pref and not just a button command: the current text viewer
+		// needs to repaginate the whole document when rotating it, so it is an
+		// expensive operation. by offering the feature as an option we make it
+		// clear to the user that it is just not possible to rotate on the fly,
+		// unlike with the pdf viewer.
+		int txtRotation;
 	};
 	static Options options;
 };
