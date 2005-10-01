@@ -28,6 +28,7 @@ using namespace std;
 
 #define BKPOPUP_WARNING		1
 #define BKPOPUP_ERROR		2
+#define BKPOPUP_INFO		3
 
 class BKPopup : public BKLayer {
 	int mode;

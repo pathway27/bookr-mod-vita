@@ -35,6 +35,7 @@ BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN),
 		mainItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
 	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
 	mainItems.push_back(BKMenuItem("Options", "Select", 0));
+	mainItems.push_back(BKMenuItem("About", "Select", 0));
 	mainItems.push_back(BKMenuItem("Exit", "Select", 0));
 	buildControlMenu();
 	buildOptionMenu();
@@ -159,6 +160,11 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == 4) {
+			popupText = "Bookr - a document viewer for the Sony PSP.\nProgramming by Carlos and Edward.\nVisit http://bookr.sf.net for new versions.\nThis program is licensed under the terms of the GPL v2.\nUses the MuPDF library under the terms of the AFPL.";
+			popupMode = BKPOPUP_INFO;
+			return BK_CMD_MAINMENU_POPUP;
+		}
+		if (selItem == 5) {
 			return BK_CMD_EXIT;
 		}
 	}

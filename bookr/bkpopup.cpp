@@ -40,11 +40,26 @@ int BKPopup::update(unsigned int buttons) {
 		
 void BKPopup::render() {
 	string title;
-	if (mode == BKPOPUP_WARNING)
+	int bg1 = 0;
+	int bg2 = 0;
+	int fg = 0;
+	if (mode == BKPOPUP_WARNING) {
+		bg1 = 0xf02020a0;
+		bg2 = 0xf06060ff;
+		fg = 0xffffffff;
 		title = "Warning";
-	else
+	} else if (mode == BKPOPUP_INFO) {
+		bg1 = 0xf0a02020;
+		bg2 = 0xf0ff6060;
+		fg = 0xffffffff;
+		title = "Info";
+	} else {
+		bg1 = 0xf02020a0;
+		bg2 = 0xf06060ff;
+		fg = 0xffffffff;
 		title = "Error";
-	drawPopup(text, title, 0xf02020a0, 0xf06060ff, 0xffffffff);
+	}
+	drawPopup(text, title, bg1, bg2, fg);
 }
 
 BKPopup* BKPopup::create(int m, string t) {
