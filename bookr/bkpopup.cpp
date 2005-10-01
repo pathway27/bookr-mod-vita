@@ -37,7 +37,7 @@ int BKPopup::update(unsigned int buttons) {
 
 	return 0;
 }
-		
+
 void BKPopup::render() {
 	string title;
 	int bg1 = 0;

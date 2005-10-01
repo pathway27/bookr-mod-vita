@@ -245,6 +245,8 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 		selPos = 7;
 	}
 
+	bool scrollbar = items.size() > 8;
+
 	char *t =(char*)items[selItem].circleLabel.c_str(); 
 	int tw = textW(t, fontBig);
 
@@ -255,7 +257,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	// title
 	FZScreen::ambientColor(0xffaaaaaa);
 	drawPill(25, 25 + scrY, 480 - 46 - 10, 20, 6, 31, 1);
-	// help
+	// context label
 	FZScreen::ambientColor(0xff555555);
 	drawTPill(25, 272 - 30 + scrY, 480 - 46 - 11, 30, 6, 31, 1);
 	// icons
@@ -282,11 +284,27 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 			drawImage(40, 60 + i*fontBig->getLineHeight() + scrY, 20, 20, 58, 81);
 		}
 	}
-	drawPill(25, 57 + scrY + selPos*fontBig->getLineHeight(), 480 - 46 - 10, 19, 6, 31, 1);
+	// selected item
+	int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
+	drawPill(25, 57 + scrY + selPos*fontBig->getLineHeight(), wSelBox, 19, 6, 31, 1);
 	if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
 		FZScreen::ambientColor(0xff000000);
 		//drawImage(40, 60 + scrY + selPos*fontBig->getLineHeight(), 20, 20, 84, 52);
 		drawImage(40, 60 + scrY + selPos*fontBig->getLineHeight(), 20, 20, 58, 81);
+	}
+
+	// scrollbar
+	if (scrollbar) {
+		float barh = 8.0f / float(items.size());
+		barh *= 173.0f;
+		if (barh < 15.0f)
+			barh = 15.0f;
+		float trel = float(topItem) / float(items.size());
+		trel *= 173.0f;
+		FZScreen::ambientColor(0xff555555);
+		drawPill(436, 57, 12, 173, 6, 31, 1);
+		FZScreen::ambientColor(0xffaaaaaa);
+		drawPill(436, 57 + int(trel), 12, int(barh), 6, 31, 1);
 	}
 
 	fontBig->bindForDisplay();
