@@ -1,4 +1,4 @@
-#ifdef 0
+#if 0
 #include <malloc.h>
 #endif
 
@@ -20,13 +20,13 @@ fz_newpixmap(fz_pixmap **pixp, int x, int y, int w, int h, int n)
 	pix->w = w;
 	pix->h = h;
 	pix->n = n;
-#ifdef 0
+#if 0
 	pix->samples = memalign(16, pix->w * pix->h * pix->n * sizeof(fz_sample));
 #else
 	pix->samples = fz_malloc(pix->w * pix->h * pix->n * sizeof(fz_sample));
 #endif
 	if (!pix->samples) {
-#ifdef 0
+#if 0
 		free(pix->samples);
 #else
 		fz_free(pix->samples);
@@ -60,7 +60,7 @@ fz_newpixmapcopy(fz_pixmap **pixp, fz_pixmap *old)
 void
 fz_droppixmap(fz_pixmap *pix)
 {
-#ifdef 0
+#if 0
 	free(pix->samples);
 #else
 	fz_free(pix->samples);
