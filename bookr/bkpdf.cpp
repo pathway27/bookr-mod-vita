@@ -278,27 +278,33 @@ static fz_matrix pdfViewctm(PDFContext* ctx) {
 	return ctm;
 }
 
-static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h) {
+static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h, bool transform = false) {
 	fz_error *error;
 	fz_matrix ctm;
 	fz_rect bbox;
 
-	/*
-	if (app->image)
-		fz_droppixmap(app->image);
-	app->image = nil;
-	*/
-
-	ctm = pdfViewctm(ctx);
-	//bbox = fz_transformaabb(ctm, app->page->mediabox);
 	bbox.x0 = x;
 	bbox.y0 = y;
-	bbox.x1 = x + w;
-	bbox.y1 = y + h;
-	fz_pixmap* pix = (fz_pixmap*)malloc(sizeof(fz_pixmap)); 
-
-	//printf("%g, %g\n", bbox.x0, bbox.y0);
-	error = fz_rendertree(&pix, fzrast, ctx->page->tree, ctm, fz_roundrect(bbox), 1);
+	bbox.x1 = x;
+	bbox.y1 = y;
+	ctm = pdfViewctm(ctx);
+	if (transform) {
+		bbox.x1 += w;
+		bbox.y1 += h;
+		bbox = fz_transformaabb(ctm, bbox);
+	} else {
+		bbox.x0 = x + ctx->page->mediabox.x0;
+		bbox.y0 = y + ctx->page->mediabox.y0;
+		bbox.x1 = bbox.x0 + w;
+		bbox.y1 = bbox.y0 + h;
+	}
+	fz_irect ir = fz_roundrect(bbox);
+	if (!transform) {
+		ir.x1 = ir.x0 + w;
+		ir.y1 = ir.y0 + h;
+	}
+	fz_pixmap* pix = (fz_pixmap*)malloc(sizeof(fz_pixmap));
+	error = fz_rendertree(&pix, fzrast, ctx->page->tree, ctm, ir, 1);
 	if (error) {
 		return 0;
 	}
@@ -312,12 +318,10 @@ static void pdfRenderFullPage(PDFContext* ctx) {
 	}
 	float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
 	float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
-	h *= ctx->zoom;
-	w *= ctx->zoom;
 	fullPageBuffer = pdfRenderTile(ctx,
 		(int)ctx->page->mediabox.x0,
 		(int)ctx->page->mediabox.y0,
-		(int)w, (int)h);
+		(int)w, (int)h, true);
 	// precalc color shift
 	unsigned int* s = (unsigned int*)fullPageBuffer->samples;
 	unsigned int n = fullPageBuffer->w * fullPageBuffer->h;
@@ -348,6 +352,9 @@ static int pdfLoadPage(PDFContext* ctx) {
 		//pdfapp_error(app, error);
 		return -1;
 	}
+
+	//printf("\n\n------------------------------------------------\n");
+	//fz_debugtree(ctx->page->tree);
 
 	if (BKUser::options.pdfFastScroll) {
 		pdfRenderFullPage(ctx);
@@ -520,6 +527,8 @@ void BKPDF::redrawBuffer() {
 			cw = fullPageBuffer->w;
 			fillGrey = true;
 			dskip += (480 - fullPageBuffer->w) / 2;
+		} else if (px + 480 > fullPageBuffer->w) {
+			px = fullPageBuffer->w - 480;
 		}
 		int ch = 272;
 		if (fullPageBuffer->h < 272) {
@@ -527,6 +536,8 @@ void BKPDF::redrawBuffer() {
 			ch = fullPageBuffer->h;
 			fillGrey = true;
 			dskip += ((272 - fullPageBuffer->h) / 2)*480;
+		} else if (py + 272 > fullPageBuffer->h) {
+			py = fullPageBuffer->h - 272;
 		}
 		unsigned int* s = (unsigned int*)fullPageBuffer->samples + px + (fullPageBuffer->w*py);
 		unsigned int* d = bounceBuffer;
@@ -720,6 +731,24 @@ int BKPDF::update(unsigned int buttons) {
 	}
 	// clip coords
 	if (!pageError) {
+		fz_matrix ctm = pdfViewctm(ctx);
+		fz_rect bbox = ctx->page->mediabox;
+		bbox = fz_transformaabb(ctm, bbox);
+		if (ny < 0.0f) {
+			ny = 0.0f;
+		}
+		float h = bbox.y1 - bbox.y0;
+		if (ny >= h - 272.0f) {
+			ny = h - 273.0f;
+		}
+		if (nx < 0.0f) {
+			nx = 0.0f;
+		}
+		float w = bbox.x1 - bbox.x0;
+		if (nx >= w - 480.0f) {
+			nx = w - 481.0f;
+		}
+#if 0
 		if (ny < 0.0f) {
 			ny = 0.0f;
 		}
@@ -736,6 +765,7 @@ int BKPDF::update(unsigned int buttons) {
 		if (nx >= w - 480.0f) {
 			nx = w - 481.0f;
 		}
+#endif
 	}
 
 	int inx = (int)nx;
