@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "fzinstreamstd.h"
+#include "fzinstreammem.h"
 #include "fzscreen.h"
 
 #include "bklayer.h"
@@ -27,18 +27,29 @@ FZFont* BKLayer::fontText = 0;
 FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texLogo = 0;
 
+extern "C" {
+extern unsigned int size_res_logo;
+extern unsigned char res_logo[];
+extern unsigned int size_res_uitex;
+extern unsigned char res_uitex[];
+extern unsigned int size_res_uifont;
+extern unsigned char res_uifont[];
+extern unsigned int size_res_txtfont;
+extern unsigned char res_txtfont[];
+};
+
 void BKLayer::load() {
 	char filename[1024];
-	snprintf(filename, 1024, "%s/data/%s", FZScreen::basePath(), "vera.ttf");
-	fontText = FZFont::createFromFile(filename, 11, false);
+
+	fontText = FZFont::createFromMemory(res_txtfont, size_res_txtfont, 11, false);
 	fontText->texEnv(FZ_TEX_MODULATE);
 	fontText->filter(FZ_NEAREST, FZ_NEAREST);
-	snprintf(filename, 1024, "%s/data/%s", FZScreen::basePath(), "urwgothicb.pfb");
-	fontBig = FZFont::createFromFile(filename, 14, false);
+
+	fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
 	fontBig->texEnv(FZ_TEX_MODULATE);
 	fontBig->filter(FZ_NEAREST, FZ_NEAREST);
-	snprintf(filename, 1024, "%s/data/%s", FZScreen::basePath(), "ui.png");
-	FZInputStreamStd* ins = FZInputStreamStd::create(filename);
+
+	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex, size_res_uitex);
 	FZImage* image = FZImage::createFromPNG(ins);
 	ins->release();
 	ins = 0;
@@ -46,8 +57,8 @@ void BKLayer::load() {
 	texUI->texEnv(FZ_TEX_MODULATE);
 	texUI->filter(FZ_NEAREST, FZ_NEAREST);
 	image->release();
-	snprintf(filename, 1024, "%s/data/%s", FZScreen::basePath(), "logo.png");
-	ins = FZInputStreamStd::create(filename);
+
+	ins = FZInputStreamMem::create((char*)res_logo, size_res_logo);
 	image = FZImage::createFromPNG(ins);
 	ins->release();
 	ins = 0;

@@ -20,17 +20,27 @@ all: $(EXE)
 OBJS:=bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o
 
-#bookrglut.cpp: fontpng.c
+res_uifont.c: data/urwgothicb.pfb
+	bin2c $< temp res_uifont
+	sed s/static// temp > $@
+	rm -f temp
 
-#bkstrlines.cpp: fontdata.c
+res_txtfont.c: data/vera.ttf
+	bin2c $< temp res_txtfont
+	sed s/static// temp > $@
+	rm -f temp
 
-#fontdata.c: bvs20-256x128.bnt
-#	bin2c bvs20-256x128.bnt fontdata.c fontdata
+res_uitex.c: data/ui.png
+	bin2c $< temp res_uitex
+	sed s/static// temp > $@
+	rm -f temp
 
-#fontpng.c: bvs20-256x128_00.png
-#	bin2c bvs20-256x128_00.png fontpng.c fontpng
-
+res_logo.c: data/logo.png
+	bin2c $< temp res_logo
+	sed s/static// temp > $@
+	rm -f temp
 
 $(EXE): $(OBJS)
 	@(cd mupdf; make -f Makefile.glut)

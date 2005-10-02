@@ -20,6 +20,10 @@
 #ifndef FZFONT_H
 #define FZFONT_H
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+
 #include "fztexture.h"
 
 struct FZCharMetrics {
@@ -33,6 +37,7 @@ class FZFont : public FZTexture {
 
 	FZCharMetrics* metrics;
 	int lineHeight;
+	static FZFont* createProto(FT_Library& library, FT_Face& face, int fontSize, bool autohint);
 
 protected:
 	FZFont();
@@ -53,6 +58,7 @@ public:
 	 * Create a new font texture with Freetype.
 	 */
 	static FZFont* createFromFile(char* fileName, int fontSize, bool autohint);
+	static FZFont* createFromMemory(unsigned char* buffer, int bufferSize, int fontSize, bool autohint);
 };
 
 #endif

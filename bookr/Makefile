@@ -5,6 +5,27 @@ TARGET=bookr
 OBJS:=bookr.o bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkpdf.o bkmemcpy.o bkuser.o bkbookmark.o bkpopup.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o
+
+res_uifont.c: data/urwgothicb.pfb
+	bin2c $< temp res_uifont
+	sed s/static// temp > $@
+	rm -f temp
+
+res_txtfont.c: data/vera.ttf
+	bin2c $< temp res_txtfont
+	sed s/static// temp > $@
+	rm -f temp
+
+res_uitex.c: data/ui.png
+	bin2c $< temp res_uitex
+	sed s/static// temp > $@
+	rm -f temp
+
+res_logo.c: data/logo.png
+	bin2c $< temp res_logo
+	sed s/static// temp > $@
+	rm -f temp
 
 INCDIR =
 CFLAGS = -Imupdf/include -G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2

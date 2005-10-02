@@ -59,7 +59,7 @@ void BKUser::setDefaultOptions() {
 
 void BKUser::save() {
 	char filename[1024];
-	snprintf(filename, 1024, "%s/data/%s", FZScreen::basePath(), "user.xml");
+	snprintf(filename, 1024, "%s/%s", FZScreen::basePath(), "user.xml");
 	FILE* f = fopen(filename, "w");
 
 	fprintf(f, "<?xml version=\"1.0\" standalone=\"no\" ?>\n");
@@ -95,7 +95,7 @@ void BKUser::save() {
 
 void BKUser::load() {
 	char filename[1024];
-	snprintf(filename, 1024, "%s/data/%s", FZScreen::basePath(), "user.xml");
+	snprintf(filename, 1024, "%s/%s", FZScreen::basePath(), "user.xml");
 	FILE* f = fopen(filename, "r");
 	// no existing preferences, probably the first time run of the app
 	if (f == NULL)

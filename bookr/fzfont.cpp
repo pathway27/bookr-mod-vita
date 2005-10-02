@@ -29,10 +29,6 @@ static void* memalign(int t, int s) {
 #include <malloc.h>
 #endif
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
-
 #include "fzfont.h"
 
 /*static unsigned char* fontTexture = NULL;
@@ -50,12 +46,8 @@ FZFont::~FZFont() {
 }
 
 // based on http://gpwiki.org/index.php/OpenGL_Font_System
-FZFont* FZFont::createFromFile(char* fileName, int fontSize, bool autohint) {
-	// Margins around characters to prevent them from 'bleeding' into
-	// each other.
-	int margin = 3;
-	int image_height = 0, image_width = 256;
 
+FZFont* FZFont::createFromFile(char* fileName, int fontSize, bool autohint) {
 	// This initializes FreeType
 	FT_Library library;
 	if (FT_Init_FreeType(&library) != 0) {
@@ -69,6 +61,33 @@ FZFont* FZFont::createFromFile(char* fileName, int fontSize, bool autohint) {
 		printf("cannot load font\n");
 		return 0;
 	}
+
+	return createProto(library, face, fontSize, autohint);
+}
+
+FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize, int fontSize, bool autohint) {
+	// This initializes FreeType
+	FT_Library library;
+	if (FT_Init_FreeType(&library) != 0) {
+		printf("cannot init freetype\n");
+		return 0;
+	}
+
+	// Load the font
+	FT_Face face;
+	if (FT_New_Memory_Face(library, buffer, bufferSize, 0, &face) != 0) {
+		printf("cannot load font\n");
+		return 0;
+	}
+
+	return createProto(library, face, fontSize, autohint);
+}
+
+FZFont* FZFont::createProto(FT_Library& library, FT_Face& face, int fontSize, bool autohint) {
+	// Margins around characters to prevent them from 'bleeding' into
+	// each other.
+	int margin = 3;
+	int image_height = 0, image_width = 256;
 
 	// Abort if this is not a 'true type', scalable font.
 	if (!(face->face_flags & FT_FACE_FLAG_SCALABLE) or !(face->face_flags & FT_FACE_FLAG_HORIZONTAL)) {

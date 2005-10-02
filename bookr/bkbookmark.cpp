@@ -23,7 +23,7 @@
 
 void BKBookmark::clear() {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/data/%s", FZScreen::basePath(), "bookmark.xml");
+	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
 
 	FILE* f = fopen(xmlfilename, "w");
 	if (f == NULL)
@@ -33,7 +33,7 @@ void BKBookmark::clear() {
 
 void BKBookmark::set(string& filename, int position) {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/data/%s", FZScreen::basePath(), "bookmark.xml");
+	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
 
 	if (filename.compare(xmlfilename) == 0) {
 		return;
@@ -66,7 +66,7 @@ void BKBookmark::set(string& filename, int position) {
 
 int BKBookmark::get(string& filename) {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/data/%s", FZScreen::basePath(), "bookmark.xml");
+	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
 	
 	if (filename.compare(xmlfilename) == 0) {
 		return -1;
@@ -84,7 +84,7 @@ int BKBookmark::get(string& filename) {
 
 void BKBookmark::load(bkBookmarks &bookmarks) {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/data/%s", FZScreen::basePath(), "bookmark.xml");
+	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
 	FILE* f = fopen(xmlfilename, "r");
 	// no existing preferences, probably the first time run of the app
 	if (f == NULL)
