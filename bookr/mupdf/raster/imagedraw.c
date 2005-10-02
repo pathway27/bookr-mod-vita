@@ -139,7 +139,7 @@ static void img_4c4(FZ_PSRC, FZ_PDST, FZ_PCTM)
 		int w = w0;
 		while (w--)
 		{
-#ifdef PSP
+#ifdef 0
 			// bilerp is pretty and slow. dont do it w/o hw, hardcore assembly skillz or a
 			// 1ghz cpu.
 			int ui = u >> 16;
@@ -197,7 +197,7 @@ static void img_4o4(FZ_PSRC, FZ_PDST, FZ_PCTM)
 		int w = w0;
 		while (w--)
 		{
-#ifdef PSP
+#ifdef 0
 			// bilerp is pretty and slow. dont do it w/o hw, hardcore assembly skillz or a
 			// 1ghz cpu.
 			int ui = u >> 16;
