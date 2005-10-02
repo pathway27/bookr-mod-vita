@@ -54,6 +54,11 @@ class BKUser {
 		// clear to the user that it is just not possible to rotate on the fly,
 		// unlike with the pdf viewer.
 		int txtRotation;
+
+		string txtFont;
+		int txtSize;
+		int txtFGColor;
+		int txtBGColor;
 	};
 	static Options options;
 };

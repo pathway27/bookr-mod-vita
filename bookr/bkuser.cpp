@@ -52,15 +52,22 @@ void BKUser::setDefaultControls() {
 
 void BKUser::setDefaultOptions() {
 	// set default options
-	memset((void*)&BKUser::options, 0, sizeof(BKUser::Options));
 	options.pdfFastScroll = false;
 	options.txtRotation = 0;
+	options.txtFont = "bookr:builtin";
+	options.txtSize = 11;
+	options.txtFGColor = 0;
+	options.txtBGColor = 0xffffff;
 }
 
 void BKUser::save() {
 	char filename[1024];
 	snprintf(filename, 1024, "%s/%s", FZScreen::basePath(), "user.xml");
 	FILE* f = fopen(filename, "w");
+	if (f == NULL) {
+		printf("cannot save prefs to %s\n", filename);
+		return;
+	}
 
 	fprintf(f, "<?xml version=\"1.0\" standalone=\"no\" ?>\n");
 	fprintf(f, "<user>\n");
@@ -86,6 +93,10 @@ void BKUser::save() {
 
 	fprintf(f, "\t\t<set option=\"pdfFastScroll\" value=\"%d\" />\n", options.pdfFastScroll ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"txtRotation\" value=\"%d\" />\n", options.txtRotation);
+	fprintf(f, "\t\t<set option=\"txtFont\" value=\"%s\" />\n", options.txtFont.c_str());
+	fprintf(f, "\t\t<set option=\"txtSize\" value=\"%d\" />\n", options.txtSize);
+	fprintf(f, "\t\t<set option=\"txtFGColor\" value=\"%d\" />\n", options.txtFGColor);
+	fprintf(f, "\t\t<set option=\"txtBGColor\" value=\"%d\" />\n", options.txtBGColor);
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -164,6 +175,10 @@ void BKUser::load() {
 			}
 			     if (strncmp(option, "pdfFastScroll", 128) == 0) options.pdfFastScroll = atoi(value) != 0;
 			else if (strncmp(option, "txtRotation",   128) == 0) options.txtRotation   = atoi(value);
+			else if (strncmp(option, "txtFont",       128) == 0) options.txtFont       = value;
+			else if (strncmp(option, "txtSize",       128) == 0) options.txtSize       = atoi(value);
+			else if (strncmp(option, "txtFGColor",    128) == 0) options.txtFGColor    = atoi(value);
+			else if (strncmp(option, "txtBGColor",    128) == 0) options.txtBGColor    = atoi(value);
 	
 			eset = eset->NextSiblingElement("set"); 
 		}
@@ -173,5 +188,26 @@ void BKUser::load() {
 
 	doc->Clear();
 	delete doc;
+
+	// fix some possible errors before they crash the app
+	bool operror = false;
+	if (options.txtRotation != 0 && options.txtRotation != 90 && options.txtRotation != 180 && options.txtRotation != 270) {
+		options.txtRotation = 0;
+		operror = true;
+	}
+	if (options.txtSize < 6 && options.txtSize > 20) {
+		options.txtSize = 11;
+		operror = true;
+	}
+	if ((options.txtFGColor & 0xff000000) != 0) {
+		options.txtFGColor &= 0xffffff;
+		operror = true;
+	}
+	if ((options.txtBGColor & 0xff000000) != 0) {
+		options.txtBGColor &= 0xffffff;
+		operror = true;
+	}
+	if (operror)
+		BKUser::save();
 }
 
