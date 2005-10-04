@@ -295,8 +295,21 @@ struct T32FV32F2D {
 	float x,y,z;
 };
 
+struct C8888V32F2D {
+	unsigned int color;
+	float x,y,z;
+};
+
 void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
-	if (prim == FZ_SPRITES && vtype == (FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D)) {
+	if (prim == FZ_TRIANGLES && vtype == (FZ_COLOR_8888|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D)) {
+		struct C8888V32F2D* verts = (struct C8888V32F2D*)vertices;
+		glBegin(GL_TRIANGLES);
+		for (int i = 0; i < count; i++) {
+			glColor4ubv((GLubyte*)&verts[i].color);
+			glVertex2f(verts[i].x, verts[i].y);
+		}
+		glEnd();
+	} else if (prim == FZ_SPRITES && vtype == (FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D)) {
 		struct T32FV32F2D* verts = (struct T32FV32F2D*)vertices;
 		glBegin(GL_QUADS);
 		int n = count/2;

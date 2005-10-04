@@ -21,6 +21,7 @@
 #include "bkbook.h"
 #include "bkpdf.h"
 #include "bkfilechooser.h"
+#include "bkcolorchooser.h"
 #include "bkmainmenu.h"
 #include "bklogo.h"
 #include "bkpopup.h"
@@ -56,6 +57,7 @@ int main(int argc, char* argv[]) {
 	BKLayer::load();
 	bkLayers layers;
 	BKFileChooser* fs = 0;
+	BKColorChooser* cs = 0;
 	BKMainMenu* mm = BKMainMenu::create();
 	layers.push_back(BKLogo::create());
 	layers.push_back(mm);
@@ -178,6 +180,11 @@ int main(int argc, char* argv[]) {
 						mm->getPopupText()
 					)
 				);
+			break;
+			case BK_CMD_INVOKE_COLOR_CHOOSER:
+				// add a colot chooser layer
+				cs = BKColorChooser::create(0xff005000);
+				layers.push_back(cs);
 			break;
 			case BK_CMD_EXIT: {
 					exitApp = true;

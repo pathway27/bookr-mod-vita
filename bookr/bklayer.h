@@ -35,6 +35,7 @@
 #define BK_CMD_INVOKE_MENU 100
 #define BK_CMD_INVOKE_OPEN_FILE 101
 #define BK_CMD_INVOKE_OPEN_FONT 102
+#define BK_CMD_INVOKE_COLOR_CHOOSER 103
 
 class BKLayer : public FZRefCounted {
 	protected:
@@ -48,6 +49,7 @@ class BKLayer : public FZRefCounted {
 	void drawText(char* t, FZFont* font, int x, int y);
 	void drawTextHC(char* t, FZFont* font, int y);
 	void drawImage(int x, int y, int w, int h, int tx, int ty);
+	void drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th);
 
 	BKLayer();
 	~BKLayer();

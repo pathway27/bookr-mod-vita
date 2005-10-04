@@ -76,6 +76,16 @@ void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
 	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
 }
 
+void BKLayer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
+	struct T32FV32F2D vertices[2] = {
+		{ tx, ty, x, y, 0 },
+		{ tx + tw, ty + th, x + w, y + h, 0 }
+	};
+	T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2*sizeof(struct T32FV32F2D));
+	memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
+	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
+}
+
 void BKLayer::drawPill(int x, int y, int w, int h, int r, int tx, int ty) {
 	struct T32FV32F2D vertices[7*2] = {
 		{ tx, ty, x, y, 0 },

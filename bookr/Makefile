@@ -2,7 +2,7 @@
 # cd mupdf; make
 
 TARGET=bookr
-OBJS:=bookr.o bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkpdf.o bkmemcpy.o bkuser.o bkbookmark.o bkpopup.o
+OBJS:=bookr.o bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkpdf.o bkmemcpy.o bkuser.o bkbookmark.o bkpopup.o bkcolorchooser.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
 OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o
