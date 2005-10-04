@@ -235,23 +235,9 @@ void BKLayer::drawText(char* t, FZFont* font, int x, int y) {
 	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,vc,0,vertices);
 }
 
-void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items) {
-	int selPos = selItem - topItem;
+void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
 	int scrY = 0;
-
-	if (selPos < 0) {
-		topItem += selPos;
-		selPos = 0;
-	}
-
-	if (selPos > 7) {
-		topItem += selPos - 7;
-		selPos = 7;
-	}
-
-	bool scrollbar = items.size() > 8;
-
-	char *t =(char*)items[selItem].circleLabel.c_str(); 
+	char *t =(char*)circleLabel.c_str(); 
 	int tw = textW(t, fontBig);
 
 	texUI->bindForDisplay();
@@ -270,7 +256,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	drawImage(430, 29 + scrY, 20, 17, 31, 53); // close handle
 	FZScreen::ambientColor(0xffcccccc);
 	// circle or other context icon
-	if (items[selItem].flags & BK_MENU_ITEM_USE_LR_ICON) {
+	if (flags & BK_MENU_ITEM_USE_LR_ICON) {
 		drawImage(480 - tw - 65, 248 + scrY, 20, 17, 7, 92);
 	} else {
 		drawImage(480 - tw - 65, 248 + scrY, 20, 20, 31, 70);
@@ -279,6 +265,39 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 		//drawImage(37, 248 + scrY, 20, 20, 107, 5);
 		drawImage(37, 248 + scrY, 20, 18, 9, 53);
 	}
+
+	fontBig->bindForDisplay();
+
+	// title
+	FZScreen::ambientColor(0xffffffff);
+	drawText((char*)title.c_str(), fontBig, 31, 28 + scrY);
+	// labels
+	FZScreen::ambientColor(0xffcccccc);
+	if (triangleLabel.size() > 0) {
+		drawText((char*)triangleLabel.c_str(), fontBig, 37 + 25, 248 + scrY);
+	}
+	drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
+}
+
+void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items) {
+	int selPos = selItem - topItem;
+	int scrY = 0;
+
+	if (selPos < 0) {
+		topItem += selPos;
+		selPos = 0;
+	}
+
+	if (selPos > 7) {
+		topItem += selPos - 7;
+		selPos = 7;
+	}
+
+	bool scrollbar = items.size() > 8;
+
+	drawDialogFrame(title, triangleLabel, items[selItem].circleLabel, items[selItem].flags);
+
+	texUI->bindForDisplay();
 	// folder icons
 	FZScreen::ambientColor(0xffffffff);
 	for (int i = 0; i < 8; ++i) {
@@ -318,9 +337,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 
 	fontBig->bindForDisplay();
 
-	// title
 	FZScreen::ambientColor(0xffffffff);
-	drawText((char*)title.c_str(), fontBig, 31, 28 + scrY);
 	// contents
 	for (int i = 0; i < 8; ++i) {
 		if (i + topItem == selItem)
@@ -333,12 +350,6 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	}
 	FZScreen::ambientColor(0xff000000);
 	drawText((char*)items[selItem].label.c_str(), fontBig, 40 + 25, 60 + scrY + selPos*fontBig->getLineHeight());
-	// labels
-	FZScreen::ambientColor(0xffcccccc);
-	if (triangleLabel.size() > 0) {
-		drawText((char*)triangleLabel.c_str(), fontBig, 37 + 25, 248 + scrY);
-	}
-	drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
 }
 
 static int countLines(string& t) {

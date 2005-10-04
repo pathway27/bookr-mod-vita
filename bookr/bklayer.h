@@ -67,6 +67,7 @@ class BKLayer : public FZRefCounted {
 	};
 	int topItem;
 	int selItem;
+	void drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags);
 	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items);
 	void menuCursorUpdate(unsigned int buttons, int max);
 
