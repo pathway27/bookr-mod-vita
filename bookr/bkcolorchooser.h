@@ -27,11 +27,13 @@ using namespace std;
 #include "bklayer.h"
 
 class BKColorChooser : public BKLayer {
-	int color;
+	unsigned int color;
 	int hueY;
 	int svX;
 	int svY;
 	FZTexture* hueTex;
+	bool hueMode;
+	void recalcColor();
 
 	protected:
 	BKColorChooser(int c);
@@ -41,7 +43,7 @@ class BKColorChooser : public BKLayer {
 	virtual int update(unsigned int buttons);
 	virtual void render();
 
-	int getColor();
+	unsigned int getColor();
 
 	static BKColorChooser* create(int c);
 };
