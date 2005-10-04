@@ -116,6 +116,11 @@ void BKMainMenu::buildOptionMenu() {
 	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
+	char txt[1024];
+	snprintf(txt, 1024, "Plain text - Font size: %d pixels", BKUser::options.txtSize);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
@@ -268,7 +273,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 2) {
+		/*if (selItem == 2) {
 			if (BKUser::options.txtRotation == 0) {
 				BKUser::options.txtRotation = 90;
 			} else if (BKUser::options.txtRotation == 90) {
@@ -281,7 +286,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			BKUser::save();
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
-		}
+		}*/
 	}
 
 	if (b[FZ_REPS_CROSS] == 1) {
@@ -293,6 +298,28 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 
 	if (b[FZ_REPS_START] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
+	}
+
+	if (b[FZ_REPS_LEFT] == 1 && selItem == 2) {
+		--BKUser::options.txtSize;
+		if (BKUser::options.txtSize < 6) {
+			BKUser::options.txtSize = 6;
+		} else {
+			BKUser::save();
+			buildOptionMenu();
+		}
+		return BK_CMD_MARK_DIRTY;
+	}
+
+	if (b[FZ_REPS_RIGHT] == 1 && selItem == 2) {
+		++BKUser::options.txtSize;
+		if (BKUser::options.txtSize > 20) {
+			BKUser::options.txtSize = 20;
+		} else {
+			BKUser::save();
+			buildOptionMenu();
+		}
+		return BK_CMD_MARK_DIRTY;
 	}
 
 	return 0;

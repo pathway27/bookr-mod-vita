@@ -267,9 +267,14 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	// icons
 	FZScreen::ambientColor(0xff000000);
 	//drawImage(430, 30 + scrY, 20, 18, 9, 53); tri!
-	drawImage(430, 29 + scrY, 20, 17, 31, 53);
+	drawImage(430, 29 + scrY, 20, 17, 31, 53); // close handle
 	FZScreen::ambientColor(0xffcccccc);
-	drawImage(480 - tw - 65, 248 + scrY, 20, 20, 31, 70);
+	// circle or other context icon
+	if (items[selItem].flags & BK_MENU_ITEM_USE_LR_ICON) {
+		drawImage(480 - tw - 65, 248 + scrY, 20, 17, 7, 92);
+	} else {
+		drawImage(480 - tw - 65, 248 + scrY, 20, 20, 31, 70);
+	}
 	if (triangleLabel.size() > 0) {
 		//drawImage(37, 248 + scrY, 20, 20, 107, 5);
 		drawImage(37, 248 + scrY, 20, 18, 9, 53);

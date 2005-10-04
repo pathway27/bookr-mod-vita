@@ -53,7 +53,8 @@ class BKLayer : public FZRefCounted {
 	~BKLayer();
 
 	// "flexible" menu
-	#define BK_MENU_ITEM_FOLDER	1
+	#define BK_MENU_ITEM_FOLDER			1
+	#define BK_MENU_ITEM_USE_LR_ICON	2
 	struct BKMenuItem {
 		string label;
 		string circleLabel;

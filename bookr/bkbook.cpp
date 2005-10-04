@@ -65,6 +65,7 @@ extern unsigned int size_res_txtfont;
 extern unsigned char res_txtfont[];
 };
 
+static int lastTextSize = 0;
 BKBook* BKBook::create(string& file, int size) {
 	BKBook* b = new BKBook(file);
 	b->fileSize = size;
@@ -106,6 +107,8 @@ BKBook* BKBook::create(string& file, int size) {
 	}	
 
 	FZScreen::resetReps();
+
+	lastTextSize = BKUser::options.txtSize;
 
 	return b;
 }
@@ -341,6 +344,9 @@ void BKBook::skipPages(int offset) {
 }
 
 int BKBook::update(unsigned int buttons) {
+	if (lastTextSize != BKUser::options.txtSize)
+		return BK_CMD_RELOAD;
+
 	bannerFrames--;
 	if (bannerFrames < 0)
 		bannerFrames = 0;
