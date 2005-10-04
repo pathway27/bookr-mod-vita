@@ -23,7 +23,6 @@
 #include "bklayer.h"
 
 FZFont* BKLayer::fontBig = 0;
-FZFont* BKLayer::fontText = 0;
 FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texLogo = 0;
 
@@ -34,16 +33,10 @@ extern unsigned int size_res_uitex;
 extern unsigned char res_uitex[];
 extern unsigned int size_res_uifont;
 extern unsigned char res_uifont[];
-extern unsigned int size_res_txtfont;
-extern unsigned char res_txtfont[];
 };
 
 void BKLayer::load() {
 	char filename[1024];
-
-	fontText = FZFont::createFromMemory(res_txtfont, size_res_txtfont, 11, false);
-	fontText->texEnv(FZ_TEX_MODULATE);
-	fontText->filter(FZ_NEAREST, FZ_NEAREST);
 
 	fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
 	fontBig->texEnv(FZ_TEX_MODULATE);

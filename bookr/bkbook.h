@@ -69,6 +69,8 @@ class BKBook : public BKLayer {
 
 	int bannerFrames;
 
+	FZFont* fontText;
+
 	protected:
 	BKBook(string& file);
 	~BKBook();

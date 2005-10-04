@@ -36,7 +36,7 @@ static void* memalign(int t, int s) {
 BKBook::BKBook(string& file) : 
 	path(file), text(0), textLen(0), baseLine(0), page(1),
 	screenLines(0), totalLines(0),
-	bannerFrames(0) {
+	bannerFrames(0), fontText(0) {
 }
 
 BKBook::~BKBook() {
@@ -48,7 +48,7 @@ BKBook::~BKBook() {
 			free(blocks[i]);
 		}
 	}
-
+	fontText->release();
 	setBookmark();
 }
 
@@ -59,6 +59,11 @@ void BKBook::getPath(string& s) {
 int BKBook::getSize() {
 	return fileSize;
 }
+
+extern "C" {
+extern unsigned int size_res_txtfont;
+extern unsigned char res_txtfont[];
+};
 
 BKBook* BKBook::create(string& file, int size) {
 	BKBook* b = new BKBook(file);
@@ -75,11 +80,23 @@ BKBook* BKBook::create(string& file, int size) {
 
 	memset(b->blocks, 0, sizeof(struct TextLineMetricsBlock*)*4096);
 
-	b->textLineMetrics(450);
-	b->screenLines = 257 / fontText->getLineHeight();
+	// load font
+	bool useBuiltin = BKUser::options.txtFont == "bookr:builtin";
+	if (!useBuiltin) {
+		b->fontText = FZFont::createFromFile((char*)BKUser::options.txtFont.c_str(),
+				BKUser::options.txtSize, false);
+		useBuiltin = b->fontText == 0;
+	}
+	if (useBuiltin) {
+		b->fontText = FZFont::createFromMemory(res_txtfont, size_res_txtfont,
+				BKUser::options.txtSize, false);
+	}
+	b->fontText->texEnv(FZ_TEX_MODULATE);
+	b->fontText->filter(FZ_NEAREST, FZ_NEAREST);
 
-	FZScreen::resetReps();
-	
+	b->textLineMetrics(450);
+	b->screenLines = 257 / b->fontText->getLineHeight();
+
 	// Add bookmark support
 	int position = BKBookmark::get(b->path);
 	if (position > 0) {
@@ -87,6 +104,8 @@ BKBook* BKBook::create(string& file, int size) {
 		// based offsets
 		b->skipPages(position - 1);
 	}	
+
+	FZScreen::resetReps();
 
 	return b;
 }

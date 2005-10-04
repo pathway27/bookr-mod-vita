@@ -39,7 +39,6 @@
 class BKLayer : public FZRefCounted {
 	protected:
 	static FZFont* fontBig;
-	static FZFont* fontText;
 	static FZTexture* texUI;
 	static FZTexture* texLogo;
 
