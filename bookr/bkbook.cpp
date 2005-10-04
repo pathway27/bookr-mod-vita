@@ -241,6 +241,7 @@ void BKBook::spritesForLines(int x, int y, int from, int to, BKVertex* vertices)
 	struct TextLineMetrics* tlm = NULL;
 	FZCharMetrics* fontChars = font->getMetrics();
 	// add line by line the sprites needed
+	bool justify = BKUser::options.txtJustify;
 	for (i = from; i < to; i++) {
 		int blockI = i >> 12;
 		int lineB = i & 0xfff;
@@ -259,7 +260,7 @@ void BKBook::spritesForLines(int x, int y, int from, int to, BKVertex* vertices)
 
 			// space
 			if (idx == 32) {
-				baseX += tlm->spaceWidth;
+				baseX += justify ? tlm->spaceWidth : fontChars[32].xadvance;
 				continue;
 			}
 	

@@ -58,6 +58,7 @@ void BKUser::setDefaultOptions() {
 	options.txtSize = 11;
 	options.txtFGColor = 0;
 	options.txtBGColor = 0xffffff;
+	options.txtJustify = true;
 }
 
 void BKUser::save() {
@@ -97,6 +98,7 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"txtSize\" value=\"%d\" />\n", options.txtSize);
 	fprintf(f, "\t\t<set option=\"txtFGColor\" value=\"%d\" />\n", options.txtFGColor);
 	fprintf(f, "\t\t<set option=\"txtBGColor\" value=\"%d\" />\n", options.txtBGColor);
+	fprintf(f, "\t\t<set option=\"txtJustify\" value=\"%d\" />\n", options.txtJustify ? 1 : 0);
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -179,6 +181,7 @@ void BKUser::load() {
 			else if (strncmp(option, "txtSize",       128) == 0) options.txtSize       = atoi(value);
 			else if (strncmp(option, "txtFGColor",    128) == 0) options.txtFGColor    = atoi(value);
 			else if (strncmp(option, "txtBGColor",    128) == 0) options.txtBGColor    = atoi(value);
+			else if (strncmp(option, "txtJustify",    128) == 0) options.txtJustify    = atoi(value) != 0;
 	
 			eset = eset->NextSiblingElement("set"); 
 		}

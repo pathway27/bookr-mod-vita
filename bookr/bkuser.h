@@ -59,6 +59,7 @@ class BKUser {
 		int txtSize;
 		int txtFGColor;
 		int txtBGColor;
+		bool txtJustify;
 	};
 	static Options options;
 };

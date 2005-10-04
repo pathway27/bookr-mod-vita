@@ -121,6 +121,10 @@ void BKMainMenu::buildOptionMenu() {
 	t = txt;
 	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
+	t = "Plain text - Justify text: ";
+	t += BKUser::options.txtJustify ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
@@ -272,6 +276,12 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			popupText = "Fast scroll will cause instability with many PDF files.\nDo not report bugs when using this feature.";
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == 3) {
+			BKUser::options.txtJustify = !BKUser::options.txtJustify;
+			BKUser::save();
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
 		}
 		/*if (selItem == 2) {
 			if (BKUser::options.txtRotation == 0) {
