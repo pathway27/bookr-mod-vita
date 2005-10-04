@@ -386,10 +386,10 @@ BKPDF::~BKPDF() {
 // this will be a pooled memory system some day. for now just try to optimize
 // ptr align
 static void* bkmalloc(fz_memorycontext *mem, int n) {
-	void* buf = NULL;
+	/*void* buf = NULL;
 	if (n >= 64)
 		buf = memalign(16, n);
-	else
+	else*/
 		buf = malloc(n);
 	memset(buf, 0, n);
 	return buf;
