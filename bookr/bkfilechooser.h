@@ -28,11 +28,13 @@ using namespace std;
 
 class BKFileChooser : public BKLayer {
 	string path;
+	string title;
+	int ret;
 	vector<FZDirent> dirFiles;
 	void updateDirFiles();
 
 	protected:
-	BKFileChooser();
+	BKFileChooser(string& t, int r);
 	~BKFileChooser();
 
 	public:
@@ -42,7 +44,7 @@ class BKFileChooser : public BKLayer {
 	void getCurrentDirent(FZDirent& de);
 	void getFullPath(string& s);
 
-	static BKFileChooser* create();
+	static BKFileChooser* create(string& t, int r);
 };
 
 #endif

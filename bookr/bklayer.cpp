@@ -271,7 +271,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	} else {
 		drawImage(480 - tw - 65, 248 + scrY, 20, 20, 31, 70);
 	}
-	if (triangleLabel.size() > 0) {
+	if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
 		//drawImage(37, 248 + scrY, 20, 20, 107, 5);
 		drawImage(37, 248 + scrY, 20, 18, 9, 53);
 	}
@@ -305,7 +305,11 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 
 	bool scrollbar = items.size() > 8;
 
-	drawDialogFrame(title, triangleLabel, items[selItem].circleLabel, items[selItem].flags);
+	string tl(triangleLabel);
+	if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
+		tl = items[selItem].triangleLabel; 
+	}
+	drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
 	texUI->bindForDisplay();
 	// folder icons

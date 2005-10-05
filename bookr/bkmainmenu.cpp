@@ -124,6 +124,22 @@ void BKMainMenu::buildOptionMenu() {
 	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
+	t = "Plain text - Font file: ";
+	if (BKUser::options.txtFont == "bookr:builtin") {
+		t += "built-in";
+	} else {
+		int s = BKUser::options.txtFont.size();
+		if (s > 25) {
+			t += "...";
+			t += string(BKUser::options.txtFont, s - 25, 25);
+		} else {
+			t += BKUser::options.txtFont;
+		}
+	}
+	BKMenuItem mi = BKMenuItem(t, "Select font file", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL);
+	mi.triangleLabel = "Use built-in font";
+	optionItems.push_back(mi);
+
 	char txt[1024];
 	snprintf(txt, 1024, "Plain text - Font size: %d pixels", BKUser::options.txtSize);
 	t = txt;
@@ -134,7 +150,7 @@ void BKMainMenu::buildOptionMenu() {
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
 	t = "Plain text - Foreground color: ";
-	BKMenuItem mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
+	mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
 	mi.color = BKUser::options.txtFGColor;
 	optionItems.push_back(mi);
 
@@ -295,16 +311,19 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 3) {
+		if (selItem == 2) {
+			return BK_CMD_INVOKE_OPEN_FONT;
+		}
+		if (selItem == 4) {
 			BKUser::options.txtJustify = !BKUser::options.txtJustify;
 			BKUser::save();
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 4) {
+		if (selItem == 5) {
 			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG;
 		}
-		if (selItem == 5) {
+		if (selItem == 6) {
 			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG;
 		}
 		/*if (selItem == 2) {
@@ -323,6 +342,15 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}*/
 	}
 
+	if (b[FZ_REPS_TRIANGLE] == 1) {
+		if (selItem == 2) {
+			BKUser::options.txtFont = "bookr:builtin";
+			BKUser::save();
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		}
+	}
+
 	if (b[FZ_REPS_CROSS] == 1) {
 		selItem = 0;
 		topItem = 0;
@@ -334,7 +362,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
-	if (b[FZ_REPS_LEFT] == 1 && selItem == 2) {
+	if (b[FZ_REPS_LEFT] == 1 && selItem == 3) {
 		--BKUser::options.txtSize;
 		if (BKUser::options.txtSize < 6) {
 			BKUser::options.txtSize = 6;
@@ -345,7 +373,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		return BK_CMD_MARK_DIRTY;
 	}
 
-	if (b[FZ_REPS_RIGHT] == 1 && selItem == 2) {
+	if (b[FZ_REPS_RIGHT] == 1 && selItem == 3) {
 		++BKUser::options.txtSize;
 		if (BKUser::options.txtSize > 20) {
 			BKUser::options.txtSize = 20;

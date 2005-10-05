@@ -45,6 +45,15 @@ static bool isPDF(string& file) {
 	return header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46;
 }
 
+static bool isTTF(string& file) {
+	char header[4];
+	memset((void*)header, 0, 4);
+	FILE* f = fopen(file.c_str(), "r");
+	fread(header, 4, 1, f);
+	fclose(f);
+	return header[0] == 0x0 && header[1] == 0x1 && header[2] == 0x0 && header[3] == 0x0;
+}
+
 int main(int argc, char* argv[]) {
 	bool isPdf = false;
 	BKLayer* pdfOrTextLayer = NULL;
@@ -92,10 +101,6 @@ int main(int argc, char* argv[]) {
 		int buttons = FZScreen::readCtrl();
 		dirty = buttons != 0;
 
-		// hack!
-		/*if (buttons & FZ_CTRL_SQUARE)
-			break;*/
-
 		// the last layer always owns the input focus
 		bkLayersIt it(layers.end());
 		--it;
@@ -110,11 +115,18 @@ int main(int argc, char* argv[]) {
 			case BK_CMD_MARK_DIRTY:
 				dirty = true;
 			break;
-			case BK_CMD_INVOKE_OPEN_FILE:
+			case BK_CMD_INVOKE_OPEN_FILE: {
 				// add a file chooser layer
-				fs = BKFileChooser::create();
+				string title("Select document to open");
+				fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
 				layers.push_back(fs);
-			break;
+			} break;
+			case BK_CMD_INVOKE_OPEN_FONT: {
+				// add a file chooser layer
+				string title("Select font file to open");
+				fs = BKFileChooser::create(title, BK_CMD_SET_FONT);
+				layers.push_back(fs);
+			} break;
 			case BK_CMD_OPEN_FILE:
 			case BK_CMD_RELOAD: {
 				// open a file as a document
@@ -168,6 +180,32 @@ int main(int argc, char* argv[]) {
 					// file loads ok, add the layer
 					layers.push_back(pdfOrTextLayer);
 				}
+			} break;
+			case BK_CMD_SET_FONT: {
+				// change font for plain text rendering
+				string s;
+				FZDirent de;
+				// open selected file
+				fs->getCurrentDirent(de);
+				fs->getFullPath(s);
+				// detect file type and display error if needed
+				if (!isTTF(s)) {
+					layers.push_back(BKPopup::create(
+							BKPOPUP_ERROR,
+							"The selected file is not a valid TrueType font."
+						)
+					);
+					break;
+				}
+				// file ok
+				bkLayersIt it(layers.end());
+				--it;
+				(*it)->release();
+				layers.erase(it);
+				fs = 0;
+				BKUser::options.txtFont = s;
+				BKUser::save();
+				mm->rebuildMenu();
 			} break;
 			case BK_CMD_INVOKE_MENU:
 				// add a main menu layer

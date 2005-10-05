@@ -22,7 +22,7 @@
 
 #include "bkfilechooser.h"
 
-BKFileChooser::BKFileChooser() {
+BKFileChooser::BKFileChooser(string& t, int r) : title(t), ret(r) {
 	path = FZScreen::basePath();
 	updateDirFiles();
 }
@@ -58,7 +58,7 @@ int BKFileChooser::update(unsigned int buttons) {
 			topItem = 0;
 			updateDirFiles();
 		} else if (dirFiles[selItem].stat & FZ_STAT_IFREG) {
-			return BK_CMD_OPEN_FILE;
+			return ret;
 		}
 	}
 	if (b[FZ_REPS_TRIANGLE] == 1) {
@@ -99,13 +99,12 @@ void BKFileChooser::render() {
 		}
 		items.push_back(BKMenuItem(dirFiles[i].name, cl, f)); 
 	}
-	string title("Select file to open");
 	string tl("Parent folder");
 	drawMenu(title, tl, items);
 }
 
-BKFileChooser* BKFileChooser::create() {
-	BKFileChooser* f = new BKFileChooser();
+BKFileChooser* BKFileChooser::create(string& t, int r) {
+	BKFileChooser* f = new BKFileChooser(t, r);
 	FZScreen::resetReps();
 	return f;
 }

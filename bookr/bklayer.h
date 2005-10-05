@@ -30,7 +30,7 @@
 #define BK_CMD_MAINMENU_POPUP 5
 
 #define BK_CMD_OPEN_FILE 20
-#define BK_CMD_OPEN_FONT 21
+#define BK_CMD_SET_FONT 21
 #define BK_CMD_SET_TXTFG 22
 #define BK_CMD_SET_TXTBG 23
 
@@ -61,9 +61,11 @@ class BKLayer : public FZRefCounted {
 	#define BK_MENU_ITEM_FOLDER			1
 	#define BK_MENU_ITEM_USE_LR_ICON	2
 	#define BK_MENU_ITEM_COLOR_RECT		4
+	#define BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL 8
 	struct BKMenuItem {
 		string label;
 		string circleLabel;
+		string triangleLabel;
 		int flags;
 		unsigned int color;
 		BKMenuItem() : flags(0) { }
@@ -91,5 +93,4 @@ typedef vector<BKLayer*> bkLayers;
 typedef vector<BKLayer*>::iterator bkLayersIt;
 
 #endif
-
 
