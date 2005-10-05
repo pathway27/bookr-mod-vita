@@ -299,13 +299,11 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 	if (b[FZ_REPS_CIRCLE] == 1) {
 		if (selItem == 0) {
 			BKUser::setDefaultOptions();
-			BKUser::save();
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == 1) {
 			BKUser::options.pdfFastScroll = !BKUser::options.pdfFastScroll;
-			BKUser::save();
 			buildOptionMenu();
 			popupText = "Fast scroll will cause instability with many PDF files.\nDo not report bugs when using this feature.";
 			popupMode = BKPOPUP_WARNING;
@@ -316,7 +314,6 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 		if (selItem == 4) {
 			BKUser::options.txtJustify = !BKUser::options.txtJustify;
-			BKUser::save();
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
@@ -345,7 +342,6 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 	if (b[FZ_REPS_TRIANGLE] == 1) {
 		if (selItem == 2) {
 			BKUser::options.txtFont = "bookr:builtin";
-			BKUser::save();
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
@@ -355,6 +351,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		selItem = 0;
 		topItem = 0;
 		mode = BKMM_MAIN;
+		BKUser::save();
 		return BK_CMD_MARK_DIRTY;
 	}
 
@@ -367,7 +364,6 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		if (BKUser::options.txtSize < 6) {
 			BKUser::options.txtSize = 6;
 		} else {
-			BKUser::save();
 			buildOptionMenu();
 		}
 		return BK_CMD_MARK_DIRTY;
@@ -378,7 +374,6 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		if (BKUser::options.txtSize > 20) {
 			BKUser::options.txtSize = 20;
 		} else {
-			BKUser::save();
 			buildOptionMenu();
 		}
 		return BK_CMD_MARK_DIRTY;
