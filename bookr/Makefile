@@ -1,6 +1,7 @@
 # to fix: compile manually the mupdf libs first...
 # cd mupdf; make
 
+PSP_EBOOT_ICON=data/icon0.png
 TARGET=bookr
 OBJS:=bookr.o bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkpdf.o bkmemcpy.o bkuser.o bkbookmark.o bkpopup.o bkcolorchooser.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
@@ -44,9 +45,3 @@ PSPSDK=$(shell psp-config --pspsdk-path)
 #USE_PSPSDK_LIBC=1
 include $(PSPSDK)/lib/build.mak
 
-#kxhidden: kxploit
-#	mv ${TARGET} `scripts/kxhidden2.sh ${TARGET}`
-#	mv ${TARGET}% `scripts/kxhidden.sh ${TARGET}`
-
-dist: kxploit
-	cp data bookr
