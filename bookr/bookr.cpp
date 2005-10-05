@@ -181,11 +181,34 @@ int main(int argc, char* argv[]) {
 					)
 				);
 			break;
-			case BK_CMD_INVOKE_COLOR_CHOOSER:
+			case BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG:
 				// add a colot chooser layer
-				cs = BKColorChooser::create(0xff005000);
+				cs = BKColorChooser::create(BKUser::options.txtFGColor, BK_CMD_SET_TXTFG);
 				layers.push_back(cs);
 			break;
+			case BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG:
+				// add a colot chooser layer
+				cs = BKColorChooser::create(BKUser::options.txtBGColor, BK_CMD_SET_TXTBG);
+				layers.push_back(cs);
+			break;
+			case BK_CMD_SET_TXTFG: {
+				BKUser::options.txtFGColor = cs->getColor();
+				BKUser::save();
+				mm->rebuildMenu();
+				bkLayersIt it(layers.end());
+				--it;
+				(*it)->release();
+				layers.erase(it);
+			} break;
+			case BK_CMD_SET_TXTBG: {
+				BKUser::options.txtBGColor = cs->getColor();
+				BKUser::save();
+				mm->rebuildMenu();
+				bkLayersIt it(layers.end());
+				--it;
+				(*it)->release();
+				layers.erase(it);
+			} break;
 			case BK_CMD_EXIT: {
 					exitApp = true;
 			}

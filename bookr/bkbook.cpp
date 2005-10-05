@@ -297,7 +297,7 @@ void BKBook::spritesForLines(int x, int y, int from, int to, BKVertex* vertices)
 void BKBook::render() {
 	struct BKVertex* vertices = 0;
 
-	FZScreen::clear(0xffffff, FZ_COLOR_BUFFER);
+	FZScreen::clear(BKUser::options.txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
 	FZScreen::matricesFor2D();
 	FZScreen::enable(FZ_TEXTURE_2D);
@@ -305,7 +305,7 @@ void BKBook::render() {
 	FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
 
 	fontText->bindForDisplay();
-	FZScreen::ambientColor(0xff000000);
+	FZScreen::ambientColor(0xff000000 | BKUser::options.txtFGColor);
 	int totalVertices = countVerticesForLines(baseLine, baseLine + screenLines);
 	vertices = (struct BKVertex*)FZScreen::getListMemory(sizeof(struct BKVertex) * totalVertices);
 	spritesForLines(15, 10, baseLine, baseLine + screenLines, vertices);

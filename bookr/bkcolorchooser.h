@@ -33,10 +33,11 @@ class BKColorChooser : public BKLayer {
 	int svY;
 	FZTexture* hueTex;
 	bool hueMode;
+	int ret;
 	void recalcColor();
 
 	protected:
-	BKColorChooser(int c);
+	BKColorChooser(int c, int r);
 	~BKColorChooser();
 
 	public:
@@ -45,7 +46,7 @@ class BKColorChooser : public BKLayer {
 
 	unsigned int getColor();
 
-	static BKColorChooser* create(int c);
+	static BKColorChooser* create(int c, int re);
 };
 
 #endif

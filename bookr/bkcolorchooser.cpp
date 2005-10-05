@@ -27,7 +27,7 @@ static void RGBtoHSV(float r, float g, float b, float *h, float *s, float *v);
 static void HSVtoRGB(float *r, float *g, float *b, float h, float s, float v);
 static unsigned int HSVtoRGBi(float h, float s, float v);
 
-BKColorChooser::BKColorChooser(int c) : color(c), hueY(0), svX(0), svY(0), hueTex(0), hueMode(false) {
+BKColorChooser::BKColorChooser(int c, int r) : color(c), hueY(0), svX(0), svY(0), hueTex(0), hueMode(false), ret(r) {
 }
 
 BKColorChooser::~BKColorChooser() {
@@ -98,7 +98,7 @@ int BKColorChooser::update(unsigned int buttons) {
 		}
 	}
 	if (b[FZ_REPS_CROSS] == 1) {
-		return BK_CMD_CLOSE_TOP_LAYER;
+		return ret;
 	}
 	if (b[FZ_REPS_CIRCLE] == 1) {
 		hueMode = !hueMode;
@@ -168,13 +168,12 @@ void BKColorChooser::render() {
 	drawImage(x + side + 25 + 24, y + hueY - 4, 4, 9, 32 + 5, 92);
 
 	fontBig->bindForDisplay();
-	// title
 	FZScreen::ambientColor(0xffffffff);
 	drawText("Selected color", fontBig, 300, y + 10);
 }
 
-BKColorChooser* BKColorChooser::create(int c) {
-	BKColorChooser* f = new BKColorChooser(c);
+BKColorChooser* BKColorChooser::create(int c, int re) {
+	BKColorChooser* f = new BKColorChooser(c | 0xff000000, re);
 	FZImage* img = FZImage::createEmpty(32, 128, 0, FZImage::rgba32);
 	unsigned int* p = (unsigned int*)img->getData();
 	const float inc = 360.0f / 128.0f;
@@ -196,6 +195,16 @@ BKColorChooser* BKColorChooser::create(int c) {
 	f->hueTex = FZTexture::createFromImage(img, false);
 	f->hueTex->texEnv(FZ_TEX_MODULATE);
 	f->hueTex->filter(FZ_LINEAR, FZ_LINEAR);
+
+	r = float(c & 0xff) / 255.0f;
+	g = float((c >> 8)& 0xff) / 255.0f;
+	b = float((c >> 16)& 0xff) / 255.0f;
+	RGBtoHSV(r, g, b, &h, &s, &v);
+	f->hueY = int((h / 360.0f) * 144.0f);
+	if (f->hueY < 0)
+		f->hueY = 0;
+	f->svX = int(v * 144.0f);
+	f->svY = int((1.0f - s) * 144.0f);
 
 	img->release();
 

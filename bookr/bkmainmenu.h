@@ -59,6 +59,7 @@ class BKMainMenu : public BKLayer {
 
 	string getPopupText();
 	int getPopupMode();
+	void rebuildMenu();
 
 	typedef vector<BKMenuItem>::iterator bkMenuItemIt;
 	

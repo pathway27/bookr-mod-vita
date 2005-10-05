@@ -52,6 +52,14 @@ int BKMainMenu::getPopupMode() {
 	return popupMode;
 }
 
+void BKMainMenu::rebuildMenu() {
+	if (mode == BKMM_CONTROLS) {
+		buildControlMenu();
+	} else if (mode == BKMM_OPTIONS) {
+		buildOptionMenu();
+	}
+}
+
 void BKMainMenu::buildControlMenu() {
 	string cb("Change button");
 
@@ -294,10 +302,10 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == 4) {
-			return BK_CMD_INVOKE_COLOR_CHOOSER;
+			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG;
 		}
 		if (selItem == 5) {
-			return BK_CMD_INVOKE_COLOR_CHOOSER;
+			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG;
 		}
 		/*if (selItem == 2) {
 			if (BKUser::options.txtRotation == 0) {
