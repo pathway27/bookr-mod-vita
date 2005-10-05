@@ -195,7 +195,7 @@ BKColorChooser* BKColorChooser::create(int c, int re) {
 	f->hueTex = FZTexture::createFromImage(img, false);
 	f->hueTex->texEnv(FZ_TEX_MODULATE);
 	f->hueTex->filter(FZ_LINEAR, FZ_LINEAR);
-
+/*
 	r = float(c & 0xff) / 255.0f;
 	g = float((c >> 8)& 0xff) / 255.0f;
 	b = float((c >> 16)& 0xff) / 255.0f;
@@ -205,7 +205,7 @@ BKColorChooser* BKColorChooser::create(int c, int re) {
 		f->hueY = 0;
 	f->svX = int(v * 144.0f);
 	f->svY = int((1.0f - s) * 144.0f);
-
+*/
 	img->release();
 
 	FZScreen::resetReps();
