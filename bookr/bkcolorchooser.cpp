@@ -23,9 +23,17 @@
 
 #include "bkcolorchooser.h"
 
-static void RGBtoHSV(float r, float g, float b, float *h, float *s, float *v);
+//static void RGBtoHSV(float r, float g, float b, float *h, float *s, float *v);
 static void HSVtoRGB(float *r, float *g, float *b, float h, float s, float v);
 static unsigned int HSVtoRGBi(float h, float s, float v);
+struct HSV {
+	float h, s, v;
+};
+struct COLOUR {
+	float r, g, b;
+	COLOUR(float _r, float _g, float _b) : r(_r), g(_g), b(_b) { }
+};
+static HSV RGB2HSV(COLOUR c1);
 
 BKColorChooser::BKColorChooser(int c, int r) : color(c), hueY(0), svX(0), svY(0), hueTex(0), hueMode(false), ret(r) {
 }
@@ -118,8 +126,8 @@ void BKColorChooser::render() {
 	const int y2 = 120;
 	const int side = 145;
 	const int side2 = 145 - (y2 - y);
-	const float v = float(svX) / 144.0f;
-	const float s = 1.0f - (float(svY) / 144.0f);
+	//const float v = float(svX) / 144.0f;
+	//const float s = 1.0f - (float(svY) / 144.0f);
 	const float h = 359.0f * (float(hueY) / 144.0f);
 	unsigned int hueColor = HSVtoRGBi(h, 1.0f, 1.0f);
 	hueTex->bindForDisplay();
@@ -131,6 +139,7 @@ void BKColorChooser::render() {
 	};
 
 	FZScreen::disable(FZ_TEXTURE_2D);
+	FZScreen::shadeModel(FZ_SMOOTH);
 	C8888V32F2D vertices[18] = {
 		{ hueColor,   x,      y, 0 },
 		{ hueColor,   x+side, y, 0 },
@@ -157,6 +166,7 @@ void BKColorChooser::render() {
 		{ color, 300, y2+side2, 0 },
 	};
 	FZScreen::drawArray(FZ_TRIANGLES, FZ_COLOR_8888|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D, 18, 0, vertices);
+	FZScreen::shadeModel(FZ_FLAT);
 	FZScreen::enable(FZ_TEXTURE_2D);
 
 	texUI->bindForDisplay();
@@ -195,17 +205,17 @@ BKColorChooser* BKColorChooser::create(int c, int re) {
 	f->hueTex = FZTexture::createFromImage(img, false);
 	f->hueTex->texEnv(FZ_TEX_MODULATE);
 	f->hueTex->filter(FZ_LINEAR, FZ_LINEAR);
-/*
+
 	r = float(c & 0xff) / 255.0f;
 	g = float((c >> 8)& 0xff) / 255.0f;
 	b = float((c >> 16)& 0xff) / 255.0f;
-	RGBtoHSV(r, g, b, &h, &s, &v);
-	f->hueY = int((h / 360.0f) * 144.0f);
+	HSV c2 =	RGB2HSV(COLOUR(r, g, b));
+	f->hueY = int((c2.h / 360.0f) * 144.0f);
 	if (f->hueY < 0)
 		f->hueY = 0;
-	f->svX = int(v * 144.0f);
-	f->svY = int((1.0f - s) * 144.0f);
-*/
+	f->svX = int(c2.v * 144.0f);
+	f->svY = int((1.0f - c2.s) * 144.0f);
+
 	img->release();
 
 	FZScreen::resetReps();
@@ -229,9 +239,40 @@ static unsigned int HSVtoRGBi(float h, float s, float v) {
 // h = [0,360], s = [0,1], v = [0,1]
 //		if s == 0, then h = -1 (undefined)
 #define MIN2(a,b) (((a) < (b)) ? (a) : (b))
-#define MIN(a,b,c) MIN2(MIN2(MIN2(a,b),MIN2(b,c)),MIN2(a,c))
+#define MIN3(a,b,c) MIN2(a,MIN2(b,c))
 #define MAX2(a,b) (((a) > (b)) ? (a) : (b))
-#define MAX(a,b,c) MAX2(MAX2(MAX2(a,b),MAX2(b,c)),MAX2(a,c))
+#define MAX3(a,b,c) MAX2(a,MAX2(b,c))
+/*
+   Calculate HSV from RGB
+   Hue is in degrees
+   Lightness is betweeen 0 and 1
+   Saturation is between 0 and 1
+*/
+static HSV RGB2HSV(COLOUR c1) {
+	float themin,themax,delta;
+	HSV c2;
+	
+	themin = MIN2(c1.r,MIN2(c1.g,c1.b));
+	themax = MAX2(c1.r,MAX2(c1.g,c1.b));
+	delta = themax - themin;
+	c2.v = themax;
+	c2.s = 0.0f;
+	if (themax > 0.0f)
+		c2.s = delta / themax;
+	c2.h = 0.0f;
+	if (delta > 0.0f) {
+		if (themax == c1.r && themax != c1.g)
+			c2.h += (c1.g - c1.b) / delta;
+		if (themax == c1.g && themax != c1.b)
+			c2.h += (2.0f + (c1.b - c1.r) / delta);
+		if (themax == c1.b && themax != c1.r)
+			c2.h += (4.0f + (c1.r - c1.g) / delta);
+		c2.h *= 60.0f;
+	}
+	return(c2);
+}
+
+/*
 static void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v) {
 	float min, max, delta;
 
@@ -261,7 +302,7 @@ static void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v) {
 	if( *h < 0 )
 		*h += 360;
 }
-
+*/
 static void HSVtoRGB( float *r, float *g, float *b, float h, float s, float v) {
 	int i;
 	float f, p, q, t;

@@ -48,6 +48,9 @@ using namespace std;
 #define FZ_ADD                  0
 #define FZ_SUBTRACT             1
 
+#define FZ_FLAT                 0
+#define FZ_SMOOTH               1
+
 #define FZ_ALPHA_TEST           0
 #define FZ_DEPTH_TEST           1
 #define FZ_SCISSOR_TEST         2
@@ -239,6 +242,7 @@ public:
 	static void* framebuffer();
 
 	static void blendFunc(int op, int src, int dst);
+	static void shadeModel(int mode);
 
 	static void setupCtrl();
 

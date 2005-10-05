@@ -237,6 +237,10 @@ void* FZScreen::getListMemory(int s) {
 	return sceGuGetMemory(s);
 }
 
+void FZScreen::shadeModel(int mode) {
+	sceGuShadeModel(mode);
+}
+
 void FZScreen::color(unsigned int c) {
 	sceGuColor(c);
 }

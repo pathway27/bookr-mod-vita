@@ -280,6 +280,9 @@ void FZScreen::disable(int m) {
 void FZScreen::dcacheWritebackAll() {
 }
 
+void FZScreen::shadeModel(int mode) {
+}
+
 void FZScreen::ambientColor(unsigned int c) {
 	glColor4ub(c & 0xff, (c & 0xff00) >> 8, (c & 0xff0000) >> 16, (c & 0xff000000) >> 24);
 }
