@@ -345,6 +345,19 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 		drawPill(436, 57 + int(trel), 12, int(barh), 6, 31, 1);
 	}
 
+	// color rects items
+	for (int i = 0; i < 8; ++i) {
+		if ((60 + (i+1)*fontBig->getLineHeight()) > 250)
+			break;
+		if ((i + topItem) >= (int)(items.size()))
+			break;
+		if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
+			int tw = textW((char*)items[i + topItem].label.c_str(), fontBig);
+			FZScreen::ambientColor(items[i + topItem].color | 0xff000000);
+			drawRect(40 + 25 + tw + 10, 60 + i*fontBig->getLineHeight() + scrY + 3, 70, 15, 6, 31, 1);
+		}
+	}
+
 	fontBig->bindForDisplay();
 
 	FZScreen::ambientColor(0xffffffff);

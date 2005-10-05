@@ -126,8 +126,14 @@ void BKMainMenu::buildOptionMenu() {
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
 	t = "Plain text - Foreground color: ";
-	//t += BKUser::options.txtJustify ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Select", 0));
+	BKMenuItem mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
+	mi.color = BKUser::options.txtFGColor;
+	optionItems.push_back(mi);
+
+	t = "Plain text - Background color: ";
+	mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
+	mi.color = BKUser::options.txtBGColor;
+	optionItems.push_back(mi);
 
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
@@ -288,6 +294,9 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == 4) {
+			return BK_CMD_INVOKE_COLOR_CHOOSER;
+		}
+		if (selItem == 5) {
 			return BK_CMD_INVOKE_COLOR_CHOOSER;
 		}
 		/*if (selItem == 2) {

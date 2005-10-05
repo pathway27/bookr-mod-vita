@@ -57,10 +57,12 @@ class BKLayer : public FZRefCounted {
 	// "flexible" menu
 	#define BK_MENU_ITEM_FOLDER			1
 	#define BK_MENU_ITEM_USE_LR_ICON	2
+	#define BK_MENU_ITEM_COLOR_RECT		4
 	struct BKMenuItem {
 		string label;
 		string circleLabel;
 		int flags;
+		unsigned int color;
 		BKMenuItem() : flags(0) { }
 		BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }
 		BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }

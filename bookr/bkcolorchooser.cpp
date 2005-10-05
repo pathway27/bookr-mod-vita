@@ -157,15 +157,15 @@ void BKColorChooser::render() {
 		{ color, 300, y2+side2, 0 },
 	};
 	FZScreen::drawArray(FZ_TRIANGLES, FZ_COLOR_8888|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D, 18, 0, vertices);
-
 	FZScreen::enable(FZ_TEXTURE_2D);
+
 	texUI->bindForDisplay();
 
 	FZScreen::ambientColor(hueMode ? 0xff707070 : 0xffffffff);
 	drawImage(x + svX - 4, y + svY - 4, 9, 9, 32, 92);
 	FZScreen::ambientColor(hueMode ? 0xffffffff : 0xff707070);
-	drawImage(x + side + 25 - 4, y + hueY - 4, 4, 9, 32, 92);
-	drawImage(x + side + 25 + 32, y + hueY - 4, 4, 9, 32 + 5, 92);
+	drawImage(x + side + 25 + 4, y + hueY - 4, 4, 9, 32, 92);
+	drawImage(x + side + 25 + 24, y + hueY - 4, 4, 9, 32 + 5, 92);
 
 	fontBig->bindForDisplay();
 	// title
