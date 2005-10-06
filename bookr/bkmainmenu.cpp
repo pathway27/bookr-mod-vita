@@ -1,5 +1,5 @@
 /*
- * Bookr: document reader for the Sony PSP 
+ * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@ BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN),
 	isPdf(isPdeff), reader(pdfOrBookLayer) {
 	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
 	if (reader)
-		mainItems.push_back(BKMenuItem("Set bookmark", "Select", 0));
+		mainItems.push_back(BKMenuItem("Bookmarks", "Select", 0));
 	else
 		mainItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
 	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
@@ -39,6 +39,7 @@ BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN),
 	mainItems.push_back(BKMenuItem("Exit", "Select", 0));
 	buildControlMenu();
 	buildOptionMenu();
+        buildBookmarkMenu();
 }
 
 BKMainMenu::~BKMainMenu() {
@@ -165,12 +166,43 @@ void BKMainMenu::buildOptionMenu() {
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));*/
 }
 
+void BKMainMenu::buildBookmarkMenu() {
+	string cb("Bookmarks");
+
+	bookmarkItems.clear();
+
+	bookmarkItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
+	bookmarkItems.push_back(BKMenuItem("Set bookmark", "Select", 0));
+
+	if (reader == NULL)
+		return;
+
+        string filename = isPdf ? ((BKPDF*)reader)->path : ((BKBook*)reader)->path;
+	bkBookmarkPos pos;
+	BKBookmark::getBookmarks(filename, pos);
+
+	bkBookmarkPosIt it(pos.begin());
+	bkBookmarkPosIt end(pos.end());
+
+        char buffer[16];
+
+	while(it != end) {
+		string t("Goto page ");
+                sprintf(buffer, "%d", *it);
+		t += buffer;
+		bookmarkItems.push_back(BKMenuItem(t, cb, 0));
+		++it;
+	}
+}
+
 int BKMainMenu::update(unsigned int buttons) {
 	if (mode == BKMM_CONTROLS) {
 		return updateControls(buttons);
 	} else if (mode == BKMM_OPTIONS) {
 		return updateOptions(buttons);
-	}
+	} else if (mode == BKMM_BOOKMARKS) {
+        	return updateBookmarks(buttons);
+        }
 	return updateMain(buttons);
 }
 
@@ -184,16 +216,15 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_INVOKE_OPEN_FILE;
 		}
 		if (selItem == 1) {
-			if (reader != NULL) {
-				// Set bookmark now
-				if (isPdf)
-					((BKPDF*)reader)->setBookmark();
-				else
-					((BKBook*)reader)->setBookmark();
-			} else
-				BKBookmark::clear();
-				
-			return BK_CMD_CLOSE_TOP_LAYER;
+                        if (reader != NULL) {
+                                selItem = 0;
+                                topItem = 0;
+                                mode = BKMM_BOOKMARKS;
+                                return BK_CMD_MARK_DIRTY;
+                        } else {
+                        	BKBookmark::clear();
+                                return BK_CMD_CLOSE_TOP_LAYER;
+                        }
 		}
 		if (selItem == 2) {
 			selItem = 0;
@@ -213,6 +244,13 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_MAINMENU_POPUP;
 		}
 		if (selItem == 5) {
+                	if (reader != NULL) {
+				// Set bookmark now
+				if (isPdf)
+					((BKPDF*)reader)->setBookmark(true);
+				else
+					((BKBook*)reader)->setBookmark(true);
+			}
 			return BK_CMD_EXIT;
 		}
 	}
@@ -381,7 +419,64 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 
 	return 0;
 }
+
+int BKMainMenu::updateBookmarks(unsigned int buttons) {
+	menuCursorUpdate(buttons, bookmarkItems.size());
+
+	int* b = FZScreen::ctrlReps();
+
+	if (b[FZ_REPS_CIRCLE] == 1) {
+		if (selItem == 0) {
+			// Clear bookmarks
+			selItem = 0;
+			topItem = 0;			
+			BKBookmark::clear();
+			buildBookmarkMenu();
+			return BK_CMD_CLOSE_TOP_LAYER;
+		}
+		if (selItem == 1) {
+			// Set bookmark
+			selItem = 0;
+			topItem = 0;
+			if (isPdf)
+				((BKPDF*)reader)->setBookmark(false);
+			else
+				((BKBook*)reader)->setBookmark(false);
+				
+			buildBookmarkMenu();
+			return BK_CMD_CLOSE_TOP_LAYER;
+		}
+		if (reader == NULL)
+			return BK_CMD_CLOSE_TOP_LAYER;
+
+		string filename = isPdf ? ((BKPDF*)reader)->path : ((BKBook*)reader)->path;
+		bkBookmarkPos pos;
+		BKBookmark::getBookmarks(filename, pos);
 		
+		selItem-=2;		
+		if (selItem < (int)pos.size()) {		
+			int position = pos[selItem];
+			if (isPdf && position >= 0)
+				((BKPDF*)reader)->reloadPage(position);
+			else if (!isPdf && position > 0)
+				((BKBook*)reader)->reloadPage(position - 1);
+                        return BK_CMD_CLOSE_TOP_LAYER_RELOAD;
+		}
+
+		return BK_CMD_CLOSE_TOP_LAYER;
+	}
+
+	if (b[FZ_REPS_CROSS] == 1) {
+		return BK_CMD_CLOSE_TOP_LAYER;
+	}
+
+	if (b[FZ_REPS_START] == 1) {
+		return BK_CMD_CLOSE_TOP_LAYER;
+	}
+
+	return 0;
+}
+
 void BKMainMenu::render() {
 	string t("");
 	if (mode == BKMM_MAIN) {
@@ -393,6 +488,9 @@ void BKMainMenu::render() {
 	} else if (mode == BKMM_OPTIONS) {
 		string title("Options");
 		drawMenu(title, t, optionItems);
+	} else if (mode == BKMM_BOOKMARKS) {
+        	string title("Bookmarks");
+                drawMenu(title, t, bookmarkItems);
 	}
 	if (captureButton) {
 		texUI->bindForDisplay();

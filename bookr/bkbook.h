@@ -56,7 +56,6 @@ class BKBook : public BKLayer {
 	// work :)
 	struct TextLineMetricsBlock* blocks[4096];
 
-	string path;
 	int fileSize;
 
 	char* text;
@@ -77,15 +76,19 @@ class BKBook : public BKLayer {
 	void textLineMetrics(int width);
 	int countVerticesForLines(int from, int to);
 	void spritesForLines(int x, int y, int from, int to, BKVertex* vertices);
-	void skipPages(int offset);
 
 	public:
+	string path;
+
 	virtual int update(unsigned int buttons);
 	virtual void render();
-	virtual void setBookmark();
+	virtual void setBookmark(bool lastview);
 
 	virtual void getPath(string&);
 	virtual int getSize();
+	virtual void skipPages(int offset);
+        // this forces a redraw
+        virtual void reloadPage(int position);
 
 	static BKBook* create(string& file, int size);
 };

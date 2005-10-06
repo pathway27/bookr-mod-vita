@@ -1,5 +1,5 @@
 /*
- * Bookr: document reader for the Sony PSP 
+ * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -369,8 +369,8 @@ static BKPDF* singleton = 0;
 
 BKPDF::~BKPDF() {
 	if (ctx != 0) {
-		setBookmark();
-		
+		setBookmark(true);
+
 		pdfClose(ctx);
 		delete ctx;
 	}
@@ -429,10 +429,8 @@ BKPDF* BKPDF::create(string& file) {
 	b->ctx = ctx;
 	
 	// Add bookmark support
-	int position = BKBookmark::get(b->path);
-	if (position > 0 && position <= pdf_getpagecount(ctx->pages)) {
-		ctx->pageno = position;
-	}
+	int position = BKBookmark::getLastView(b->path);
+	b->setPage(position);
 	
 	b->pageError = pdfLoadPage(ctx) != 0;
 
@@ -440,6 +438,11 @@ BKPDF* BKPDF::create(string& file) {
 	b->redrawBuffer();
 	lastScrollFlag = BKUser::options.pdfFastScroll;
 	return b;
+}
+
+void BKPDF::setPage(int position) {
+	if (position > 0 && position <= pdf_getpagecount(ctx->pages))
+		ctx->pageno = position;
 }
 
 void BKPDF::getPath(string& s) {
@@ -832,7 +835,13 @@ int BKPDF::update(unsigned int buttons) {
 	return 0;
 }
 
-void BKPDF::setBookmark() {
+void BKPDF::reloadPage(int position) {
+	setPage(position);
+        loadNewPage = true;
+        panY = 0;
+}
+
+void BKPDF::setBookmark(bool lastview) {
 	// Save the last position		
-	BKBookmark::set(path, ctx->pageno);	
+	BKBookmark::set(path, ctx->pageno, lastview);
 }

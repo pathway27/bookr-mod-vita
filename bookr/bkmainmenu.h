@@ -30,17 +30,21 @@ class BKMainMenu : public BKLayer {
 	#define BKMM_MAIN 0
 	#define BKMM_CONTROLS 1
 	#define BKMM_OPTIONS 2
-	
+        #define BKMM_BOOKMARKS 3
+
 	int mode;
 	bool captureButton;
 	vector<BKMenuItem> mainItems;
 	vector<BKMenuItem> controlItems;
 	vector<BKMenuItem> optionItems;
+        vector<BKMenuItem> bookmarkItems;
 	int updateMain(unsigned int buttons);
 	int updateControls(unsigned int buttons);
 	int updateOptions(unsigned int buttons);
+        int updateBookmarks(unsigned int buttons);
 	void buildControlMenu();
 	void buildOptionMenu();
+        void buildBookmarkMenu();
 	bool isPdf;
 	BKLayer* reader;
 

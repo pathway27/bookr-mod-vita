@@ -31,7 +31,6 @@ using namespace std;
 
 struct PDFContext;
 class BKPDF : public BKLayer {
-	string path;
 	PDFContext* ctx;
 
 	int bannerFrames;
@@ -49,10 +48,15 @@ class BKPDF : public BKLayer {
 	~BKPDF();
 
 	public:
+	string path;
+
 	virtual int update(unsigned int buttons);
 	virtual void render();
-	virtual void setBookmark();
+	virtual void setBookmark(bool lastview);
 	virtual void getPath(string&);
+	virtual void setPage(int position);
+        // this forces a redraw
+        virtual void reloadPage(int position);
 
 	static BKPDF* create(string& file);
 };

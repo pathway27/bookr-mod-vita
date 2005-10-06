@@ -33,7 +33,7 @@ static void* memalign(int t, int s) {
 #include "bkbookmark.h"
 #include "fzfont.h"
 
-BKBook::BKBook(string& file) : 
+BKBook::BKBook(string& file) :
 	path(file), text(0), textLen(0), baseLine(0), page(1),
 	screenLines(0), totalLines(0),
 	bannerFrames(0), fontText(0) {
@@ -49,7 +49,7 @@ BKBook::~BKBook() {
 		}
 	}
 	fontText->release();
-	setBookmark();
+	setBookmark(true);
 }
 
 void BKBook::getPath(string& s) {
@@ -100,7 +100,7 @@ BKBook* BKBook::create(string& file, int size) {
 	b->screenLines = 257 / b->fontText->getLineHeight();
 
 	// Add bookmark support
-	int position = BKBookmark::get(b->path);
+	int position = BKBookmark::getLastView(b->path);
 	if (position > 0) {
 		// Since this is from page 1, substract one when working with line-counting
 		// based offsets
@@ -343,7 +343,12 @@ void BKBook::skipPages(int offset) {
 	} else if (futureLine <= totalLines) {
 		baseLine = futureLine;
 		page+=offset;
-	} // else do nothing		
+	} // else do nothing
+}
+
+void BKBook::reloadPage(int position) {
+	int currentPage = baseLine / screenLines;
+        skipPages(position - currentPage);
 }
 
 int BKBook::update(unsigned int buttons) {
@@ -372,7 +377,7 @@ int BKBook::update(unsigned int buttons) {
 	return 0;
 }
 
-void BKBook::setBookmark() {
+void BKBook::setBookmark(bool lastview) {
 	// Save the last position
-	BKBookmark::set(path, page);
+	BKBookmark::set(path, page, lastview);
 }

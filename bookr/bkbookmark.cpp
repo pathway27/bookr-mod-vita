@@ -1,5 +1,5 @@
 /*
- * Bookr: document reader for the Sony PSP 
+ * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,11 @@
 #include "tinyxml.h"
 
 #include "bkbookmark.h"
+#include <set>
 
 void BKBookmark::clear() {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
 
 	FILE* f = fopen(xmlfilename, "w");
 	if (f == NULL)
@@ -31,65 +32,142 @@ void BKBookmark::clear() {
 	fclose(f);
 }
 
-void BKBookmark::set(string& filename, int position) {
+void BKBookmark::set(string& filename, int position, bool lastview) {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
 
 	if (filename.compare(xmlfilename) == 0) {
 		return;
 	}
-		
+
+	bkBookmarks bookmarks, bookmarksLastview;
+	load(bookmarks, false);
+        load(bookmarksLastview, true);
+
+	setPos(lastview ? bookmarksLastview : bookmarks, filename, position, true);
+	save(bookmarks, bookmarksLastview);
+
+	destroy(bookmarks);
+        destroy(bookmarksLastview);
+}
+
+void BKBookmark::setPos(bkBookmarks& bookmarks, string& filename, int p, bool pushback) {
+	bkBookmarksIt it(bookmarks.find(filename));
+	bkBookmarkPos *pos = NULL;
+
+	if (it == bookmarks.end()) {
+		pos = new bkBookmarkPos;
+		bookmarks[filename] = pos;
+	} else {
+		pos = it->second;
+	}
+
+        if (pushback)
+		pos->push_back(p);
+        else
+        	pos->insert(pos->begin(), p);
+}
+
+int BKBookmark::getLastView(string& filename) {
+	char xmlfilename[1024];
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+
+	if (filename.compare(xmlfilename) == 0) {
+		return -1;
+	}
+
+	int pos = -1;
 	bkBookmarks bookmarks;
-	load(bookmarks);
+	load(bookmarks, true);
 	
-	FILE* f = fopen(xmlfilename, "w");	
+	bkBookmarksIt it(bookmarks.find(filename));
+	if (it != bookmarks.end())
+		if (it->second->size() > 0)
+			pos = it->second->front();
+
+	destroy(bookmarks);
+	return pos;
+}
+
+void BKBookmark::getBookmarks(string& filename, bkBookmarkPos &pos) {
+	char xmlfilename[1024];
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+
+	if (filename.compare(xmlfilename) == 0) {
+		return;
+	}
+
+	bkBookmarks bookmarks;
+	load(bookmarks, false);
+
+	bkBookmarksIt it(bookmarks.find(filename));
+	if (it != bookmarks.end())
+		pos = *(it->second);
+
+	destroy(bookmarks);
+}
+
+void BKBookmark::save(bkBookmarks &bookmarks, bkBookmarks& lastViewBookmarks) {
+	char xmlfilename[1024];
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+
+	FILE* f = fopen(xmlfilename, "w");
 	if (f == NULL)
 		return;
-	
-	bookmarks[filename] = position;
 
 	fprintf(f, "<?xml version=\"1.0\" standalone=\"no\" ?>\n");
-	fprintf(f, "<bookmarks>\n");	
-	
+	fprintf(f, "<bookmarks>\n");
+
 	bkBookmarksIt it(bookmarks.begin());
 	bkBookmarksIt end(bookmarks.end());
-	
-	while (it != end) {		
-		fprintf(f, "\t<bookmark filename=\"%s\" position=\"%d\" />\n", it->first.c_str(), it->second);
-		++it;
-	}	
 
-	fprintf(f, "</bookmarks>\n");	
+	while (it != end) {
+        	// newest bookmarks are saved at the end
+		vector<int>::reverse_iterator posIt(it->second->rbegin());
+		vector<int>::reverse_iterator posEnd(it->second->rend());
+                std::set<int> saved;
+
+		while (posIt != posEnd) {
+                	if (saved.find((*posIt)) == saved.end()) {
+                        	saved.insert((*posIt));
+
+                                // we will save only the latest 5 bookmarks
+                                if (saved.size() > MAX_BOOKMARKS_PER_FILE)
+                                	break;
+                                fprintf(f, "\t<bookmark filename=\"%s\" position=\"%d\" />\n", it->first.c_str(), (*posIt));
+		        }
+			++posIt;
+		}
+		++it;
+	}
+
+        it = lastViewBookmarks.begin();
+        end = lastViewBookmarks.end();
+
+	while (it != end) {
+		vector<int>::reverse_iterator posIt(it->second->rbegin());
+		vector<int>::reverse_iterator posEnd(it->second->rend());
+
+		while (posIt != posEnd) {
+                        fprintf(f, "\t<bookmark filename=\"%s\" position=\"%d\" lastview=\"1\"/>\n", it->first.c_str(), (*posIt));
+                        break;
+		}
+		++it;
+	}
+
+	fprintf(f, "</bookmarks>\n");
 
 	fclose(f);
 }
 
-int BKBookmark::get(string& filename) {
+void BKBookmark::load(bkBookmarks &bookmarks, bool wantLastview) {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
-	
-	if (filename.compare(xmlfilename) == 0) {
-		return -1;
-	}
-
-	bkBookmarks bookmarks;
-	load(bookmarks);
-	
-	bkBookmarksIt it(bookmarks.find(filename));
-	if (it != bookmarks.end())
-		return it->second;
-	else
-		return -1;
-}
-
-void BKBookmark::load(bkBookmarks &bookmarks) {
-	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, "%s/%s", FZScreen::basePath(), "bookmark.xml");
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
 	FILE* f = fopen(xmlfilename, "r");
 	// no existing preferences, probably the first time run of the app
 	if (f == NULL)
 		return;
-	
+
 	fseek(f, 0, SEEK_END);
 	int size = ftell(f);
 	char* buffer = (char*)malloc(size + 1);
@@ -115,16 +193,36 @@ void BKBookmark::load(bkBookmarks &bookmarks) {
 	while (bookmark) {
 		const char* filename = bookmark->Attribute("filename");
 		const char* position = bookmark->Attribute("position");
+		const char* lastview = bookmark->Attribute("lastview");
 		bookmark = bookmark->NextSiblingElement("bookmark"); 
 		
 		if (filename == 0 || position == 0) {			
 			continue;
 		}
-		int p = atoi(position);
-		bookmarks[filename] = p;		
+
+                string fn(filename);
+                if (wantLastview) {
+                	if (lastview) {
+                                // found what we want
+                                setPos(bookmarks, fn, atoi(position), true);
+                                break;
+                        }
+                } else if (!lastview)
+                	setPos(bookmarks, fn, atoi(position), false);
 	}
 
 	doc->Clear();
 	delete doc;
 }
 
+void BKBookmark::destroy(bkBookmarks &bookmarks) {
+	bkBookmarksIt it(bookmarks.begin());
+	bkBookmarksIt end(bookmarks.end());
+	
+	while (it != end) {
+		delete it->second;
+		++it;
+	}
+	
+	bookmarks.clear();
+}
