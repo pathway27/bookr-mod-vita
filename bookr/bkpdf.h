@@ -55,8 +55,8 @@ class BKPDF : public BKLayer {
 	virtual void setBookmark(bool lastview);
 	virtual void getPath(string&);
 	virtual void setPage(int position);
-        // this forces a redraw
-        virtual void reloadPage(int position);
+	// this forces a redraw
+	virtual void reloadPage(int position);
 
 	static BKPDF* create(string& file);
 };

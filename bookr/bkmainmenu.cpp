@@ -39,7 +39,7 @@ BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN),
 	mainItems.push_back(BKMenuItem("Exit", "Select", 0));
 	buildControlMenu();
 	buildOptionMenu();
-        buildBookmarkMenu();
+	buildBookmarkMenu();
 }
 
 BKMainMenu::~BKMainMenu() {
@@ -177,18 +177,18 @@ void BKMainMenu::buildBookmarkMenu() {
 	if (reader == NULL)
 		return;
 
-        string filename = isPdf ? ((BKPDF*)reader)->path : ((BKBook*)reader)->path;
+	string filename = isPdf ? ((BKPDF*)reader)->path : ((BKBook*)reader)->path;
 	bkBookmarkPos pos;
 	BKBookmark::getBookmarks(filename, pos);
 
 	bkBookmarkPosIt it(pos.begin());
 	bkBookmarkPosIt end(pos.end());
 
-        char buffer[16];
+	char buffer[16];
 
 	while(it != end) {
 		string t("Goto page ");
-                sprintf(buffer, "%d", *it);
+		sprintf(buffer, "%d", *it);
 		t += buffer;
 		bookmarkItems.push_back(BKMenuItem(t, cb, 0));
 		++it;
@@ -201,8 +201,8 @@ int BKMainMenu::update(unsigned int buttons) {
 	} else if (mode == BKMM_OPTIONS) {
 		return updateOptions(buttons);
 	} else if (mode == BKMM_BOOKMARKS) {
-        	return updateBookmarks(buttons);
-        }
+		return updateBookmarks(buttons);
+	}
 	return updateMain(buttons);
 }
 
@@ -216,15 +216,15 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_INVOKE_OPEN_FILE;
 		}
 		if (selItem == 1) {
-                        if (reader != NULL) {
-                                selItem = 0;
-                                topItem = 0;
-                                mode = BKMM_BOOKMARKS;
-                                return BK_CMD_MARK_DIRTY;
-                        } else {
-                        	BKBookmark::clear();
-                                return BK_CMD_CLOSE_TOP_LAYER;
-                        }
+			if (reader != NULL) {
+				selItem = 0;
+				topItem = 0;
+				mode = BKMM_BOOKMARKS;
+				return BK_CMD_MARK_DIRTY;
+			} else {
+				BKBookmark::clear();
+				return BK_CMD_CLOSE_TOP_LAYER;
+			}
 		}
 		if (selItem == 2) {
 			selItem = 0;
@@ -244,7 +244,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_MAINMENU_POPUP;
 		}
 		if (selItem == 5) {
-                	if (reader != NULL) {
+			if (reader != NULL) {
 				// Set bookmark now
 				if (isPdf)
 					((BKPDF*)reader)->setBookmark(true);
@@ -460,7 +460,7 @@ int BKMainMenu::updateBookmarks(unsigned int buttons) {
 				((BKPDF*)reader)->reloadPage(position);
 			else if (!isPdf && position > 0)
 				((BKBook*)reader)->reloadPage(position - 1);
-                        return BK_CMD_CLOSE_TOP_LAYER_RELOAD;
+			return BK_CMD_CLOSE_TOP_LAYER_RELOAD;
 		}
 
 		return BK_CMD_CLOSE_TOP_LAYER;
@@ -489,8 +489,8 @@ void BKMainMenu::render() {
 		string title("Options");
 		drawMenu(title, t, optionItems);
 	} else if (mode == BKMM_BOOKMARKS) {
-        	string title("Bookmarks");
-                drawMenu(title, t, bookmarkItems);
+		string title("Bookmarks");
+		drawMenu(title, t, bookmarkItems);
 	}
 	if (captureButton) {
 		texUI->bindForDisplay();

@@ -87,8 +87,8 @@ class BKBook : public BKLayer {
 	virtual void getPath(string&);
 	virtual int getSize();
 	virtual void skipPages(int offset);
-        // this forces a redraw
-        virtual void reloadPage(int position);
+	// this forces a redraw
+	virtual void reloadPage(int position);
 
 	static BKBook* create(string& file, int size);
 };

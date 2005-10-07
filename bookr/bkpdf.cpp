@@ -89,8 +89,8 @@ static PDFContext* pdfOpen(char *filename) {
 	fz_obj *obj;
 
 	/*
-	 * Open PDF and load xref table
-	 */
+	* Open PDF and load xref table
+	*/
 	error = pdf_newxref(&ctx->xref);
 	if (error) {
 		printf("err1: %s\n", error->msg);
@@ -117,8 +117,8 @@ static PDFContext* pdfOpen(char *filename) {
 	}
 
 	/*
-	 * Handle encrypted PDF files
-	 */
+	* Handle encrypted PDF files
+	*/
 
 	error = pdf_decryptxref(ctx->xref);
 	if (error) {
@@ -153,8 +153,8 @@ static PDFContext* pdfOpen(char *filename) {
 	}
 
 	/*
-	 * Load page tree
-	 */
+	* Load page tree
+	*/
 
 	error = pdf_loadpagetree(&ctx->pages, ctx->xref);
 	if (error) {
@@ -164,9 +164,9 @@ static PDFContext* pdfOpen(char *filename) {
 	}
 
 	/*
-	 * Load meta information
-	 * TODO: move this into mupdf library
-	 */
+	* Load meta information
+	* TODO: move this into mupdf library
+	*/
 	obj = fz_dictgets(ctx->xref->trailer, "Root");
 	if (!obj) {
 		printf("err7: %s\n", error->msg);
@@ -223,8 +223,8 @@ static PDFContext* pdfOpen(char *filename) {
 	}
 	*/
 	/*
-	 * Start at first page
-	 */
+	* Start at first page
+	*/
 /*
 	app->shrinkwrap = 1;
 	if (app->pageno < 1)
@@ -837,8 +837,8 @@ int BKPDF::update(unsigned int buttons) {
 
 void BKPDF::reloadPage(int position) {
 	setPage(position);
-        loadNewPage = true;
-        panY = 0;
+	loadNewPage = true;
+	panY = 0;
 }
 
 void BKPDF::setBookmark(bool lastview) {

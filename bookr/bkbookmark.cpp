@@ -42,13 +42,13 @@ void BKBookmark::set(string& filename, int position, bool lastview) {
 
 	bkBookmarks bookmarks, bookmarksLastview;
 	load(bookmarks, false);
-        load(bookmarksLastview, true);
+	load(bookmarksLastview, true);
 
 	setPos(lastview ? bookmarksLastview : bookmarks, filename, position, true);
 	save(bookmarks, bookmarksLastview);
 
 	destroy(bookmarks);
-        destroy(bookmarksLastview);
+	destroy(bookmarksLastview);
 }
 
 void BKBookmark::setPos(bkBookmarks& bookmarks, string& filename, int p, bool pushback) {
@@ -62,10 +62,10 @@ void BKBookmark::setPos(bkBookmarks& bookmarks, string& filename, int p, bool pu
 		pos = it->second;
 	}
 
-        if (pushback)
+	if (pushback)
 		pos->push_back(p);
-        else
-        	pos->insert(pos->begin(), p);
+	else
+		pos->insert(pos->begin(), p);
 }
 
 int BKBookmark::getLastView(string& filename) {
@@ -122,35 +122,35 @@ void BKBookmark::save(bkBookmarks &bookmarks, bkBookmarks& lastViewBookmarks) {
 	bkBookmarksIt end(bookmarks.end());
 
 	while (it != end) {
-        	// newest bookmarks are saved at the end
+		// newest bookmarks are saved at the end
 		vector<int>::reverse_iterator posIt(it->second->rbegin());
 		vector<int>::reverse_iterator posEnd(it->second->rend());
-                std::set<int> saved;
+		std::set<int> saved;
 
 		while (posIt != posEnd) {
-                	if (saved.find((*posIt)) == saved.end()) {
-                        	saved.insert((*posIt));
+			if (saved.find((*posIt)) == saved.end()) {
+				saved.insert((*posIt));
 
-                                // we will save only the latest 5 bookmarks
-                                if (saved.size() > MAX_BOOKMARKS_PER_FILE)
-                                	break;
-                                fprintf(f, "\t<bookmark filename=\"%s\" position=\"%d\" />\n", it->first.c_str(), (*posIt));
-		        }
+				// we will save only the latest 5 bookmarks
+				if (saved.size() > MAX_BOOKMARKS_PER_FILE)
+					break;
+				fprintf(f, "\t<bookmark filename=\"%s\" position=\"%d\" />\n", it->first.c_str(), (*posIt));
+			}
 			++posIt;
 		}
 		++it;
 	}
 
-        it = lastViewBookmarks.begin();
-        end = lastViewBookmarks.end();
+	it = lastViewBookmarks.begin();
+	end = lastViewBookmarks.end();
 
 	while (it != end) {
 		vector<int>::reverse_iterator posIt(it->second->rbegin());
 		vector<int>::reverse_iterator posEnd(it->second->rend());
 
 		while (posIt != posEnd) {
-                        fprintf(f, "\t<bookmark filename=\"%s\" position=\"%d\" lastview=\"1\"/>\n", it->first.c_str(), (*posIt));
-                        break;
+			fprintf(f, "\t<bookmark filename=\"%s\" position=\"%d\" lastview=\"1\"/>\n", it->first.c_str(), (*posIt));
+			break;
 		}
 		++it;
 	}
@@ -200,15 +200,15 @@ void BKBookmark::load(bkBookmarks &bookmarks, bool wantLastview) {
 			continue;
 		}
 
-                string fn(filename);
-                if (wantLastview) {
-                	if (lastview) {
-                                // found what we want
-                                setPos(bookmarks, fn, atoi(position), true);
-                                break;
-                        }
-                } else if (!lastview)
-                	setPos(bookmarks, fn, atoi(position), false);
+		string fn(filename);
+		if (wantLastview) {
+			if (lastview) {
+				// found what we want
+				setPos(bookmarks, fn, atoi(position), true);
+				break;
+			}
+		} else if (!lastview)
+			setPos(bookmarks, fn, atoi(position), false);
 	}
 
 	doc->Clear();

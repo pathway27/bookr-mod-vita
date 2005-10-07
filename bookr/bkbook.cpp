@@ -348,7 +348,7 @@ void BKBook::skipPages(int offset) {
 
 void BKBook::reloadPage(int position) {
 	int currentPage = baseLine / screenLines;
-        skipPages(position - currentPage);
+	skipPages(position - currentPage);
 }
 
 int BKBook::update(unsigned int buttons) {

@@ -30,8 +30,8 @@ typedef vector<int>::iterator bkBookmarkPosIt;
 class BKBookmark {
 
 	#define MAX_BOOKMARKS_PER_FILE 5
-        #define BOOKMARK_XML "bookmark.xml"
-        #define BOOKMARK_XML_BASE "%s/%s"
+	#define BOOKMARK_XML "bookmark.xml"
+	#define BOOKMARK_XML_BASE "%s/%s"
 
 	private:
 	typedef map<string, bkBookmarkPos*> bkBookmarks;

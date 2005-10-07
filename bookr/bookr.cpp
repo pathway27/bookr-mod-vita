@@ -106,17 +106,17 @@ int main(int argc, char* argv[]) {
 		--it;
 		int command = (*it)->update(buttons);
 		switch (command) {
-                	case BK_CMD_CLOSE_TOP_LAYER_RELOAD:
+			case BK_CMD_CLOSE_TOP_LAYER_RELOAD:
 			case BK_CMD_CLOSE_TOP_LAYER: {
 				bkLayersIt it(layers.end());
 				--it;
 				(*it)->release();
 				layers.erase(it);
 
-                                if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD) {
-                                	// repaint
-                                        dirty = true;                                        
-                                }
+				if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD) {
+					// repaint
+					dirty = true;                                        
+				}
 			} break;
 			case BK_CMD_MARK_DIRTY:
 				dirty = true;
