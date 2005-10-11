@@ -362,7 +362,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	return 0;
 }
 
-BKPDF::BKPDF(string& f) : path(f), ctx(0), bannerFrames(0), banner(""), panX(0), panY(0), loadNewPage(false), pageError(false) {
+BKPDF::BKPDF(string& f) : ctx(0), bannerFrames(0), banner(""), panX(0), panY(0), loadNewPage(false), pageError(false), path(f) {
 }
 
 static BKPDF* singleton = 0;
