@@ -205,10 +205,10 @@ void BKBookmark::load(bkBookmarks &bookmarks, bool wantLastview) {
 			if (lastview) {
 				// found what we want
 				setPos(bookmarks, fn, atoi(position), true);
-				break;
 			}
-		} else if (!lastview)
+		} else if (!lastview) {
 			setPos(bookmarks, fn, atoi(position), false);
+		}
 	}
 
 	doc->Clear();
