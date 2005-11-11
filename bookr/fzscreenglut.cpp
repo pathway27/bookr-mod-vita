@@ -26,6 +26,8 @@
 
 #ifdef MAC
 #include <GLUT/glut.h>
+#elif defined (__CYGWIN__)
+#include "cygwin/freeglut.h"
 #else
 #include <GL/freeglut.h>
 #endif
@@ -170,10 +172,12 @@ void FZScreen::endAndDisplayList() {
 }
 
 #ifndef MAC
+#ifndef __CYGWIN__
 extern "C" {
 	extern int glXGetVideoSyncSGI(unsigned int *count);
 	extern int glXWaitVideoSyncSGI(int divisor, int remainder, unsigned int *count);
 };
+#endif
 #endif
 
 void FZScreen::swapBuffers() {
@@ -182,9 +186,11 @@ void FZScreen::swapBuffers() {
 
 void FZScreen::waitVblankStart() {
 #ifndef MAC
+#ifndef __CYGWIN__
 	unsigned int c = 0;
 	glXGetVideoSyncSGI(&c);
 	glXWaitVideoSyncSGI(1, 0, &c);
+#endif
 #endif
 }
 
@@ -234,11 +240,13 @@ static int toGLBlendMode(int v) {
 }
 
 void FZScreen::blendFunc(int op, int src, int dst) {
+#ifndef __CYGWIN__	
 	int gop = GL_FUNC_ADD;
 	switch (op) {
 		case FZ_SUBTRACT: gop = GL_FUNC_SUBTRACT; break;
 	}
 	glBlendEquation(gop);
+#endif	
 	glBlendFunc(toGLBlendMode(src), toGLBlendMode(dst));
 }
 
@@ -433,10 +441,15 @@ int FZScreen::dirContents(char* path, vector<FZDirent>& a) {
 	while ((ep = readdir(dp))) {
 		if (ep->d_name[0] != 0 && ep->d_name[0] != '.') {
 			unsigned int s = 0;
+#ifndef __CYGWIN__
 			if (ep->d_type == DT_REG)
 				s |= FZ_STAT_IFREG;
 			if (ep->d_type == DT_DIR)
 				s |= FZ_STAT_IFDIR;
+#else
+			// TODO: This is incorrect
+			s |= FZ_STAT_IFREG;
+#endif			
 			if (s == 0)
 				continue;
 			struct stat st;

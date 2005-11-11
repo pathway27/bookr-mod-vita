@@ -1,0 +1,69 @@
+CXX=g++
+CC=gcc
+CLINK=g++
+WINDRES=
+CDEPS=g++ -MM
+DEPEX=*.c*
+OEX=o
+AR=ar
+ARFLAGS=r
+
+CXXFLAGS=-Imupdf/include -Icygwin -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+LDFLAGS=-g3 -Wall -W -Wno-unused -O0 -pipe
+LIBS=-Lmupdf/libs -Lcygwin -lmupdf -lraster -lworld -lfonts -lstream -lbase -lfreetype -lz -lpng -ljpeg -lfreeglut_dyn -lopengl32 -lglu32 -lm
+
+EXE=bookr.exe
+
+all: $(EXE)
+
+OBJS:=bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o
+OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
+OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o
+
+res_uifont.c: data/urwgothicb.pfb
+	bin2c $< temp res_uifont
+	sed s/static// temp > $@
+	rm -f temp
+
+res_txtfont.c: data/vera.ttf
+	bin2c $< temp res_txtfont
+	sed s/static// temp > $@
+	rm -f temp
+
+res_uitex.c: data/ui.png
+	bin2c $< temp res_uitex
+	sed s/static// temp > $@
+	rm -f temp
+
+res_logo.c: data/logo.png
+	bin2c $< temp res_logo
+	sed s/static// temp > $@
+	rm -f temp
+
+$(EXE): $(OBJS)
+	@(cd mupdf; make -f Makefile.glut)
+	$(CLINK) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+
+#%.a: $(OBJS)
+#	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+%.$(OEX): %.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+%.$(OEX): %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+#%.$(OEX): %.asm
+#	$(NASM) $(NASMFLAGS) $< -o $@
+
+#%.$(OEX): %.rc
+#	$(WINDRES) $< -O coff -o $@
+
+clean:
+	rm -f  $(EXE)
+	rm -Rf *.o
+	rm -f gmon.out
+	@(cd mupdf; make -f Makefile.glut clean)
+

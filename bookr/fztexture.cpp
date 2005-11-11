@@ -36,6 +36,8 @@
 
 #ifdef MAC
 #include <GLUT/glut.h>
+#elif defined (__CYGWIN__)
+#include "cygwin/freeglut.h"
 #else
 #include <GL/freeglut.h>
 #endif

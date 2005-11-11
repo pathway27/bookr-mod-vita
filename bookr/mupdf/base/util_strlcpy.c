@@ -4,7 +4,7 @@
  */
 
 #ifndef __APPLE_CC__
-
+#ifndef __CYGWIN__
 #include <string.h>
 
 int strlcpy(char *dst, const char *src, int siz)
@@ -31,5 +31,5 @@ int strlcpy(char *dst, const char *src, int siz)
 
 	return(s - src - 1);	/* count does not include NUL */
 }
-
+#endif
 #endif
