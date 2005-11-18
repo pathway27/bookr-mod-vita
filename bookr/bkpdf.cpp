@@ -383,8 +383,36 @@ BKPDF::~BKPDF() {
 	}
 }
 
-// this will be a pooled memory system some day. for now just try to optimize
-// ptr align
+static long long alloc_mallocs = 0;
+static long long alloc_malloc_size = 0;
+static long long alloc_frees = 0;
+static long long alloc_reallocs = 0;
+static long long alloc_realloc_size = 0;
+static long long alloc_large_realloc = 0;
+
+static void reset_allocs() {
+	alloc_mallocs = 0;
+	alloc_malloc_size = 0;
+	alloc_frees = 0;
+	alloc_reallocs = 0;
+	alloc_realloc_size = 0;
+	alloc_large_realloc = 0;
+}
+
+static void print_allocs() {
+#ifndef PSP
+/*
+	printf("\n-----------------------------\n");
+	printf("alloc_mallocs = %qd\n", alloc_mallocs);
+	printf("alloc_malloc_size = %qd\n", alloc_malloc_size); 
+	printf("alloc_frees = %qd\n", alloc_frees);
+	printf("alloc_reallocs = %qd\n", alloc_reallocs);
+	printf("alloc_realloc_size = %qd\n", alloc_realloc_size);
+	printf("alloc_large_realloc = %qd\n", alloc_large_realloc);
+*/
+#endif
+}
+
 static void* bkmalloc(fz_memorycontext *mem, int n) {
 	void* buf = NULL;
 	/*if (n >= 64)
@@ -392,15 +420,24 @@ static void* bkmalloc(fz_memorycontext *mem, int n) {
 	else*/
 		buf = malloc(n);
 	memset(buf, 0, n);
+	alloc_malloc_size += n;
+	++alloc_mallocs;
 	return buf;
 }
 
 static void *bkrealloc(fz_memorycontext *mem, void *p, int n) {
+	++alloc_reallocs;
+	alloc_realloc_size += n;
+	alloc_large_realloc = alloc_large_realloc < n ? n : alloc_large_realloc;
+#ifndef PSP
+	//printf("%d\n", n);
+#endif
 	return realloc(p, n);
 }
 
 static void bkfree(fz_memorycontext *mem, void *p) {
 	free(p);
+	++alloc_frees;
 }
 
 static fz_memorycontext bkmem = { bkmalloc, bkrealloc, bkfree };
@@ -432,10 +469,12 @@ BKPDF* BKPDF::create(string& file) {
 	int position = BKBookmark::getLastView(b->path);
 	b->setPage(position);
 	
+	reset_allocs();
 	b->pageError = pdfLoadPage(ctx) != 0;
 
 	FZScreen::resetReps();
 	b->redrawBuffer();
+	print_allocs();
 	lastScrollFlag = BKUser::options.pdfFastScroll;
 	return b;
 }
