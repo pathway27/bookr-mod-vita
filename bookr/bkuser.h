@@ -62,6 +62,7 @@ class BKUser {
 		bool txtJustify;
 		int pspSpeed;
 		bool displayLabels;
+		bool pdfInvertColors;
 	};
 	static Options options;
 };

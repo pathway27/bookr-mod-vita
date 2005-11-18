@@ -308,6 +308,14 @@ static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h, boo
 	if (error) {
 		return 0;
 	}
+	if (BKUser::options.pdfInvertColors) {
+		unsigned int* s = (unsigned int*)pix->samples;
+		unsigned int n = pix->w * pix->h;
+		for (unsigned int i = 0; i < n; ++i) {
+			*s = ~(*s);
+			++s;
+		}
+	}
 	return pix;
 }
 

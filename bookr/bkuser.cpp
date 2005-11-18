@@ -61,6 +61,7 @@ void BKUser::setDefaultOptions() {
 	options.txtJustify = true;
 	options.pspSpeed = 0;
 	options.displayLabels = true;
+	options.pdfInvertColors = false;
 }
 
 void BKUser::save() {
@@ -103,6 +104,7 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"txtJustify\" value=\"%d\" />\n", options.txtJustify ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pspSpeed\" value=\"%d\" />\n", options.pspSpeed);
 	fprintf(f, "\t\t<set option=\"displayLabels\" value=\"%d\" />\n", options.displayLabels ? 1 : 0);
+	fprintf(f, "\t\t<set option=\"pdfInvertColors\" value=\"%d\" />\n", options.pdfInvertColors ? 1 : 0);
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -179,15 +181,16 @@ void BKUser::load() {
 				printf("invalid user.xml in line %d\n", eset->Row());
 				break;
 			}
-			     if (strncmp(option, "pdfFastScroll", 128) == 0) options.pdfFastScroll = atoi(value) != 0;
-			else if (strncmp(option, "txtRotation",   128) == 0) options.txtRotation   = atoi(value);
-			else if (strncmp(option, "txtFont",       128) == 0) options.txtFont       = value;
-			else if (strncmp(option, "txtSize",       128) == 0) options.txtSize       = atoi(value);
-			else if (strncmp(option, "txtFGColor",    128) == 0) options.txtFGColor    = atoi(value);
-			else if (strncmp(option, "txtBGColor",    128) == 0) options.txtBGColor    = atoi(value);
-			else if (strncmp(option, "txtJustify",    128) == 0) options.txtJustify    = atoi(value) != 0;
-			else if (strncmp(option, "pspSpeed",      128) == 0) options.pspSpeed      = atoi(value);
-			else if (strncmp(option, "displayLabels", 128) == 0) options.displayLabels = atoi(value) != 0;
+			     if (strncmp(option, "pdfFastScroll",   128) == 0) options.pdfFastScroll   = atoi(value) != 0;
+			else if (strncmp(option, "txtRotation",     128) == 0) options.txtRotation     = atoi(value);
+			else if (strncmp(option, "txtFont",         128) == 0) options.txtFont         = value;
+			else if (strncmp(option, "txtSize",         128) == 0) options.txtSize         = atoi(value);
+			else if (strncmp(option, "txtFGColor",      128) == 0) options.txtFGColor      = atoi(value);
+			else if (strncmp(option, "txtBGColor",      128) == 0) options.txtBGColor      = atoi(value);
+			else if (strncmp(option, "txtJustify",      128) == 0) options.txtJustify      = atoi(value) != 0;
+			else if (strncmp(option, "pspSpeed",        128) == 0) options.pspSpeed        = atoi(value);
+			else if (strncmp(option, "displayLabels",   128) == 0) options.displayLabels   = atoi(value) != 0;
+			else if (strncmp(option, "pdfInvertColors", 128) == 0) options.pdfInvertColors = atoi(value) != 0;
 	
 			eset = eset->NextSiblingElement("set"); 
 		}

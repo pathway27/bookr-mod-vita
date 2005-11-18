@@ -168,6 +168,10 @@ void BKMainMenu::buildOptionMenu() {
 	t += BKUser::options.displayLabels ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
+	t = "PDF - Invert colors: ";
+	t += BKUser::options.pdfInvertColors ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
@@ -371,6 +375,11 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 		if (selItem == 8) {
 			BKUser::options.displayLabels = !BKUser::options.displayLabels;
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == 9) {
+			BKUser::options.pdfInvertColors = !BKUser::options.pdfInvertColors;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
