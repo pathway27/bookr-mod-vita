@@ -208,7 +208,7 @@ void FZScreen::setupCtrl() {
 
 int FZScreen::readCtrl() {
 	SceCtrlData pad;
-	sceCtrlReadBufferPositive(&pad, 1);
+	sceCtrlPeekBufferPositive(&pad, 1);
 	updateReps(pad.Buttons);
 	return pad.Buttons;
 }
