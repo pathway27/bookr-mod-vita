@@ -63,6 +63,7 @@ class BKUser {
 		int pspSpeed;
 		bool displayLabels;
 		bool pdfInvertColors;
+		int pdfBGColor;
 	};
 	static Options options;
 };

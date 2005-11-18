@@ -172,6 +172,11 @@ void BKMainMenu::buildOptionMenu() {
 	t += BKUser::options.pdfInvertColors ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
+	t = "PDF - Background color: ";
+	mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
+	mi.color = BKUser::options.pdfBGColor;
+	optionItems.push_back(mi);
+
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
@@ -383,6 +388,9 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
+		if (selItem == 10) {
+			return BK_CMD_INVOKE_COLOR_CHOOSER_PDFBG;
+		}
 		/*if (selItem == 2) {
 			if (BKUser::options.txtRotation == 0) {
 				BKUser::options.txtRotation = 90;
@@ -433,7 +441,10 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			if (BKUser::options.pspSpeed < 0) {
 				BKUser::options.pspSpeed = 0;
 			} else {
-				FZScreen::setSpeed(BKUser::options.pspSpeed);
+				if (BKUser::options.pspSpeed == 0)
+					FZScreen::setSpeed(5);
+				else
+					FZScreen::setSpeed(BKUser::options.pspSpeed);
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
@@ -454,7 +465,10 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			if (BKUser::options.pspSpeed > 6) {
 				BKUser::options.pspSpeed = 6;
 			} else {
-				FZScreen::setSpeed(BKUser::options.pspSpeed);
+				if (BKUser::options.pspSpeed == 0)
+					FZScreen::setSpeed(5);
+				else
+					FZScreen::setSpeed(BKUser::options.pspSpeed);
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;

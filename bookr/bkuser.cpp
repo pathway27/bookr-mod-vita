@@ -62,6 +62,7 @@ void BKUser::setDefaultOptions() {
 	options.pspSpeed = 0;
 	options.displayLabels = true;
 	options.pdfInvertColors = false;
+	options.pdfBGColor = 0x505050;
 }
 
 void BKUser::save() {
@@ -105,6 +106,7 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"pspSpeed\" value=\"%d\" />\n", options.pspSpeed);
 	fprintf(f, "\t\t<set option=\"displayLabels\" value=\"%d\" />\n", options.displayLabels ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pdfInvertColors\" value=\"%d\" />\n", options.pdfInvertColors ? 1 : 0);
+	fprintf(f, "\t\t<set option=\"pdfBGColor\" value=\"%d\" />\n", options.pdfBGColor);
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -191,6 +193,7 @@ void BKUser::load() {
 			else if (strncmp(option, "pspSpeed",        128) == 0) options.pspSpeed        = atoi(value);
 			else if (strncmp(option, "displayLabels",   128) == 0) options.displayLabels   = atoi(value) != 0;
 			else if (strncmp(option, "pdfInvertColors", 128) == 0) options.pdfInvertColors = atoi(value) != 0;
+			else if (strncmp(option, "pdfBGColor",      128) == 0) options.pdfBGColor      = atoi(value);
 	
 			eset = eset->NextSiblingElement("set"); 
 		}
@@ -217,6 +220,10 @@ void BKUser::load() {
 	}
 	if ((options.txtBGColor & 0xff000000) != 0) {
 		options.txtBGColor &= 0xffffff;
+		operror = true;
+	}
+	if ((options.pdfBGColor & 0xff000000) != 0) {
+		options.pdfBGColor &= 0xffffff;
 		operror = true;
 	}
 	if (options.pspSpeed < 0 || options.pspSpeed > 6) {

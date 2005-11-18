@@ -598,7 +598,12 @@ void BKPDF::redrawBuffer() {
 		unsigned int* s = (unsigned int*)fullPageBuffer->samples + px + (fullPageBuffer->w*py);
 		unsigned int* d = bounceBuffer;
 		if (fillGrey) {
-			memset(d, 0x50, 480*272*4);
+			unsigned int *dd = d;
+			const unsigned int c = BKUser::options.pdfBGColor;
+			for (int i = 0; i < 480*272; i++) {
+				*dd = c;
+				++dd;
+			}
 		}
 		d += dskip;
 		for (int j = 0; j < ch; ++j) {
