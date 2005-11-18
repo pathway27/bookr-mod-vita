@@ -511,7 +511,7 @@ void BKPDF::render() {
 		snprintf(t, 256, "Error in page %d: %s", ctx->pageno, lastPageError);
 		drawTextHC(t, fontBig, 130);
 	}
-	if (loadNewPage) {
+	if (loadNewPage && BKUser::options.displayLabels) {
 		texUI->bindForDisplay();
 		FZScreen::ambientColor(0xf0222222);
 		drawPill(150, 240, 180, 20, 6, 31, 1);
@@ -519,7 +519,7 @@ void BKPDF::render() {
 		FZScreen::ambientColor(0xffffffff);
 		drawTextHC("Loading", fontBig, 244);
 	}
-	if (bannerFrames > 0) {
+	if (bannerFrames > 0 && BKUser::options.displayLabels) {
 		int alpha = 0xff;
 		if (bannerFrames <= 32) {
 			alpha = bannerFrames*(256/32) - 8;

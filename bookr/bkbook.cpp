@@ -34,9 +34,9 @@ static void* memalign(int t, int s) {
 #include "fzfont.h"
 
 BKBook::BKBook(string& file) :
-	path(file), text(0), textLen(0), baseLine(0), page(1),
+	text(0), textLen(0), baseLine(0), page(1),
 	screenLines(0), totalLines(0),
-	bannerFrames(0), fontText(0) {
+	bannerFrames(0), fontText(0), path(file) {
 }
 
 BKBook::~BKBook() {
@@ -313,7 +313,7 @@ void BKBook::render() {
 	spritesForLines(15, 10, baseLine, baseLine + screenLines, vertices);
 	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,totalVertices,0,vertices);
 
-	if (bannerFrames > 0) {
+	if (bannerFrames > 0 && BKUser::options.displayLabels) {
 		int alpha = 0xff;
 		if (bannerFrames <= 32) {
 			alpha = bannerFrames*(256/32) - 8;

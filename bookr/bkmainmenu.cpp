@@ -164,6 +164,10 @@ void BKMainMenu::buildOptionMenu() {
 	t = txt;
 	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
+	t = "Display page loading and numbering labels: ";
+	t += BKUser::options.displayLabels ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
@@ -364,6 +368,11 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 		if (selItem == 6) {
 			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG;
+		}
+		if (selItem == 8) {
+			BKUser::options.displayLabels = !BKUser::options.displayLabels;
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
 		}
 		/*if (selItem == 2) {
 			if (BKUser::options.txtRotation == 0) {
