@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
 	FZScreen::open(argc, argv);
 	FZScreen::setupCtrl();
 	BKUser::init();
+	FZScreen::setSpeed(BKUser::options.pspSpeed);
 	FZ_DEBUG_SCREEN_INIT
 
 	BKLayer::load();

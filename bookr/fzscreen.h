@@ -265,6 +265,9 @@ public:
 	static bool wasSuspended();
 	static void clearSuspended();
 
+	static char* speedLabels[];
+	static int speedValues[];
+	static void setSpeed(int v);
 };
 
 #endif

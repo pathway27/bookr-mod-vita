@@ -76,3 +76,23 @@ int FZScreen::repsForButtonMask(int mask) {
 	return 0;
 }
 
+char* FZScreen::speedLabels[7] = {
+	"Default",
+	"10Mhz/5Mhz",
+	"25Mhz/12Mhz",
+	"50Mhz/25Mhz",
+	"111Mhz/55Mhz",
+	"222Mhz/111Mhz",
+	"333Mhz/166Mhz"
+};
+
+int FZScreen::speedValues[14] = {
+	0, 0,
+	10, 5,
+	25, 12,
+	50, 25,
+	111, 55, 
+	222, 111,
+	333, 166
+};
+

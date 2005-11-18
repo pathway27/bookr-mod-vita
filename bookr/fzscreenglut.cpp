@@ -245,7 +245,8 @@ void FZScreen::blendFunc(int op, int src, int dst) {
 	switch (op) {
 		case FZ_SUBTRACT: gop = GL_FUNC_SUBTRACT; break;
 	}
-	glBlendEquation(gop);
+	// unused
+	//glBlendEquation(gop);
 #endif	
 	glBlendFunc(toGLBlendMode(src), toGLBlendMode(dst));
 }
@@ -482,5 +483,8 @@ bool FZScreen::wasSuspended() {
 }
 
 void FZScreen::clearSuspended() {
+}
+
+void FZScreen::setSpeed(int v) {
 }
 

@@ -160,6 +160,10 @@ void BKMainMenu::buildOptionMenu() {
 	mi.color = BKUser::options.txtBGColor;
 	optionItems.push_back(mi);
 
+	snprintf(txt, 1024, "CPU/Bus speed: %s", FZScreen::speedLabels[BKUser::options.pspSpeed]);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
@@ -397,24 +401,46 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
-	if (b[FZ_REPS_LEFT] == 1 && selItem == 3) {
-		--BKUser::options.txtSize;
-		if (BKUser::options.txtSize < 6) {
-			BKUser::options.txtSize = 6;
-		} else {
-			buildOptionMenu();
+	if (b[FZ_REPS_LEFT] == 1) {
+		if (selItem == 3) {
+			--BKUser::options.txtSize;
+			if (BKUser::options.txtSize < 6) {
+				BKUser::options.txtSize = 6;
+			} else {
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 7) {
+			--BKUser::options.pspSpeed;
+			if (BKUser::options.pspSpeed < 0) {
+				BKUser::options.pspSpeed = 0;
+			} else {
+				FZScreen::setSpeed(BKUser::options.pspSpeed);
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
 		}
-		return BK_CMD_MARK_DIRTY;
 	}
 
-	if (b[FZ_REPS_RIGHT] == 1 && selItem == 3) {
-		++BKUser::options.txtSize;
-		if (BKUser::options.txtSize > 20) {
-			BKUser::options.txtSize = 20;
-		} else {
-			buildOptionMenu();
+	if (b[FZ_REPS_RIGHT] == 1) {
+		if (selItem == 3) {
+			++BKUser::options.txtSize;
+			if (BKUser::options.txtSize > 20) {
+				BKUser::options.txtSize = 20;
+			} else {
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 7) {
+			++BKUser::options.pspSpeed;
+			if (BKUser::options.pspSpeed > 6) {
+				BKUser::options.pspSpeed = 6;
+			} else {
+				FZScreen::setSpeed(BKUser::options.pspSpeed);
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
 		}
-		return BK_CMD_MARK_DIRTY;
 	}
 
 	return 0;

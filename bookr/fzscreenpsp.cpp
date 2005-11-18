@@ -338,3 +338,10 @@ void FZScreen::clearSuspended() {
 	powerResumed = false;
 }
 
+void FZScreen::setSpeed(int v) {
+	if (v <= 0 || v > 6)
+		return;
+	scePowerSetCpuClockFrequency(speedValues[v*2]);
+	scePowerSetBusClockFrequency(speedValues[v*2+1]);
+}
+

@@ -60,6 +60,7 @@ class BKUser {
 		int txtFGColor;
 		int txtBGColor;
 		bool txtJustify;
+		int pspSpeed;
 	};
 	static Options options;
 };

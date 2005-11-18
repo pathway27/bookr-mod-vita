@@ -59,6 +59,7 @@ void BKUser::setDefaultOptions() {
 	options.txtFGColor = 0;
 	options.txtBGColor = 0xffffff;
 	options.txtJustify = true;
+	options.pspSpeed = 0;
 }
 
 void BKUser::save() {
@@ -99,6 +100,7 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"txtFGColor\" value=\"%d\" />\n", options.txtFGColor);
 	fprintf(f, "\t\t<set option=\"txtBGColor\" value=\"%d\" />\n", options.txtBGColor);
 	fprintf(f, "\t\t<set option=\"txtJustify\" value=\"%d\" />\n", options.txtJustify ? 1 : 0);
+	fprintf(f, "\t\t<set option=\"pspSpeed\" value=\"%d\" />\n", options.pspSpeed);
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -182,6 +184,7 @@ void BKUser::load() {
 			else if (strncmp(option, "txtFGColor",    128) == 0) options.txtFGColor    = atoi(value);
 			else if (strncmp(option, "txtBGColor",    128) == 0) options.txtBGColor    = atoi(value);
 			else if (strncmp(option, "txtJustify",    128) == 0) options.txtJustify    = atoi(value) != 0;
+			else if (strncmp(option, "pspSpeed",      128) == 0) options.pspSpeed      = atoi(value);
 	
 			eset = eset->NextSiblingElement("set"); 
 		}
@@ -208,6 +211,10 @@ void BKUser::load() {
 	}
 	if ((options.txtBGColor & 0xff000000) != 0) {
 		options.txtBGColor &= 0xffffff;
+		operror = true;
+	}
+	if (options.pspSpeed < 0 || options.pspSpeed > 6) {
+		options.pspSpeed = 0;
 		operror = true;
 	}
 	if (operror)
