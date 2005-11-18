@@ -331,11 +331,13 @@ static void pdfRenderFullPage(PDFContext* ctx) {
 	}
 }
 
+static char lastPageError[1024];
 static int pdfLoadPage(PDFContext* ctx) {
 	if (fullPageBuffer != NULL) {
 		fz_droppixmap(fullPageBuffer);
 		fullPageBuffer = NULL;
 	}
+	strcpy(lastPageError, "No error");
 
 	fz_error *error;
 	fz_obj *obj;
@@ -349,7 +351,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	error = pdf_loadpage(&ctx->page, ctx->xref, obj);
 	if (error) {
 		printf("errLP1: %s\n", error->msg);
-		//pdfapp_error(app, error);
+		strcpy(lastPageError, error->msg);
 		return -1;
 	}
 
@@ -506,7 +508,7 @@ void BKPDF::render() {
 		fontBig->bindForDisplay();
 		FZScreen::ambientColor(0xff222222);
 		char t[256];
-		snprintf(t, 256, "Error in page %d", ctx->pageno);
+		snprintf(t, 256, "Error in page %d: %s", ctx->pageno, lastPageError);
 		drawTextHC(t, fontBig, 130);
 	}
 	if (loadNewPage) {
