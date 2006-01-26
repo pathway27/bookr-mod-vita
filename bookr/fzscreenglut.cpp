@@ -118,6 +118,26 @@ static void keyboardup(unsigned char key, int x, int y) {
 	}
 }
 
+static bool mouseDrag = false;
+static int originAnalogX = 0;
+static int originAnalogY = 0;
+static int lastAnalogX = 0;
+static int lastAnalogY = 0;
+static void mousepress(int button, int state, int x, int y) {
+	if (state == GLUT_DOWN) {
+		mouseDrag = true;
+		originAnalogX = x;
+		originAnalogY = y;
+	} else {
+		mouseDrag = false;
+	}	
+}
+
+static void mousemotion(int x, int y) {
+	lastAnalogX = x - originAnalogX;
+	lastAnalogY = y - originAnalogY;
+}
+
 static char psp_full_path[1024 + 1];
 void FZScreen::open(int argc, char** argv) {
 	getcwd(psp_full_path, 1024);
@@ -129,6 +149,8 @@ void FZScreen::open(int argc, char** argv) {
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardup);
+	glutMouseFunc(mousepress);
+	glutMotionFunc(mousemotion);
 	glViewport(0, 0, 480, 272);
 }
 
@@ -154,6 +176,16 @@ void FZScreen::setupCtrl() {
 int FZScreen::readCtrl() {
 	updateReps();
 	return keyState;
+}
+
+void FZScreen::getAnalogPad(int& x, int& y) {
+	if (mouseDrag) {
+		x = lastAnalogX;
+		y = lastAnalogY;
+	} else {
+		x = 0;
+		y = 0;
+	}
 }
 
 void FZScreen::resetReps() {

@@ -33,8 +33,6 @@ struct PDFContext;
 class BKPDF : public BKDocument {
 	PDFContext* ctx;
 
-	int bannerFrames;
-	string banner;
 	string filePath;
 
 	int panX;
@@ -42,6 +40,7 @@ class BKPDF : public BKDocument {
 	bool loadNewPage;
 	bool pageError;
 	void panBuffer(int nx, int ny);
+	void clipCoords(float& nx, float& ny);
 	void redrawBuffer();
 
 	string title;

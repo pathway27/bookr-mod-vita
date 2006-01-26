@@ -247,6 +247,7 @@ public:
 	static void setupCtrl();
 
 	static int readCtrl();
+	static void getAnalogPad(int& x, int& y);
 	static void resetReps();
 	static int* ctrlReps();
 	static const char* nameForButton(int mask);

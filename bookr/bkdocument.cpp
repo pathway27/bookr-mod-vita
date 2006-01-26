@@ -38,11 +38,16 @@ BKDocument* BKDocument::create(string& filePath) {
 	return 0;
 }
 
-BKDocument::BKDocument() {
+BKDocument::BKDocument() : bannerFrames(0), banner("") {
 	lastSuspendSerial = FZScreen::getSuspendSerial();
 }
 
 BKDocument::~BKDocument() {
+}
+
+void BKDocument::setBanner(char* b) {
+	banner = b;
+	bannerFrames = 60;
 }
 
 int BKDocument::update(unsigned int buttons) {
@@ -56,6 +61,14 @@ int BKDocument::update(unsigned int buttons) {
 	int r = updateContent();
 	if (r != 0)
 		return r;
+
+	bannerFrames--;
+	if (bannerFrames < 0)
+		bannerFrames = 0;
+
+	// banner fade
+	if (bannerFrames > 0)
+		return BK_CMD_MARK_DIRTY;
 
 	return processEventsForView();
 	//processEventsForToolbar(); ?
@@ -109,169 +122,66 @@ int BKDocument::processEventsForView() {
 			z ?
 		}
 		*/
-		setZoomLevel(z);
+		int r = setZoomLevel(z);
+		if (r != 0)
+			return r;
 	}
-	virtual void setZoomLevel(int) = 0;
 
-	// Analog pad paning - can be ignored
-	virtual void pan(int, int) = 0;
+	// button handling - analog pad panning
+	{
+		int ax = 0, ay = 0;
+		FZScreen::getAnalogPad(ax, ay);
+		int r = pan(ax, ay);
+		if (r != 0)
+			return r;
+	}
 
-	// Rotation (0 = 0deg, 1 = 90deg, 2 = 180deg, 3 = 240deg)
+	// button handling - rotation - TO DO
+	/*
 	virtual bool isRotable() = 0;
 	virtual int getRotation() = 0;
 	virtual void setRotation(int) = 0;
+	*/
 
-	// Bookmark support. The returned map is a black box
-	// for the bookmarking system.
-	virtual bool isBookmarkable() = 0;
-	virtual void getBookmarkPosition(map<string, int>&) = 0;
-	virtual void setBookmarkPosition(const map<string, int>&) = 0;
-
-
-	float nx = panX;
-	float ny = panY;
-	bool fullRedraw = false;
-	// pan
-	if (b[BKUser::pdfControls.panUp] == 1 || b[BKUser::pdfControls.panUp] > 20) {
-		ny -= 16.0f;
-	}
-	if (b[BKUser::pdfControls.panDown] == 1 || b[BKUser::pdfControls.panDown] > 20) {
-		ny += 16.0f;
-	}
-	if (b[BKUser::pdfControls.panLeft] == 1 || b[BKUser::pdfControls.panLeft] > 20) {
-		nx -= 16.0f;
-	}
-	if (b[BKUser::pdfControls.panRight] == 1 || b[BKUser::pdfControls.panRight] > 20) {
-		nx += 16.0f;
-	}
-	// zoom
-	if (b[BKUser::pdfControls.zoomOut] == 1) {
-		--ctx->zoomLevel;
-		if (ctx->zoomLevel < 0)
-			ctx->zoomLevel = 0;
-		if (BKUser::options.pdfFastScroll && ctx->zoomLevel > 14) {
-			ctx->zoomLevel = 14;
-			ctx->zoom = 2.0f;
-		}
-		ctx->zoom = zoomLevels[ctx->zoomLevel];
-		fullRedraw = true;
-		nx *= ctx->zoom;
-		ny *= ctx->zoom;
-		char t[256];
-		snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
-		banner = t;
-		bannerFrames = 60;
-	}
-	if (b[BKUser::pdfControls.zoomIn] == 1) {
-		++ctx->zoomLevel;
-		int n = sizeof(zoomLevels)/sizeof(float);
-		if (ctx->zoomLevel >= n)
-			ctx->zoomLevel = n - 1;
-		if (BKUser::options.pdfFastScroll && ctx->zoomLevel > 14) {
-			ctx->zoomLevel = 14;
-			ctx->zoom = 2.0f;
-		}
-		ctx->zoom = zoomLevels[ctx->zoomLevel];
-		fullRedraw = true;
-		nx *= ctx->zoom;
-		ny *= ctx->zoom;
-		char t[256];
-		snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
-		banner = t;
-		bannerFrames = 60;
-	}
-	// clip coords
-	if (!pageError) {
-		fz_matrix ctm = pdfViewctm(ctx);
-		fz_rect bbox = ctx->page->mediabox;
-		bbox = fz_transformaabb(ctm, bbox);
-		if (ny < 0.0f) {
-			ny = 0.0f;
-		}
-		float h = bbox.y1 - bbox.y0;
-		if (ny >= h - 272.0f) {
-			ny = h - 273.0f;
-		}
-		if (nx < 0.0f) {
-			nx = 0.0f;
-		}
-		float w = bbox.x1 - bbox.x0;
-		if (nx >= w - 480.0f) {
-			nx = w - 481.0f;
-		}
-#if 0
-		if (ny < 0.0f) {
-			ny = 0.0f;
-		}
-		float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
-		h *= ctx->zoom;
-		if (ny >= h - 272.0f) {
-			ny = h - 273.0f;
-		}
-		if (nx < 0.0f) {
-			nx = 0.0f;
-		}
-		float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
-		w *= ctx->zoom;
-		if (nx >= w - 480.0f) {
-			nx = w - 481.0f;
-		}
-#endif
-	}
-
-	int inx = (int)nx;
-	int iny = (int)ny;
-	// redraw and/or pan
-	if (fullRedraw) {
-		panX = inx;
-		panY = iny;
-		if (BKUser::options.pdfFastScroll) {
-			//pdfRenderFullPage(ctx);
-			loadNewPage = true;
-			return BK_CMD_MARK_DIRTY;
-		}
-		redrawBuffer();
-		return BK_CMD_MARK_DIRTY;
-	}
-	if (inx != panX || iny != panY) {
-		panBuffer(inx, iny);
-		return BK_CMD_MARK_DIRTY;
-	}
+	// bookmarks and other features are not supported by mapeable keys
 
 	// main menu
 	if (b[FZ_REPS_START] == 1) {
 		return BK_CMD_INVOKE_MENU;
 	}
 
-	// banner fade
-	if (bannerFrames > 0)
-		return BK_CMD_MARK_DIRTY;
-
-	// next/prev page
-	int oldpage = ctx->pageno;
-
-	if (b[BKUser::pdfControls.nextPage] == 1) {
-		ctx->pageno++;
-	}
-	if (b[BKUser::pdfControls.previousPage] == 1) {
-		ctx->pageno--;
-	}
-	if (b[BKUser::pdfControls.next10Pages] == 1) {
-		ctx->pageno+=10;
-	}
-	if (b[BKUser::pdfControls.previous10Pages] == 1) {
-		ctx->pageno-=10;
-	}
+	// toolbar
+	/*if (b[FZ_REPS_SELECT] == 1) {
+	}*/
 
 	return 0;
 }
 
 
-int BKDocument::updateToolbariew() {
+int BKDocument::processEventsForToolbar() {
+	return 0;
 }
 
 void BKDocument::render() {
 	renderContent();
+	if (bannerFrames > 0 && BKUser::options.displayLabels) {
+		int alpha = 0xff;
+		if (bannerFrames <= 32) {
+			alpha = bannerFrames*(256/32) - 8;
+		}
+		if (alpha > 0) {
+			texUI->bindForDisplay();
+			FZScreen::ambientColor(0x222222 | (alpha << 24));
+			drawPill(150, 240, 180, 20, 6, 31, 1);
+			fontBig->bindForDisplay();
+			FZScreen::ambientColor(0xffffff | (alpha << 24));
+			//char t[256];
+			//snprintf(t, 256, "Page %d of %d", ctx->pageno, pdf_getpagecount(ctx->pages));
+			//drawTextHC(t, fontBig, 244);
+			drawTextHC((char*)banner.c_str(), fontBig, 244);
+		}
+	}
+
 	// toolbar...
 }
 

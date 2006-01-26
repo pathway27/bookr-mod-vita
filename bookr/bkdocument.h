@@ -37,6 +37,9 @@ class BKDocument : public BKLayer {
 	int processEventsForView();
 	int processEventsForToolbar();
 
+	int bannerFrames;
+	string banner;
+
 	protected:
 	BKDocument();
 	~BKDocument();
@@ -109,6 +112,9 @@ class BKDocument : public BKLayer {
 	virtual bool isBookmarkable() = 0;
 	virtual void getBookmarkPosition(map<string, int>&) = 0;
 	virtual int setBookmarkPosition(const map<string, int>&) = 0;
+
+	// banners
+	void setBanner(char*);
 };
 
 #endif

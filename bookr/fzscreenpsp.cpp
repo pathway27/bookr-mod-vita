@@ -206,11 +206,20 @@ void FZScreen::setupCtrl() {
 	resetReps();
 }
 
+static int lastAnalogX = 0;
+static int lastAnalogY = 0;
 int FZScreen::readCtrl() {
 	SceCtrlData pad;
 	sceCtrlPeekBufferPositive(&pad, 1);
 	updateReps(pad.Buttons);
+	lastAnalogX = pad.
+	lastAnalogY = pad.
 	return pad.Buttons;
+}
+
+void FZScreen::getAnalogPad(int& x, int& y) {
+	x = lastAnalogX;
+	y = lastAnalogY;
 }
 
 void FZScreen::startDirectList() {

@@ -24,6 +24,7 @@
 
 BKUser::Controls BKUser::pdfControls;
 BKUser::Controls BKUser::txtControls;
+BKUser::Controls BKUser::controls;
 BKUser::Options BKUser::options;
 
 void BKUser::init() {
@@ -48,6 +49,18 @@ void BKUser::setDefaultControls() {
 	pdfControls.panRight         = FZ_REPS_RIGHT;
 	pdfControls.zoomIn           = FZ_REPS_RTRIGGER;
 	pdfControls.zoomOut          = FZ_REPS_LTRIGGER;
+
+	// set default controls
+	controls.previousPage     = FZ_REPS_SQUARE;
+	controls.nextPage         = FZ_REPS_TRIANGLE;
+	controls.previous10Pages  = FZ_REPS_CIRCLE;
+	controls.next10Pages      = FZ_REPS_CROSS;
+	controls.panUp            = FZ_REPS_UP;
+	controls.panDown          = FZ_REPS_DOWN;
+	controls.panLeft          = FZ_REPS_LEFT;
+	controls.panRight         = FZ_REPS_RIGHT;
+	controls.zoomIn           = FZ_REPS_RTRIGGER;
+	controls.zoomOut          = FZ_REPS_LTRIGGER;
 }
 
 void BKUser::setDefaultOptions() {

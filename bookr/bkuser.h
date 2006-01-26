@@ -44,6 +44,7 @@ class BKUser {
 	};
 	static Controls pdfControls;
 	static Controls txtControls;
+	static Controls controls;
 
 	struct Options {
 		bool pdfFastScroll;

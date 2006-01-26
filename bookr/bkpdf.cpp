@@ -211,11 +211,10 @@ static PDFContext* pdfOpen(char *filename) {
 			printf("warn12 - no outline: %s\n", error->msg);
 		}
 	}
-
-	/*
-	ctx->doctitle = filename;
+/*
+	char* ptitle = filename;
 	if (strrchr(app->doctitle, '\\'))
-		app->doctitle = strrchr(app->doctitle, '\\') + 1;
+		pt = strrchr(app->doctitle, '\\') + 1;
 	if (strrchr(app->doctitle, '/'))
 		app->doctitle = strrchr(app->doctitle, '/') + 1;
 	if (app->xref->info) {
@@ -228,7 +227,7 @@ static PDFContext* pdfOpen(char *filename) {
 			}
 		}
 	}
-	*/
+*/
 	/*
 	* Start at first page
 	*/
@@ -379,7 +378,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	return 0;
 }
 
-BKPDF::BKPDF(string& f) : ctx(0), bannerFrames(0), banner(""), filePath(f), panX(0), panY(0), loadNewPage(false), pageError(false) {
+BKPDF::BKPDF(string& f) : ctx(0), filePath(f), panX(0), panY(0), loadNewPage(false), pageError(false) {
 }
 
 static BKPDF* singleton = 0;
@@ -490,6 +489,19 @@ BKPDF* BKPDF::create(string& file) {
 			lastSlash == i++;
 	}
 	b->title.assign(file, lastSlash, n - lastSlash);
+	if (ctx->xref->info) {
+		fz_error *error;
+		fz_obj *obj;
+		obj = fz_dictgets(ctx->xref->info, "Title");
+		if (obj) {
+			char *p = NULL;
+			error = pdf_toutf8(&p, obj);
+			if (error == NULL) {
+				b->title = p;
+			}
+		}
+	}
+
 	// Add bookmark support
 	//int position = BKBookmark::getLastView(b->filePath);
 	//b->setPage(position);
@@ -502,6 +514,46 @@ BKPDF* BKPDF::create(string& file) {
 	print_allocs();
 	lastScrollFlag = BKUser::options.pdfFastScroll;
 	return b;
+}
+
+void BKPDF::clipCoords(float& nx, float& ny) {
+	if (!pageError) {
+		fz_matrix ctm = pdfViewctm(ctx);
+		fz_rect bbox = ctx->page->mediabox;
+		bbox = fz_transformaabb(ctm, bbox);
+		if (ny < 0.0f) {
+			ny = 0.0f;
+		}
+		float h = bbox.y1 - bbox.y0;
+		if (ny >= h - 272.0f) {
+			ny = h - 273.0f;
+		}
+		if (nx < 0.0f) {
+			nx = 0.0f;
+		}
+		float w = bbox.x1 - bbox.x0;
+		if (nx >= w - 480.0f) {
+			nx = w - 481.0f;
+		}
+#if 0
+		if (ny < 0.0f) {
+			ny = 0.0f;
+		}
+		float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
+		h *= ctx->zoom;
+		if (ny >= h - 272.0f) {
+			ny = h - 273.0f;
+		}
+		if (nx < 0.0f) {
+			nx = 0.0f;
+		}
+		float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
+		w *= ctx->zoom;
+		if (nx >= w - 480.0f) {
+			nx = w - 481.0f;
+		}
+#endif
+	}
 }
 
 bool BKPDF::isZoomable() {
@@ -534,12 +586,14 @@ int BKPDF::setZoomLevel(int z) {
 	}
 
 	ctx->zoom = zoomLevels[ctx->zoomLevel];
-	panX = int(float(panX)*ctx->zoom);
-	panY = int(float(panY)*ctx->zoom);
-	/*char t[256];
+	float nx = float(panX)*ctx->zoom;
+	float ny = float(panY)*ctx->zoom;
+	clipCoords(nx, ny);
+	panX = int(nx);
+	panY = int(ny);
+	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
-	banner = t;
-	bannerFrames = 60;*/
+	setBanner(t);
 
 	if (BKUser::options.pdfFastScroll) {
 		//pdfRenderFullPage(ctx);
@@ -575,6 +629,7 @@ int BKPDF::getCurrentPage() {
 }
 
 int BKPDF::setCurrentPage(int position) {
+	printf("lol %d\n", position);
 	int oldPage = ctx->pageno; 
 	ctx->pageno = position;
 	if (ctx->pageno < 1)
@@ -583,6 +638,9 @@ int BKPDF::setCurrentPage(int position) {
 		ctx->pageno = pdf_getpagecount(ctx->pages);
 	if (ctx->pageno != oldPage) {
 		loadNewPage = true;
+		char t[256];
+		snprintf(t, 256, "Loading page %d", ctx->pageno);
+		setBanner(t);
 		panY = 0;
 		return BK_CMD_MARK_DIRTY;
 	}
@@ -614,6 +672,22 @@ void BKPDF::getFilePath(string& s) {
 }
 
 int BKPDF::pan(int x, int y) {
+	if (x > -32 && x < 32)
+		x = 0;
+	if (y > -32 && y < 32)
+		y = 0;
+	x >>= 1;
+	y >>= 1;
+	if (x == 0 && y == 0)
+		return 0;
+	float nx = float(panX + x);
+	float ny = float(panY + y);
+	clipCoords(nx, ny);
+	//panX = int(nx);
+	//panY = int(ny);
+	//return BK_CMD_MARK_DIRTY;
+
+	panBuffer(int(nx), int(ny));
 	return BK_CMD_MARK_DIRTY;
 }
 
@@ -832,6 +906,16 @@ int BKPDF::resume() {
 int BKPDF::updateContent() {
 	if (lastScrollFlag != BKUser::options.pdfFastScroll)
 		return BK_CMD_RELOAD;
+
+	if (loadNewPage) {
+		pageError = pdfLoadPage(ctx) != 0;
+		redrawBuffer();
+		loadNewPage = false;
+		char t[256];
+		snprintf(t, 256, "Page %d of %d", ctx->pageno, pdf_getpagecount(ctx->pages));
+		setBanner(t);
+		return BK_CMD_MARK_DIRTY;
+	}
 
 	/*bannerFrames--;
 	if (bannerFrames < 0)
