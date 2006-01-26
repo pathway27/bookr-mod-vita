@@ -18,8 +18,7 @@
  */
 
 #include "fzscreen.h"
-#include "bkbook.h"
-#include "bkpdf.h"
+#include "bkdocument.h"
 #include "bkfilechooser.h"
 #include "bkcolorchooser.h"
 #include "bkmainmenu.h"
@@ -36,15 +35,6 @@ extern "C" {
 	int main(int argc, char* argv[]);
 };
 
-static bool isPDF(string& file) {
-	char header[4];
-	memset((void*)header, 0, 4);
-	FILE* f = fopen(file.c_str(), "r");
-	fread(header, 4, 1, f);
-	fclose(f);
-	return header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46;
-}
-
 static bool isTTF(string& file) {
 	char header[4];
 	memset((void*)header, 0, 4);
@@ -55,8 +45,7 @@ static bool isTTF(string& file) {
 }
 
 int main(int argc, char* argv[]) {
-	bool isPdf = false;
-	BKLayer* pdfOrTextLayer = NULL;
+	BKDocument* documentLayer = 0;
 	FZScreen::setupCallbacks();
 	FZScreen::open(argc, argv);
 	FZScreen::setupCtrl();
@@ -139,14 +128,9 @@ int main(int argc, char* argv[]) {
 				// open a file as a document
 				string s;
 				FZDirent de;
+				
 				if (command == BK_CMD_RELOAD) {
-					// reload current file
-					if (isPdf) {
-						((BKPDF*)pdfOrTextLayer)->getPath(s);
-					} else {
-						((BKBook*)pdfOrTextLayer)->getPath(s);
-						de.size = ((BKBook*)pdfOrTextLayer)->getSize();
-					}
+					documentLayer->getFilePath(s);
 				}
 				if (command == BK_CMD_OPEN_FILE) {
 					// open selected file
@@ -173,19 +157,15 @@ int main(int argc, char* argv[]) {
 				FZScreen::checkEvents();
 				l->release();
 				// detect file type and add a new display layer
-				if (isPdf = isPDF(s)) {
-					pdfOrTextLayer = BKPDF::create(s);
-				} else {
-					pdfOrTextLayer = BKBook::create(s, de.size);
-				}
-				if (pdfOrTextLayer == 0) {
+				documentLayer = BKDocument::create(s);
+				if (documentLayer == 0) {
 					// error, back to logo screen
 					BKLogo* l = BKLogo::create();
 					l->setError(true);
 					layers.push_back(l);
 				} else {
 					// file loads ok, add the layer
-					layers.push_back(pdfOrTextLayer);
+					layers.push_back(documentLayer);
 				}
 			} break;
 			case BK_CMD_SET_FONT: {
@@ -216,7 +196,7 @@ int main(int argc, char* argv[]) {
 			} break;
 			case BK_CMD_INVOKE_MENU:
 				// add a main menu layer
-				mm = BKMainMenu::create(isPdf, pdfOrTextLayer);
+				mm = BKMainMenu::create(documentLayer);
 				layers.push_back(mm);
 			break;
 			case BK_CMD_MAINMENU_POPUP:

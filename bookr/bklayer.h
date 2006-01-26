@@ -20,6 +20,11 @@
 #ifndef BKLAYER_H
 #define BKLAYER_H
 
+#include <vector>
+#include <string>
+
+using namespace std;
+
 #include "fzfont.h"
 #include "bkuser.h"
 
@@ -43,9 +48,11 @@
 #define BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG 104
 #define BK_CMD_INVOKE_COLOR_CHOOSER_PDFBG 105
 
+
 class BKLayer : public FZRefCounted {
 	protected:
 	static FZFont* fontBig;
+	static FZFont* fontSmall;
 	static FZTexture* texUI;
 	static FZTexture* texLogo;
 

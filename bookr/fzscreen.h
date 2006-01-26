@@ -262,8 +262,7 @@ public:
 	static char* basePath();
 	static int dirContents(char* path, vector<FZDirent>& a);
 
-	static bool wasSuspended();
-	static void clearSuspended();
+	static int getSuspendSerial();
 
 	static char* speedLabels[];
 	static int speedValues[];

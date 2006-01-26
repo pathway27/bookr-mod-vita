@@ -17,6 +17,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifdef PSP
+#include <pspsysmem.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -39,6 +43,9 @@ extern "C" {
 #include "fitz.h"
 #include "mupdf.h"
 }
+
+static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
+	1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
 // singleton
 static fz_renderer *fzrast = NULL;
@@ -372,14 +379,14 @@ static int pdfLoadPage(PDFContext* ctx) {
 	return 0;
 }
 
-BKPDF::BKPDF(string& f) : ctx(0), bannerFrames(0), banner(""), panX(0), panY(0), loadNewPage(false), pageError(false), path(f) {
+BKPDF::BKPDF(string& f) : ctx(0), bannerFrames(0), banner(""), filePath(f), panX(0), panY(0), loadNewPage(false), pageError(false) {
 }
 
 static BKPDF* singleton = 0;
 
 BKPDF::~BKPDF() {
 	if (ctx != 0) {
-		setBookmark(true);
+		//setBookmark(true);
 
 		pdfClose(ctx);
 		delete ctx;
@@ -474,10 +481,18 @@ BKPDF* BKPDF::create(string& file) {
 		return 0;
 	}
 	b->ctx = ctx;
-	
+	int lastSlash = 0;
+	int n = file.size();
+	for (int i = 0; i < n; ++i) {
+		if (file[i] == '\\')
+			lastSlash == i++;
+		else if (file[i] == '/')
+			lastSlash == i++;
+	}
+	b->title.assign(file, lastSlash, n - lastSlash);
 	// Add bookmark support
-	int position = BKBookmark::getLastView(b->path);
-	b->setPage(position);
+	//int position = BKBookmark::getLastView(b->filePath);
+	//b->setPage(position);
 	
 	reset_allocs();
 	b->pageError = pdfLoadPage(ctx) != 0;
@@ -489,16 +504,120 @@ BKPDF* BKPDF::create(string& file) {
 	return b;
 }
 
-void BKPDF::setPage(int position) {
-	if (position > 0 && position <= pdf_getpagecount(ctx->pages))
-		ctx->pageno = position;
+bool BKPDF::isZoomable() {
+	return true;
 }
 
-void BKPDF::getPath(string& s) {
-	s = path;
+void BKPDF::getZoomLevels(vector<BKDocument::ZoomLevel>& v) {
+	int n = BKUser::options.pdfFastScroll ? 15 : sizeof(zoomLevels)/sizeof(float);
+	for (int i = 0; i < n; ++i)
+		v.push_back(BKDocument::ZoomLevel(BKDOCUMENT_ZOOMTYPE_ABSOLUTE, "FIX ZOOM LABELS"));
 }
 
-void BKPDF::render() {
+int BKPDF::getCurrentZoomLevel() {
+	return ctx->zoomLevel;
+}
+
+int BKPDF::setZoomLevel(int z) {
+	if (z == ctx->zoomLevel)
+		return 0;
+	int n = sizeof(zoomLevels)/sizeof(float);
+	ctx->zoomLevel = z;
+
+	if (ctx->zoomLevel < 0)
+		ctx->zoomLevel = 0;
+	if (ctx->zoomLevel >= n)
+		ctx->zoomLevel = n - 1;
+	if (BKUser::options.pdfFastScroll && ctx->zoomLevel > 14) {
+		ctx->zoomLevel = 14;
+		ctx->zoom = 2.0f;
+	}
+
+	ctx->zoom = zoomLevels[ctx->zoomLevel];
+	panX = int(float(panX)*ctx->zoom);
+	panY = int(float(panY)*ctx->zoom);
+	/*char t[256];
+	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
+	banner = t;
+	bannerFrames = 60;*/
+
+	if (BKUser::options.pdfFastScroll) {
+		//pdfRenderFullPage(ctx);
+		loadNewPage = true;
+		return BK_CMD_MARK_DIRTY;
+	}
+	redrawBuffer();
+	return BK_CMD_MARK_DIRTY;
+}
+
+
+bool BKPDF::isBookmarkable() {
+	return false;
+}
+
+void BKPDF::getBookmarkPosition(map<string, int>& m) {
+}
+
+int BKPDF::setBookmarkPosition(const map<string, int>& m) {
+	return 0;
+}
+
+bool BKPDF::isPaginated() {
+	return true;
+}
+
+int BKPDF::getTotalPages() {
+	return pdf_getpagecount(ctx->pages);
+}
+
+int BKPDF::getCurrentPage() {
+	return ctx->pageno;
+}
+
+int BKPDF::setCurrentPage(int position) {
+	int oldPage = ctx->pageno; 
+	ctx->pageno = position;
+	if (ctx->pageno < 1)
+		ctx->pageno = 1;
+	if (ctx->pageno > pdf_getpagecount(ctx->pages))
+		ctx->pageno = pdf_getpagecount(ctx->pages);
+	if (ctx->pageno != oldPage) {
+		loadNewPage = true;
+		panY = 0;
+		return BK_CMD_MARK_DIRTY;
+	}
+	return 0;
+}
+
+bool BKPDF::isRotable() {
+	return false;
+}
+
+int BKPDF::getRotation() {
+	return 0;
+}
+
+int BKPDF::setRotation(int r) {
+	return 0;
+}
+
+void BKPDF::getTitle(string& s) {
+	s = title;
+}
+
+void BKPDF::getType(string& s) {
+	s = "PDF";
+}
+
+void BKPDF::getFilePath(string& s) {
+	s = filePath;
+}
+
+int BKPDF::pan(int x, int y) {
+	return BK_CMD_MARK_DIRTY;
+}
+
+void BKPDF::renderContent() {
 	// the copyImage fills the entire screen
 	//FZScreen::clear(0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
@@ -519,6 +638,8 @@ void BKPDF::render() {
 		snprintf(t, 256, "Error in page %d: %s", ctx->pageno, lastPageError);
 		drawTextHC(t, fontBig, 130);
 	}
+
+#if 0
 	if (loadNewPage && BKUser::options.displayLabels) {
 		texUI->bindForDisplay();
 		FZScreen::ambientColor(0xf0222222);
@@ -544,6 +665,13 @@ void BKPDF::render() {
 			drawTextHC((char*)banner.c_str(), fontBig, 244);
 		}
 	}
+#endif
+
+#ifdef PSP
+	//int tfm = sceKernelTotalFreeMemSize();
+	//int mfm = sceKernelMaxFreeMemSize();
+	//printf("tfm %d, mfm %d\n", tfm, mfm);
+#endif
 }
 
 static inline void bk_memcpysr8(void* to, void* from, unsigned int n) {
@@ -566,7 +694,6 @@ extern "C" {
 #else
 #define bk_memcpy memcpy
 #endif
-
 
 void BKPDF::redrawBuffer() {
 	if (pageError)
@@ -624,14 +751,14 @@ void BKPDF::redrawBuffer() {
 }
 
 void BKPDF::panBuffer(int nx, int ny) {
+	if (pageError)
+		return;
 	if (BKUser::options.pdfFastScroll && fullPageBuffer != NULL) {
 		panX = nx;
 		panY = ny;
 		redrawBuffer();
 		return;
 	}
-	if (pageError)
-		return;
 	if (ny != panY) {
 		int dy = ny - panY;
 		int ady = dy > 0 ? dy : -dy;
@@ -697,24 +824,27 @@ void BKPDF::panBuffer(int nx, int ny) {
 	}
 }
 
-static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
-	1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
+int BKPDF::resume() {
+	// mupdf leaves open file descriptors around. they don't survive a suspend.
+	return BK_CMD_RELOAD;
+}
 
-int BKPDF::update(unsigned int buttons) {
+int BKPDF::updateContent() {
 	if (lastScrollFlag != BKUser::options.pdfFastScroll)
 		return BK_CMD_RELOAD;
 
-	bannerFrames--;
+	/*bannerFrames--;
 	if (bannerFrames < 0)
-		bannerFrames = 0;
+		bannerFrames = 0;*/
 
+	/*
 	if (loadNewPage) {
 		if (FZScreen::wasSuspended()) {
 			FZScreen::clearSuspended();
 			PDFContext* oldctx = ctx;
 			ctx = pdfOpen((char*)path.c_str());
 			if (ctx == 0) {
-				// fucked... just implement error handling some day ok???
+				// fucked... just implement *proper* error handling some day ok???
 				return 0;
 			}
 			ctx->pageno = oldctx->pageno;
@@ -735,7 +865,10 @@ int BKPDF::update(unsigned int buttons) {
 		bannerFrames = 60;
 		return BK_CMD_MARK_DIRTY;
 	}
+	*/
 
+	return 0;
+#if 0
 	int* b = FZScreen::ctrlReps();
 
 	float nx = panX;
@@ -872,7 +1005,7 @@ int BKPDF::update(unsigned int buttons) {
 	if (b[BKUser::pdfControls.previous10Pages] == 1) {
 		ctx->pageno-=10;
 	}
-
+#if 0
 	if (ctx->pageno < 1)
 		ctx->pageno = 1;
 	if (ctx->pageno > pdf_getpagecount(ctx->pages))
@@ -885,11 +1018,12 @@ int BKPDF::update(unsigned int buttons) {
 		redrawBuffer();
 		return BK_CMD_MARK_DIRTY;*/
 	}
-
+#endif
+#endif
 	return 0;
 }
 
-void BKPDF::reloadPage(int position) {
+/*void BKPDF::reloadPage(int position) {
 	setPage(position);
 	loadNewPage = true;
 	panY = 0;
@@ -899,3 +1033,5 @@ void BKPDF::setBookmark(bool lastview) {
 	// Save the last position		
 	BKBookmark::set(path, ctx->pageno, lastview);
 }
+*/
+

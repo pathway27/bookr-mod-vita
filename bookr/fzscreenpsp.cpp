@@ -53,7 +53,7 @@ int exit_callback(int arg1, int arg2, void *common) {
 }
 
 // yeah yeah yeah no mutex whatever whatever whatever
-static volatile bool powerResumed = false;
+static volatile int powerResumed = 0;
 
 /* Power Callback */
 int power_callback(int unknown, int pwrflags, void *common) {
@@ -65,11 +65,11 @@ int power_callback(int unknown, int pwrflags, void *common) {
         /*sprintf(powerCBMessage,
                 "first arg: 0x%08X, flags: 0x%08X: resuming from suspend mode\n",
                 unknown, pwrflags);*/
-		powerResumed = true;
+		powerResumed++;
     } else if (pwrflags & PSP_POWER_CB_RESUME_COMPLETE) {
         /*sprintf(powerCBMessage,
                 "first arg: 0x%08X, flags: 0x%08X: resume complete\n", unknown, pwrflags);*/
-		powerResumed = true;
+		powerResumed++;
     } else if (pwrflags & PSP_POWER_CB_STANDBY) {
         /*sprintf(powerCBMessage,
                 "first arg: 0x%08X, flags: 0x%08X: entering standby mode\n", unknown, pwrflags);*/
@@ -330,12 +330,8 @@ int FZScreen::dirContents(char* path, vector<FZDirent>& a) {
 	return 1;
 }
 
-bool FZScreen::wasSuspended() {
+bool FZScreen::getSuspendedSerial() {
 	return powerResumed;
-}
-
-void FZScreen::clearSuspended() {
-	powerResumed = false;
 }
 
 void FZScreen::setSpeed(int v) {

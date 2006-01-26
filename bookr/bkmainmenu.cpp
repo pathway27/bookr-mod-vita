@@ -193,7 +193,7 @@ void BKMainMenu::buildBookmarkMenu() {
 
 	if (reader == NULL)
 		return;
-
+/*
 	string filename = isPdf ? ((BKPDF*)reader)->path : ((BKBook*)reader)->path;
 	bkBookmarkPos pos;
 	BKBookmark::getBookmarks(filename, pos);
@@ -210,6 +210,7 @@ void BKMainMenu::buildBookmarkMenu() {
 		bookmarkItems.push_back(BKMenuItem(t, cb, 0));
 		++it;
 	}
+*/
 }
 
 int BKMainMenu::update(unsigned int buttons) {
@@ -263,10 +264,12 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 		if (selItem == 5) {
 			if (reader != NULL) {
 				// Set bookmark now
-				if (isPdf)
+				printf("FIX1\n");
+				/*if (isPdf)
 					((BKPDF*)reader)->setBookmark(true);
 				else
 					((BKBook*)reader)->setBookmark(true);
+				*/
 			}
 			return BK_CMD_EXIT;
 		}
@@ -482,7 +485,7 @@ int BKMainMenu::updateBookmarks(unsigned int buttons) {
 	menuCursorUpdate(buttons, bookmarkItems.size());
 
 	int* b = FZScreen::ctrlReps();
-
+#if 0
 	if (b[FZ_REPS_CIRCLE] == 1) {
 		if (selItem == 0) {
 			// Clear bookmarks
@@ -500,7 +503,6 @@ int BKMainMenu::updateBookmarks(unsigned int buttons) {
 				((BKPDF*)reader)->setBookmark(false);
 			else
 				((BKBook*)reader)->setBookmark(false);
-				
 			buildBookmarkMenu();
 			return BK_CMD_CLOSE_TOP_LAYER;
 		}
@@ -523,7 +525,7 @@ int BKMainMenu::updateBookmarks(unsigned int buttons) {
 
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
-
+#endif
 	if (b[FZ_REPS_CROSS] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}

@@ -478,11 +478,8 @@ char* FZScreen::basePath() {
 	return psp_full_path;
 }
 
-bool FZScreen::wasSuspended() {
-	return false;
-}
-
-void FZScreen::clearSuspended() {
+int FZScreen::getSuspendSerial() {
+	return 0;
 }
 
 void FZScreen::setSpeed(int v) {

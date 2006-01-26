@@ -31,11 +31,6 @@ static void* memalign(int t, int s) {
 
 #include "fzfont.h"
 
-/*static unsigned char* fontTexture = NULL;
-static unsigned int fontLineHeight;
-static unsigned int fontBaseLine;
-static int fontTextureH = 0;*/
-
 FZFont::FZFont() : metrics(0) {
 }
 
