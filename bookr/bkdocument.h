@@ -111,7 +111,7 @@ class BKDocument : public BKLayer {
 	// for the bookmarking system.
 	virtual bool isBookmarkable() = 0;
 	virtual void getBookmarkPosition(map<string, int>&) = 0;
-	virtual int setBookmarkPosition(const map<string, int>&) = 0;
+	virtual int setBookmarkPosition(map<string, int>&) = 0;
 
 	// banners
 	void setBanner(char*);

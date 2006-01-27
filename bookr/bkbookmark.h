@@ -24,30 +24,37 @@
 
 using namespace std;
 
-typedef vector<int> bkBookmarkPos;
-typedef vector<int>::iterator bkBookmarkPosIt;
+struct BKBookmark {
+	// common data fields for the menu. only the file parameter is actualy used by
+	// the views
+	string title;
+	int page;
+	string createdOn;
+	int *thumbnail;
+	bool lastView;
+	// the view-specific data. this is a black box for the bookmarks manager
+	map<string, int> viewData;
+	BKBookmark() : page(0), thumbnail(0), lastView(false) { }
+};
 
-class BKBookmark {
+typedef vector<BKBookmark> BKBookmarkList;
+typedef BKBookmarkList::iterator BKBookmarkListIt;
 
-	#define MAX_BOOKMARKS_PER_FILE 5
+class BKBookmarksManager {
+
+	#define MAX_BOOKMARKS_PER_FILE 20
 	#define BOOKMARK_XML "bookmark.xml"
 	#define BOOKMARK_XML_BASE "%s/%s"
 
-	private:
-	typedef map<string, bkBookmarkPos*> bkBookmarks;
-	typedef map<string, bkBookmarkPos*>::iterator bkBookmarksIt;
-
-	static void load(bkBookmarks& bookmarks, bool lastview);
-	static void save(bkBookmarks& bookmarks, bkBookmarks& lastViewBookmarks);
-	static void destroy(bkBookmarks& bookmarks);
-	static void setPos(bkBookmarks& bookmarks, string& filename, int pos, bool pushback);
-
 	public:
-	// returns -1 if not found
-	static int getLastView(string& filename);		
-	static void getBookmarks(string& filename, bkBookmarkPos &pos);		
-	static void set(string& filename, int position, bool lastview=false);
-
+	// find the last read bookmark for a given file
+	static bool getLastView(string& filename, BKBookmark&);
+	// load all the bookmarks for a given file
+	//static void getBookmarks(string& filename, BKBookmarkList &pos);
+	// save all the bookmarks for a given file, overwriting the existing ones
+	//static void setBookmarks(string& filename, BKBookmark& bm);
+	// add a new bookmark for a file
+	static void addBookmark(string& filename, BKBookmark& b);
 	// clears everything
 	static void clear();
 };

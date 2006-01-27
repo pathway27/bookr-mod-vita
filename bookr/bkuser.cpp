@@ -135,20 +135,21 @@ void BKUser::load() {
 	if (f == NULL)
 		return;
 	
-	fseek(f, 0, SEEK_END);
+	/*fseek(f, 0, SEEK_END);
 	int size = ftell(f);
 	char* buffer = (char*)malloc(size + 1);
 	memset((void*)buffer, 0, size + 1);
 	fseek(f, 0, SEEK_SET);
 	fread(buffer, size, 1, f);
 	fclose(f);
-	buffer[size] = 0;
+	buffer[size] = 0;*/
 
 	TiXmlDocument *doc = new TiXmlDocument();
-	doc->Parse(buffer);
+	//doc->Parse(buffer);
+	doc->LoadFile(filename);
 
 	if(doc->Error()) {
-		printf("invalid %s, cannot load preferences: %s, %d\n", filename, doc->ErrorDesc(), size);
+		printf("invalid %s, cannot load preferences: %s\n", filename, doc->ErrorDesc());
 		delete doc;
 		return;
 	}
@@ -179,7 +180,7 @@ void BKUser::load() {
 			else if (strncmp(action, "pdfControls.zoomIn",          128) == 0) pdfControls.zoomIn          = b;
 			else if (strncmp(action, "pdfControls.zoomOut",         128) == 0) pdfControls.zoomOut         = b;
 	
-			bind = bind->NextSiblingElement("bind"); 
+			bind = bind->NextSiblingElement("bind");
 		}
 	} else {
 		printf("no controls found in user.xml\n");
@@ -245,5 +246,7 @@ void BKUser::load() {
 	}
 	if (operror)
 		BKUser::save();
+
+	//free(buffer);
 }
 

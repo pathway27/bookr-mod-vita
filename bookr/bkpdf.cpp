@@ -606,14 +606,23 @@ int BKPDF::setZoomLevel(int z) {
 
 
 bool BKPDF::isBookmarkable() {
-	return false;
+	return true;
 }
 
 void BKPDF::getBookmarkPosition(map<string, int>& m) {
+	m["page"] = ctx->pageno;
+	m["zoom"] = ctx->zoomLevel;
+	m["panX"] = panX;
+	m["panX"] = panY;
+	m["rotation"] = 0;
 }
 
-int BKPDF::setBookmarkPosition(const map<string, int>& m) {
-	return 0;
+int BKPDF::setBookmarkPosition(map<string, int>& m) {
+	setCurrentPage(m["page"]);
+	setZoomLevel(m["zoom"]);
+	pan(m["panX"], m["panY"]);
+	//m["rotation"] ?
+	return BK_CMD_MARK_DIRTY;
 }
 
 bool BKPDF::isPaginated() {
@@ -629,7 +638,6 @@ int BKPDF::getCurrentPage() {
 }
 
 int BKPDF::setCurrentPage(int position) {
-	printf("lol %d\n", position);
 	int oldPage = ctx->pageno; 
 	ctx->pageno = position;
 	if (ctx->pageno < 1)

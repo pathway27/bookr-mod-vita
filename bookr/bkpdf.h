@@ -76,7 +76,7 @@ class BKPDF : public BKDocument {
 
 	virtual bool isBookmarkable();
 	virtual void getBookmarkPosition(map<string, int>&);
-	virtual int setBookmarkPosition(const map<string, int>&);
+	virtual int setBookmarkPosition(map<string, int>&);
 
 	static BKPDF* create(string& file);
 

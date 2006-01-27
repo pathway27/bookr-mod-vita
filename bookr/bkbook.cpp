@@ -100,12 +100,12 @@ BKBook* BKBook::create(string& file, int size) {
 	b->screenLines = 257 / b->fontText->getLineHeight();
 
 	// Add bookmark support
-	int position = BKBookmark::getLastView(b->path);
+	/*int position = BKBookmark::getLastView(b->path);
 	if (position > 0) {
 		// Since this is from page 1, substract one when working with line-counting
 		// based offsets
 		b->skipPages(position - 1);
-	}	
+	}*/	
 
 	FZScreen::resetReps();
 
@@ -379,5 +379,5 @@ int BKBook::update(unsigned int buttons) {
 
 void BKBook::setBookmark(bool lastview) {
 	// Save the last position
-	BKBookmark::set(path, page, lastview);
+	//BKBookmark::set(path, page, lastview);
 }
