@@ -53,6 +53,7 @@ static void display(void) {
 
 static int keyState = 0;
 static bool stickyKeys = false;
+static int powerSerial = 0;
 
 static int breps[16];
 static void updateReps() {
@@ -117,6 +118,8 @@ static void keyboardup(unsigned char key, int x, int y) {
 		case 'b': keyState &= ~FZ_CTRL_START; break;
 		case 'x': keyState &= ~FZ_CTRL_LTRIGGER; break;
 		case 'c': keyState &= ~FZ_CTRL_RTRIGGER; break;
+
+		case '6': powerSerial++; break;
 	}
 }
 
@@ -513,7 +516,7 @@ char* FZScreen::basePath() {
 }
 
 int FZScreen::getSuspendSerial() {
-	return 0;
+	return powerSerial;
 }
 
 void FZScreen::setSpeed(int v) {

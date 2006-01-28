@@ -334,7 +334,8 @@ int BKDocument::processEventsForToolbar() {
 			string fn;
 			getFileName(fn);
 			BKBookmarkListIt it(bookmarkList.begin());
-			for (int i = 0; i < toolbarSelMenuItem; i++, it++);
+			int di =  toolbarSelMenuItem - 1;
+			for (int i = 0; i < di; i++, it++);
 			bookmarkList.erase(it);
 			BKBookmarksManager::setBookmarks(fn, bookmarkList);
 			buildToolbarMenus();
@@ -359,7 +360,8 @@ int BKDocument::processEventsForToolbar() {
 		}
 		// jump to bookmark
 		if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
-			//return
+			int di =  toolbarSelMenuItem - 1;
+			return setBookmarkPosition(bookmarkList[di].viewData);
 		}
 	}
 

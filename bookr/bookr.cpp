@@ -127,14 +127,13 @@ int main(int argc, char* argv[]) {
 			case BK_CMD_RELOAD: {
 				// open a file as a document
 				string s;
-				FZDirent de;
 				
 				if (command == BK_CMD_RELOAD) {
 					documentLayer->getFileName(s);
+					documentLayer = 0;
 				}
 				if (command == BK_CMD_OPEN_FILE) {
 					// open selected file
-					fs->getCurrentDirent(de);
 					fs->getFullPath(s);
 					fs = 0;
 				}
@@ -167,6 +166,7 @@ int main(int argc, char* argv[]) {
 					// file loads ok, add the layer
 					layers.push_back(documentLayer);
 				}
+				dirty = true;
 			} break;
 			case BK_CMD_SET_FONT: {
 				// change font for plain text rendering
