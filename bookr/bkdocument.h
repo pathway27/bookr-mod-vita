@@ -43,26 +43,6 @@ class BKDocument : public BKLayer {
 	int bannerFrames;
 	string banner;
 
-	/*
-		| - ...
-		| - bookmark #1
-		| - Add bookmark
-		Bookmarks
-
-		| - first page
-		| - last page
-		| - prev 10 pages
-		| - next 10 pages
-		| - go to page
-		Navigation
-	
-		| - Fit height
-		| - Fit width
-		| - Zoom out
-		| - Zoom in
-		Zoom
-	*/
-
 	struct ToolbarItem {
 		int lines;
 		int minWidth;

@@ -199,12 +199,17 @@ void BKDocument::buildToolbarMenus() {
 			i.iconW = 18;
 			i.iconH = 26;
 			i.circleLabel = "Jump to";
+			i.triangleLabel = "Delete";
 			toolbarMenus[0].push_back(i);
 			++it;
 		}
 	} else {
 		ToolbarItem i;
 		i.label = "No bookmark support";
+		i.iconX = 57;
+		i.iconY = 0;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[0].push_back(i);
 	}
 
@@ -212,37 +217,89 @@ void BKDocument::buildToolbarMenus() {
 	if (isPaginated()) {
 		ToolbarItem i;
 		i.label = "First page";
+		i.iconX = 0;
+		i.iconY = 26;
+		i.iconW = 18;
+		i.iconH = 26;
 		i.circleLabel = "Select";
 		toolbarMenus[1].push_back(i);
+
 		i.label = "Last page";
+		i.iconX = 19;
+		i.iconY = 26;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
+
 		i.label = "Previous 10 pages";
+		i.iconX = 95;
+		i.iconY = 26;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
+
 		i.label = "Next 10 pages";
+		i.iconX = 76;
+		i.iconY = 26;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
+
 		i.label = "Go to page";
+		i.iconX = 0;
+		i.iconY = 53;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
 	} else {
 		ToolbarItem i;
 		i.label = "No pagination support";
+		i.iconX = 57;
+		i.iconY = 0;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
 	}
 
 	toolbarMenus[2].clear();
 	if (isZoomable()) {
 		ToolbarItem i;
-		i.label = "Fit height";
 		i.circleLabel = "Select";
+
+		i.label = "Fit height";
+		i.iconX = 0;
+		i.iconY = 78;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
+
 		i.label = "Fit width";
+		i.iconX = 95;
+		i.iconY = 53;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
+
 		i.label = "Zoom out";
+		i.iconX = 76;
+		i.iconY = 53;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
+
 		i.label = "Zoom in";
+		i.iconX = 57;
+		i.iconY = 53;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
 	} else {
 		ToolbarItem i;
 		i.label = "No zoom support";
+		i.iconX = 57;
+		i.iconY = 0;
+		i.iconW = 18;
+		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
 	}
 }
@@ -414,9 +471,9 @@ void BKDocument::render() {
 	FZScreen::ambientColor(0xffffffff);
 
 	// menu row
-	for (int i = 0; i < 3; i++) {
-		drawImage(38 + i*55, 205, 18, 26, 0, 0);
-	}
+	drawImage(38 + 0*55, 205, 18, 26, 0, 0);
+	drawImage(38 + 1*55, 205, 18, 26, 19, 53);
+	drawImage(38 + 2*55, 205, 18, 26, 38, 53);
 	// selected column
 	for (int i = init, j = 0; i < ts; i++, j++) {
 		const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
@@ -449,7 +506,7 @@ void BKDocument::render() {
 	if (overflow) {
 		FZScreen::ambientColor(0xffffffff);
 		drawText("...", fontBig, 43 + toolbarSelMenu*55, 0);
-		drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 90);
+		drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
 	}
 
 	fontSmall->bindForDisplay();
