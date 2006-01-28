@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 				FZDirent de;
 				
 				if (command == BK_CMD_RELOAD) {
-					documentLayer->getFilePath(s);
+					documentLayer->getFileName(s);
 				}
 				if (command == BK_CMD_OPEN_FILE) {
 					// open selected file

@@ -131,9 +131,9 @@ static void loadBookmark(TiXmlNode* _bn, BKBookmark& b) {
 	map<string, int> viewData;
 	TiXmlElement* vd = bn->FirstChildElement("viewdata");
 	while (vd) {
-		const char* key = bn->Attribute("key");
+		const char* key = vd->Attribute("key");
 		int value = 0;
-		bn->QueryIntAttribute("value", &value);
+		vd->QueryIntAttribute("value", &value);
 		b.viewData.insert(pair<string, int>(key, value));
 		vd = vd->NextSiblingElement("viewdata");
 	}
@@ -162,12 +162,28 @@ void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
 	map<string, int>::iterator it(b.viewData.begin());
 	while (it != b.viewData.end()) {
 		TiXmlElement vd("viewdata");
-		vd.SetAttribute((*it).first.c_str(), (*it).second);
+		vd.SetAttribute("key", (*it).first.c_str());
+		vd.SetAttribute("value", (*it).second);
 		bookmark.InsertEndChild(vd);
 		++it;
 	}
 	file->InsertEndChild(bookmark);
 	saveXML();
+}
+
+void BKBookmarksManager::getBookmarks(string& filename, BKBookmarkList &bl) {
+	TiXmlNode* file = fileNode(filename);
+	if (file == 0)
+		return;
+	TiXmlElement* bookmark = file->FirstChildElement();
+	while (bookmark != 0) {
+		if (strncmp(bookmark->Value(), "bookmark", 1024) == 0) {
+			BKBookmark b;
+			loadBookmark(bookmark, b);
+			bl.push_back(b);
+		}
+		bookmark = bookmark->NextSiblingElement();
+	}
 }
 
 void BKBookmarksManager::clear() {

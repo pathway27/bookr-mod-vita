@@ -50,7 +50,7 @@ class BKBookmarksManager {
 	// find the last read bookmark for a given file
 	static bool getLastView(string& filename, BKBookmark&);
 	// load all the bookmarks for a given file
-	//static void getBookmarks(string& filename, BKBookmarkList &pos);
+	static void getBookmarks(string& filename, BKBookmarkList &);
 	// save all the bookmarks for a given file, overwriting the existing ones
 	//static void setBookmarks(string& filename, BKBookmark& bm);
 	// add a new bookmark for a file

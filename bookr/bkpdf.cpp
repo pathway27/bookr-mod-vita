@@ -613,7 +613,7 @@ void BKPDF::getBookmarkPosition(map<string, int>& m) {
 	m["page"] = ctx->pageno;
 	m["zoom"] = ctx->zoomLevel;
 	m["panX"] = panX;
-	m["panX"] = panY;
+	m["panY"] = panY;
 	m["rotation"] = 0;
 }
 

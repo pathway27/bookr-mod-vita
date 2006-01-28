@@ -433,13 +433,13 @@ void BKLayer::menuCursorUpdate(unsigned int buttons, int max) {
 	if (b[FZ_REPS_UP] == 1 || b[FZ_REPS_UP] > 20) {
 		selItem--;
 		if (selItem < 0) {
-			selItem = 0;
+			selItem = max - 1;
 		}
 	}
 	if (b[FZ_REPS_DOWN] == 1 || b[FZ_REPS_DOWN] > 20) {
 		selItem++;
 		if (selItem >= max) {
-			selItem = max - 1;
+			selItem = 0;
 		}
 	}
 }

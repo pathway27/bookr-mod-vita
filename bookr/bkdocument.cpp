@@ -18,6 +18,7 @@
  */
 
 #include "bkdocument.h"
+#include "bkbookmark.h"
 #include "bkpdf.h"
 
 static bool isPDF(string& file) {
@@ -173,11 +174,6 @@ int BKDocument::processEventsForView() {
 void BKDocument::buildToolbarMenus() {
 	toolbarMenus[0].clear();
 	if (isBookmarkable()) {
-/*		string fn;
-		getFileName(fn);
-		BKBookmarkList bl;
-		BKBookmarksManager::getBookmarks(fn, bl);
-*/
 		ToolbarItem i;
 		i.label = "Add bookmark";
 		i.iconX = 19;
@@ -187,7 +183,36 @@ void BKDocument::buildToolbarMenus() {
 		i.circleLabel = "Select";
 		toolbarMenus[0].push_back(i);
 
+		string fn;
+		getFileName(fn);
+		BKBookmarkList bl;
+		BKBookmarksManager::getBookmarks(fn, bl);
+		BKBookmarkListIt it(bl.begin());
+		while (it != bl.end()) {
+			i.label = "Add bookmark";
+			const BKBookmark& b = *it;
+			char t[256];
+			snprintf(t, 256, "Page %d", b.page);
+			i.label = t;
+			i.iconX = 0;
+			i.iconY = 0;
+			i.iconW = 18;
+			i.iconH = 26;
+			i.circleLabel = "Jump to";
+			toolbarMenus[0].push_back(i);
+			++it;
+		}
+	} else {
+		ToolbarItem i;
+		i.label = "No bookmark support";
+		toolbarMenus[0].push_back(i);
+	}
+
+	toolbarMenus[1].clear();
+	if (isPaginated()) {
+		ToolbarItem i;
 		i.label = "First page";
+		i.circleLabel = "Select";
 		toolbarMenus[1].push_back(i);
 		i.label = "Last page";
 		toolbarMenus[1].push_back(i);
@@ -197,8 +222,17 @@ void BKDocument::buildToolbarMenus() {
 		toolbarMenus[1].push_back(i);
 		i.label = "Go to page";
 		toolbarMenus[1].push_back(i);
+	} else {
+		ToolbarItem i;
+		i.label = "No pagination support";
+		toolbarMenus[1].push_back(i);
+	}
 
+	toolbarMenus[2].clear();
+	if (isZoomable()) {
+		ToolbarItem i;
 		i.label = "Fit height";
+		i.circleLabel = "Select";
 		toolbarMenus[2].push_back(i);
 		i.label = "Fit width";
 		toolbarMenus[2].push_back(i);
@@ -206,11 +240,10 @@ void BKDocument::buildToolbarMenus() {
 		toolbarMenus[2].push_back(i);
 		i.label = "Zoom in";
 		toolbarMenus[2].push_back(i);
-
 	} else {
 		ToolbarItem i;
-		i.label = "No bookmark support";
-		toolbarMenus[0].push_back(i);
+		i.label = "No zoom support";
+		toolbarMenus[2].push_back(i);
 	}
 }
 
@@ -239,6 +272,27 @@ int BKDocument::processEventsForToolbar() {
 		toolbarSelMenuItem = 0;
 	if (toolbarSelMenuItem < 0)
 		toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
+
+	if (b[FZ_REPS_CIRCLE] == 1) {
+		// add bookmark
+		if (toolbarSelMenu == 0 && toolbarSelMenuItem == 0 && isBookmarkable()) {
+			string fn, t;
+			getFileName(fn);
+			getTitle(t);
+			BKBookmark b;
+			b.title = t;
+			b.page = isPaginated() ? getCurrentPage() : 0;
+			b.createdOn = "to do: creation date";
+			getBookmarkPosition(b.viewData);
+			BKBookmarksManager::addBookmark(fn, b);
+			buildToolbarMenus();
+			return BK_CMD_MARK_DIRTY;
+		}
+		// jump to bookmark
+		if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
+			//return
+		}
+	}
 
 	// main menu
 	if (b[FZ_REPS_START] == 1) {
@@ -288,6 +342,8 @@ void BKDocument::render() {
 	if (toolbarSelMenuItem < 0)
 		toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
 
+	const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
+
 	// background
 	texUI->bindForDisplay();
 	FZScreen::ambientColor(0xf0222222);
@@ -327,6 +383,16 @@ void BKDocument::render() {
 	drawImage(400, 222, 16, 16, 100, 0);
 	drawImage(350, 226, 16, 16, 100, 20);
 
+	// button icons
+	FZScreen::ambientColor(0xffcccccc);
+	int tw = textW((char*)it.circleLabel.c_str(), fontBig);
+	if (it.circleLabel.size() > 0) {
+		drawImage(480 - tw - 65, 248, 20, 20, 31, 70);
+	}
+	if (it.triangleLabel.size() > 0) {
+		drawImage(37, 248, 20, 18, 9, 53);
+	}
+
 	// icon bar
 	texUI2->bindForDisplay();
 	FZScreen::ambientColor(0xffffffff);
@@ -336,23 +402,31 @@ void BKDocument::render() {
 	}
 	// selected column
 	for (int i = 0; i < (int)toolbarMenus[toolbarSelMenu].size(); i++) {
-		const ToolbarItem& it = toolbarMenus[toolbarSelMenu][i];
+		const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
 		if (i == toolbarSelMenuItem)
 			FZScreen::ambientColor(0xff000000);
 		else
 			FZScreen::ambientColor(0xffffffff);
-		if (it.iconW > 0)
+		if (it2.iconW > 0)
 			drawImage(
 				40 + toolbarSelMenu*55,
 				272 - 156 - i*35+45,
-				it.iconW, it.iconH, it.iconX, it.iconY);
+				it2.iconW, it2.iconH, it2.iconX, it2.iconY);
 	}
 
 	fontBig->bindForDisplay();
-	// label for selected item
+	// item label for selected item
 	FZScreen::ambientColor(0xff000000);
-	const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
 	drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - toolbarSelMenuItem*35+48);
+
+	// button labels
+	FZScreen::ambientColor(0xffcccccc);
+	if (it.triangleLabel.size() > 0) {
+		drawText((char*)it.triangleLabel.c_str(), fontBig, 37 + 25, 248);
+	}
+	if (it.circleLabel.size() > 0) {
+		drawText((char*)it.circleLabel.c_str(), fontBig, 480 - tw - 40, 248);
+	}
 
 	fontSmall->bindForDisplay();
 	FZScreen::ambientColor(0xffeeeeee);
