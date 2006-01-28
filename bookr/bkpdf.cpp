@@ -694,7 +694,8 @@ int BKPDF::pan(int x, int y) {
 	//panX = int(nx);
 	//panY = int(ny);
 	//return BK_CMD_MARK_DIRTY;
-
+	if (panX == int(nx) && panY == int(ny))
+		return 0;
 	panBuffer(int(nx), int(ny));
 	return BK_CMD_MARK_DIRTY;
 }

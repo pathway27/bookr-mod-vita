@@ -26,6 +26,7 @@
 using namespace std;
 
 #include "bklayer.h"
+#include "bkbookmark.h"
 
 // BKDocument - an unified interface for any page-able, scroll-able,
 // bookmark-able file.
@@ -59,6 +60,7 @@ class BKDocument : public BKLayer {
 	int toolbarSelMenuItem;
 
 	vector<ToolbarItem> toolbarMenus[3];
+	BKBookmarkList bookmarkList;
 	void buildToolbarMenus();
 
 	protected:

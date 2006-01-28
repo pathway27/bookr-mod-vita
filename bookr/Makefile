@@ -3,10 +3,10 @@
 
 PSP_EBOOT_ICON=data/icon0.png
 TARGET=bookr
-OBJS:=bookr.o bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkpdf.o bkmemcpy.o bkuser.o bkbookmark.o bkpopup.o bkcolorchooser.o
+OBJS:=bookr.o bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkpdf.o bkmemcpy.o bkuser.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdocument.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
-OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o
 
 INCDIR =
 CFLAGS = -Imupdf/include -G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
@@ -37,6 +37,11 @@ res_txtfont.c: data/vera.ttf
 
 res_uitex.c: data/ui.png
 	bin2c $< temp res_uitex
+	sed s/static// temp > $@
+	rm -f temp
+
+res_uitex2.c: data/ui2.png
+	bin2c $< temp res_uitex2
 	sed s/static// temp > $@
 	rm -f temp
 

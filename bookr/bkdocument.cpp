@@ -18,7 +18,6 @@
  */
 
 #include "bkdocument.h"
-#include "bkbookmark.h"
 #include "bkpdf.h"
 
 static bool isPDF(string& file) {
@@ -185,13 +184,12 @@ void BKDocument::buildToolbarMenus() {
 
 		string fn;
 		getFileName(fn);
-		BKBookmarkList bl;
-		BKBookmarksManager::getBookmarks(fn, bl);
-		BKBookmarkListIt it(bl.begin());
-		while (it != bl.end()) {
-			i.label = "Add bookmark";
+		bookmarkList.clear();
+		BKBookmarksManager::getBookmarks(fn, bookmarkList);
+		BKBookmarkListIt it(bookmarkList.begin());
+		char t[256];
+		while (it != bookmarkList.end()) {
 			const BKBookmark& b = *it;
-			char t[256];
 			snprintf(t, 256, "Page %d", b.page);
 			i.label = t;
 			i.iconX = 0;
@@ -329,6 +327,20 @@ int BKDocument::processEventsForToolbar() {
 		toolbarSelMenuItem = 0;
 	if (toolbarSelMenuItem < 0)
 		toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
+
+	if (b[FZ_REPS_TRIANGLE] == 1) {
+		// delete bookmark
+		if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
+			string fn;
+			getFileName(fn);
+			BKBookmarkListIt it(bookmarkList.begin());
+			for (int i = 0; i < toolbarSelMenuItem; i++, it++);
+			bookmarkList.erase(it);
+			BKBookmarksManager::setBookmarks(fn, bookmarkList);
+			buildToolbarMenus();
+			return BK_CMD_MARK_DIRTY;
+		}
+	}
 
 	if (b[FZ_REPS_CIRCLE] == 1) {
 		// add bookmark

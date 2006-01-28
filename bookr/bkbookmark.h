@@ -52,7 +52,7 @@ class BKBookmarksManager {
 	// load all the bookmarks for a given file
 	static void getBookmarks(string& filename, BKBookmarkList &);
 	// save all the bookmarks for a given file, overwriting the existing ones
-	//static void setBookmarks(string& filename, BKBookmark& bm);
+	static void setBookmarks(string& filename, BKBookmarkList&);
 	// add a new bookmark for a file
 	static void addBookmark(string& filename, BKBookmark& b);
 	// clears everything

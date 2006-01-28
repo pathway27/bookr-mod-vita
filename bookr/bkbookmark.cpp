@@ -152,8 +152,7 @@ bool BKBookmarksManager::getLastView(string& filename, BKBookmark& b) {
 }
 
 // add a new bookmark for a file
-void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
-	TiXmlNode* file = loadOrAddFileNode(filename);
+static void addBookmarkProto(string& filename, BKBookmark& b, TiXmlNode* file) {
 	TiXmlElement bookmark(b.lastView ? "lastview" : "bookmark");
 	bookmark.SetAttribute("title", b.title.c_str());
 	bookmark.SetAttribute("page", b.page);
@@ -168,9 +167,14 @@ void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
 		++it;
 	}
 	file->InsertEndChild(bookmark);
+}
+void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
+	TiXmlNode* file = loadOrAddFileNode(filename);
+	addBookmarkProto(filename, b, file);
 	saveXML();
 }
 
+// load all the bookmarks for a given file
 void BKBookmarksManager::getBookmarks(string& filename, BKBookmarkList &bl) {
 	TiXmlNode* file = fileNode(filename);
 	if (file == 0)
@@ -184,6 +188,21 @@ void BKBookmarksManager::getBookmarks(string& filename, BKBookmarkList &bl) {
 		}
 		bookmark = bookmark->NextSiblingElement();
 	}
+}
+
+// save all the bookmarks for a given file, overwriting the existing ones
+void BKBookmarksManager::setBookmarks(string& filename, BKBookmarkList &bl) {
+	BKBookmark lastView;
+	bool lv = getLastView(filename, lastView);
+	TiXmlNode* file = loadOrAddFileNode(filename);
+	file->Clear();
+	if (lv) addBookmarkProto(filename, lastView, file);
+	BKBookmarkListIt it(bl.begin());
+	while (it != bl.end()) {
+		addBookmarkProto(filename, *it, file);
+		++it;
+	}
+	saveXML();
 }
 
 void BKBookmarksManager::clear() {

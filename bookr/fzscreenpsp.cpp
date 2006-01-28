@@ -212,8 +212,8 @@ int FZScreen::readCtrl() {
 	SceCtrlData pad;
 	sceCtrlPeekBufferPositive(&pad, 1);
 	updateReps(pad.Buttons);
-	lastAnalogX = pad.
-	lastAnalogY = pad.
+	lastAnalogX = pad.Lx;
+	lastAnalogY = pad.Ly;
 	return pad.Buttons;
 }
 
@@ -339,7 +339,7 @@ int FZScreen::dirContents(char* path, vector<FZDirent>& a) {
 	return 1;
 }
 
-bool FZScreen::getSuspendedSerial() {
+int FZScreen::getSuspendSerial() {
 	return powerResumed;
 }
 
