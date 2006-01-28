@@ -93,6 +93,7 @@ static void keyboard(unsigned char key, int x, int y) {
 		case 'l': keyState |= FZ_CTRL_CROSS; break;
 		case 'o': keyState |= FZ_CTRL_TRIANGLE; break;
 		case 'p': keyState |= FZ_CTRL_CIRCLE; break;
+		case 'v': keyState |= FZ_CTRL_SELECT; break;
 		case 'b': keyState |= FZ_CTRL_START; break;
 		case 'x': keyState |= FZ_CTRL_LTRIGGER; break;
 		case 'c': keyState |= FZ_CTRL_RTRIGGER; break;
@@ -112,6 +113,7 @@ static void keyboardup(unsigned char key, int x, int y) {
 		case 'l': keyState &= ~FZ_CTRL_CROSS; break;
 		case 'o': keyState &= ~FZ_CTRL_TRIANGLE; break;
 		case 'p': keyState &= ~FZ_CTRL_CIRCLE; break;
+		case 'v': keyState &= ~FZ_CTRL_SELECT; break;
 		case 'b': keyState &= ~FZ_CTRL_START; break;
 		case 'x': keyState &= ~FZ_CTRL_LTRIGGER; break;
 		case 'c': keyState &= ~FZ_CTRL_RTRIGGER; break;

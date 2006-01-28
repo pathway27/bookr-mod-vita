@@ -54,6 +54,7 @@ class BKLayer : public FZRefCounted {
 	static FZFont* fontBig;
 	static FZFont* fontSmall;
 	static FZTexture* texUI;
+	static FZTexture* texUI2;
 	static FZTexture* texLogo;
 
 	void drawRect(int x, int y, int w, int h, int r, int tx, int ty);

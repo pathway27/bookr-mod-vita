@@ -33,6 +33,9 @@ using namespace std;
 class BKDocument : public BKLayer {
 	private:
 	int lastSuspendSerial;
+	#define BKDOC_VIEW			0
+	#define BKDOC_TOOLBAR		1
+	int mode;
 
 	int processEventsForView();
 	int processEventsForToolbar();

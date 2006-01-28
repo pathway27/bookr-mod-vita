@@ -25,6 +25,7 @@
 FZFont* BKLayer::fontBig = 0;
 FZFont* BKLayer::fontSmall = 0;
 FZTexture* BKLayer::texUI = 0;
+FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
 
 extern "C" {
@@ -32,6 +33,8 @@ extern unsigned int size_res_logo;
 extern unsigned char res_logo[];
 extern unsigned int size_res_uitex;
 extern unsigned char res_uitex[];
+extern unsigned int size_res_uitex2;
+extern unsigned char res_uitex2[];
 extern unsigned int size_res_uifont;
 extern unsigned char res_uifont[];
 };
@@ -54,6 +57,15 @@ void BKLayer::load() {
 	texUI = FZTexture::createFromImage(image, false);
 	texUI->texEnv(FZ_TEX_MODULATE);
 	texUI->filter(FZ_NEAREST, FZ_NEAREST);
+	image->release();
+
+	ins = FZInputStreamMem::create((char*)res_uitex2, size_res_uitex2);
+	image = FZImage::createFromPNG(ins);
+	ins->release();
+	ins = 0;
+	texUI2 = FZTexture::createFromImage(image, false);
+	texUI2->texEnv(FZ_TEX_MODULATE);
+	texUI2->filter(FZ_NEAREST, FZ_NEAREST);
 	image->release();
 
 	ins = FZInputStreamMem::create((char*)res_logo, size_res_logo);

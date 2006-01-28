@@ -20,7 +20,7 @@ all: $(EXE)
 OBJS:=bkbook.o bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
-OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o
 
 res_uifont.c: data/urwgothicb.pfb
 	bin2c $< temp res_uifont
@@ -34,6 +34,11 @@ res_txtfont.c: data/vera.ttf
 
 res_uitex.c: data/ui.png
 	bin2c $< temp res_uitex
+	sed s/static// temp > $@
+	rm -f temp
+
+res_uitex2.c: data/ui2.png
+	bin2c $< temp res_uitex2
 	sed s/static// temp > $@
 	rm -f temp
 

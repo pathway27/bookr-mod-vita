@@ -38,7 +38,7 @@ BKDocument* BKDocument::create(string& filePath) {
 	return 0;
 }
 
-BKDocument::BKDocument() : bannerFrames(0), banner("") {
+BKDocument::BKDocument() : 	mode(BKDOC_VIEW), bannerFrames(0), banner("") {
 	lastSuspendSerial = FZScreen::getSuspendSerial();
 }
 
@@ -70,8 +70,10 @@ int BKDocument::update(unsigned int buttons) {
 	if (bannerFrames > 0)
 		return BK_CMD_MARK_DIRTY;
 
-	return processEventsForView();
-	//processEventsForToolbar(); ?
+	if (mode == BKDOC_VIEW)
+		return processEventsForView();
+
+	return processEventsForToolbar();
 }
 
 int BKDocument::processEventsForView() {
@@ -151,19 +153,36 @@ int BKDocument::processEventsForView() {
 	}
 
 	// toolbar
-	/*if (b[FZ_REPS_SELECT] == 1) {
-	}*/
+	if (b[FZ_REPS_SELECT] == 1) {
+		mode = BKDOC_TOOLBAR;
+		return BK_CMD_MARK_DIRTY;
+	}
 
 	return 0;
 }
 
 
 int BKDocument::processEventsForToolbar() {
+	int* b = FZScreen::ctrlReps();
+
+	// main menu
+	if (b[FZ_REPS_START] == 1) {
+		return BK_CMD_INVOKE_MENU;
+	}
+
+	// view
+	if (b[FZ_REPS_SELECT] == 1) {
+		mode = BKDOC_VIEW;
+		return BK_CMD_MARK_DIRTY;
+	}
+
 	return 0;
 }
 
 void BKDocument::render() {
+	// content
 	renderContent();
+	// label
 	if (bannerFrames > 0 && BKUser::options.displayLabels) {
 		int alpha = 0xff;
 		if (bannerFrames <= 32) {
@@ -175,13 +194,53 @@ void BKDocument::render() {
 			drawPill(150, 240, 180, 20, 6, 31, 1);
 			fontBig->bindForDisplay();
 			FZScreen::ambientColor(0xffffff | (alpha << 24));
-			//char t[256];
-			//snprintf(t, 256, "Page %d of %d", ctx->pageno, pdf_getpagecount(ctx->pages));
-			//drawTextHC(t, fontBig, 244);
 			drawTextHC((char*)banner.c_str(), fontBig, 244);
 		}
 	}
 
-	// toolbar...
+	if (mode != BKDOC_TOOLBAR)
+		return;
+
+	// background
+	texUI->bindForDisplay();
+	FZScreen::ambientColor(0xf0222222);
+	drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
+
+	// context label
+	FZScreen::ambientColor(0xff555555);
+	//drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
+	drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
+
+	// highlight icon column
+	//FZScreen::ambientColor(0xf0aaaaaa);
+	FZScreen::ambientColor(0xf0555555);
+	drawPill(25, 30, 40, 200, 6, 31, 1);
+
+	// selected icon
+	FZScreen::ambientColor(0xf0aaaaaa);
+	drawPill(30, 156, 200, 30, 6, 31, 1);
+
+	// status icons
+	FZScreen::ambientColor(0xffffffff);
+	drawImage(400, 222, 16, 16, 100, 0);
+	drawImage(350, 226, 16, 16, 100, 20);
+
+	// icon bar
+	texUI2->bindForDisplay();
+	FZScreen::ambientColor(0xffffffff);
+	for (int i = 0; i < 5; i++) {
+		drawImage(38 + i*55, 205, 18, 26, 0, 0);
+	}
+	drawImage(38, 161, 22, 26, 19, 0);
+
+	fontBig->bindForDisplay();
+	FZScreen::ambientColor(0xffffffff);
+	drawText("Add bookmark", fontBig, 38 + 22 + 15, 164);
+
+	fontSmall->bindForDisplay();
+	FZScreen::ambientColor(0xffeeeeee);
+	drawText("Page 23 of 102", fontSmall, 370, 205);
+	drawText("to:do", fontSmall, 420, 224);
+	drawText("TD%", fontSmall, 370, 224);
 }
 
