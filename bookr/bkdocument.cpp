@@ -354,13 +354,26 @@ void BKDocument::render() {
 	//drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
 	drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
 
+	// selected column - decide if it overflows
+	int ts = toolbarMenus[toolbarSelMenu].size();
+	int init = 0;
+	bool overflow = false;
+	int cs = ts;
+	if (ts > 5) {		// overflow mode
+		overflow = true;
+		init = toolbarSelMenuItem - 4;
+		if (init < 0)
+			init = 0;
+		ts = 5 + init;
+		cs = 5;
+	}
 	// highlight icon column
 	FZScreen::ambientColor(0xf0555555);
 	drawPill(
 		25 + toolbarSelMenu*55,
-		272 - 156 - toolbarMenus[toolbarSelMenu].size()*35+70,
+		272 - 156 - cs*35+70,
 		40,
-		toolbarMenus[toolbarSelMenu].size()*35+45,
+		cs*35+45,
 		6,
 		31, 1
 	);
@@ -371,9 +384,12 @@ void BKDocument::render() {
 	int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
 	if (iw < mw)
 		iw = mw;
+	int selItemI = overflow ?
+		toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+		: toolbarSelMenuItem;
 	drawPill(
 		30 + toolbarSelMenu*55,
-		272 - 156 - toolbarSelMenuItem*35+40,
+		272 - 156 - selItemI*35+40,
 		iw + 10 + 35,
 		30,
 		6, 31, 1);
@@ -396,12 +412,13 @@ void BKDocument::render() {
 	// icon bar
 	texUI2->bindForDisplay();
 	FZScreen::ambientColor(0xffffffff);
+
 	// menu row
 	for (int i = 0; i < 3; i++) {
 		drawImage(38 + i*55, 205, 18, 26, 0, 0);
 	}
 	// selected column
-	for (int i = 0; i < (int)toolbarMenus[toolbarSelMenu].size(); i++) {
+	for (int i = init, j = 0; i < ts; i++, j++) {
 		const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
 		if (i == toolbarSelMenuItem)
 			FZScreen::ambientColor(0xff000000);
@@ -410,14 +427,14 @@ void BKDocument::render() {
 		if (it2.iconW > 0)
 			drawImage(
 				40 + toolbarSelMenu*55,
-				272 - 156 - i*35+45,
+				272 - 156 - j*35+45,
 				it2.iconW, it2.iconH, it2.iconX, it2.iconY);
 	}
 
 	fontBig->bindForDisplay();
 	// item label for selected item
 	FZScreen::ambientColor(0xff000000);
-	drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - toolbarSelMenuItem*35+48);
+	drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
 
 	// button labels
 	FZScreen::ambientColor(0xffcccccc);
@@ -426,6 +443,13 @@ void BKDocument::render() {
 	}
 	if (it.circleLabel.size() > 0) {
 		drawText((char*)it.circleLabel.c_str(), fontBig, 480 - tw - 40, 248);
+	}
+
+	// overflow indicators
+	if (overflow) {
+		FZScreen::ambientColor(0xffffffff);
+		drawText("...", fontBig, 43 + toolbarSelMenu*55, 0);
+		drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 90);
 	}
 
 	fontSmall->bindForDisplay();
