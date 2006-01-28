@@ -33,7 +33,7 @@ struct PDFContext;
 class BKPDF : public BKDocument {
 	PDFContext* ctx;
 
-	string filePath;
+	string fileName;
 
 	int panX;
 	int panY;
@@ -54,7 +54,7 @@ class BKPDF : public BKDocument {
 	virtual int resume();
 	virtual void renderContent();
 
-	virtual void getFilePath(string&);
+	virtual void getFileName(string&);
 	virtual void getTitle(string&);
 	virtual void getType(string&);
 

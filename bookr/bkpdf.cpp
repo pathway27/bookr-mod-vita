@@ -378,7 +378,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	return 0;
 }
 
-BKPDF::BKPDF(string& f) : ctx(0), filePath(f), panX(0), panY(0), loadNewPage(false), pageError(false) {
+BKPDF::BKPDF(string& f) : ctx(0), fileName(f), panX(0), panY(0), loadNewPage(false), pageError(false) {
 }
 
 static BKPDF* singleton = 0;
@@ -675,8 +675,8 @@ void BKPDF::getType(string& s) {
 	s = "PDF";
 }
 
-void BKPDF::getFilePath(string& s) {
-	s = filePath;
+void BKPDF::getFileName(string& s) {
+	s = fileName;
 }
 
 int BKPDF::pan(int x, int y) {

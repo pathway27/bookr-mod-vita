@@ -43,12 +43,50 @@ class BKDocument : public BKLayer {
 	int bannerFrames;
 	string banner;
 
+	/*
+		| - ...
+		| - bookmark #1
+		| - Add bookmark
+		Bookmarks
+
+		| - first page
+		| - last page
+		| - prev 10 pages
+		| - next 10 pages
+		| - go to page
+		Navigation
+	
+		| - Fit height
+		| - Fit width
+		| - Zoom out
+		| - Zoom in
+		Zoom
+	*/
+
+	struct ToolbarItem {
+		int lines;
+		int minWidth;
+		string label;
+		string botLabelLeft;
+		string botLabelRight;
+		string circleLabel;
+		string triangleLabel;
+		int iconX, iconY, iconW, iconH;
+		ToolbarItem() : lines(1), minWidth(100) { }
+	};
+
+	int toolbarSelMenu;
+	int toolbarSelMenuItem;
+
+	vector<ToolbarItem> toolbarMenus[3];
+	void buildToolbarMenus();
+
 	protected:
 	BKDocument();
 	~BKDocument();
 
 	public:
-	// BKLater::update is implemented outside the document viewers.
+	// BKLayer::update is implemented outside the document viewers.
 	// The viewers receive the "cooked" events via the is/get/set
 	// APIs. Of course they can still override this method if neeeded
 	// but then they must call BKDocument::update(buttons) before they
@@ -71,7 +109,7 @@ class BKDocument : public BKLayer {
 	static BKDocument* create(string& filePath);
 
 	// Document metadata
-	virtual void getFilePath(string&) = 0;
+	virtual void getFileName(string&) = 0;
 	virtual void getTitle(string&) = 0;
 	virtual void getType(string&) = 0;
 
