@@ -109,10 +109,8 @@ class BKDocument : public BKLayer {
 	// The type field is a hint for the shell UI to select an
 	// apropiate icon.
 	#define BKDOCUMENT_ZOOMTYPE_ABSOLUTE				0
-	#define BKDOCUMENT_ZOOMTYPE_WIDTH_TO_SCREEN			1
-	#define BKDOCUMENT_ZOOMTYPE_HEIGHT_TO_SCREEN		2
-	#define BKDOCUMENT_ZOOMTYPE_LARGER_TEXT				3
-	#define BKDOCUMENT_ZOOMTYPE_SMALLER_TEXT			4
+	#define BKDOCUMENT_ZOOMTYPE_LARGER_TEXT				1
+	#define BKDOCUMENT_ZOOMTYPE_SMALLER_TEXT			2
 	struct ZoomLevel {
 		int type;
 		string label;
@@ -120,9 +118,11 @@ class BKDocument : public BKLayer {
 	};
 	virtual bool isZoomable() = 0;
 	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v) = 0;
-	
 	virtual int getCurrentZoomLevel() = 0;
 	virtual int setZoomLevel(int) = 0;
+	virtual bool hasZoomToFit() = 0;
+	virtual int setZoomToFitWidth() = 0;
+	virtual int setZoomToFitHeight() = 0;
 
 	// Analog pad paning - can be ignored
 	virtual int pan(int, int) = 0;

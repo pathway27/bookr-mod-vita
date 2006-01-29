@@ -67,6 +67,9 @@ class BKPDF : public BKDocument {
 	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
 	virtual int getCurrentZoomLevel();
 	virtual int setZoomLevel(int);
+	virtual bool hasZoomToFit();
+	virtual int setZoomToFitWidth();
+	virtual int setZoomToFitHeight();
 
 	virtual int pan(int, int);
 

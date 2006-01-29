@@ -299,19 +299,21 @@ void BKDocument::buildToolbarMenus() {
 		ToolbarItem i;
 		i.circleLabel = "Select";
 
-		i.label = "Fit height";
-		i.iconX = 0;
-		i.iconY = 78;
-		i.iconW = 18;
-		i.iconH = 26;
-		toolbarMenus[2].push_back(i);
-
-		i.label = "Fit width";
-		i.iconX = 95;
-		i.iconY = 53;
-		i.iconW = 18;
-		i.iconH = 26;
-		toolbarMenus[2].push_back(i);
+		if (hasZoomToFit()) {
+			i.label = "Fit height";
+			i.iconX = 0;
+			i.iconY = 78;
+			i.iconW = 18;
+			i.iconH = 26;
+			toolbarMenus[2].push_back(i);
+	
+			i.label = "Fit width";
+			i.iconX = 95;
+			i.iconY = 53;
+			i.iconW = 18;
+			i.iconH = 26;
+			toolbarMenus[2].push_back(i);
+		}
 
 		i.label = "Zoom out";
 		i.iconX = 76;
@@ -458,8 +460,26 @@ int BKDocument::processEventsForToolbar() {
 		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 4 && isPaginated()) {
 			// ...
 		}
+		int zi = 3;
+		int zo = 2;
+		if (hasZoomToFit()) {
+			if (toolbarSelMenu == 2 && toolbarSelMenuItem == 1 && isZoomable()) {
+				int r = setZoomToFitWidth();
+				if (r != 0)
+					return r;
+			}
+			if (toolbarSelMenu == 2 && toolbarSelMenuItem == 0 && isZoomable()) {
+				int r = setZoomToFitHeight();
+				if (r != 0)
+					return r;
+			}
+		} else {
+			zi = 1;
+			zo = 0;
+		}
+		
 		// zoom in
-		if (toolbarSelMenu == 2 && toolbarSelMenuItem == 3 && isZoomable()) {
+		if (toolbarSelMenu == 2 && toolbarSelMenuItem == zi && isZoomable()) {
 			vector<ZoomLevel> zooms;
 			getZoomLevels(zooms);
 			int z = getCurrentZoomLevel();
@@ -469,7 +489,7 @@ int BKDocument::processEventsForToolbar() {
 				return r;
 		}
 		// zoom out
-		if (toolbarSelMenu == 2 && toolbarSelMenuItem == 2 && isZoomable()) {
+		if (toolbarSelMenu == 2 && toolbarSelMenuItem == zo && isZoomable()) {
 			vector<ZoomLevel> zooms;
 			getZoomLevels(zooms);
 			int z = getCurrentZoomLevel();

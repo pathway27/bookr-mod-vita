@@ -607,9 +607,7 @@ int BKPDF::setZoomLevel(int z) {
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
-
 	if (BKUser::options.pdfFastScroll) {
-		//pdfRenderFullPage(ctx);
 		loadNewPage = true;
 		return BK_CMD_MARK_DIRTY;
 	}
@@ -617,6 +615,52 @@ int BKPDF::setZoomLevel(int z) {
 	return BK_CMD_MARK_DIRTY;
 }
 
+
+bool BKPDF::hasZoomToFit() {
+	return true;
+}
+
+int BKPDF::setZoomToFitWidth() {
+	float nw = fabs(screenMediaBox.x1 - screenMediaBox.x0)/ctx->zoom;		// width at 1.0 zoom
+	if (nw == 0.0f)
+		nw = 1.0f;
+	ctx->zoom = 480.0f/nw;
+	float nx = float(panX)*ctx->zoom;
+	float ny = float(panY)*ctx->zoom;
+	clipCoords(nx, ny);
+	panX = int(nx);
+	panY = int(ny);
+	char t[256];
+	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
+	setBanner(t);
+	if (BKUser::options.pdfFastScroll) {
+		loadNewPage = true;
+		return BK_CMD_MARK_DIRTY;
+	}
+	redrawBuffer();
+	return BK_CMD_MARK_DIRTY;
+}
+
+int BKPDF::setZoomToFitHeight() {
+	float nh = fabs(screenMediaBox.y1 - screenMediaBox.y0)/ctx->zoom;		// height at 1.0 zoom
+	if (nh == 0.0f)
+		nh = 1.0f;
+	ctx->zoom = 272.0f/nh;
+	float nx = float(panX)*ctx->zoom;
+	float ny = float(panY)*ctx->zoom;
+	clipCoords(nx, ny);
+	panX = int(nx);
+	panY = int(ny);
+	char t[256];
+	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
+	setBanner(t);
+	if (BKUser::options.pdfFastScroll) {
+		loadNewPage = true;
+		return BK_CMD_MARK_DIRTY;
+	}
+	redrawBuffer();
+	return BK_CMD_MARK_DIRTY;
+}
 
 bool BKPDF::isBookmarkable() {
 	return true;
@@ -862,8 +906,8 @@ void BKPDF::redrawBuffer() {
 	*/
 
 	// render new area
-	int bw = fabs(screenMediaBox.x1 - screenMediaBox.x0);
-	int bh = fabs(screenMediaBox.y1 - screenMediaBox.y0);
+	int bw = int(fabs(screenMediaBox.x1 - screenMediaBox.x0));
+	int bh = int(fabs(screenMediaBox.y1 - screenMediaBox.y0));
 	if (bw > 480)
 		bw = 480;
 	if (bh > 272)
