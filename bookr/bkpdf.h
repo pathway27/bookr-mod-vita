@@ -72,6 +72,8 @@ class BKPDF : public BKDocument {
 
 	virtual int screenUp();
 	virtual int screenDown();
+	virtual int screenLeft();
+	virtual int screenRight();
 
 	virtual bool isRotable();
 	virtual int getRotation();

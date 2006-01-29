@@ -86,6 +86,14 @@ void BKMainMenu::buildControlMenu() {
 	t += FZScreen::nameForButtonReps(BKUser::controls.screenDown);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
+	t = "Screen left: ";
+	t += FZScreen::nameForButtonReps(BKUser::controls.screenLeft);
+	controlItems.push_back(BKMenuItem(t, cb, 0));
+
+	t = "Screen right: ";
+	t += FZScreen::nameForButtonReps(BKUser::controls.screenRight);
+	controlItems.push_back(BKMenuItem(t, cb, 0));
+
 	t = "Zoom in: ";
 	t += FZScreen::nameForButtonReps(BKUser::controls.zoomIn);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
@@ -93,56 +101,6 @@ void BKMainMenu::buildControlMenu() {
 	t = "Zoom out: ";
 	t += FZScreen::nameForButtonReps(BKUser::controls.zoomOut);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-#if 0
-	string t("Plain text - Previous page: ");
-	t += FZScreen::nameForButtonReps(BKUser::txtControls.previousPage);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "Plain text - Next page: ";
-	t += FZScreen::nameForButtonReps(BKUser::txtControls.nextPage);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Previous page: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.previousPage);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Next page: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.nextPage);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Previous 10 pages: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.previous10Pages);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Next 10 pages: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.next10Pages);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Pan up: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.panUp);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Pan down: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.panDown);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Pan left: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.panLeft);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Pan right: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.panRight);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Zoom in: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.zoomIn);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-
-	t = "PDF - Zoom out: ";
-	t += FZScreen::nameForButtonReps(BKUser::pdfControls.zoomOut);
-	controlItems.push_back(BKMenuItem(t, cb, 0));
-#endif
 }
 
 void BKMainMenu::buildOptionMenu() {
@@ -293,14 +251,16 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 			return 0;
 		int repsCode = FZScreen::repsForButtonMask(buttons);
 		switch (selItem) {
-			case 1: BKUser::controls.previousPage = repsCode; break;
-			case 2: BKUser::controls.nextPage = repsCode; break;
-			case 3: BKUser::controls.previous10Pages = repsCode; break;
-			case 4: BKUser::controls.next10Pages = repsCode; break;
-			case 5: BKUser::controls.screenUp = repsCode; break;
-			case 6: BKUser::controls.screenDown = repsCode; break;
-			case 7: BKUser::controls.zoomIn = repsCode; break;
-			case 8: BKUser::controls.zoomOut = repsCode; break;
+			case  1: BKUser::controls.previousPage = repsCode; break;
+			case  2: BKUser::controls.nextPage = repsCode; break;
+			case  3: BKUser::controls.previous10Pages = repsCode; break;
+			case  4: BKUser::controls.next10Pages = repsCode; break;
+			case  5: BKUser::controls.screenUp = repsCode; break;
+			case  6: BKUser::controls.screenDown = repsCode; break;
+			case  7: BKUser::controls.screenLeft = repsCode; break;
+			case  8: BKUser::controls.screenRight = repsCode; break;
+			case  9: BKUser::controls.zoomIn = repsCode; break;
+			case 10: BKUser::controls.zoomOut = repsCode; break;
 		}
 		BKUser::save();
 		buildControlMenu();

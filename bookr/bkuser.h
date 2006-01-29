@@ -37,6 +37,8 @@ class BKUser {
 		int next10Pages;
 		int screenUp;
 		int screenDown;
+		int screenLeft;
+		int screenRight;
 		int zoomIn;
 		int zoomOut;
 	};

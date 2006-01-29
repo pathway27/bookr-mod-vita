@@ -39,6 +39,8 @@ void BKUser::setDefaultControls() {
 	controls.next10Pages      = FZ_REPS_CROSS;
 	controls.screenUp         = FZ_REPS_UP;
 	controls.screenDown       = FZ_REPS_DOWN;
+	controls.screenLeft       = FZ_REPS_LEFT;
+	controls.screenRight      = FZ_REPS_RIGHT;
 	controls.zoomIn           = FZ_REPS_RTRIGGER;
 	controls.zoomOut          = FZ_REPS_LTRIGGER;
 }
@@ -77,6 +79,8 @@ void BKUser::save() {
 	fprintf(f, "\t\t<bind action=\"controls.next10Pages\" button=\"%d\" />\n", controls.next10Pages);
 	fprintf(f, "\t\t<bind action=\"controls.screenUp\" button=\"%d\" />\n", controls.screenUp);
 	fprintf(f, "\t\t<bind action=\"controls.screenDown\" button=\"%d\" />\n", controls.screenDown);
+	fprintf(f, "\t\t<bind action=\"controls.screenLeft\" button=\"%d\" />\n", controls.screenLeft);
+	fprintf(f, "\t\t<bind action=\"controls.screenRight\" button=\"%d\" />\n", controls.screenRight);
 	fprintf(f, "\t\t<bind action=\"controls.zoomIn\" button=\"%d\" />\n", controls.zoomIn);
 	fprintf(f, "\t\t<bind action=\"controls.zoomOut\" button=\"%d\" />\n", controls.zoomOut);
 
@@ -138,6 +142,8 @@ void BKUser::load() {
 			else if (strncmp(action, "controls.next10Pages",     128) == 0) BKUser::controls.next10Pages     = b;
 			else if (strncmp(action, "controls.screenUp",        128) == 0) BKUser::controls.screenUp        = b;
 			else if (strncmp(action, "controls.screenDown",      128) == 0) BKUser::controls.screenDown      = b;
+			else if (strncmp(action, "controls.screenLeft",      128) == 0) BKUser::controls.screenLeft      = b;
+			else if (strncmp(action, "controls.screenRight",     128) == 0) BKUser::controls.screenRight     = b;
 			else if (strncmp(action, "controls.zoomIn",          128) == 0) BKUser::controls.zoomIn          = b;
 			else if (strncmp(action, "controls.zoomOut",         128) == 0) BKUser::controls.zoomOut         = b;
 	

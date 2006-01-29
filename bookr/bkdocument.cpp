@@ -170,6 +170,16 @@ int BKDocument::processEventsForView() {
 			if (r != 0)
 				return r;
 		}
+		if (b[BKUser::controls.screenLeft] == 1 || b[BKUser::controls.screenLeft] > 20) {
+			int r = screenLeft();
+			if (r != 0)
+				return r;
+		}
+		if (b[BKUser::controls.screenRight] == 1 || b[BKUser::controls.screenRight] > 20) {
+			int r = screenRight();
+			if (r != 0)
+				return r;
+		}
 	}
 
 	// button handling - rotation - TO DO

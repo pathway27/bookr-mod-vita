@@ -284,6 +284,7 @@ static fz_matrix pdfViewctm(PDFContext* ctx) {
 	return ctm;
 }
 
+static fz_rect screenMediaBox;
 static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h, bool transform = false) {
 	fz_error *error;
 	fz_matrix ctm;
@@ -299,16 +300,16 @@ static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h, boo
 		bbox.y1 += h;
 		bbox = fz_transformaabb(ctm, bbox);
 	} else {
-		bbox.x0 = x + ctx->page->mediabox.x0;
-		bbox.y0 = y + ctx->page->mediabox.y0;
+		bbox.x0 = x;
+		bbox.y0 = y;
 		bbox.x1 = bbox.x0 + w;
 		bbox.y1 = bbox.y0 + h;
 	}
 	fz_irect ir = fz_roundrect(bbox);
-	if (!transform) {
+	/*if (!transform) {
 		ir.x1 = ir.x0 + w;
 		ir.y1 = ir.y0 + h;
-	}
+	}*/
 	fz_pixmap* pix = (fz_pixmap*)malloc(sizeof(fz_pixmap));
 	error = fz_rendertree(&pix, fzrast, ctx->page->tree, ctm, ir, 1);
 	if (error) {
@@ -345,6 +346,25 @@ static void pdfRenderFullPage(PDFContext* ctx) {
 	}
 }
 
+static void recalcScreenMediaBox(PDFContext* ctx) {
+	fz_matrix ctm;
+	fz_rect bbox;
+	float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
+	float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
+	float x = ctx->page->mediabox.x0;
+	float y = ctx->page->mediabox.x0;
+	bbox.x0 = x;
+	bbox.y0 = y;
+	bbox.x1 = x;
+	bbox.y1 = y;
+	ctm = pdfViewctm(ctx);
+	bbox.x1 += w;
+	bbox.y1 += h;
+	bbox = fz_transformaabb(ctm, bbox);
+	screenMediaBox = bbox;
+	printf("sCMB (%g, %g) - (%g, %g)\n", bbox.x0, bbox.y0, bbox.x1, bbox.y1);
+}
+
 static char lastPageError[1024];
 static int pdfLoadPage(PDFContext* ctx) {
 	if (fullPageBuffer != NULL) {
@@ -372,6 +392,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	//printf("\n\n------------------------------------------------\n");
 	//fz_debugtree(ctx->page->tree);
 
+	recalcScreenMediaBox(ctx);
 	if (BKUser::options.pdfFastScroll) {
 		pdfRenderFullPage(ctx);
 	}
@@ -518,23 +539,29 @@ BKPDF* BKPDF::create(string& file) {
 
 void BKPDF::clipCoords(float& nx, float& ny) {
 	if (!pageError) {
-		fz_matrix ctm = pdfViewctm(ctx);
-		fz_rect bbox = ctx->page->mediabox;
-		bbox = fz_transformaabb(ctm, bbox);
+		//fz_matrix ctm = pdfViewctm(ctx);
+		//fz_rect bbox = ctx->page->mediabox;
+		fz_rect bbox = screenMediaBox;
+		//bbox = fz_transformaabb(ctm, bbox);
 		if (ny < 0.0f) {
 			ny = 0.0f;
 		}
 		float h = bbox.y1 - bbox.y0;
-		if (ny >= h - 272.0f) {
+		if (h <= 272.0f) {
+			ny = 0.0f;
+		} else if (ny >= h - 272.0f) {
 			ny = h - 273.0f;
 		}
 		if (nx < 0.0f) {
 			nx = 0.0f;
 		}
 		float w = bbox.x1 - bbox.x0;
-		if (nx >= w - 480.0f) {
-			nx = w - 483.0f;
+		if (w <= 489.0f) {
+			nx = 0.0f;
+		} else if (nx >= w - 480.0f) {
+			nx = w - 481.0f;
 		}
+		printf("cc panX, panY - %g, %g\n", nx, ny);
 #if 0
 		if (ny < 0.0f) {
 			ny = 0.0f;
@@ -690,9 +717,6 @@ int BKPDF::pan(int x, int y) {
 	float nx = float(panX + x);
 	float ny = float(panY + y);
 	clipCoords(nx, ny);
-	//panX = int(nx);
-	//panY = int(ny);
-	//return BK_CMD_MARK_DIRTY;
 	if (panX == int(nx) && panY == int(ny))
 		return 0;
 	panBuffer(int(nx), int(ny));
@@ -705,6 +729,14 @@ int BKPDF::screenUp() {
 
 int BKPDF::screenDown() {
 	return pan(0, 250);
+}
+
+int BKPDF::screenLeft() {
+	return pan(-460, 0);
+}
+
+int BKPDF::screenRight() {
+	return pan(460, 0);
 }
 
 void BKPDF::renderContent() {
@@ -760,6 +792,7 @@ extern "C" {
 void BKPDF::redrawBuffer() {
 	if (pageError)
 		return;
+	recalcScreenMediaBox(ctx);
 	if (BKUser::options.pdfFastScroll && fullPageBuffer != NULL) {
 		// copy region of the full page buffer
 		int cw = 480;
@@ -767,6 +800,7 @@ void BKPDF::redrawBuffer() {
 		int dskip = 0;
 		int px = panX;
 		int py = panY;
+		printf("panX, panY - %d, %d\n", px, py);
 		if (fullPageBuffer->w < 480) {
 			px = 0;
 			cw = fullPageBuffer->w;
@@ -784,6 +818,7 @@ void BKPDF::redrawBuffer() {
 		} else if (py + 272 > fullPageBuffer->h) {
 			py = fullPageBuffer->h - 272;
 		}
+		printf("px, py - %d, %d\n", px, py);
 		unsigned int* s = (unsigned int*)fullPageBuffer->samples + px + (fullPageBuffer->w*py);
 		unsigned int* d = bounceBuffer;
 		if (fillGrey) {
@@ -802,7 +837,9 @@ void BKPDF::redrawBuffer() {
 		}
 		return;
 	}
-	fz_pixmap* pix = pdfRenderTile(ctx, panX, panY, 480, 272);
+	/*
+	fz_pixmap* pix = pdfRenderTile(ctx, panX + screenMediaBox.x0, panY + screenMediaBox.y0, 480, 272);
+	//fz_pixmap* pix = pdfRenderTile(ctx, panX, panY, 480, 272);
 	// copy and shift colors
 	unsigned int* s = (unsigned int*)pix->samples;
 	unsigned int* d = backBuffer;
@@ -810,6 +847,45 @@ void BKPDF::redrawBuffer() {
 	bk_memcpysr8(d, s, n*4);
 	fz_droppixmap(pix);
 	bk_memcpy(bounceBuffer, backBuffer, n*4);
+	*/
+
+	// render new area
+	fz_pixmap* pix = pdfRenderTile(ctx, panX + screenMediaBox.x0, panY + screenMediaBox.y0, 480, 272);
+	unsigned int* s = (unsigned int*)pix->samples;
+	unsigned int* d = bounceBuffer;
+
+	// fill bg area if needed
+	// not working, buffer is always fullscreen
+	/*if (pix->w < 480 || pix->h < 272) {
+		unsigned int *dd = d;
+		const unsigned int c = BKUser::options.pdfBGColor;
+		for (int i = 0; i < 480*272; i++) {
+			*dd = c;
+			++dd;
+		}
+	}*/
+	// copy rendered tile to bounce buffer for direct viewing
+	int pw = pix->w;
+	if (pix->w > 480)
+		pw = 480;
+	int ph = pix->h;
+	if (pix->h > 272)
+		ph = 272;
+	// center tile
+	if (pw < 480)
+		d += (480 - pw) / 2;
+	if (ph < 272)
+		d += ((480 - ph) / 2)*480;
+	for (int j = 0; j < ph; ++j) {
+		bk_memcpysr8(d, s, pw*4);
+		d += 480;
+		s += pix->w;
+	}
+	fz_droppixmap(pix);
+	/*panX = nx;
+	unsigned int* t = bounceBuffer;
+	bounceBuffer = backBuffer;
+	backBuffer = t;*/
 }
 
 void BKPDF::panBuffer(int nx, int ny) {
@@ -821,6 +897,10 @@ void BKPDF::panBuffer(int nx, int ny) {
 		redrawBuffer();
 		return;
 	}
+		panX = nx;
+		panY = ny;
+	redrawBuffer();
+	return;
 	if (ny != panY) {
 		int dy = ny - panY;
 		int ady = dy > 0 ? dy : -dy;
