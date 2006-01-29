@@ -35,15 +35,11 @@ class BKUser {
 		int nextPage;
 		int previous10Pages;
 		int next10Pages;
-		int panUp;
-		int panDown;
-		int panLeft;
-		int panRight;
+		int screenUp;
+		int screenDown;
 		int zoomIn;
 		int zoomOut;
 	};
-	static Controls pdfControls;
-	static Controls txtControls;
 	static Controls controls;
 
 	struct Options {

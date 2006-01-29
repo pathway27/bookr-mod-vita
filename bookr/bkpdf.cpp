@@ -685,8 +685,6 @@ int BKPDF::pan(int x, int y) {
 		x = 0;
 	if (y > -32 && y < 32)
 		y = 0;
-	x >>= 1;
-	y >>= 1;
 	if (x == 0 && y == 0)
 		return 0;
 	float nx = float(panX + x);
@@ -699,6 +697,14 @@ int BKPDF::pan(int x, int y) {
 		return 0;
 	panBuffer(int(nx), int(ny));
 	return BK_CMD_MARK_DIRTY;
+}
+
+int BKPDF::screenUp() {
+	return pan(0, -250);
+}
+
+int BKPDF::screenDown() {
+	return pan(0, 250);
 }
 
 void BKPDF::renderContent() {
@@ -932,172 +938,6 @@ int BKPDF::updateContent() {
 		return BK_CMD_MARK_DIRTY;
 	}
 	*/
-
-	return 0;
-#if 0
-	int* b = FZScreen::ctrlReps();
-
-	float nx = panX;
-	float ny = panY;
-	bool fullRedraw = false;
-	// pan
-	if (b[BKUser::pdfControls.panUp] == 1 || b[BKUser::pdfControls.panUp] > 20) {
-		ny -= 16.0f;
-	}
-	if (b[BKUser::pdfControls.panDown] == 1 || b[BKUser::pdfControls.panDown] > 20) {
-		ny += 16.0f;
-	}
-	if (b[BKUser::pdfControls.panLeft] == 1 || b[BKUser::pdfControls.panLeft] > 20) {
-		nx -= 16.0f;
-	}
-	if (b[BKUser::pdfControls.panRight] == 1 || b[BKUser::pdfControls.panRight] > 20) {
-		nx += 16.0f;
-	}
-	// zoom
-	if (b[BKUser::pdfControls.zoomOut] == 1) {
-		--ctx->zoomLevel;
-		if (ctx->zoomLevel < 0)
-			ctx->zoomLevel = 0;
-		if (BKUser::options.pdfFastScroll && ctx->zoomLevel > 14) {
-			ctx->zoomLevel = 14;
-			ctx->zoom = 2.0f;
-		}
-		ctx->zoom = zoomLevels[ctx->zoomLevel];
-		fullRedraw = true;
-		nx *= ctx->zoom;
-		ny *= ctx->zoom;
-		char t[256];
-		snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
-		banner = t;
-		bannerFrames = 60;
-	}
-	if (b[BKUser::pdfControls.zoomIn] == 1) {
-		++ctx->zoomLevel;
-		int n = sizeof(zoomLevels)/sizeof(float);
-		if (ctx->zoomLevel >= n)
-			ctx->zoomLevel = n - 1;
-		if (BKUser::options.pdfFastScroll && ctx->zoomLevel > 14) {
-			ctx->zoomLevel = 14;
-			ctx->zoom = 2.0f;
-		}
-		ctx->zoom = zoomLevels[ctx->zoomLevel];
-		fullRedraw = true;
-		nx *= ctx->zoom;
-		ny *= ctx->zoom;
-		char t[256];
-		snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
-		banner = t;
-		bannerFrames = 60;
-	}
-	// clip coords
-	if (!pageError) {
-		fz_matrix ctm = pdfViewctm(ctx);
-		fz_rect bbox = ctx->page->mediabox;
-		bbox = fz_transformaabb(ctm, bbox);
-		if (ny < 0.0f) {
-			ny = 0.0f;
-		}
-		float h = bbox.y1 - bbox.y0;
-		if (ny >= h - 272.0f) {
-			ny = h - 273.0f;
-		}
-		if (nx < 0.0f) {
-			nx = 0.0f;
-		}
-		float w = bbox.x1 - bbox.x0;
-		if (nx >= w - 480.0f) {
-			nx = w - 481.0f;
-		}
-#if 0
-		if (ny < 0.0f) {
-			ny = 0.0f;
-		}
-		float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
-		h *= ctx->zoom;
-		if (ny >= h - 272.0f) {
-			ny = h - 273.0f;
-		}
-		if (nx < 0.0f) {
-			nx = 0.0f;
-		}
-		float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
-		w *= ctx->zoom;
-		if (nx >= w - 480.0f) {
-			nx = w - 481.0f;
-		}
-#endif
-	}
-
-	int inx = (int)nx;
-	int iny = (int)ny;
-	// redraw and/or pan
-	if (fullRedraw) {
-		panX = inx;
-		panY = iny;
-		if (BKUser::options.pdfFastScroll) {
-			//pdfRenderFullPage(ctx);
-			loadNewPage = true;
-			return BK_CMD_MARK_DIRTY;
-		}
-		redrawBuffer();
-		return BK_CMD_MARK_DIRTY;
-	}
-	if (inx != panX || iny != panY) {
-		panBuffer(inx, iny);
-		return BK_CMD_MARK_DIRTY;
-	}
-
-	// main menu
-	if (b[FZ_REPS_START] == 1) {
-		return BK_CMD_INVOKE_MENU;
-	}
-
-	// banner fade
-	if (bannerFrames > 0)
-		return BK_CMD_MARK_DIRTY;
-
-	// next/prev page
-	int oldpage = ctx->pageno;
-
-	if (b[BKUser::pdfControls.nextPage] == 1) {
-		ctx->pageno++;
-	}
-	if (b[BKUser::pdfControls.previousPage] == 1) {
-		ctx->pageno--;
-	}
-	if (b[BKUser::pdfControls.next10Pages] == 1) {
-		ctx->pageno+=10;
-	}
-	if (b[BKUser::pdfControls.previous10Pages] == 1) {
-		ctx->pageno-=10;
-	}
-#if 0
-	if (ctx->pageno < 1)
-		ctx->pageno = 1;
-	if (ctx->pageno > pdf_getpagecount(ctx->pages))
-		ctx->pageno = pdf_getpagecount(ctx->pages);
-
-	if (ctx->pageno != oldpage) {
-		loadNewPage = true;
-		panY = 0;
-		/*pdfLoadPage(ctx);
-		redrawBuffer();
-		return BK_CMD_MARK_DIRTY;*/
-	}
-#endif
-#endif
 	return 0;
 }
-
-/*void BKPDF::reloadPage(int position) {
-	setPage(position);
-	loadNewPage = true;
-	panY = 0;
-}
-
-void BKPDF::setBookmark(bool lastview) {
-	// Save the last position		
-	BKBookmark::set(path, ctx->pageno, lastview);
-}
-*/
 

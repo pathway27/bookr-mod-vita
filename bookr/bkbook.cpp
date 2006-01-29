@@ -361,14 +361,14 @@ int BKBook::update(unsigned int buttons) {
 	if (bannerFrames < 0)
 		bannerFrames = 0;
 	int* b = FZScreen::ctrlReps();
-	if (b[BKUser::txtControls.previousPage] == 1 || b[BKUser::txtControls.previousPage] > 20) {
+	/*if (b[BKUser::txtControls.previousPage] == 1 || b[BKUser::txtControls.previousPage] > 20) {
 		skipPages(-1);
 		bannerFrames = 60;
 	}
 	if (b[BKUser::txtControls.nextPage] == 1 || b[BKUser::txtControls.nextPage] > 20) {
 		skipPages(+1);
 		bannerFrames = 60;
-	}
+	}*/
 	if (b[FZ_REPS_START] == 1) {
 		return BK_CMD_INVOKE_MENU;
 	}

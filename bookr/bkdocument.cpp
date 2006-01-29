@@ -41,7 +41,7 @@ BKDocument* BKDocument::create(string& filePath) {
 	return doc;
 }
 
-BKDocument::BKDocument() : 	mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	toolbarSelMenu(0), toolbarSelMenuItem(0) {
+BKDocument::BKDocument() : 	mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	toolbarSelMenu(0), toolbarSelMenuItem(0), frames(0) {
 	lastSuspendSerial = FZScreen::getSuspendSerial();
 }
 
@@ -81,6 +81,10 @@ int BKDocument::update(unsigned int buttons) {
 
 	// banner fade - this allows events during the fade
 	if (bannerFrames > 0 && r == 0)
+		r = BK_CMD_MARK_DIRTY;
+
+	frames++;
+	if (frames % 60 == 0 && r == 0)
 		r = BK_CMD_MARK_DIRTY;
 
 	return r;
@@ -152,6 +156,20 @@ int BKDocument::processEventsForView() {
 		int r = pan(ax, ay);
 		if (r != 0)
 			return r;
+	}
+
+	// button handling - digital panning - FIX - BUTTON BINDINGS
+	{
+		if (b[BKUser::controls.screenUp] == 1 || b[BKUser::controls.screenUp] > 20) {
+			int r = screenUp();
+			if (r != 0)
+				return r;
+		}
+		if (b[BKUser::controls.screenDown] == 1 || b[BKUser::controls.screenDown] > 20) {
+			int r = screenDown();
+			if (r != 0)
+				return r;
+		}
 	}
 
 	// button handling - rotation - TO DO
@@ -579,7 +597,13 @@ void BKDocument::render() {
 		drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
 	}
 
-	string t("FIX - put title here");
+	
+	string t;
+	if (isPaginated()) {
+		char tp[256];
+		snprintf(tp, 256, "Page %d of %d", getCurrentPage(), getTotalPages());
+		t = tp;
+	}
 	drawClockAndBattery(t);
 
 	/*FZScreen::ambientColor(0xff000000);

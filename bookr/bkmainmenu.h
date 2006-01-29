@@ -44,6 +44,7 @@ class BKMainMenu : public BKLayer {
 
 	string popupText;
 	int popupMode;
+	int frames;
 
 	protected:
 	BKMainMenu(bool isPdf, BKLayer* pdfOrBookLayer);	

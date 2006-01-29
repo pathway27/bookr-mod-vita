@@ -63,6 +63,8 @@ class BKDocument : public BKLayer {
 	BKBookmarkList bookmarkList;
 	void buildToolbarMenus();
 
+	int frames;
+
 	protected:
 	BKDocument();
 	~BKDocument();
@@ -124,6 +126,10 @@ class BKDocument : public BKLayer {
 
 	// Analog pad paning - can be ignored
 	virtual int pan(int, int) = 0;
+
+	// digital paning
+	virtual int screenUp() = 0;
+	virtual int screenDown() = 0;
 
 	// Rotation (0 = 0deg, 1 = 90deg, 2 = 180deg, 3 = 240deg)
 	virtual bool isRotable() = 0;

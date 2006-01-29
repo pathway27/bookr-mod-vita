@@ -22,8 +22,6 @@
 #include "fzscreen.h"
 #include "bkuser.h"
 
-BKUser::Controls BKUser::pdfControls;
-BKUser::Controls BKUser::txtControls;
 BKUser::Controls BKUser::controls;
 BKUser::Options BKUser::options;
 
@@ -34,31 +32,13 @@ void BKUser::init() {
 }
 
 void BKUser::setDefaultControls() {
-	// set default controls for txt. the non-set controls are unused
-	memset((void*)&BKUser::txtControls, 0, sizeof(BKUser::Controls));
-	txtControls.previousPage = FZ_REPS_UP;
-	txtControls.nextPage     = FZ_REPS_DOWN;
 	// set default controls for pdf
-	pdfControls.previousPage     = FZ_REPS_SQUARE;
-	pdfControls.nextPage         = FZ_REPS_TRIANGLE;
-	pdfControls.previous10Pages  = FZ_REPS_CIRCLE;
-	pdfControls.next10Pages      = FZ_REPS_CROSS;
-	pdfControls.panUp            = FZ_REPS_UP;
-	pdfControls.panDown          = FZ_REPS_DOWN;
-	pdfControls.panLeft          = FZ_REPS_LEFT;
-	pdfControls.panRight         = FZ_REPS_RIGHT;
-	pdfControls.zoomIn           = FZ_REPS_RTRIGGER;
-	pdfControls.zoomOut          = FZ_REPS_LTRIGGER;
-
-	// set default controls
 	controls.previousPage     = FZ_REPS_SQUARE;
 	controls.nextPage         = FZ_REPS_TRIANGLE;
 	controls.previous10Pages  = FZ_REPS_CIRCLE;
 	controls.next10Pages      = FZ_REPS_CROSS;
-	controls.panUp            = FZ_REPS_UP;
-	controls.panDown          = FZ_REPS_DOWN;
-	controls.panLeft          = FZ_REPS_LEFT;
-	controls.panRight         = FZ_REPS_RIGHT;
+	controls.screenUp         = FZ_REPS_UP;
+	controls.screenDown       = FZ_REPS_DOWN;
 	controls.zoomIn           = FZ_REPS_RTRIGGER;
 	controls.zoomOut          = FZ_REPS_LTRIGGER;
 }
@@ -91,19 +71,14 @@ void BKUser::save() {
 	fprintf(f, "<user>\n");
 	fprintf(f, "\t<controls>\n");
 
-	fprintf(f, "\t\t<bind action=\"txtControls.previousPage\" button=\"%d\" />\n", txtControls.previousPage);
-	fprintf(f, "\t\t<bind action=\"txtControls.nextPage\" button=\"%d\" />\n", txtControls.nextPage);
-
-	fprintf(f, "\t\t<bind action=\"pdfControls.previousPage\" button=\"%d\" />\n", pdfControls.previousPage);
-	fprintf(f, "\t\t<bind action=\"pdfControls.nextPage\" button=\"%d\" />\n", pdfControls.nextPage);
-	fprintf(f, "\t\t<bind action=\"pdfControls.previous10Pages\" button=\"%d\" />\n", pdfControls.previous10Pages);
-	fprintf(f, "\t\t<bind action=\"pdfControls.next10Pages\" button=\"%d\" />\n", pdfControls.next10Pages);
-	fprintf(f, "\t\t<bind action=\"pdfControls.panUp\" button=\"%d\" />\n", pdfControls.panUp);
-	fprintf(f, "\t\t<bind action=\"pdfControls.panDown\" button=\"%d\" />\n", pdfControls.panDown);
-	fprintf(f, "\t\t<bind action=\"pdfControls.panLeft\" button=\"%d\" />\n", pdfControls.panLeft);
-	fprintf(f, "\t\t<bind action=\"pdfControls.panRight\" button=\"%d\" />\n", pdfControls.panRight);
-	fprintf(f, "\t\t<bind action=\"pdfControls.zoomIn\" button=\"%d\" />\n", pdfControls.zoomIn);
-	fprintf(f, "\t\t<bind action=\"pdfControls.zoomOut\" button=\"%d\" />\n", pdfControls.zoomOut);
+	fprintf(f, "\t\t<bind action=\"controls.previousPage\" button=\"%d\" />\n", controls.previousPage);
+	fprintf(f, "\t\t<bind action=\"controls.nextPage\" button=\"%d\" />\n", controls.nextPage);
+	fprintf(f, "\t\t<bind action=\"controls.previous10Pages\" button=\"%d\" />\n", controls.previous10Pages);
+	fprintf(f, "\t\t<bind action=\"controls.next10Pages\" button=\"%d\" />\n", controls.next10Pages);
+	fprintf(f, "\t\t<bind action=\"controls.screenUp\" button=\"%d\" />\n", controls.screenUp);
+	fprintf(f, "\t\t<bind action=\"controls.screenDown\" button=\"%d\" />\n", controls.screenDown);
+	fprintf(f, "\t\t<bind action=\"controls.zoomIn\" button=\"%d\" />\n", controls.zoomIn);
+	fprintf(f, "\t\t<bind action=\"controls.zoomOut\" button=\"%d\" />\n", controls.zoomOut);
 
 	fprintf(f, "\t</controls>\n");
 
@@ -135,17 +110,7 @@ void BKUser::load() {
 	if (f == NULL)
 		return;
 	
-	/*fseek(f, 0, SEEK_END);
-	int size = ftell(f);
-	char* buffer = (char*)malloc(size + 1);
-	memset((void*)buffer, 0, size + 1);
-	fseek(f, 0, SEEK_SET);
-	fread(buffer, size, 1, f);
-	fclose(f);
-	buffer[size] = 0;*/
-
 	TiXmlDocument *doc = new TiXmlDocument();
-	//doc->Parse(buffer);
 	doc->LoadFile(filename);
 
 	if(doc->Error()) {
@@ -167,18 +132,14 @@ void BKUser::load() {
 				break;
 			}
 			int b = atoi(button);
-				 if (strncmp(action, "txtControls.previousPage",    128) == 0) txtControls.previousPage    = b;
-			else if (strncmp(action, "txtControls.nextPage",        128) == 0) txtControls.nextPage        = b;
-			else if (strncmp(action, "pdfControls.previousPage",    128) == 0) pdfControls.previousPage    = b;
-			else if (strncmp(action, "pdfControls.nextPage",        128) == 0) pdfControls.nextPage        = b;
-			else if (strncmp(action, "pdfControls.previous10Pages", 128) == 0) pdfControls.previous10Pages = b;
-			else if (strncmp(action, "pdfControls.next10Pages",     128) == 0) pdfControls.next10Pages     = b;
-			else if (strncmp(action, "pdfControls.panUp",           128) == 0) pdfControls.panUp           = b;
-			else if (strncmp(action, "pdfControls.panDown",         128) == 0) pdfControls.panDown         = b;
-			else if (strncmp(action, "pdfControls.panLeft",         128) == 0) pdfControls.panLeft         = b;
-			else if (strncmp(action, "pdfControls.panRight",        128) == 0) pdfControls.panRight        = b;
-			else if (strncmp(action, "pdfControls.zoomIn",          128) == 0) pdfControls.zoomIn          = b;
-			else if (strncmp(action, "pdfControls.zoomOut",         128) == 0) pdfControls.zoomOut         = b;
+			     if (strncmp(action, "controls.previousPage",    128) == 0) BKUser::controls.previousPage    = b;
+			else if (strncmp(action, "controls.nextPage",        128) == 0) BKUser::controls.nextPage        = b;
+			else if (strncmp(action, "controls.previous10Pages", 128) == 0) BKUser::controls.previous10Pages = b;
+			else if (strncmp(action, "controls.next10Pages",     128) == 0) BKUser::controls.next10Pages     = b;
+			else if (strncmp(action, "controls.screenUp",        128) == 0) BKUser::controls.screenUp        = b;
+			else if (strncmp(action, "controls.screenDown",      128) == 0) BKUser::controls.screenDown      = b;
+			else if (strncmp(action, "controls.zoomIn",          128) == 0) BKUser::controls.zoomIn          = b;
+			else if (strncmp(action, "controls.zoomOut",         128) == 0) BKUser::controls.zoomOut         = b;
 	
 			bind = bind->NextSiblingElement("bind");
 		}
