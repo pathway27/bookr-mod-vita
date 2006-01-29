@@ -47,6 +47,8 @@ extern "C" {
 static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
 	1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
+static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
+
 // singleton
 static fz_renderer *fzrast = NULL;
 static unsigned int* bounceBuffer = NULL;
@@ -71,6 +73,7 @@ struct PDFContext {
 	float zoom;
 	int zoomLevel;
 	float rotate;
+	int rotateLevel;
 };
 
 static int pdfInit() {
@@ -162,7 +165,6 @@ static PDFContext* pdfOpen(char *filename) {
 	/*
 	* Load page tree
 	*/
-
 	error = pdf_loadpagetree(&ctx->pages, ctx->xref);
 	if (error) {
 		printf("err6: %s\n", error->msg);
@@ -247,6 +249,8 @@ static PDFContext* pdfOpen(char *filename) {
 	ctx->pageno = 1;
 	ctx->zoom = 1.0f;
 	ctx->zoomLevel = 4;
+	ctx->rotate = 0.0f;
+	ctx->rotateLevel = 0;
 	return ctx;
 }
 
@@ -362,7 +366,7 @@ static void recalcScreenMediaBox(PDFContext* ctx) {
 	bbox.y1 += h;
 	bbox = fz_transformaabb(ctm, bbox);
 	screenMediaBox = bbox;
-	printf("sCMB (%g, %g) - (%g, %g)\n", bbox.x0, bbox.y0, bbox.x1, bbox.y1);
+	//printf("sCMB (%g, %g) - (%g, %g)\n", bbox.x0, bbox.y0, bbox.x1, bbox.y1);
 }
 
 static char lastPageError[1024];
@@ -489,7 +493,7 @@ BKPDF* BKPDF::create(string& file) {
 	BKPDF* b = new BKPDF(file);
 	singleton = b;
 
-	fz_setmemorycontext(&bkmem);
+	//fz_setmemorycontext(&bkmem);
 	fz_cpudetect();
 	fz_accelerate();
 
@@ -561,25 +565,7 @@ void BKPDF::clipCoords(float& nx, float& ny) {
 		} else if (nx >= w - 480.0f) {
 			nx = w - 481.0f;
 		}
-		printf("cc panX, panY - %g, %g\n", nx, ny);
-#if 0
-		if (ny < 0.0f) {
-			ny = 0.0f;
-		}
-		float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
-		h *= ctx->zoom;
-		if (ny >= h - 272.0f) {
-			ny = h - 273.0f;
-		}
-		if (nx < 0.0f) {
-			nx = 0.0f;
-		}
-		float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
-		w *= ctx->zoom;
-		if (nx >= w - 480.0f) {
-			nx = w - 481.0f;
-		}
-#endif
+		//printf("cc panX, panY - %g, %g\n", nx, ny);
 	}
 }
 
@@ -641,13 +627,13 @@ void BKPDF::getBookmarkPosition(map<string, int>& m) {
 	m["zoom"] = ctx->zoomLevel;
 	m["panX"] = panX;
 	m["panY"] = panY;
-	m["rotation"] = 0;
+	m["rotation"] = ctx->rotateLevel;
 }
 
 int BKPDF::setBookmarkPosition(map<string, int>& m) {
 	setCurrentPage(m["page"]);
 	setZoomLevel(m["zoom"]);
-	//m["rotation"] ?
+	setRotation(m["rotation"]);
 	panX = m["panX"];
 	panY = m["panY"];
 	return BK_CMD_MARK_DIRTY;
@@ -684,15 +670,41 @@ int BKPDF::setCurrentPage(int position) {
 }
 
 bool BKPDF::isRotable() {
-	return false;
+	return true;
 }
 
 int BKPDF::getRotation() {
-	return 0;
+	return ctx->rotateLevel;
 }
 
-int BKPDF::setRotation(int r) {
-	return 0;
+int BKPDF::setRotation(int z) {
+	if (z == ctx->rotateLevel)
+		return 0;
+	int n = 4;
+	ctx->rotateLevel = z;
+
+	if (ctx->rotateLevel < 0)
+		ctx->rotateLevel = 3;
+	if (ctx->rotateLevel >= n)
+		ctx->rotateLevel = 0;
+
+	ctx->rotate = rotateLevels[ctx->rotateLevel];
+	float nx = float(panX);
+	float ny = float(panY);
+	clipCoords(nx, ny);
+	panX = int(nx);
+	panY = int(ny);
+	char t[256];
+	snprintf(t, 256, "Rotate to %3.3g°", ctx->rotate);
+	setBanner(t);
+
+	if (BKUser::options.pdfFastScroll) {
+		//pdfRenderFullPage(ctx);
+		loadNewPage = true;
+		return BK_CMD_MARK_DIRTY;
+	}
+	redrawBuffer();
+	return BK_CMD_MARK_DIRTY;
 }
 
 void BKPDF::getTitle(string& s) {
@@ -800,7 +812,7 @@ void BKPDF::redrawBuffer() {
 		int dskip = 0;
 		int px = panX;
 		int py = panY;
-		printf("panX, panY - %d, %d\n", px, py);
+		//printf("panX, panY - %d, %d\n", px, py);
 		if (fullPageBuffer->w < 480) {
 			px = 0;
 			cw = fullPageBuffer->w;
@@ -818,7 +830,7 @@ void BKPDF::redrawBuffer() {
 		} else if (py + 272 > fullPageBuffer->h) {
 			py = fullPageBuffer->h - 272;
 		}
-		printf("px, py - %d, %d\n", px, py);
+		//printf("px, py - %d, %d\n", px, py);
 		unsigned int* s = (unsigned int*)fullPageBuffer->samples + px + (fullPageBuffer->w*py);
 		unsigned int* d = bounceBuffer;
 		if (fillGrey) {
@@ -850,7 +862,7 @@ void BKPDF::redrawBuffer() {
 	*/
 
 	// render new area
-	fz_pixmap* pix = pdfRenderTile(ctx, panX + screenMediaBox.x0, panY + screenMediaBox.y0, 480, 272);
+	fz_pixmap* pix = pdfRenderTile(ctx, panX + int(screenMediaBox.x0), panY + int(screenMediaBox.y0), 480, 272);
 	unsigned int* s = (unsigned int*)pix->samples;
 	unsigned int* d = bounceBuffer;
 
@@ -897,10 +909,11 @@ void BKPDF::panBuffer(int nx, int ny) {
 		redrawBuffer();
 		return;
 	}
-		panX = nx;
-		panY = ny;
+	panX = nx;
+	panY = ny;
 	redrawBuffer();
-	return;
+	// incremental pan is disabled, for now
+#if 0
 	if (ny != panY) {
 		int dy = ny - panY;
 		int ady = dy > 0 ? dy : -dy;
@@ -964,6 +977,7 @@ void BKPDF::panBuffer(int nx, int ny) {
 		bounceBuffer = backBuffer;
 		backBuffer = t;
 	}
+#endif
 }
 
 int BKPDF::resume() {

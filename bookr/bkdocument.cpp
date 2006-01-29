@@ -335,6 +335,33 @@ void BKDocument::buildToolbarMenus() {
 		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
 	}
+
+	toolbarMenus[3].clear();
+	if (isRotable()) {
+		ToolbarItem i;
+		i.circleLabel = "Select";
+		i.label = "Rotate 90° clockwise";
+		i.iconX = 39;
+		i.iconY = 79;
+		i.iconW = 17;
+		i.iconH = 26;
+		toolbarMenus[3].push_back(i);
+
+		i.label = "Rotate 90° counterclockwise";
+		i.iconX = 57;
+		i.iconY = 79;
+		i.iconW = 17;
+		i.iconH = 26;
+		toolbarMenus[3].push_back(i);
+	} else {
+		ToolbarItem i;
+		i.label = "No rotation support";
+		i.iconX = 57;
+		i.iconY = 0;
+		i.iconW = 18;
+		i.iconH = 26;
+		toolbarMenus[3].push_back(i);
+	}
 }
 
 int BKDocument::processEventsForToolbar() {
@@ -354,10 +381,10 @@ int BKDocument::processEventsForToolbar() {
 	}
 
 	// wrap menu indexes
-	if (toolbarSelMenu >= 3)
+	if (toolbarSelMenu >= 4)
 		toolbarSelMenu = 0;
 	if (toolbarSelMenu < 0)
-		toolbarSelMenu = 2;
+		toolbarSelMenu = 3;
 	if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
 		toolbarSelMenuItem = 0;
 	if (toolbarSelMenuItem < 0)
@@ -451,6 +478,23 @@ int BKDocument::processEventsForToolbar() {
 			if (r != 0)
 				return r;
 		}
+
+		// rotate cw
+		if (toolbarSelMenu == 3 && toolbarSelMenuItem == 0 && isRotable()) {
+			int z = getRotation();
+			z++;
+			int r = setRotation(z);
+			if (r != 0)
+				return r;
+		}
+		// rotate ccw
+		if (toolbarSelMenu == 3 && toolbarSelMenuItem == 1 && isRotable()) {
+			int z = getRotation();
+			z--;
+			int r = setRotation(z);
+			if (r != 0)
+				return r;
+		}
 	}
 
 	// main menu
@@ -493,10 +537,10 @@ void BKDocument::render() {
 	// all of the icons menus must have at least one item
 
 	// wrap menu indexes
-	if (toolbarSelMenu >= 3)
+	if (toolbarSelMenu >= 4)
 		toolbarSelMenu = 0;
 	if (toolbarSelMenu < 0)
-		toolbarSelMenu = 2;
+		toolbarSelMenu = 3;
 	if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
 		toolbarSelMenuItem = 0;
 	if (toolbarSelMenuItem < 0)
@@ -572,6 +616,7 @@ void BKDocument::render() {
 	drawImage(38 + 0*55, 205, 18, 26, 0, 0);
 	drawImage(38 + 1*55, 205, 18, 26, 19, 53);
 	drawImage(38 + 2*55, 205, 18, 26, 38, 53);
+	drawImage(38 + 3*55, 205, 18, 26, 19, 79);
 	// selected column
 	for (int i = init, j = 0; i < ts; i++, j++) {
 		const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];

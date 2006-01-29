@@ -59,7 +59,7 @@ class BKDocument : public BKLayer {
 	int toolbarSelMenu;
 	int toolbarSelMenuItem;
 
-	vector<ToolbarItem> toolbarMenus[3];
+	vector<ToolbarItem> toolbarMenus[4];
 	BKBookmarkList bookmarkList;
 	void buildToolbarMenus();
 
