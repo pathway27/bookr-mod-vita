@@ -69,14 +69,21 @@ int BKDocument::update(unsigned int buttons) {
 	if (bannerFrames < 0)
 		bannerFrames = 0;
 
-	// banner fade
-	if (bannerFrames > 0)
-		return BK_CMD_MARK_DIRTY;
+	// banner fade - this blocks event input during the fade
+	//if (bannerFrames > 0)
+	//	return BK_CMD_MARK_DIRTY;
 
+	r = 0;
 	if (mode == BKDOC_VIEW)
-		return processEventsForView();
+		r = processEventsForView();
+	else
+		r = processEventsForToolbar();
 
-	return processEventsForToolbar();
+	// banner fade - this allows events during the fade
+	if (bannerFrames > 0 && r == 0)
+		r = BK_CMD_MARK_DIRTY;
+
+	return r;
 }
 
 int BKDocument::processEventsForView() {
@@ -243,12 +250,12 @@ void BKDocument::buildToolbarMenus() {
 		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
 
-		i.label = "Go to page";
+		/*i.label = "Go to page";
 		i.iconX = 0;
 		i.iconY = 53;
 		i.iconW = 18;
 		i.iconH = 26;
-		toolbarMenus[1].push_back(i);
+		toolbarMenus[1].push_back(i);*/
 	} else {
 		ToolbarItem i;
 		i.label = "No pagination support";
@@ -363,6 +370,59 @@ int BKDocument::processEventsForToolbar() {
 			int di =  toolbarSelMenuItem - 1;
 			return setBookmarkPosition(bookmarkList[di].viewData);
 		}
+		// first page
+		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 0 && isPaginated()) {
+			int r = setCurrentPage(0);
+			if (r != 0)
+				return r;
+		}
+		// last page
+		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 1 && isPaginated()) {
+			int n = getTotalPages();
+			int r = setCurrentPage(n);
+			if (r != 0)
+				return r;
+		}
+		// prev 10 pages
+		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 2 && isPaginated()) {
+			int p = getCurrentPage();
+			p -= 10;
+			int r = setCurrentPage(p);
+			if (r != 0)
+				return r;
+		}
+		// next 10 pages
+		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 3 && isPaginated()) {
+			int p = getCurrentPage();
+			p += 10;
+			int r = setCurrentPage(p);
+			if (r != 0)
+				return r;
+		}
+		// go to page
+		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 4 && isPaginated()) {
+			// ...
+		}
+		// zoom in
+		if (toolbarSelMenu == 2 && toolbarSelMenuItem == 3 && isZoomable()) {
+			vector<ZoomLevel> zooms;
+			getZoomLevels(zooms);
+			int z = getCurrentZoomLevel();
+			z++;
+			int r = setZoomLevel(z);
+			if (r != 0)
+				return r;
+		}
+		// zoom out
+		if (toolbarSelMenu == 2 && toolbarSelMenuItem == 2 && isZoomable()) {
+			vector<ZoomLevel> zooms;
+			getZoomLevels(zooms);
+			int z = getCurrentZoomLevel();
+			z--;
+			int r = setZoomLevel(z);
+			if (r != 0)
+				return r;
+		}
 	}
 
 	// main menu
@@ -384,6 +444,7 @@ void BKDocument::render() {
 	renderContent();
 	// label
 	if (bannerFrames > 0 && BKUser::options.displayLabels) {
+		int y = mode == BKDOC_TOOLBAR ? 10 : 240;
 		int alpha = 0xff;
 		if (bannerFrames <= 32) {
 			alpha = bannerFrames*(256/32) - 8;
@@ -391,10 +452,10 @@ void BKDocument::render() {
 		if (alpha > 0) {
 			texUI->bindForDisplay();
 			FZScreen::ambientColor(0x222222 | (alpha << 24));
-			drawPill(150, 240, 180, 20, 6, 31, 1);
+			drawPill(150, y, 180, 20, 6, 31, 1);
 			fontBig->bindForDisplay();
 			FZScreen::ambientColor(0xffffff | (alpha << 24));
-			drawTextHC((char*)banner.c_str(), fontBig, 244);
+			drawTextHC((char*)banner.c_str(), fontBig, y + 4);
 		}
 	}
 
