@@ -428,6 +428,26 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 	drawText((char*)text.c_str(), fontBig, 51, y + 35);
 }
 
+void BKLayer::drawClockAndBattery(string& extra) {
+	texUI->bindForDisplay();
+	FZScreen::ambientColor(0xffbbbbbb);
+	drawImage(345, 226, 16, 16, 100, 20);
+	drawImage(405, 222, 16, 16, 100, 0);
+	fontSmall->bindForDisplay();
+	FZScreen::ambientColor(0xffbbbbbb);
+	int ew = textW((char*)extra.c_str(), fontSmall);
+	drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);
+	int h = 0, m = 0;
+	FZScreen::getTime(h, m);
+	int b = FZScreen::getBattery();
+	char t1[20];
+	snprintf(t1, 20, "%02d:%02d", h, m);
+	char t2[20];
+	snprintf(t2, 20, "%d%%", b);
+	drawText(t1, fontSmall, 425, 224);
+	drawText(t2, fontSmall, 365, 224);
+}
+
 void BKLayer::menuCursorUpdate(unsigned int buttons, int max) {
 	int* b = FZScreen::ctrlReps();
 	if (b[FZ_REPS_UP] == 1 || b[FZ_REPS_UP] > 20) {

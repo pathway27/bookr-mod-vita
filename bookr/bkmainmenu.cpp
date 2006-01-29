@@ -447,6 +447,8 @@ void BKMainMenu::render() {
 	if (mode == BKMM_MAIN) {
 		string title("Main Menu");
 		drawMenu(title, t, mainItems);
+		string e;
+		drawClockAndBattery(e);
 	} else if (mode == BKMM_CONTROLS) {
 		string title("Customize controls");
 		drawMenu(title, t, controlItems);

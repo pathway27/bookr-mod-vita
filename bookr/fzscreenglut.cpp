@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -520,5 +521,16 @@ int FZScreen::getSuspendSerial() {
 }
 
 void FZScreen::setSpeed(int v) {
+}
+
+void FZScreen::getTime(int &h, int &m) {
+	time_t t = time(NULL);
+	struct tm* lt = localtime(&t);
+	h = lt->tm_hour;
+	m = lt->tm_min;
+}
+
+int FZScreen::getBattery() {
+	return 100;
 }
 

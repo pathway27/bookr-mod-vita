@@ -526,11 +526,6 @@ void BKDocument::render() {
 		30,
 		6, 31, 1);
 
-	// status icons
-	FZScreen::ambientColor(0xffffffff);
-	drawImage(400, 222, 16, 16, 100, 0);
-	drawImage(350, 226, 16, 16, 100, 20);
-
 	// button icons
 	FZScreen::ambientColor(0xffcccccc);
 	int tw = textW((char*)it.circleLabel.c_str(), fontBig);
@@ -584,11 +579,9 @@ void BKDocument::render() {
 		drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
 	}
 
-	fontSmall->bindForDisplay();
-	FZScreen::ambientColor(0xffeeeeee);
-	drawText("Page 23 of 102", fontSmall, 370, 205);
-	drawText("to:do", fontSmall, 420, 224);
-	drawText("TD%", fontSmall, 370, 224);
+	string t("FIX - put title here");
+	drawClockAndBattery(t);
+
 	/*FZScreen::ambientColor(0xff000000);
 	drawText("timetable.pdf", fontSmall, 38+22+15, 125);
 	drawText("Page 6        09:34 11/20/2005", fontSmall, 38+22+15, 139);*/
