@@ -862,20 +862,25 @@ void BKPDF::redrawBuffer() {
 	*/
 
 	// render new area
-	fz_pixmap* pix = pdfRenderTile(ctx, panX + int(screenMediaBox.x0), panY + int(screenMediaBox.y0), 480, 272);
+	int bw = fabs(screenMediaBox.x1 - screenMediaBox.x0);
+	int bh = fabs(screenMediaBox.y1 - screenMediaBox.y0);
+	if (bw > 480)
+		bw = 480;
+	if (bh > 272)
+		bh = 272;
+	fz_pixmap* pix = pdfRenderTile(ctx, panX + int(screenMediaBox.x0), panY + int(screenMediaBox.y0), bw, bh);
 	unsigned int* s = (unsigned int*)pix->samples;
 	unsigned int* d = bounceBuffer;
 
 	// fill bg area if needed
-	// not working, buffer is always fullscreen
-	/*if (pix->w < 480 || pix->h < 272) {
+	if (pix->w < 480 || pix->h < 272) {
 		unsigned int *dd = d;
 		const unsigned int c = BKUser::options.pdfBGColor;
 		for (int i = 0; i < 480*272; i++) {
 			*dd = c;
 			++dd;
 		}
-	}*/
+	}
 	// copy rendered tile to bounce buffer for direct viewing
 	int pw = pix->w;
 	if (pix->w > 480)
@@ -887,7 +892,7 @@ void BKPDF::redrawBuffer() {
 	if (pw < 480)
 		d += (480 - pw) / 2;
 	if (ph < 272)
-		d += ((480 - ph) / 2)*480;
+		d += ((272 - ph) / 2)*480;
 	for (int j = 0; j < ph; ++j) {
 		bk_memcpysr8(d, s, pw*4);
 		d += 480;
