@@ -24,7 +24,6 @@
 #include <vector>
 
 #include "fzscreen.h"
-#include "fzfont.h"
 
 using namespace std;
 
@@ -36,16 +35,15 @@ using namespace std;
 
 #define BKFT_STYLE_PLAIN		0
 #define BKFT_STYLE_BOLD			1
-#define BKFT_STYLE_ITALIC		2
-#define BKFT_STYLE_BOLD_ITALIC	3
+//#define BKFT_STYLE_ITALIC		2
+//#define BKFT_STYLE_BOLD_ITALIC	3
 
-#define BKFT_FONT_FIXED			0
-#define BKFT_FONT_SANS			1
+#define BKFT_FONT_SANS			0
+//#define BKFT_FONT_FIXED			1
 
-// A block is a run of text with the same visual style. It can span
-// multiple lines.
-struct BKFancyBlock {
-	string text;
+struct BKRun {
+	char* text;
+	int n;
 	int continuation;
 	int style;
 	int font;
@@ -53,48 +51,61 @@ struct BKFancyBlock {
 	int fgcolor;
 };
 
-typedef vector<BKFancyBlock> BKFancyBlockList;
-typedef BKFancyBlockList::iterator BKFancyBlockListIt;
+struct BKLine {
+	int firstRun;
+	int firstRunOffset;
+};
 
 class BKFancyText : public BKDocument {
 	private:
-	BKFancyBlockList blocks;
-	int topVisibleBlock;
-	int topVisiblePosition;
-	string filePath;
+	BKLine* lines;
+	int nLines;
+	int topLine;
 
 	protected:
-	BKKFancyText(string& file);
-	~BKKFancyText();
+	BKRun* runs;
+	int nRuns;
+	BKFancyText();
+	~BKFancyText();
+
+	void reflow(int width);
 
 	public:
+	virtual int updateContent();
+	virtual int resume();
 	virtual void renderContent();
 
-	virtual void getFilePath(string&);
-	virtual void getTitle(string&);
-	virtual void getType(string&);
+	virtual void getFileName(string&) = 0;
+	virtual void getTitle(string&) = 0;
+	virtual void getType(string&) = 0;
 
 	virtual bool isPaginated();
 	virtual int getTotalPages();
 	virtual int getCurrentPage();
-	virtual void setCurrentPage(int);
+	virtual int setCurrentPage(int);
 
 	virtual bool isZoomable();
-	virtual void getZoomLevels(vector<ZoomLevel>&);
+	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
 	virtual int getCurrentZoomLevel();
-	virtual void setZoomLevel(int);
+	virtual int setZoomLevel(int);
+	virtual bool hasZoomToFit();
+	virtual int setZoomToFitWidth();
+	virtual int setZoomToFitHeight();
 
-	virtual void pan(int, int);
+	virtual int pan(int, int);
+
+	virtual int screenUp();
+	virtual int screenDown();
+	virtual int screenLeft();
+	virtual int screenRight();
 
 	virtual bool isRotable();
 	virtual int getRotation();
-	virtual void setRotation(int);
+	virtual int setRotation(int);
 
 	virtual bool isBookmarkable();
 	virtual void getBookmarkPosition(map<string, int>&);
-	virtual void setBookmarkPosition(const map<string, int>&);
-
-	static BKFancyText* create(string& file);
+	virtual int setBookmarkPosition(map<string, int>&);
 };
 
 #endif

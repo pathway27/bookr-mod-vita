@@ -87,16 +87,6 @@ class BKPDF : public BKDocument {
 	virtual int setBookmarkPosition(map<string, int>&);
 
 	static BKPDF* create(string& file);
-
-#if 0
-	virtual int update(unsigned int buttons);
-	virtual void render();
-	virtual void setBookmark(bool lastview);
-	virtual void getPath(string&);
-	virtual void setPage(int position);
-	// this forces a redraw
-	virtual void reloadPage(int position);
-#endif
 };
 
 #endif

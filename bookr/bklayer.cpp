@@ -169,6 +169,18 @@ void BKLayer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
 	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
 }
 
+int BKLayer::textWidthRange(char* t, int n, FZFont* font) {
+	FZCharMetrics* fontChars = font->getMetrics();
+	int baseX = 0;
+	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
+		int idx = *p;
+		// printable & white space
+		if (idx >= 32)
+			baseX += fontChars[idx].xadvance;
+	}
+	return baseX;
+}
+
 int BKLayer::textW(char* t, FZFont* font) {
 	FZCharMetrics* fontChars = font->getMetrics();
 	// precalc vertex count

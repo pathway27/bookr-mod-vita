@@ -19,6 +19,7 @@
 
 #include "bkdocument.h"
 #include "bkpdf.h"
+#include "bkplaintext.h"
 
 static bool isPDF(string& file) {
 	char header[4];
@@ -34,7 +35,7 @@ BKDocument* BKDocument::create(string& filePath) {
 	if (isPDF(filePath)) {
 		doc = BKPDF::create(filePath);
 	} else {
-		//doc = BKPlainText::create(filePath);
+		doc = BKPlainText::create(filePath);
 	}
 	if (doc != 0)
 		doc->buildToolbarMenus();
@@ -636,7 +637,7 @@ void BKDocument::render() {
 	drawImage(38 + 0*55, 205, 18, 26, 0, 0);
 	drawImage(38 + 1*55, 205, 18, 26, 19, 53);
 	drawImage(38 + 2*55, 205, 18, 26, 38, 53);
-	drawImage(38 + 3*55, 205, 18, 26, 19, 79);
+	drawImage(38 + 3*55, 205, 19, 26, 19, 79);
 	// selected column
 	for (int i = init, j = 0; i < ts; i++, j++) {
 		const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
