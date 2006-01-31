@@ -109,10 +109,6 @@ void BKUser::save() {
 void BKUser::load() {
 	char filename[1024];
 	snprintf(filename, 1024, "%s/%s", FZScreen::basePath(), "user.xml");
-	FILE* f = fopen(filename, "r");
-	// no existing preferences, probably the first time run of the app
-	if (f == NULL)
-		return;
 	
 	TiXmlDocument *doc = new TiXmlDocument();
 	doc->LoadFile(filename);

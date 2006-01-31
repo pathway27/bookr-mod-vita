@@ -54,6 +54,10 @@ struct BKRun {
 struct BKLine {
 	int firstRun;
 	int firstRunOffset;
+	int totalChars;
+	float spaceWidth;
+	BKLine(int fr, int fro, int tc, float sw) : firstRun(fr), firstRunOffset(fro), totalChars(tc), spaceWidth(sw) { }
+	BKLine() { }
 };
 
 class BKFancyText : public BKDocument {

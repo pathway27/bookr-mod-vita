@@ -219,11 +219,15 @@ void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
 	drawText(t, font, (480 - w) / 2, y);
 }
 
-void BKLayer::drawText(char* t, FZFont* font, int x, int y) {
+void BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF) {
+	if (n < 0) {
+		n = strlen(t);
+	}
 	FZCharMetrics* fontChars = font->getMetrics();
 	// precalc vertex count
 	int vc = 0;
-	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
+	int i = 0;
+	for (unsigned char *p = (unsigned char*)t; i < n; i++, p++) {
 		if (*p <= 32)
 			continue;
 		vc += 2;
@@ -237,10 +241,12 @@ void BKLayer::drawText(char* t, FZFont* font, int x, int y) {
 	int iv = 0;
 	int baseX = x;
 	int baseY = y;
-	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
+	//for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
+	i = 0;
+	for (unsigned char *p = (unsigned char*)t; i < n; i++, p++) {
 		int idx = *p;
 		// new line
-		if (idx == 10) {
+		if (idx == 10 && useLF) {
 			baseY += font->getLineHeight();
 			baseX = x;
 		}
