@@ -65,6 +65,11 @@ class BKFancyText : public BKDocument {
 	BKLine* lines;
 	int nLines;
 	int topLine;
+	FZFont* font;
+
+	int linesPerPage;
+	int totalPages;
+	void reflow(int width);
 
 	protected:
 	BKRun* runs;
@@ -72,7 +77,9 @@ class BKFancyText : public BKDocument {
 	BKFancyText();
 	~BKFancyText();
 
-	void reflow(int width);
+	void resizeView(int widht, int height);
+	void resetFonts();
+	int setLine(int l);
 
 	public:
 	virtual int updateContent();

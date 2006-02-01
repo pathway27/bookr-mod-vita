@@ -382,6 +382,10 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 	}
 
 	if (b[FZ_REPS_START] == 1) {
+		selItem = 0;
+		topItem = 0;
+		mode = BKMM_MAIN;
+		BKUser::save();
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 

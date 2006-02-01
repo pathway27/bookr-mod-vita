@@ -69,7 +69,7 @@ BKPlainText* BKPlainText::create(string& file) {
 	run.continuation = BKFT_CONT_LF;
 	tempRuns.push_back(run);
 
-	// create fast fixed size array	
+	// create fast fixed size run array	
 	r->runs = new BKRun[tempRuns.size()];
 	r->nRuns = tempRuns.size();
 	list<BKRun>::iterator it(tempRuns.begin());
@@ -81,14 +81,8 @@ BKPlainText* BKPlainText::create(string& file) {
 		++it;
 	}
 
-	r->reflow(480);
-
-#if 0
-	r->runs = new BKRun[1];
-	r->nRuns = 1;
-	r->runs[0].text = "1 22 333 4444 5555 666666 7777777 88888888 999999999 0000000000 11111111111 222222222222 3333333333333 44444444444444 1 22 333 4444 5555 666666 7777777 88888888 999999999 0000000000 11111111111 222222222222 3333333333333 44444444444444";
-	r->runs[0].n = strlen(r->runs[0].text);
-#endif
+	r->resetFonts();
+	r->resizeView(480, 272);
 	return r;
 }
 

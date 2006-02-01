@@ -21,12 +21,14 @@
 using namespace std;
 #include "bkfancytext.h"
 
-BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), runs(0), nRuns(0) { }
+BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), font(0), runs(0), nRuns(0) { }
 BKFancyText::~BKFancyText() {
 	if (runs)
 		delete[] runs;
 	if (lines)
 		delete[] lines;
+	if (font)
+		font->release();
 }
 
 struct BKRunsIterator {
@@ -87,7 +89,7 @@ void BKFancyText::reflow(int width) {
 	float spaceWidth = 0.0f;
 	BKRunsIterator rit(runs, 0, 0, nRuns);
 	BKRunsIterator lastSpace = rit;
-	FZCharMetrics* fontChars = fontBig->getMetrics();
+	FZCharMetrics* fontChars = font->getMetrics();
 
 	while (!rit.end()) {
 		int c = rit.forward();
@@ -126,63 +128,34 @@ void BKFancyText::reflow(int width) {
 		++it;
 	}
 }
-#if 0
-void BKFancyText::reflow(int width) {
-	list<BKLine> tlines;
-	BKLine line, lastLine;
-	int iline;
-	bool clear = true;
-	int x = 0;
-	int y = 0;
-	BKRun* run = runs;
-	int irun = 0;
-	FZCharMetrics* fontChars = fontBig->getMetrics();
-	nLines = 0;
-	if (nRuns > 0) {
-		// first line
-		lastLine.firstRun = 0;
-		lastLine.firstRunOffset = 0;
-		++nLines;
-	}
-	while (irun < nRuns) {
-		// consume chars from the run until EOL or the end of the run arrives
-		int lastSpace = 0;
-		int nspaces = 0;
-		int totalchars = 0;
-		for (int i = 0; i < run->n; ++i) {
-			int idx = run->text[i];
-			++totalchars;
-			if (idx == 0x20) {
-				lastSpace = i;
-				++nspaces;
-			}
-			if (x > width || idx == 10) {
-				// new line starts at the last space
-				line.firstRun = irun;
-				line.firstRunOffset = lastSpace;
-				// NO, this is for the previous line
-				if (idx != 10 || nspaces == 0)
-					lastLine.spaceWidth = (float(480 - x) + float(nspaces * fontChars[32].xadvance)) / float(nspaces);
-				else
-					lastLine.spaceWidth = float(fontChars[32].xadvance);
-				lastLine.totalChars = totalchars - (i - lastSpace);
-				// start from the char just after the last space
-				i = lastSpace + 1;
-				x = 0;
-				// add new line
-				tlines.push_back(lastLine);
-				lastLine = line;
-				++nLines;
-			}
-			// printable & white space
-			if (idx >= 32)
-				x += fontChars[idx].xadvance;
-		}
-		++irun;
-		++run;
-	}
+
+void BKFancyText::resizeView(int width, int height) {
+	reflow(width);			// FIX - sub margins
+	linesPerPage = (272 / font->getLineHeight()) - 1;
+	totalPages = (nLines / linesPerPage) + 1;
 }
-#endif
+
+
+extern "C" {
+extern unsigned int size_res_txtfont;
+extern unsigned char res_txtfont[];
+};
+
+void BKFancyText::resetFonts() {
+	if (font)
+		font->release();
+	// load font
+	bool useBuiltin = BKUser::options.txtFont == "bookr:builtin";
+	if (!useBuiltin) {
+		font = FZFont::createFromFile((char*)BKUser::options.txtFont.c_str(), BKUser::options.txtSize, false);
+		useBuiltin = font == 0;
+	}
+	if (useBuiltin) {
+		font = FZFont::createFromMemory(res_txtfont, size_res_txtfont, BKUser::options.txtSize, false);
+	}
+	font->texEnv(FZ_TEX_MODULATE);
+	font->filter(FZ_NEAREST, FZ_NEAREST);
+}
 
 int BKFancyText::updateContent() {
 	return 0;
@@ -200,77 +173,66 @@ void BKFancyText::renderContent() {
 	FZScreen::enable(FZ_BLEND);
 	FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
 
-	fontBig->bindForDisplay();
+	font->bindForDisplay();
 	FZScreen::ambientColor(0xff000000);
 	int y = 0;
 	for (int i = topLine; i < nLines; i++) {
 		BKRun& run = runs[lines[i].firstRun];
-		drawText(&run.text[lines[i].firstRunOffset], fontBig, 0, y, lines[i].totalChars, false);
-		y += fontBig->getLineHeight();
+		drawText(&run.text[lines[i].firstRunOffset], font, 0, y, lines[i].totalChars, false);
+		y += font->getLineHeight();
 		if (y > 272)
 			break;
 	}
 }
 
-bool BKFancyText::isPaginated() {
-	return false;
-}
-
-int BKFancyText::getTotalPages() {
-	return 0;
-}
-
-int BKFancyText::getCurrentPage() {
-	return 0;
-}
-
-int BKFancyText::setCurrentPage(int p) {
-	return 0;
-}
-
-bool BKFancyText::isZoomable() {
-	return false;
-}
-
-void BKFancyText::getZoomLevels(vector<BKDocument::ZoomLevel>& v) {
-}
-
-int BKFancyText::getCurrentZoomLevel() {
-	return 0;
-}
-
-int BKFancyText::setZoomLevel(int l) {
-	return 0;
-}
-
-bool BKFancyText::hasZoomToFit() {
-	return false;
-}
-
-int BKFancyText::setZoomToFitWidth() {
-	return 0;
-}
-
-int BKFancyText::setZoomToFitHeight() {
-	return 0;
-}
-
-int BKFancyText::pan(int x, int y) {
+int BKFancyText::setLine(int l) {
+	int oldP = getCurrentPage();
 	int oldTL = topLine;
-	topLine += y>>4;
+	topLine = l;
 	if (topLine >= nLines)
 		topLine = nLines - 1;
 	if (topLine < 0)
 		topLine = 0;
+	int cp = getCurrentPage();
+	if (cp != oldP) {
+		char t[256];
+		snprintf(t, 256, "Page %d", cp);
+		setBanner(t);
+	}
 	return oldTL != topLine ? BK_CMD_MARK_DIRTY : 0;
 }
 
+bool BKFancyText::isPaginated() {
+	return true;
+}
+
+int BKFancyText::getTotalPages() {
+	return totalPages;
+}
+
+int BKFancyText::getCurrentPage() {
+	return (topLine / linesPerPage) + 1;
+}
+
+int BKFancyText::setCurrentPage(int p) {
+	if (p <= 0)
+		p = 1;
+	if (p > totalPages)
+		p = totalPages;
+	--p;
+	return setLine(p * linesPerPage);
+}
+
+int BKFancyText::pan(int x, int y) {
+	return setLine(topLine + y);
+}
+
 int BKFancyText::screenUp() {
-	return 0; 
+	return setCurrentPage(getCurrentPage() - 1);
 }
 
 int BKFancyText::screenDown() {
-	return 0;
+	return setCurrentPage(getCurrentPage() + 1);
 }
 
 int BKFancyText::screenLeft() {
@@ -301,6 +263,33 @@ void BKFancyText::getBookmarkPosition(map<string, int>& m) {
 }
 
 int BKFancyText::setBookmarkPosition(map<string, int>& m) {
+	return 0;
+}
+
+bool BKFancyText::isZoomable() {
+	return false;
+}
+
+void BKFancyText::getZoomLevels(vector<BKDocument::ZoomLevel>& v) {
+}
+
+int BKFancyText::getCurrentZoomLevel() {
+	return 0;
+}
+
+int BKFancyText::setZoomLevel(int l) {
+	return 0;
+}
+
+bool BKFancyText::hasZoomToFit() {
+	return false;
+}
+
+int BKFancyText::setZoomToFitWidth() {
+	return 0;
+}
+
+int BKFancyText::setZoomToFitHeight() {
 	return 0;
 }
 
