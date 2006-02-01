@@ -98,6 +98,7 @@ int BKDocument::processEventsForView() {
 	if (isPaginated()) {
 		int n = getTotalPages();
 		int p = getCurrentPage();
+		int op = p;
 		if (b[BKUser::controls.nextPage] == 1) {
 			p++;
 		}
@@ -122,7 +123,9 @@ int BKDocument::processEventsForView() {
 		if (b[BKUser::controls.screenfulDown] == 1) {
 			?
 		}*/
-		int r = setCurrentPage(p);
+		int r = 0;
+		if (op != p)
+			setCurrentPage(p);
 		if (r != 0)
 			return r;
 	}
