@@ -29,6 +29,7 @@ using namespace std;
 class BKPlainText : public BKFancyText {
 	private:
 	string fileName;
+	char* buffer;
 
 	protected:
 	BKPlainText();

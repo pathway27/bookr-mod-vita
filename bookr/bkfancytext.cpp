@@ -34,26 +34,44 @@ struct BKRunsIterator {
 	int currentRun;
 	int currentChar;
 	int maxRuns;
+	int lastContinuation;
+	int globalPos;
 	bool end() {
-		return currentRun >= maxRuns;
+		return currentRun >= maxRuns ||
+			((currentRun == maxRuns - 1) && currentChar >= runs[currentRun].n);
 	}
 	inline unsigned char forward() {
-		if (currentChar >= runs[currentRun].n) {
-			++currentRun;
-			currentChar = -1;
-		}
+		if (end()) return 0;
+		unsigned char c = runs[currentRun].text[currentChar];
 		++currentChar;
-		return end() ? 0 : runs[currentRun].text[currentChar];
+		++globalPos;
+		if (currentChar >= runs[currentRun].n) {
+			lastContinuation = runs[currentRun].continuation;
+			++currentRun;
+			currentChar = 0;
+		}
+		return c;
 	}
 	inline unsigned char backward() {
-		if (currentChar <= 0) {
-			--currentRun;
-			currentChar = runs[currentRun].n;
-		}
+		if (currentRun <= 0 && currentChar < 0) return 0;
+		unsigned char c = runs[currentRun].text[currentChar];
 		--currentChar;
-		return currentRun <= 0 && currentChar < 0 ? 0 : runs[currentRun].text[currentChar];
+		--globalPos;
+		if (currentChar < 0) {
+			//lastContinuation = runs[currentRun].continuation;
+			--currentRun;
+			currentChar = runs[currentRun].n - 1;
+		}
+		return c;
 	}
-	BKRunsIterator(BKRun* r, int cr, int cc, int mr) : 	runs(r), currentRun(cr), currentChar(cc), maxRuns(mr) { }
+	BKRunsIterator(BKRun* r, int cr, int cc, int mr) : 	runs(r), currentRun(cr), currentChar(cc), maxRuns(mr), lastContinuation(0), globalPos(0) { }
+	BKRunsIterator(const BKRunsIterator& s) :
+		runs(s.runs),
+		currentRun(s.currentRun),
+		currentChar(s.currentRun),
+		maxRuns(s.currentRun),
+		lastContinuation(s.lastContinuation),
+		globalPos(s.globalPos) { }
 };
 
 void BKFancyText::reflow(int width) {
@@ -63,33 +81,35 @@ void BKFancyText::reflow(int width) {
 
 	int lineFirstRun = 0;
 	int lineFirstRunOffset = 0;
-	int lineChars = 0;
 	int lineSpaces = 0;
+	int lineStartGlobalPos = 0;
 	int currentWidth = 0;
 	float spaceWidth = 0.0f;
-	BKRunsIterator rit(runs, 0, -1, nRuns);
+	BKRunsIterator rit(runs, 0, 0, nRuns);
+	BKRunsIterator lastSpace = rit;
 	FZCharMetrics* fontChars = fontBig->getMetrics();
 
 	while (!rit.end()) {
 		int c = rit.forward();
-		++lineChars;
-		if (c == 32) ++lineSpaces;
+		if (c == 32) {
+			lastSpace = rit;
+			++lineSpaces;
+		}
 		currentWidth += fontChars[c].xadvance;
-		if (currentWidth > width) {
-			while (c != 32 && lineSpaces > 0) {
-				c = rit.backward();
-				--lineChars;
-				currentWidth -= fontChars[c].xadvance;
-			}
-			if (lineSpaces != 0)
+		if (currentWidth > width || rit.lastContinuation != 0) {
+			if (rit.lastContinuation != 0) {
+				 rit.lastContinuation = 0;
+			} else if (lineSpaces > 0) {
+				rit = lastSpace;
 				spaceWidth = (float(width - currentWidth) + float(lineSpaces * fontChars[32].xadvance)) / float(lineSpaces);
-			else
+			} else {
+				rit.backward();			// consume the overflowing char
 				spaceWidth = float(fontChars[32].xadvance);
-			tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, lineChars, spaceWidth));
-			printf("line: fR = %d, fRO = %d\n", lineFirstRun, lineFirstRunOffset);
+			}
+			tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, rit.globalPos - lineStartGlobalPos, spaceWidth));
 			lineFirstRun = rit.currentRun;
 			lineFirstRunOffset = rit.currentChar;
-			lineChars = 0;
+			lineStartGlobalPos = rit.globalPos;
 			lineSpaces = 0;
 			currentWidth = 0;
 		}
@@ -102,7 +122,6 @@ void BKFancyText::reflow(int width) {
 	while (it != tempLines.end()) {
 		const BKLine& l = *it;
 		lines[i] = l;
-		printf("line %d: fR = %d, fRO = %d\n", i, l.firstRun, l.firstRunOffset);
 		++i;
 		++it;
 	}
@@ -239,15 +258,15 @@ int BKFancyText::setZoomToFitHeight() {
 int BKFancyText::pan(int x, int y) {
 	int oldTL = topLine;
 	topLine += y>>4;
-	if (topLine < 0)
-		topLine = 0;
 	if (topLine >= nLines)
 		topLine = nLines - 1;
+	if (topLine < 0)
+		topLine = 0;
 	return oldTL != topLine ? BK_CMD_MARK_DIRTY : 0;
 }
 
 int BKFancyText::screenUp() {
-	return 0;
+	return 0; 
 }
 
 int BKFancyText::screenDown() {
