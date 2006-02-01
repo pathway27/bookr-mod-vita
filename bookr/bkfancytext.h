@@ -31,7 +31,7 @@ using namespace std;
 
 #define BKFT_CONT_NONE			0
 #define BKFT_CONT_LF			1
-#define BKFT_CONT_P				2
+#define BKFT_CONT_EXTRALF		2
 
 #define BKFT_STYLE_PLAIN		0
 #define BKFT_STYLE_BOLD			1
@@ -56,7 +56,8 @@ struct BKLine {
 	int firstRunOffset;
 	int totalChars;
 	float spaceWidth;
-	BKLine(int fr, int fro, int tc, float sw) : firstRun(fr), firstRunOffset(fro), totalChars(tc), spaceWidth(sw) { }
+	int vSpace;
+	BKLine(int fr, int fro, int tc, float sw, int vs) : firstRun(fr), firstRunOffset(fro), totalChars(tc), spaceWidth(sw), vSpace(vs) { }
 	BKLine() { }
 };
 

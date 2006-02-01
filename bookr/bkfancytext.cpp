@@ -98,9 +98,13 @@ void BKFancyText::reflow(int width) {
 			++lineSpaces;
 		}
 		currentWidth += fontChars[c].xadvance;
-		if (currentWidth > width || rit.lastContinuation != 0) {
-			if (rit.lastContinuation != 0) {
-				 rit.lastContinuation = 0;
+		if (currentWidth > width || rit.lastContinuation != BKFT_CONT_NONE) {
+			int vSpace = font->getLineHeight();
+			if (rit.lastContinuation == BKFT_CONT_EXTRALF) {
+				vSpace *= 2;
+			}
+			if (rit.lastContinuation != BKFT_CONT_NONE) {
+				 rit.lastContinuation = BKFT_CONT_NONE;
 			} else if (lineSpaces > 0) {
 				rit = lastSpace;
 				spaceWidth = (float(width - currentWidth) + float(lineSpaces * fontChars[32].xadvance)) / float(lineSpaces);
@@ -108,7 +112,7 @@ void BKFancyText::reflow(int width) {
 				rit.backward();			// consume the overflowing char
 				spaceWidth = float(fontChars[32].xadvance);
 			}
-			tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, rit.globalPos - lineStartGlobalPos, spaceWidth));
+			tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, rit.globalPos - lineStartGlobalPos, spaceWidth, vSpace));
 			lineFirstRun = rit.currentRun;
 			lineFirstRunOffset = rit.currentChar;
 			lineStartGlobalPos = rit.globalPos;
@@ -177,9 +181,18 @@ void BKFancyText::renderContent() {
 	FZScreen::ambientColor(0xff000000);
 	int y = 0;
 	for (int i = topLine; i < nLines; i++) {
-		BKRun& run = runs[lines[i].firstRun];
-		drawText(&run.text[lines[i].firstRunOffset], font, 0, y, lines[i].totalChars, false);
-		y += font->getLineHeight();
+		BKRun* run = &runs[lines[i].firstRun];
+		int offset = lines[i].firstRunOffset;
+		int x = 0;
+		int n = lines[i].totalChars;
+		do {
+			int pn = n < run->n ? n : run->n;
+			drawText(&run->text[offset], font, x, y, pn, false);
+			n -= pn;
+			offset = 0;
+			++run;
+		} while (n > 0);
+		y += lines[i].vSpace;
 		if (y > 272)
 			break;
 	}
@@ -202,6 +215,7 @@ int BKFancyText::setLine(int l) {
 	return oldTL != topLine ? BK_CMD_MARK_DIRTY : 0;
 }
 
+
 bool BKFancyText::isPaginated() {
 	return true;
 }
@@ -210,6 +224,8 @@ int BKFancyText::getTotalPages() {
 	return totalPages;
 }
 
+// FIX PAGINATION: lines are of different sizes, depending on the style
+// a precalc of page boundaries is required
 int BKFancyText::getCurrentPage() {
 	return (topLine / linesPerPage) + 1;
 }
