@@ -20,33 +20,26 @@
 #include <stdio.h>
 #include <list>
 using namespace std;
-#include "bkplaintext.h"
 
-BKPlainText::BKPlainText() : buffer(0) { }
-BKPlainText::~BKPlainText() {
+#include "bkpalmdoc.h"
+#include "palmdoc/palmdoc.h"
+
+BKPalmDoc::BKPalmDoc() : buffer(0) { }
+BKPalmDoc::~BKPalmDoc() {
 	if (buffer)
 		free(buffer);
 }
 
-BKPlainText* BKPlainText::create(string& file) {
-	BKPlainText* r = new BKPlainText();
+BKPalmDoc* BKPalmDoc::create(string& file) {
+	BKPalmDoc* r = new BKPalmDoc();
 	r->fileName = file;
+	int length = 0;
 
-	// read file to memory
-	FILE* f = fopen(file.c_str(), "r");
-	if (f == NULL) {
-		delete r;
-		return NULL;
+	// convert file to plain text
+	char* b = palmdoc_decode(file.c_str(), &length);
+	if (b == NULL) {
+		return 0;
 	}
-	long length = 0;
-	fseek(f, 0, SEEK_END);
-	length = ftell(f);
-	fseek(f, 0, SEEK_SET);
-	if (length > 4*1024*1024)
-		length = 4*1024*1024;
-	char* b = (char*)malloc(length);
-	fread(b, length, 1, f);
-	fclose(f);
 
 	r->buffer = b;
 
@@ -86,15 +79,19 @@ BKPlainText* BKPlainText::create(string& file) {
 	return r;
 }
 
-void BKPlainText::getFileName(string& fn) {
+void BKPalmDoc::getFileName(string& fn) {
 	fn = fileName;
 }
 
-void BKPlainText::getTitle(string& t) {
-	t = "FIX PLAIN TEXT TITLES";
+void BKPalmDoc::getTitle(string& t) {
+	t = "FIX PALMDOC TITLES";
 }
 
-void BKPlainText::getType(string& t) {
-	t = "Plain text";
+void BKPalmDoc::getType(string& t) {
+	t = "PalmDoc";
+}
+
+bool BKPalmDoc::isPalmDoc(string& file) {
+	return palmdoc_is_palmdoc(file.c_str()) != 0;
 }
 

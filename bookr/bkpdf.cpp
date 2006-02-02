@@ -1084,3 +1084,12 @@ int BKPDF::updateContent() {
 	return 0;
 }
 
+bool BKPDF::isPDF(string& file) {
+	char header[4];
+	memset((void*)header, 0, 4);
+	FILE* f = fopen(file.c_str(), "r");
+	fread(header, 4, 1, f);
+	fclose(f);
+	return header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46;
+}
+

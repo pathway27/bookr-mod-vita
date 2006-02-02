@@ -224,7 +224,7 @@ int BKFancyText::getTotalPages() {
 	return totalPages;
 }
 
-// FIX PAGINATION: lines are of different sizes, depending on the style
+// FIX PAGINATION: lines are of different height, depending on the style.
 // a precalc of page boundaries is required
 int BKFancyText::getCurrentPage() {
 	return (topLine / linesPerPage) + 1;

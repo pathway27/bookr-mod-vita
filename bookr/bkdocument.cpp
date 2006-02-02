@@ -19,21 +19,15 @@
 
 #include "bkdocument.h"
 #include "bkpdf.h"
+#include "bkpalmdoc.h"
 #include "bkplaintext.h"
-
-static bool isPDF(string& file) {
-	char header[4];
-	memset((void*)header, 0, 4);
-	FILE* f = fopen(file.c_str(), "r");
-	fread(header, 4, 1, f);
-	fclose(f);
-	return header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46;
-}
 
 BKDocument* BKDocument::create(string& filePath) {
 	BKDocument* doc = 0;
-	if (isPDF(filePath)) {
+	if (BKPDF::isPDF(filePath)) {
 		doc = BKPDF::create(filePath);
+	} else if (BKPalmDoc::isPalmDoc(filePath)) {
+		doc = BKPalmDoc::create(filePath);
 	} else {
 		doc = BKPlainText::create(filePath);
 	}
