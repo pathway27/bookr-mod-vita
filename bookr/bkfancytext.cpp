@@ -155,7 +155,8 @@ struct BKStrIt {
 		char* q = p;
 		int j = i;
 		while (*s != 0 && j < n) {
-			if ((*s | 0x20) != *q)
+			char c = *s >= 'A' && *s <= 'Z' ? *s | 0x20 : *s;
+			if (c != *q)
 				return false;
 			++q;
 			++s;
