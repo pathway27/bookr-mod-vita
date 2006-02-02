@@ -82,6 +82,14 @@ class BKFancyText : public BKDocument {
 	void resetFonts();
 	int setLine(int l);
 
+	// a lot of ebook formats use HTML as a display format, on top of a
+	// container format. so it makes sense to put the parser/tokenizer in
+	// the base class
+	static char* parseHTML(BKFancyText* r, char* in, int n);
+
+	// same with plain text
+	static char* parseText(BKFancyText* r, char* b, int length);
+
 	public:
 	virtual int updateContent();
 	virtual int resume();

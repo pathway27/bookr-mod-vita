@@ -48,38 +48,7 @@ BKPlainText* BKPlainText::create(string& file) {
 	fread(b, length, 1, f);
 	fclose(f);
 
-	r->buffer = b;
-
-	// tokenize text file
-	list<BKRun> tempRuns;
-	int li = 0;
-	BKRun run;
-	for (int i = 0; i < length; ++i) {
-		if (b[i] == 10) {
-			run.text = &b[li];
-			run.n = i - li;
-			li = i;
-			run.continuation = BKFT_CONT_LF;
-			tempRuns.push_back(run);
-		}
-	}
-	// last run
-	run.text = &b[li];
-	run.n = length - li;
-	run.continuation = BKFT_CONT_LF;
-	tempRuns.push_back(run);
-
-	// create fast fixed size run array	
-	r->runs = new BKRun[tempRuns.size()];
-	r->nRuns = tempRuns.size();
-	list<BKRun>::iterator it(tempRuns.begin());
-	int i = 0;
-	while (it != tempRuns.end()) {
-		const BKRun& l = *it;
-		r->runs[i] = l;
-		++i;
-		++it;
-	}
+	r->buffer = BKFancyText::parseText(r, b, length);
 
 	r->resetFonts();
 	r->resizeView(480, 272);

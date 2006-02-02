@@ -139,6 +139,174 @@ void BKFancyText::resizeView(int width, int height) {
 	totalPages = (nLines / linesPerPage) + 1;
 }
 
+// a lot of ebook formats use HTML as a display format, on top of a
+// container format. so it makes sense to put the parser/tokenizer in
+// the base class
+
+struct BKStrIt {
+	char* p;
+	int i;
+	int n;
+	BKStrIt(char* _p, int _i, int _n) : p(_p), i(_i), n(_n) { }
+	bool end() {
+		return i >= n;
+	}
+	bool matches(const char* s) {				// does NOT advance the iteration
+		char* q = p;
+		int j = i;
+		while (*s != 0 && j < n) {
+			if (*s != *q)
+				return false;
+			++q;
+			++s;
+			++j;
+		}
+		return true;
+	}
+	void skipTo(const char* s) {
+		while (!matches(s)) {
+			forward();
+		}
+		if (!end()) {
+			int l = strlen(s);
+			p += l;
+			i += l;
+		}
+	}
+	unsigned char forward() {
+		unsigned char c = 0;
+		if (!end()) {
+			c = (unsigned char)*p;
+			++p;
+			++i;
+		}
+		return c;
+	}
+};
+
+char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
+
+	// tokenize the input text
+	// <head*>*</head> --> strip
+	// <p*> --> run break, EXTRALF
+	// <br*> --> run break, LF
+	// <*> --> strip
+	// ascii < 32 --> strip
+	// &*; --> to do...
+
+	list<BKRun> tempRuns;
+	BKRun run;
+
+	BKStrIt it(in, 0, n);
+
+	char* out = (char*)malloc(n);
+	memset(out, 0, n);
+	char* q = out;
+	char* lastQ = out;
+	int i = 0;
+	int li = 0;
+
+	while (!it.end()) {
+		if (it.matches("<head")) {			// skip html header
+			it.skipTo("</head>");
+			continue;
+		}
+		if (it.matches("<p")) {				// <p> found - add a run with the current temp buffer
+			it.skipTo(">");
+			run.text = lastQ;
+			run.n = i - li + 1;
+			li = i;
+			lastQ = q;
+			//run.continuation = BKFT_CONT_EXTRALF;
+			run.continuation = BKFT_CONT_LF;
+			tempRuns.push_back(run);
+			continue;
+		}
+		if (it.matches("<br")) {			// <br> found - add a run with the current temp buffer
+			it.skipTo(">");
+			run.text = lastQ;
+			run.n = i - li + 1;
+			li = i;
+			lastQ = q;
+			run.continuation = BKFT_CONT_LF;
+			tempRuns.push_back(run);
+			continue;
+		}
+		if (it.matches("<")) {				// any other tag - ignore it
+			it.skipTo(">");
+			continue;
+		}
+		unsigned char c = it.forward();
+		if (c < 32)
+			continue;
+		if (c == 32 && *q != 32) {
+			++q;
+			*q = c;
+			++i;
+		}
+		if (c > 32) {
+			++q;
+			*q = c;
+			++i;
+		}
+	}
+	// last run
+	run.text = lastQ;
+	run.n = i - li;
+	run.continuation = BKFT_CONT_LF;
+	tempRuns.push_back(run);
+
+	// create fast fixed size run array	
+	r->runs = new BKRun[tempRuns.size()];
+	r->nRuns = tempRuns.size();
+	list<BKRun>::iterator jt(tempRuns.begin());
+	i = 0;
+	while (jt != tempRuns.end()) {
+		const BKRun& l = *jt;
+		r->runs[i] = l;
+		++i;
+		++jt;
+	}
+
+	free(in);
+
+	return out;
+}
+
+char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
+	// tokenize text file
+	list<BKRun> tempRuns;
+	int li = 0;
+	BKRun run;
+	for (int i = 0; i < length; ++i) {
+		if (b[i] == 10) {
+			run.text = &b[li];
+			run.n = i - li;
+			li = i;
+			run.continuation = BKFT_CONT_LF;
+			tempRuns.push_back(run);
+		}
+	}
+	// last run
+	run.text = &b[li];
+	run.n = length - li;
+	run.continuation = BKFT_CONT_LF;
+	tempRuns.push_back(run);
+
+	// create fast fixed size run array	
+	r->runs = new BKRun[tempRuns.size()];
+	r->nRuns = tempRuns.size();
+	list<BKRun>::iterator it(tempRuns.begin());
+	int i = 0;
+	while (it != tempRuns.end()) {
+		const BKRun& l = *it;
+		r->runs[i] = l;
+		++i;
+		++it;
+	}
+
+	return b;
+}
 
 extern "C" {
 extern unsigned int size_res_txtfont;
