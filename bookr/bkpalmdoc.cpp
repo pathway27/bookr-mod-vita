@@ -34,9 +34,10 @@ BKPalmDoc* BKPalmDoc::create(string& file) {
 	BKPalmDoc* r = new BKPalmDoc();
 	r->fileName = file;
 	int length = 0;
+	int isMobi = 0;
 
 	// convert file to plain text
-	char* b = palmdoc_decode(file.c_str(), &length);
+	char* b = palmdoc_decode(file.c_str(), &length, &isMobi);
 	if (b == NULL) {
 		return 0;
 	}

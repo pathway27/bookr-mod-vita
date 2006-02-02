@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-extern char* palmdoc_decode(char const *src_file_name, int* length);
+extern char* palmdoc_decode(char const *src_file_name, int* length, int* isMobi);
 extern int palmdoc_is_palmdoc(char const *src_file_name);
 
 #ifdef __cplusplus
