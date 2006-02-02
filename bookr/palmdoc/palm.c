@@ -209,6 +209,7 @@ char* palmdoc_decode(char const *src_file_name, int* length, int* isMobi) {
 	doc_size = ntohl( rec0.doc_size );
 	*length = doc_size;
 	p = out = malloc(doc_size);
+	memset(out, 0, doc_size);
 
 	/********* read Doc file record-by-record ****************************/
 
@@ -216,6 +217,7 @@ char* palmdoc_decode(char const *src_file_name, int* length, int* isMobi) {
 	file_size = ftell( fin );
 
 	NEW_BUFFER( &buf );
+	int c = 0;
 	for ( rec_num = 1; rec_num <= num_records; ++rec_num ) {
 		DWord next_offset;
 
@@ -252,7 +254,12 @@ char* palmdoc_decode(char const *src_file_name, int* length, int* isMobi) {
 
 		if ( compression == COMPRESSED )
 			uncompress( &buf );
-		memcpy(p, buf.data, buf.len);
+		c += buf.len;
+		if (c <= doc_size) {
+			memcpy(p, buf.data, buf.len);
+		} else {
+			break;
+		}
 		p += buf.len;
 	}
 	free(buf.data);

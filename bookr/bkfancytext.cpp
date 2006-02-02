@@ -240,13 +240,13 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 		if (c < 32)
 			continue;
 		if (c == 32 && *q != 32) {
-			++q;
 			*q = c;
+			++q;
 			++i;
 		}
 		if (c > 32) {
-			++q;
 			*q = c;
+			++q;
 			++i;
 		}
 	}
