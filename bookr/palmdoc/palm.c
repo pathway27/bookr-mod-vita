@@ -20,7 +20,8 @@
 */
 
 /*
-	Stripped down version of txt2pdbdoc for Bookr. You can find the original in:
+	Stripped down version of txt2pdbdoc for Bookr with added support
+	for MobiPocket Reader type/creator. You can find the original at:
 	http://homepage.mac.com/pauljlucas/software/txt2pdbdoc/
 */
 
