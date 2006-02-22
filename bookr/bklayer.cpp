@@ -219,7 +219,7 @@ void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
 	drawText(t, font, (480 - w) / 2, y);
 }
 
-void BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF) {
+int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF) {
 	if (n < 0) {
 		n = strlen(t);
 	}
@@ -234,7 +234,7 @@ void BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF) {
 	}
 	// lame
 	if (vc == 0)
-		return;
+		return 0;
 	// build varray
 	T32FV32F2D* vertices = (T32FV32F2D*)FZScreen::getListMemory(vc * sizeof(struct T32FV32F2D));
 	// fill varray
@@ -278,6 +278,7 @@ void BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF) {
 		}
 	}
 	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,vc,0,vertices);
+	return baseX;
 }
 
 void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {

@@ -31,12 +31,16 @@ BKFancyText::~BKFancyText() {
 		font->release();
 }
 
+static inline bool isBlank(int c) {
+	return c == 32 || c == 10 || c == 9;
+}
+
 struct BKRunsIterator {
 	BKRun* runs;
 	int currentRun;
 	int currentChar;
 	int maxRuns;
-	int lastContinuation;
+	int lineBreakMark;
 	int globalPos;
 	bool end() {
 		return currentRun >= maxRuns ||
@@ -44,35 +48,36 @@ struct BKRunsIterator {
 	}
 	inline unsigned char forward() {
 		if (end()) return 0;
+		if (currentChar >= runs[currentRun].n) {
+			lineBreakMark += runs[currentRun].lineBreak ? 1 : 0;
+			++currentRun;
+			currentChar = 0;
+			return forward();
+		}
 		unsigned char c = runs[currentRun].text[currentChar];
 		++currentChar;
 		++globalPos;
-		if (currentChar >= runs[currentRun].n) {
-			lastContinuation = runs[currentRun].continuation;
-			++currentRun;
-			currentChar = 0;
-		}
 		return c;
 	}
 	inline unsigned char backward() {
 		if (currentRun <= 0 && currentChar < 0) return 0;
+		if (currentChar < 0) {
+			--currentRun;
+			currentChar = runs[currentRun].n - 1;
+			return backward();
+		}
 		unsigned char c = runs[currentRun].text[currentChar];
 		--currentChar;
 		--globalPos;
-		if (currentChar < 0) {
-			//lastContinuation = runs[currentRun].continuation;
-			--currentRun;
-			currentChar = runs[currentRun].n - 1;
-		}
 		return c;
 	}
-	BKRunsIterator(BKRun* r, int cr, int cc, int mr) : 	runs(r), currentRun(cr), currentChar(cc), maxRuns(mr), lastContinuation(0), globalPos(0) { }
+	BKRunsIterator(BKRun* r, int cr, int cc, int mr) : 	runs(r), currentRun(cr), currentChar(cc), maxRuns(mr), lineBreakMark(false), globalPos(0) { }
 	BKRunsIterator(const BKRunsIterator& s) :
 		runs(s.runs),
 		currentRun(s.currentRun),
 		currentChar(s.currentRun),
 		maxRuns(s.currentRun),
-		lastContinuation(s.lastContinuation),
+		lineBreakMark(s.lineBreakMark),
 		globalPos(s.globalPos) { }
 };
 
@@ -92,33 +97,36 @@ void BKFancyText::reflow(int width) {
 	FZCharMetrics* fontChars = font->getMetrics();
 
 	while (!rit.end()) {
-		int c = rit.forward();
-		if (c == 32) {
-			lastSpace = rit;
-			++lineSpaces;
-		}
-		currentWidth += fontChars[c].xadvance;
-		if (currentWidth > width || rit.lastContinuation != BKFT_CONT_NONE) {
-			int vSpace = font->getLineHeight();
-			if (rit.lastContinuation == BKFT_CONT_EXTRALF) {
-				vSpace *= 2;
-			}
-			if (rit.lastContinuation != BKFT_CONT_NONE) {
-				 rit.lastContinuation = BKFT_CONT_NONE;
+		if (currentWidth > width || rit.lineBreakMark > 0) {
+			spaceWidth = float(fontChars[32].xadvance);
+			int tl = rit.lineBreakMark;
+			if (rit.lineBreakMark > 0) {
+				 rit.lineBreakMark = 0;
 			} else if (lineSpaces > 0) {
 				rit = lastSpace;
 				spaceWidth = (float(width - currentWidth) + float(lineSpaces * fontChars[32].xadvance)) / float(lineSpaces);
 			} else {
 				rit.backward();			// consume the overflowing char
-				spaceWidth = float(fontChars[32].xadvance);
 			}
-			tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, rit.globalPos - lineStartGlobalPos, spaceWidth, vSpace));
+			--tl;
+			printf("line n %d\n", rit.globalPos - lineStartGlobalPos);
+			tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, rit.globalPos - lineStartGlobalPos, spaceWidth));
+			while (tl > 0) {
+				tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, 0, spaceWidth));
+				--tl;
+			}
 			lineFirstRun = rit.currentRun;
 			lineFirstRunOffset = rit.currentChar;
 			lineStartGlobalPos = rit.globalPos;
 			lineSpaces = 0;
 			currentWidth = 0;
 		}
+		int c = rit.forward();
+		if (isBlank(c)) {
+			lastSpace = rit;
+			++lineSpaces;
+		}
+		currentWidth += fontChars[c].xadvance;
 	}
 
 	nLines = tempLines.size();
@@ -155,7 +163,7 @@ struct BKStrIt {
 		char* q = p;
 		int j = i;
 		while (*s != 0 && j < n) {
-			char c = *s >= 'A' && *s <= 'Z' ? *s | 0x20 : *s;
+			char c = *s >= 'A' && *s <= 'Z' ? *s | 0x20 : *s;		// tolower for ascii
 			if (c != *q)
 				return false;
 			++q;
@@ -187,7 +195,7 @@ struct BKStrIt {
 
 char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 
-	// tokenize the input text
+	// detokenize html text
 	// <head*>*</head> --> strip
 	// <p*> --> run break, EXTRALF
 	// <br*> --> run break, LF
@@ -207,30 +215,74 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 	int i = 0;
 	int li = 0;
 
+	run.lineBreak = true;
+
+	bool lastBlank = false;
 	while (!it.end()) {
 		if (it.matches("<head")) {			// skip html header
 			it.skipTo("</head>");
 			continue;
 		}
-		if (it.matches("<p")) {				// <p> found - add a run with the current temp buffer
+		if (it.matches("<p")) {
 			it.skipTo(">");
+			// close the previous run
 			run.text = lastQ;
-			run.n = i - li + 1;
+			run.n = i - li;
+			printf("p %d\n", run.n);
 			li = i;
 			lastQ = q;
-			//run.continuation = BKFT_CONT_EXTRALF;
-			run.continuation = BKFT_CONT_LF;
 			tempRuns.push_back(run);
+
+			// the continuation for the next run
+			run.lineBreak = true;
 			continue;
 		}
-		if (it.matches("<br")) {			// <br> found - add a run with the current temp buffer
+		if (it.matches("<h") ) {
 			it.skipTo(">");
+			// close the previous run
 			run.text = lastQ;
-			run.n = i - li + 1;
+			run.n = i - li;
 			li = i;
 			lastQ = q;
-			run.continuation = BKFT_CONT_LF;
 			tempRuns.push_back(run);
+
+			// the continuation for the next run
+			run.lineBreak = true;
+			/**q = '>'; ++q;
+			*q = '>'; ++q;
+			*q = '>'; ++q;
+			*q = ' '; ++q;
+			i += 4;*/
+			continue;
+		}
+		if (it.matches("<br")) {
+			it.skipTo(">");
+			// close the previous run
+			run.text = lastQ;
+			run.n = i - li;
+			printf("br %d\n", run.n);
+			li = i;
+			lastQ = q;
+			tempRuns.push_back(run);
+
+			// the continuation for the next run
+			run.lineBreak = true;
+			continue;
+		}
+		if (it.matches("<li") || it.matches("<dt") || it.matches("<dl")) {
+			it.skipTo(">");
+			// close the previous run
+			run.text = lastQ;
+			run.n = i - li;
+			li = i;
+			lastQ = q;
+			tempRuns.push_back(run);
+
+			// the continuation for the next run
+			run.lineBreak = true;
+			*q = '*'; ++q;
+			*q = ' '; ++q;
+			i += 2;
 			continue;
 		}
 		if (it.matches("<")) {				// any other tag - ignore it
@@ -238,23 +290,24 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 			continue;
 		}
 		unsigned char c = it.forward();
-		if (c < 32)
+		if (!isBlank(c) && c < 32)			// skip non-blanks, non-printables
 			continue;
-		if (c == 32 && *q != 32) {
-			*q = c;
+		if (isBlank(c) && !lastBlank) {		// consolidate 1 to N blanks into a single space
+			*q = 32;
 			++q;
 			++i;
+			lastBlank = true;
 		}
-		if (c > 32) {
+		if (c > 32) {						// passthru any other char
 			*q = c;
 			++q;
 			++i;
+			lastBlank = false;
 		}
 	}
 	// last run
 	run.text = lastQ;
 	run.n = i - li;
-	run.continuation = BKFT_CONT_LF;
 	tempRuns.push_back(run);
 
 	// create fast fixed size run array	
@@ -284,14 +337,14 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 			run.text = &b[li];
 			run.n = i - li;
 			li = i;
-			run.continuation = BKFT_CONT_LF;
+			run.lineBreak = true;
 			tempRuns.push_back(run);
 		}
 	}
 	// last run
 	run.text = &b[li];
 	run.n = length - li;
-	run.continuation = BKFT_CONT_LF;
+	run.lineBreak = true;
 	tempRuns.push_back(run);
 
 	// create fast fixed size run array	
@@ -356,12 +409,14 @@ void BKFancyText::renderContent() {
 		int n = lines[i].totalChars;
 		do {
 			int pn = n < run->n ? n : run->n;
-			drawText(&run->text[offset], font, x, y, pn, false);
+			if (pn > 0)
+				x = drawText(&run->text[offset], font, x, y, pn, false);
 			n -= pn;
 			offset = 0;
 			++run;
 		} while (n > 0);
-		y += lines[i].vSpace;
+		//y += lines[i].vSpace;
+		y += font->getLineHeight();
 		if (y > 272)
 			break;
 	}

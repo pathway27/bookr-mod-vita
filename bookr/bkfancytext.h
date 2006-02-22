@@ -43,8 +43,8 @@ using namespace std;
 
 struct BKRun {
 	char* text;
+	bool lineBreak;
 	int n;
-	int continuation;
 	int style;
 	int font;
 	int bgcolor;
@@ -56,8 +56,7 @@ struct BKLine {
 	int firstRunOffset;
 	int totalChars;
 	float spaceWidth;
-	int vSpace;
-	BKLine(int fr, int fro, int tc, float sw, int vs) : firstRun(fr), firstRunOffset(fro), totalChars(tc), spaceWidth(sw), vSpace(vs) { }
+	BKLine(int fr, int fro, int tc, float sw) : firstRun(fr), firstRunOffset(fro), totalChars(tc), spaceWidth(sw) { }
 	BKLine() { }
 };
 

@@ -48,7 +48,31 @@ BKPlainText* BKPlainText::create(string& file) {
 	fread(b, length, 1, f);
 	fclose(f);
 
-	r->buffer = BKFancyText::parseText(r, b, length);
+	bool isHTML = false;
+	// FIX: make the heuristic a bit more advanced than that...
+	const char* fc = file.c_str();
+	int fs = file.size();
+	if (
+		((fc[fs - 1] | 0x20) == 'l') &&
+		((fc[fs - 2] | 0x20) == 'm') &&
+		((fc[fs - 3] | 0x20) == 't') &&
+		((fc[fs - 4] | 0x20) == 'h')
+	) {
+		isHTML = true;
+	}
+	if (
+		((fc[fs - 1] | 0x20) == 'm') &&
+		((fc[fs - 2] | 0x20) == 't') &&
+		((fc[fs - 3] | 0x20) == 'h')
+	) {
+		isHTML = true;
+	}
+	
+	if (isHTML) {
+		r->buffer = BKFancyText::parseHTML(r, b, length);
+	} else {
+		r->buffer = BKFancyText::parseText(r, b, length);
+	}
 
 	r->resetFonts();
 	r->resizeView(480, 272);
