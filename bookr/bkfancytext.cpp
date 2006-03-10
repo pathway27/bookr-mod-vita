@@ -448,8 +448,6 @@ int BKFancyText::getTotalPages() {
 	return totalPages;
 }
 
-// FIX PAGINATION: lines are of different height, depending on the style.
-// a precalc of page boundaries is required
 int BKFancyText::getCurrentPage() {
 	return (topLine / linesPerPage) + 1;
 }
@@ -464,6 +462,7 @@ int BKFancyText::setCurrentPage(int p) {
 }
 
 int BKFancyText::pan(int x, int y) {
+	// fix scale
 	return setLine(topLine + y);
 }
 
@@ -476,11 +475,11 @@ int BKFancyText::screenDown() {
 }
 
 int BKFancyText::screenLeft() {
-	return 0;
+	return setCurrentPage(getCurrentPage() - 10);
 }
 
 int BKFancyText::screenRight() {
-	return 0;
+	return setCurrentPage(getCurrentPage() + 10);
 }
 
 bool BKFancyText::isRotable() {
@@ -496,14 +495,21 @@ int BKFancyText::setRotation(int) {
 }
 
 bool BKFancyText::isBookmarkable() {
-	return false;
+	return true;
 }
 
 void BKFancyText::getBookmarkPosition(map<string, int>& m) {
+	//m["topLineFirstRun"] = lines[topLine].firstRun;
+	m["topLine"] = topLine;
+	m["zoom"] = 0;
+	m["rotation"] = 0;
 }
 
 int BKFancyText::setBookmarkPosition(map<string, int>& m) {
-	return 0;
+	setLine(m["topLine"]);
+	//setZoomLevel(m["zoom"]);
+	//setRotation(m["rotation"]);
+	return BK_CMD_MARK_DIRTY;
 }
 
 bool BKFancyText::isZoomable() {
