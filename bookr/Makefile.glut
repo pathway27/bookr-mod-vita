@@ -17,7 +17,7 @@ EXE=bookr.glut
 
 all: $(EXE)
 
-OBJS:=bkbook.o bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o
+OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o
 OBJS+=bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o

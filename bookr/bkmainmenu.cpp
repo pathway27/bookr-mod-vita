@@ -21,8 +21,7 @@
 #include "fzscreen.h"
 
 #include "bkmainmenu.h"
-#include "bkpdf.h"
-#include "bkbook.h"
+#include "bkdocument.h"
 #include "bkbookmark.h"
 #include "bkpopup.h"
 

@@ -65,6 +65,7 @@ class BKFancyText : public BKDocument {
 	BKLine* lines;
 	int nLines;
 	int topLine;
+	int maxY;
 	FZFont* font;
 
 	int linesPerPage;

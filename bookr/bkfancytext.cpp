@@ -21,7 +21,7 @@
 using namespace std;
 #include "bkfancytext.h"
 
-BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), font(0), runs(0), nRuns(0) { }
+BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), runs(0), nRuns(0) { }
 BKFancyText::~BKFancyText() {
 	if (runs)
 		delete[] runs;
@@ -109,7 +109,7 @@ void BKFancyText::reflow(int width) {
 				rit.backward();			// consume the overflowing char
 			}
 			--tl;
-			printf("line n %d\n", rit.globalPos - lineStartGlobalPos);
+			//printf("line n %d\n", rit.globalPos - lineStartGlobalPos);
 			tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, rit.globalPos - lineStartGlobalPos, spaceWidth));
 			while (tl > 0) {
 				tempLines.push_back(BKLine(lineFirstRun, lineFirstRunOffset, 0, spaceWidth));
@@ -142,8 +142,9 @@ void BKFancyText::reflow(int width) {
 }
 
 void BKFancyText::resizeView(int width, int height) {
-	reflow(width);			// FIX - sub margins
-	linesPerPage = (272 / font->getLineHeight()) - 1;
+	reflow(width - 10 - 10);
+	linesPerPage = (height - 10) / font->getLineHeight();
+	maxY = height - 10;
 	totalPages = (nLines / linesPerPage) + 1;
 }
 
@@ -228,7 +229,7 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 			// close the previous run
 			run.text = lastQ;
 			run.n = i - li;
-			printf("p %d\n", run.n);
+			//printf("p %d\n", run.n);
 			li = i;
 			lastQ = q;
 			tempRuns.push_back(run);
@@ -260,7 +261,7 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 			// close the previous run
 			run.text = lastQ;
 			run.n = i - li;
-			printf("br %d\n", run.n);
+			//printf("br %d\n", run.n);
 			li = i;
 			lastQ = q;
 			tempRuns.push_back(run);
@@ -400,12 +401,17 @@ void BKFancyText::renderContent() {
 	FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
 
 	font->bindForDisplay();
-	FZScreen::ambientColor(0xff000000);
-	int y = 0;
-	for (int i = topLine; i < nLines; i++) {
+
+	//bool txtJustify; ??
+
+	FZScreen::ambientColor(0xff000000 | BKUser::options.txtFGColor);
+	int y = 10;
+	int bn = topLine + linesPerPage;
+	if (bn >= nLines) bn = nLines;
+	for (int i = topLine; i < bn; i++) {
 		BKRun* run = &runs[lines[i].firstRun];
 		int offset = lines[i].firstRunOffset;
-		int x = 0;
+		int x = 10;
 		int n = lines[i].totalChars;
 		do {
 			int pn = n < run->n ? n : run->n;
@@ -417,8 +423,8 @@ void BKFancyText::renderContent() {
 		} while (n > 0);
 		//y += lines[i].vSpace;
 		y += font->getLineHeight();
-		if (y > 272)
-			break;
+		//if (y > maxY)
+		//	break;
 	}
 }
 
