@@ -468,7 +468,11 @@ int BKFancyText::setCurrentPage(int p) {
 }
 
 int BKFancyText::pan(int x, int y) {
-	// fix scale
+	if (y > -32 && y < 32)
+		y = 0;
+	if (y == 0)
+		return 0;
+	y >>= 6;
 	return setLine(topLine + y);
 }
 

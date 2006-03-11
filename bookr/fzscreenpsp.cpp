@@ -23,6 +23,7 @@
 #include <pspctrl.h>
 #include <pspgu.h>
 #include <psppower.h>
+#include <psprtc.h>
 #include <malloc.h>
 
 #include "fzscreen.h"
@@ -218,8 +219,8 @@ int FZScreen::readCtrl() {
 }
 
 void FZScreen::getAnalogPad(int& x, int& y) {
-	x = lastAnalogX;
-	y = lastAnalogY;
+	x = lastAnalogX - 128;
+	y = lastAnalogY - 128;
 }
 
 void FZScreen::startDirectList() {
@@ -348,5 +349,20 @@ void FZScreen::setSpeed(int v) {
 		return;
 	scePowerSetCpuClockFrequency(speedValues[v*2]);
 	scePowerSetBusClockFrequency(speedValues[v*2+1]);
+}
+
+void FZScreen::getTime(int &h, int &m) {
+	pspTime time;
+	if (sceRtcGetCurrentClockLocalTime(&time) >= 0) {
+		h = time.hour;
+		m = time.minutes;
+	}
+}
+
+int FZScreen::getBattery() {
+	if (scePowerIsBatteryExist()) {
+		return scePowerGetBatteryLifePercent();
+	}
+	return 0;
 }
 

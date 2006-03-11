@@ -770,6 +770,8 @@ int BKPDF::pan(int x, int y) {
 		y = 0;
 	if (x == 0 && y == 0)
 		return 0;
+	x >>= 2;
+	y >>= 2;
 	float nx = float(panX + x);
 	float ny = float(panY + y);
 	clipCoords(nx, ny);

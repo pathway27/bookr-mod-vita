@@ -3,10 +3,11 @@
 
 PSP_EBOOT_ICON=data/icon0.png
 TARGET=bookr
-OBJS:=bookr.o bkbook.o bkpdf.o bklayer.o bkmainmenu.o bkfilechooser.o bklogo.o bkpdf.o bkmemcpy.o bkuser.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdocument.o
+OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o
+OBJS+=bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
-OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o bkmemcpy.S
 
 INCDIR =
 CFLAGS = -Imupdf/include -G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
@@ -15,7 +16,7 @@ ASFLAGS = $(CFLAGS)
 
 LIBDIR =
 LDFLAGS =
-LIBS=-Lmupdf/libs -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgu -lpsppower -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
+LIBS=-Lmupdf/libs -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgu -lpsppower -lpsprtc -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
 
 
 EXTRA_TARGETS = EBOOT.PBP

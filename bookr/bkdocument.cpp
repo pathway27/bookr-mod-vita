@@ -156,7 +156,7 @@ int BKDocument::processEventsForView() {
 			return r;
 	}
 
-	// button handling - digital panning - FIX - BUTTON BINDINGS
+	// button handling - digital panning
 	{
 		if (b[BKUser::controls.screenUp] == 1 || b[BKUser::controls.screenUp] > 20) {
 			int r = screenUp();
