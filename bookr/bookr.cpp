@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
 
 	bool dirty = true;
 	bool exitApp = false;
+	int reloadTimer = 0;
 	while (!exitApp) {
 		if (dirty) {
 			FZScreen::startDirectList();
@@ -94,7 +95,21 @@ int main(int argc, char* argv[]) {
 		// the last layer always owns the input focus
 		bkLayersIt it(layers.end());
 		--it;
-		int command = (*it)->update(buttons);
+		int command = 0;
+		// the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs
+		if (reloadTimer <= 0)
+			command = (*it)->update(buttons);
+		if (command == BK_CMD_RELOAD) {
+			reloadTimer = 60;
+		}
+		if (reloadTimer > 0) {
+			reloadTimer--;
+			if (reloadTimer == 0)
+				command = BK_CMD_RELOAD;
+		}
+		// dont proc events while in the reload timer
+		if (reloadTimer > 0)
+			continue;
 		switch (command) {
 			case BK_CMD_CLOSE_TOP_LAYER_RELOAD:
 			case BK_CMD_CLOSE_TOP_LAYER: {
