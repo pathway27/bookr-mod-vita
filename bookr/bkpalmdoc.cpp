@@ -26,6 +26,7 @@ using namespace std;
 
 BKPalmDoc::BKPalmDoc() : buffer(0) { }
 BKPalmDoc::~BKPalmDoc() {
+	saveLastView();
 	if (buffer)
 		free(buffer);
 }

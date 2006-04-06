@@ -43,6 +43,7 @@ class BKDocument : public BKLayer {
 
 	int bannerFrames;
 	string banner;
+	int tipFrames;
 
 	struct ToolbarItem {
 		int lines;
@@ -67,6 +68,7 @@ class BKDocument : public BKLayer {
 
 	protected:
 	BKDocument();
+	virtual void saveLastView();
 	~BKDocument();
 
 	public:

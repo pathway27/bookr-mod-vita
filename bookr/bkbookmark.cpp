@@ -170,6 +170,12 @@ static void addBookmarkProto(string& filename, BKBookmark& b, TiXmlNode* file) {
 }
 void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
 	TiXmlNode* file = loadOrAddFileNode(filename);
+	if (b.lastView) {
+		// remove previous lastview
+		TiXmlNode* lastviewnode = file->FirstChild("lastview");
+		if (lastviewnode != 0)
+			file->RemoveChild(lastviewnode);
+	}
 	addBookmarkProto(filename, b, file);
 	saveXML();
 }

@@ -410,8 +410,7 @@ static BKPDF* singleton = 0;
 
 BKPDF::~BKPDF() {
 	if (ctx != 0) {
-		//setBookmark(true);
-
+		saveLastView();
 		pdfClose(ctx);
 		delete ctx;
 	}

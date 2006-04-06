@@ -24,6 +24,7 @@ using namespace std;
 
 BKPlainText::BKPlainText() : buffer(0) { }
 BKPlainText::~BKPlainText() {
+	saveLastView();
 	if (buffer)
 		free(buffer);
 }

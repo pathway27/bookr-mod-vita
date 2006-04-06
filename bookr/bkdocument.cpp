@@ -33,14 +33,37 @@ BKDocument* BKDocument::create(string& filePath) {
 	}
 	if (doc != 0)
 		doc->buildToolbarMenus();
+	if (doc->isBookmarkable()) {
+		BKBookmark b;
+		string fn;
+		doc->getFileName(fn);
+		if (BKBookmarksManager::getLastView(fn, b)) {
+			doc->setBookmarkPosition(b.viewData);
+		}
+	}
 	return doc;
 }
 
-BKDocument::BKDocument() : 	mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	toolbarSelMenu(0), toolbarSelMenuItem(0), frames(0) {
+BKDocument::BKDocument() : 	mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	tipFrames(120), toolbarSelMenu(0), toolbarSelMenuItem(0), frames(0) {
 	lastSuspendSerial = FZScreen::getSuspendSerial();
 }
 
 BKDocument::~BKDocument() {
+}
+
+void BKDocument::saveLastView() {
+	if (isBookmarkable()) {
+		string fn, t;
+		getFileName(fn);
+		getTitle(t);
+		BKBookmark b;
+		b.title = t;
+		b.page = isPaginated() ? getCurrentPage() : 0;
+		b.createdOn = "to do: creation date";
+		b.lastView = true;
+		getBookmarkPosition(b.viewData);
+		BKBookmarksManager::addBookmark(fn, b);
+	}
 }
 
 void BKDocument::setBanner(char* b) {
@@ -61,8 +84,11 @@ int BKDocument::update(unsigned int buttons) {
 		return r;
 
 	bannerFrames--;
+	tipFrames--;
 	if (bannerFrames < 0)
 		bannerFrames = 0;
+	if (tipFrames < 0)
+		tipFrames = 0;
 
 	// banner fade - this blocks event input during the fade
 	//if (bannerFrames > 0)
@@ -77,9 +103,12 @@ int BKDocument::update(unsigned int buttons) {
 	// banner fade - this allows events during the fade
 	if (bannerFrames > 0 && r == 0)
 		r = BK_CMD_MARK_DIRTY;
+	if (tipFrames > 0 && r == 0)
+		r = BK_CMD_MARK_DIRTY;
 
+	// clock tick
 	frames++;
-	if (frames % 60 == 0 && r == 0)
+	if (frames % 60 == 0 && r == 0 && mode != BKDOC_VIEW)
 		r = BK_CMD_MARK_DIRTY;
 
 	return r;
@@ -532,6 +561,30 @@ int BKDocument::processEventsForToolbar() {
 void BKDocument::render() {
 	// content
 	renderContent();
+
+	// flash tip for menu/toolbar on load
+	if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
+		int alpha = 0xff;
+		if (tipFrames <= 32) {
+			alpha = tipFrames*(256/32) - 8;
+		}
+		if (alpha > 0) {
+			texUI->bindForDisplay();
+			FZScreen::ambientColor(0x222222 | (alpha << 24));
+			drawPill(480 - 37 - 37 - 8, 272 - 18 - 4,
+				37*2 + 2, 50,
+				6,
+				31, 1);
+			FZScreen::ambientColor(0xffffff | (alpha << 24));
+			drawImage(480 - 37 - 2, 272 - 18,
+				37, 18,
+				75, 60);
+			drawImage(480 - 37 - 2 - 2 - 37, 272 - 18,
+				37, 18,
+				75, 39);
+		}
+	}
+
 	// label
 	if (bannerFrames > 0 && BKUser::options.displayLabels) {
 		int y = mode == BKDOC_TOOLBAR ? 10 : 240;
@@ -678,9 +731,5 @@ void BKDocument::render() {
 		t = tp;
 	}
 	drawClockAndBattery(t);
-
-	/*FZScreen::ambientColor(0xff000000);
-	drawText("timetable.pdf", fontSmall, 38+22+15, 125);
-	drawText("Page 6        09:34 11/20/2005", fontSmall, 38+22+15, 139);*/
 }
 
