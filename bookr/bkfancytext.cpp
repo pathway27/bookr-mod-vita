@@ -39,6 +39,7 @@ struct BKRunsIterator {
 	BKRun* runs;
 	int currentRun;
 	int currentChar;
+	int currentWidth;
 	int maxRuns;
 	int lineBreakMark;
 	int globalPos;
@@ -95,16 +96,22 @@ void BKFancyText::reflow(int width) {
 	BKRunsIterator rit(runs, 0, 0, nRuns);
 	BKRunsIterator lastSpace = rit;
 	FZCharMetrics* fontChars = font->getMetrics();
+	const int spaceWidthC = fontChars[32].xadvance;
+	const float spaceWidthCF = float(spaceWidthC);
 
 	while (!rit.end()) {
 		if (currentWidth > width || rit.lineBreakMark > 0) {
-			spaceWidth = float(fontChars[32].xadvance);
+			spaceWidth = spaceWidthCF;
 			int tl = rit.lineBreakMark;
 			if (rit.lineBreakMark > 0) {
 				 rit.lineBreakMark = 0;
 			} else if (lineSpaces > 0) {
 				rit = lastSpace;
-				spaceWidth = (float(width - currentWidth) + float(lineSpaces * fontChars[32].xadvance)) / float(lineSpaces);
+				--lineSpaces;
+				if (lineSpaces > 0)
+					spaceWidth = spaceWidthCF + (float(width - rit.currentWidth) / float(lineSpaces));
+				else
+					spaceWidth = spaceWidthCF;
 			} else {
 				rit.backward();			// consume the overflowing char
 			}
@@ -127,6 +134,7 @@ void BKFancyText::reflow(int width) {
 			++lineSpaces;
 		}
 		currentWidth += fontChars[c].xadvance;
+		rit.currentWidth = currentWidth;
 	}
 
 	nLines = tempLines.size();
@@ -415,8 +423,9 @@ void BKFancyText::renderContent() {
 		int n = lines[i].totalChars;
 		do {
 			int pn = n < run->n ? n : run->n;
-			if (pn > 0)
-				x = drawText(&run->text[offset], font, x, y, pn, false);
+			if (pn > 0) {
+				x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth);
+			}
 			n -= pn;
 			offset = 0;
 			++run;

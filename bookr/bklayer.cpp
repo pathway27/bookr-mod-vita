@@ -22,6 +22,8 @@
 
 #include "bklayer.h"
 
+#include <cmath>
+
 FZFont* BKLayer::fontBig = 0;
 FZFont* BKLayer::fontSmall = 0;
 FZTexture* BKLayer::texUI = 0;
@@ -219,7 +221,7 @@ void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
 	drawText(t, font, (480 - w) / 2, y);
 }
 
-int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF) {
+int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bool usePS, float ps) {
 	if (n < 0) {
 		n = strlen(t);
 	}
@@ -241,38 +243,45 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF) {
 	int iv = 0;
 	int baseX = x;
 	int baseY = y;
-	//for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
 	i = 0;
+	float fx = 0.0f;
 	for (unsigned char *p = (unsigned char*)t; i < n; i++, p++) {
 		int idx = *p;
 		// new line
 		if (idx == 10 && useLF) {
 			baseY += font->getLineHeight();
 			baseX = x;
+			fx = 0.0f;
 		}
 		// white space
 		if (idx == 32) {
-			baseX += fontChars[idx].xadvance;
+			if (usePS)
+				fx += ps;
+			else
+				baseX += fontChars[idx].xadvance;
 			continue;
 		}
 		// printable
 		if (idx > 32) {
 			int topleft = iv;
 			int botright = topleft + 1;
+			int cx = usePS ? x + int(floor(fx)) : baseX;
 
 			vertices[topleft].u = fontChars[idx].x;
 			vertices[topleft].v = fontChars[idx].y;
-			vertices[topleft].x = baseX + fontChars[idx].xoffset;
+			vertices[topleft].x = cx + fontChars[idx].xoffset;
 			vertices[topleft].y = baseY + fontChars[idx].yoffset;
 			vertices[topleft].z = 0;
 
 			vertices[botright].u = fontChars[idx].x + fontChars[idx].width;
 			vertices[botright].v = fontChars[idx].y + fontChars[idx].height;
-			vertices[botright].x = baseX + fontChars[idx].xoffset + fontChars[idx].width;
+			vertices[botright].x = cx + fontChars[idx].xoffset + fontChars[idx].width;
 			vertices[botright].y = baseY + fontChars[idx].yoffset + fontChars[idx].height;
 			vertices[botright].z = 0;
 
 			baseX += fontChars[idx].xadvance;
+			if (usePS)
+				fx += float(fontChars[idx].xadvance);
 			iv+=2;
 			continue;
 		}
