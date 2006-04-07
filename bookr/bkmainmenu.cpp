@@ -106,7 +106,7 @@ void BKMainMenu::buildOptionMenu() {
 	optionItems.clear();
 	optionItems.push_back(BKMenuItem("Restore defaults", "Select", 0));
 
-	string t("PDF - Fast scroll (zoom limited to 2x): ");
+	string t("PDF - Fast images (zoom limited to 2x): ");
 	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
