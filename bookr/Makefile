@@ -16,7 +16,7 @@ ASFLAGS = $(CFLAGS)
 
 LIBDIR =
 LDFLAGS =
-LIBS=-Lmupdf/libs -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgu -lpsppower -lpsprtc -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
+LIBS=-Lmupdf/libs -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgum -lpspgu -lpsppower -lpsprtc -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
 
 
 EXTRA_TARGETS = EBOOT.PBP
