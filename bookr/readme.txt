@@ -57,6 +57,21 @@ http://sourceforge.net/tracker/?group_id=149290&atid=774198
 Changelog
 =========
 
+Bookr 0.7.0 - April 9th 2006
+============================
+- New toolbar interface, use the SELECT key to enable it.
+- New bookmark system.
+- Support for non-DRM PalmDoc/Mobipocket files (PDB/PRC extension.)
+- Text-only support for basic HTML files.
+- Screen rotation.
+- New zoom options for PDF files.
+- CPU and bus speed options.
+- Option to disable page numbering labels.
+- Option to invert PDF colors and to change out of bounds margin color.
+- Added display of battery charge and clock to menu and toolbar.
+- Fixed last folder viewing in the filechooser.
+- Fixed centering in both PDF rendering modes.
+
 Bookr 0.6.0
 ===========
 - Added a bookmarks menu with support for multiple user bookmarks.
