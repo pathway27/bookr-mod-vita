@@ -63,6 +63,7 @@ class BKUser {
 		bool displayLabels;
 		bool pdfInvertColors;
 		int pdfBGColor;
+		string lastFolder;
 	};
 	static Options options;
 };

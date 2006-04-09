@@ -21,13 +21,15 @@
 #include "fzscreen.h"
 
 #include "bkfilechooser.h"
+#include "bkuser.h"
 
 BKFileChooser::BKFileChooser(string& t, int r) : title(t), ret(r) {
-	path = FZScreen::basePath();
+	path = BKUser::options.lastFolder;
 	updateDirFiles();
 }
 
 BKFileChooser::~BKFileChooser() {
+		BKUser::save();
 }
 
 void BKFileChooser::getCurrentDirent(FZDirent& de) {
@@ -40,11 +42,14 @@ void BKFileChooser::getFullPath(string& s) {
 
 void BKFileChooser::updateDirFiles() {
 	dirFiles.clear();
-	//printf("chdir %s\n", (char*)path.c_str());
 	int err = FZScreen::dirContents((char*)path.c_str(), dirFiles);
+	if (err < 0) {
+		path = FZScreen::basePath();
+		FZScreen::dirContents((char*)path.c_str(), dirFiles);
+	}
 	if (dirFiles.size() == 0)
 		dirFiles.push_back(FZDirent("<Empty folder>", 0, 0));
-	// TODO: fatal on err <= 0
+	BKUser::options.lastFolder = path;
 }
 
 int BKFileChooser::update(unsigned int buttons) {

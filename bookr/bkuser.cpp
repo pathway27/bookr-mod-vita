@@ -58,6 +58,7 @@ void BKUser::setDefaultOptions() {
 	options.displayLabels = true;
 	options.pdfInvertColors = false;
 	options.pdfBGColor = 0x505050;
+	options.lastFolder = FZScreen::basePath();
 }
 
 void BKUser::save() {
@@ -99,6 +100,7 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"displayLabels\" value=\"%d\" />\n", options.displayLabels ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pdfInvertColors\" value=\"%d\" />\n", options.pdfInvertColors ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pdfBGColor\" value=\"%d\" />\n", options.pdfBGColor);
+	fprintf(f, "\t\t<set option=\"lastFolder\" value=\"%s\" />\n", options.lastFolder.c_str());
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -171,6 +173,7 @@ void BKUser::load() {
 			else if (strncmp(option, "displayLabels",   128) == 0) options.displayLabels   = atoi(value) != 0;
 			else if (strncmp(option, "pdfInvertColors", 128) == 0) options.pdfInvertColors = atoi(value) != 0;
 			else if (strncmp(option, "pdfBGColor",      128) == 0) options.pdfBGColor      = atoi(value);
+			else if (strncmp(option, "lastFolder",      128) == 0) options.lastFolder      = value;
 	
 			eset = eset->NextSiblingElement("set"); 
 		}
