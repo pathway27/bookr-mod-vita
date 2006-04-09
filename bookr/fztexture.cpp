@@ -56,6 +56,7 @@ FZTexture::~FZTexture() {
 }
 
 void FZTexture::bind() {
+	FZScreen::setBoundTexture((FZTexture*)this);
 }
 
 void FZTexture::bindForDisplay() {

@@ -22,11 +22,13 @@
 #include <pspdebug.h>
 #include <pspctrl.h>
 #include <pspgu.h>
+#include <pspgum.h>
 #include <psppower.h>
 #include <psprtc.h>
 #include <malloc.h>
 
 #include "fzscreen.h"
+#include "fztexture.h"
 
 FZScreen::FZScreen() {
 }
@@ -145,6 +147,7 @@ void FZScreen::open(int argc, char** argv) {
 	sceGuDepthRange(0xc350, 0x2710);
 	sceGuScissor(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	sceGuEnable(GU_SCISSOR_TEST);
+	sceGuDisable(GU_DEPTH_TEST);
 	sceGuFrontFace(GU_CW);
 	//sceGuEnable(GU_TEXTURE_2D);
 	sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
@@ -272,12 +275,65 @@ void FZScreen::clear(unsigned int color, int b) {
 void FZScreen::checkEvents() {
 }
 
-void FZScreen::matricesFor2D() {
-	// use GU_TRANSFORM_2D
+void FZScreen::matricesFor2D(int rotation) {
+	sceGumMatrixMode(GU_PROJECTION);
+	sceGumLoadIdentity();
+	sceGumOrtho(0.0f, 480.0f, 272.0f, 0.0f, 0.0f, 1.0f);
+
+	sceGumMatrixMode(GU_VIEW);
+	sceGumLoadIdentity();
+
+	sceGumMatrixMode(GU_MODEL);
+	sceGumLoadIdentity();
+
+	switch (rotation) {
+		case 1: {
+			ScePspFVector3 pos = { 480.0f, 0.0f, 0.0f };
+			sceGumTranslate(&pos);
+			sceGumRotateZ(90.0f * (GU_PI/180.0f));
+		} break;
+		case 2: {
+			ScePspFVector3 pos = { 480.0f, 272.0f, 0.0f };
+			sceGumTranslate(&pos);
+			sceGumRotateZ(180.0f * (GU_PI/180.0f));
+		} break;
+		case 3: {
+			ScePspFVector3 pos = { 0.0f, 272.0f, 0.0f };
+			sceGumTranslate(&pos);
+			sceGumRotateZ(270.0f * (GU_PI/180.0f));
+		} break;
+	}
+}
+
+struct T32FV32F2D {
+	float u,v;
+	float x,y,z;
+};
+
+static FZTexture* boundTexture = 0;
+void FZScreen::setBoundTexture(FZTexture *t) {
+	boundTexture = t;
 }
 
 void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
-	sceGuDrawArray(prim, vtype, count, indices, vertices);
+	if ((vtype & GU_TRANSFORM_2D) == 0) {
+		// hack...
+		struct T32FV32F2D* verts = (struct T32FV32F2D*)vertices;
+		float w = 256.0f;
+		float h = 256.0f;
+		if (boundTexture != 0) {
+			w = boundTexture->getWidth();
+			h = boundTexture->getHeight();
+		}
+		for (int i = 0; i < count; i++) {
+			verts[i].u /= w;
+			verts[i].v /= h;
+		}
+		sceGumDrawArray(prim, vtype, count, indices, vertices);
+	}
+	else {
+		sceGuDrawArray(prim, vtype, count, indices, vertices);
+	}
 }
 
 void FZScreen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,

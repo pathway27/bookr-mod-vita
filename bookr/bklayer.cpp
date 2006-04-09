@@ -42,8 +42,6 @@ extern unsigned char res_uifont[];
 };
 
 void BKLayer::load() {
-	char filename[1024];
-
 	fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
 	fontBig->texEnv(FZ_TEX_MODULATE);
 	fontBig->filter(FZ_NEAREST, FZ_NEAREST);
@@ -221,7 +219,7 @@ void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
 	drawText(t, font, (480 - w) / 2, y);
 }
 
-int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bool usePS, float ps) {
+int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
 	if (n < 0) {
 		n = strlen(t);
 	}
@@ -286,7 +284,38 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bo
 			continue;
 		}
 	}
-	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,vc,0,vertices);
+	if (use3D) {
+		// no quads on psp so we need triangles
+		T32FV32F2D* vertices3d = (T32FV32F2D*)FZScreen::getListMemory(vc * sizeof(struct T32FV32F2D) * 3);
+		int i3d = 0;
+		for (iv = 0; iv < vc; iv+=2, i3d+=6) {
+			int topleft = iv;
+			int botright = topleft + 1;
+
+			// tri 1
+			vertices3d[i3d] = vertices[topleft];
+
+			vertices3d[i3d+1].u = vertices[botright].u;
+			vertices3d[i3d+1].v = vertices[topleft].v;
+			vertices3d[i3d+1].x = vertices[botright].x;
+			vertices3d[i3d+1].y = vertices[topleft].y;
+			vertices3d[i3d+1].z = 0;
+
+			vertices3d[i3d+2].u = vertices[topleft].u;
+			vertices3d[i3d+2].v = vertices[botright].v;
+			vertices3d[i3d+2].x = vertices[topleft].x;
+			vertices3d[i3d+2].y = vertices[botright].y;
+			vertices3d[i3d+2].z = 0;
+
+			// tri 2
+			vertices3d[i3d+3] = vertices3d[i3d+1];
+			vertices3d[i3d+4] = vertices[botright];
+			vertices3d[i3d+5] = vertices3d[i3d+2];
+		}
+		FZScreen::drawArray(FZ_TRIANGLES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_3D,vc * 3,0,vertices3d);
+	} else {
+		FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,vc,0,vertices);
+	}
 	return baseX;
 }
 

@@ -232,7 +232,7 @@ public:
 
 	static void clear(unsigned int c, int b);
 
-	static void matricesFor2D();
+	static void matricesFor2D(int rotation = 0);
 
 	static void drawArray(int prim, int vtype, int count, void* indices, void* vertices);
 
@@ -256,9 +256,7 @@ public:
 
 	static void dcacheWritebackAll();
 
-#ifndef PSP
 	static void setBoundTexture(FZTexture *);
-#endif
 
 	static char* basePath();
 	static int dirContents(char* path, vector<FZDirent>& a);

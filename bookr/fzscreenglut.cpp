@@ -256,12 +256,26 @@ void FZScreen::checkEvents() {
 #endif
 }
 
-void FZScreen::matricesFor2D() {
+void FZScreen::matricesFor2D(int rotation) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0.0f, 480.0f, 272.0f, 0.0f, 0.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	switch (rotation) {
+		case 1:
+			glTranslatef(480.0f, 0.0f, 0.0f);
+			glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+		break;
+		case 2:
+			glTranslatef(480.0f, 272.0f, 0.0f);
+			glRotatef(180.0f, 0.0f, 0.0f, 1.0f);
+		break;
+		case 3:
+			glTranslatef(0.0f, 272.0f, 0.0f);
+			glRotatef(270.0f, 0.0f, 0.0f, 1.0f);
+		break;
+	}
 }
 
 static int toGLBlendMode(int v) {
@@ -357,6 +371,38 @@ void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* ve
 		for (int i = 0; i < count; i++) {
 			glColor4ubv((GLubyte*)&verts[i].color);
 			glVertex2f(verts[i].x, verts[i].y);
+		}
+		glEnd();
+	} else if (prim == FZ_TRIANGLES && vtype == (FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_3D)) {
+		struct T32FV32F2D* verts = (struct T32FV32F2D*)vertices;
+		glBegin(GL_TRIANGLES);
+		int n = count/3;
+		float w = 256.0f;
+		float h = 256.0f;
+		if (boundTexture != 0) {
+			w = boundTexture->getWidth();
+			h = boundTexture->getHeight();
+		}
+		for (int i = 0; i < n; i++) {
+			struct T32FV32F2D* c1 = &verts[i*3];
+			struct T32FV32F2D* c2 = &verts[i*3+1];
+			struct T32FV32F2D* c3 = &verts[i*3+2];
+
+			c1->u /= w;
+			c1->v /= h;
+			c2->u /= w;
+			c2->v /= h;
+			c3->u /= w;
+			c3->v /= h;
+
+			glTexCoord2f(c1->u, c1->v);
+			glVertex2f(c1->x, c1->y);
+
+			glTexCoord2f(c2->u, c2->v);
+			glVertex2f(c2->x, c2->y);
+
+			glTexCoord2f(c3->u, c3->v);
+			glVertex2f(c3->x, c3->y);
 		}
 		glEnd();
 	} else if (prim == FZ_SPRITES && vtype == (FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D)) {

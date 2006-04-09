@@ -21,7 +21,7 @@
 using namespace std;
 #include "bkfancytext.h"
 
-BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), runs(0), nRuns(0) { }
+BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0) { }
 BKFancyText::~BKFancyText() {
 	if (runs)
 		delete[] runs;
@@ -403,7 +403,7 @@ int BKFancyText::resume() {
 void BKFancyText::renderContent() {
 	FZScreen::clear(BKUser::options.txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
-	FZScreen::matricesFor2D();
+	FZScreen::matricesFor2D(rotation);
 	FZScreen::enable(FZ_TEXTURE_2D);
 	FZScreen::enable(FZ_BLEND);
 	FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
@@ -424,7 +424,7 @@ void BKFancyText::renderContent() {
 		do {
 			int pn = n < run->n ? n : run->n;
 			if (pn > 0) {
-				x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth);
+				x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
 			}
 			n -= pn;
 			offset = 0;
@@ -435,6 +435,8 @@ void BKFancyText::renderContent() {
 		//if (y > maxY)
 		//	break;
 	}
+
+	FZScreen::matricesFor2D();
 }
 
 int BKFancyText::setLine(int l) {
@@ -502,15 +504,26 @@ int BKFancyText::screenRight() {
 }
 
 bool BKFancyText::isRotable() {
-	return false;
+	return true;
 }
 
 int BKFancyText::getRotation() {
-	return 0;
+	return rotation;
 }
 
-int BKFancyText::setRotation(int) {
-	return 0;
+int BKFancyText::setRotation(int r) {
+	if (r == rotation)
+		return 0;
+	rotation = r;
+	if (rotation < 0)
+		rotation = 3;
+	if (rotation >= 4)
+		rotation = 0;
+	if (rotation == 0 || rotation == 2)
+		resizeView(480, 272);
+	else
+		resizeView(272, 480);
+	return BK_CMD_MARK_DIRTY;
 }
 
 bool BKFancyText::isBookmarkable() {
@@ -521,13 +534,13 @@ void BKFancyText::getBookmarkPosition(map<string, int>& m) {
 	//m["topLineFirstRun"] = lines[topLine].firstRun;
 	m["topLine"] = topLine;
 	m["zoom"] = 0;
-	m["rotation"] = 0;
+	m["rotation"] = rotation;
 }
 
 int BKFancyText::setBookmarkPosition(map<string, int>& m) {
 	setLine(m["topLine"]);
 	//setZoomLevel(m["zoom"]);
-	//setRotation(m["rotation"]);
+	setRotation(m["rotation"]);
 	return BK_CMD_MARK_DIRTY;
 }
 

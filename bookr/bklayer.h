@@ -62,7 +62,7 @@ class BKLayer : public FZRefCounted {
 	void drawRect(int x, int y, int w, int h, int r, int tx, int ty);
 	void drawPill(int x, int y, int w, int h, int r, int tx, int ty);
 	void drawTPill(int x, int y, int w, int h, int r, int tx, int ty);
-	int drawText(char* t, FZFont* font, int x, int y, int n = -1, bool useLF = true, bool usePS = false, float ps = 0.0f);
+	int drawText(char* t, FZFont* font, int x, int y, int n = -1, bool useLF = true, bool usePS = false, float ps = 0.0f, bool use3D = false);
 
 	void drawTextHC(char* t, FZFont* font, int y);
 	void drawImage(int x, int y, int w, int h, int tx, int ty);
