@@ -48,7 +48,9 @@ static void clearXML() {
 	if (doc != 0)
 		delete doc;
 	doc = new TiXmlDocument();
-	doc->InsertEndChild(TiXmlElement("bookmarks"));
+	TiXmlElement e("bookmarks");
+	e.SetAttribute("version", "2");
+	doc->InsertEndChild(e);
 	
 	char xmlfilename[1024];
 	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
@@ -74,7 +76,13 @@ static void loadXML() {
 	// check basic file structure
 	TiXmlElement* root = doc->FirstChildElement("bookmarks");
 	if (root == 0) {
-		printf("WARNING: corrupted bookmark file\n");
+		printf("WARNING: corrupted bookmarks file\n");
+		clearXML();
+	}
+	int v = 0;
+	root->QueryIntAttribute("version", &v);
+	if (v < 2) {
+		printf("WARNING: bookmarks file version too old\n");
 		clearXML();
 	}
 }
