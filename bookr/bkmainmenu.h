@@ -47,14 +47,14 @@ class BKMainMenu : public BKLayer {
 	int frames;
 
 	protected:
-	BKMainMenu(bool isPdf, BKLayer* pdfOrBookLayer);	
+	BKMainMenu();	
 	~BKMainMenu();
 
 	public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
 	
-	static BKMainMenu* create(bool isPdf = false, BKLayer* pdfOrBookLayer = NULL);	
+	static BKMainMenu* create();	
 
 	string getPopupText();
 	int getPopupMode();

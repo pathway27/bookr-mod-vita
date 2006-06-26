@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
 			} break;
 			case BK_CMD_INVOKE_MENU:
 				// add a main menu layer
-				mm = BKMainMenu::create(documentLayer);
+				mm = BKMainMenu::create();
 				layers.push_back(mm);
 			break;
 			case BK_CMD_MAINMENU_POPUP:

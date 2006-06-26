@@ -25,7 +25,7 @@
 #include "bkbookmark.h"
 #include "bkpopup.h"
 
-BKMainMenu::BKMainMenu(bool isPdeff, BKLayer* pdfOrBookLayer) : mode(BKMM_MAIN), captureButton(false), frames(0) {
+BKMainMenu::BKMainMenu() : mode(BKMM_MAIN), captureButton(false), frames(0) {
 	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
 	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
 	mainItems.push_back(BKMenuItem("Options", "Select", 0));
@@ -463,8 +463,8 @@ void BKMainMenu::render() {
 	}
 }
 
-BKMainMenu* BKMainMenu::create(bool isPdf, BKLayer* pdfOrBookLayer) {
-	BKMainMenu* f = new BKMainMenu(isPdf, pdfOrBookLayer);
+BKMainMenu* BKMainMenu::create() {
+	BKMainMenu* f = new BKMainMenu();
 	FZScreen::resetReps();
 	return f;
 }
