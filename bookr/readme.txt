@@ -57,6 +57,11 @@ http://sourceforge.net/tracker/?group_id=149290&atid=774198
 Changelog
 =========
 
+Bookr 0.x.x - xx xx 200x
+============================
+- Fixed font corruption for large font sizes.
+
+
 Bookr 0.7.0 - April 9th 2006
 ============================
 - New toolbar interface, use the SELECT key to enable it.
