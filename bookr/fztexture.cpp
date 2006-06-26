@@ -77,6 +77,7 @@ void FZTexture::bindForDisplay() {
 	sceGuTexScale(1.0f, 1.0f);
 	sceGuTexOffset(0.0f, 0.0f);
 	sceGuTexFilter(texMin, texMag);
+	FZScreen::setBoundTexture((FZTexture*)this);
 }
 
 #else
