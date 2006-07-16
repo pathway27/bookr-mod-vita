@@ -167,6 +167,8 @@ findcidfont(char *filename, char *path, int pathlen)
 {
 	static const char *dirs[] =
 	{
+		"./fonts",
+/*
 		"$/.fonts",
 		"$/Library/Fonts",
 		"/usr/X11R6/lib/X11/fonts/TTF",
@@ -176,6 +178,7 @@ findcidfont(char *filename, char *path, int pathlen)
 		"/usr/share/fonts/kochi",
 		"/System/Library/Fonts",
 		"/Library/Fonts",
+*/
 		nil
 	};
 
@@ -183,13 +186,14 @@ findcidfont(char *filename, char *path, int pathlen)
 	char *home;
 	char *dir;
 
-	dir = getenv("FONTDIR");
+	//dir = getenv("FONTDIR");
+	dir = getenv("BOOKRFONTDIR");
 	if (dir)
 	{
 		strlcpy(path, dir, pathlen);
 		strlcat(path, "/", pathlen);
 		strlcat(path, filename, pathlen);
-//		if (access(path, R_OK) == 0)
+		if (access(path, R_OK) == 0)
 			return 1;
 	}
 
@@ -199,8 +203,8 @@ findcidfont(char *filename, char *path, int pathlen)
 		strlcpy(path, dir, pathlen);
 		strlcat(path, "/Fonts/", pathlen);
 		strlcat(path, filename, pathlen);
-//		if (access(path, R_OK) == 0)
-//			return 1;
+		if (access(path, R_OK) == 0)
+			return 1;
 	}
 
 	home = getenv("HOME");
@@ -222,8 +226,8 @@ findcidfont(char *filename, char *path, int pathlen)
 		}
 		strlcat(path, "/", pathlen);
 		strlcat(path, filename, pathlen);
-//		if (access(path, R_OK) == 0)
-//			return 1;
+		if (access(path, R_OK) == 0)
+			return 1;
 	}
 
 	return 0;

@@ -1083,7 +1083,8 @@ pdf_loadsystemcmap(pdf_cmap **cmapp, char *name)
 
 	pdf_logfont("load system cmap %s {\n", name);
 
-	cmapdir = getenv("CMAPDIR");
+	//cmapdir = getenv("CMAPDIR");
+	cmapdir = getenv("BOOKRCMAPDIR");
 	if (!cmapdir)
 		return fz_throw("ioerror: CMAPDIR environment not set");
 

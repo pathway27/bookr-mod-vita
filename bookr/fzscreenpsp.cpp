@@ -133,6 +133,11 @@ void FZScreen::open(int argc, char** argv) {
 		*psp_eboot_path = '\0';
 	}
 
+	string path(psp_full_path);
+	path += "/fonts";
+	setenv("BOOKRFONTDIR", path.c_str(), 1);
+	setenv("BOOKRCMAPDIR", path.c_str(), 1);
+
 	// from pspgl. this memory block won't be freed
 	list = (unsigned int*)malloc(4 * (256*1024));
 	list = (unsigned int*)ptr_align64_uncached((unsigned long)list + 64);

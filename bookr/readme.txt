@@ -59,6 +59,7 @@ Changelog
 
 Bookr 0.x.x - xx xx 200x
 ============================
+- Added support for PDF files with CJK fonts xxx EXPLAIN xxx
 - Fixed font corruption for large font sizes.
 
 

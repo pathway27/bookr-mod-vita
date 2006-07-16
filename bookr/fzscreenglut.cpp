@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <cstring>
 #include <time.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -35,6 +36,8 @@
 
 #include "fzscreen.h"
 #include "fztexture.h"
+
+using namespace std;
 
 FZScreen::FZScreen() {
 }
@@ -158,6 +161,11 @@ void FZScreen::open(int argc, char** argv) {
 	glutMouseFunc(mousepress);
 	glutMotionFunc(mousemotion);
 	glViewport(0, 0, 480, 272);
+
+	string path(psp_full_path);
+	path += "/fonts";
+	setenv("BOOKRFONTDIR", path.c_str(), 1);
+	setenv("BOOKRCMAPDIR", path.c_str(), 1);
 }
 
 void FZScreen::setBoundTexture(FZTexture *t) {
