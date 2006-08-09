@@ -70,16 +70,19 @@ pdf_emptystore(pdf_store *store)
 	struct refkey *key;
 	void *val;
 	int i;
-
 	for (i = 0; i < fz_hashlen(store->hash); i++)
 	{
 		key = fz_hashgetkey(store->hash, i);
 		val = fz_hashgetval(store->hash, i);
-		if (val)
+		if (val) {
+#ifdef PSP
+			if (key->kind == PDF_KIMAGE)
+				printf("es 1.2 - I %p\n", val);
+#endif
 			dropitem(key->kind, val);
+		}
 	}
 	fz_emptyhash(store->hash);
-
 	for (item = store->root; item; item = next)
 	{
 		next = item->next;
@@ -87,7 +90,6 @@ pdf_emptystore(pdf_store *store)
 		dropitem(item->kind, item->val);
 		fz_free(item);
 	}
-
 	store->root = nil;
 }
 

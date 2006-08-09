@@ -70,6 +70,7 @@ $(EXE): $(OBJS)
 clean:
 	rm -f  $(EXE)
 	rm -Rf *.o
+	rm -Rf palmdoc/*.o
 	rm -f gmon.out
 	@(cd mupdf; make -f Makefile.glut clean)
 

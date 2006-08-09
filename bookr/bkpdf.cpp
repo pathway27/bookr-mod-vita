@@ -21,11 +21,13 @@
 #include <pspsysmem.h>
 #endif
 
+#include <map>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include <time.h>
+#include <malloc.h>
 
 #include "bkbookmark.h"
 
@@ -254,30 +256,7 @@ static PDFContext* pdfOpen(char *filename) {
 	return ctx;
 }
 
-static void pdfClose(PDFContext* ctx) {
-	if (ctx->pages)
-		pdf_droppagetree(ctx->pages);
-	ctx->pages = 0;
-
-	if (ctx->page)
-		pdf_droppage(ctx->page);
-	ctx->page = 0;
-
-	/*if (ctx->image)
-		fz_droppixmap(ctx->image);
-	ctx->image = nil;*/
-
-	if (ctx->outline)
-		pdf_dropoutline(ctx->outline);
-	ctx->outline = 0;
-
-	if (ctx->xref->store)
-		pdf_dropstore(ctx->xref->store);
-	ctx->xref->store = 0;
-
-	pdf_closexref(ctx->xref);
-	ctx->xref = 0;
-}
+static void pdfClose(PDFContext* ctx);
 
 static fz_matrix pdfViewctm(PDFContext* ctx) {
 	fz_matrix ctm;
@@ -369,6 +348,106 @@ static void recalcScreenMediaBox(PDFContext* ctx) {
 	//printf("sCMB (%g, %g) - (%g, %g)\n", bbox.x0, bbox.y0, bbox.x1, bbox.y1);
 }
 
+// PDF page tree optimization --------------------------------------------------
+
+fz_error * fakeImageTile(fz_image *img, fz_pixmap *tile) {
+
+	for (int y = 0; y < tile->h; y++) {
+		for (int x = 0; x < tile->w; x++) {
+			//tile->samples[(y * tile->w + x) * tile->n] = 255;
+			//int i = 255;//tmp->samples[y * tile->w + x] / bpcfact;
+			for (int k = 0; k < tile->n; k++) {
+				tile->samples[(y * tile->w + x) * tile->n + k] = 255;
+			}
+			//i = CLAMP(i, 0, src->indexed->high);
+			//for (k = 0; k < src->indexed->base->n; k++) {
+				//tile->samples[(y * tile->w + x) * tile->n + k + 1] =
+					//src->indexed->lookup[i * src->indexed->base->n + k];
+			//}
+		}
+	}
+
+	return 0;
+}
+
+static void optimizeNode(fz_node *node);
+
+static void optimizeImage(fz_imagenode *node) {
+	fz_image *image = node->image;
+	//if (image->w*image->h > 250000) {
+	if (image->w*image->h > 1) {
+		node->image->w = 1;
+		node->image->h = 1;
+		node->image->n = 3;
+		node->image->a = 0;
+		node->image->loadtile = fakeImageTile;
+		void (*drop)(fz_image*);
+	}
+}
+
+static void optimizeMeta(fz_metanode *node) {
+	fz_node *child;
+	for (child = node->super.first; child; child = child->next)
+		optimizeNode(child);
+}
+
+static void optimizeOver(fz_overnode *node) {
+	fz_node *child;
+	for (child = node->super.first; child; child = child->next)
+		optimizeNode(child);
+}
+
+static void optimizeMask(fz_masknode *node) {
+	fz_node *child;
+	for (child = node->super.first; child; child = child->next)
+		optimizeNode(child);
+}
+
+static void optimizeBlend(fz_blendnode *node) {
+	fz_node *child;
+	for (child = node->super.first; child; child = child->next)
+		optimizeNode(child);
+}
+
+static void optimizeTransform(fz_transformnode *node) {
+	optimizeNode(node->super.first);
+}
+
+static void optimizeSolid(fz_solidnode *node) {
+}
+
+static void optimizeLink(fz_linknode *node) {
+}
+
+static void optimizePath(fz_pathnode *node) {
+}
+
+static void optimizeText(fz_textnode *node) {
+}
+
+static void optimizeShade(fz_shadenode *node) {
+}
+
+static void optimizeNode(fz_node *node) {
+	if (!node) {
+		return;
+	}
+
+	switch (node->kind) {
+		case FZ_NIMAGE: optimizeImage((fz_imagenode*)node); break;
+		case FZ_NMETA: optimizeMeta((fz_metanode*)node); break;
+		case FZ_NOVER: optimizeOver((fz_overnode*)node); break;
+		case FZ_NMASK: optimizeMask((fz_masknode*)node); break;
+		case FZ_NBLEND: optimizeBlend((fz_blendnode*)node); break;
+		case FZ_NTRANSFORM: optimizeTransform((fz_transformnode*)node); break;
+		case FZ_NCOLOR: optimizeSolid((fz_solidnode*)node); break;
+		case FZ_NPATH: optimizePath((fz_pathnode*)node); break;
+		case FZ_NTEXT: optimizeText((fz_textnode*)node); break;
+		case FZ_NSHADE: optimizeShade((fz_shadenode*)node); break;
+		case FZ_NLINK: optimizeLink((fz_linknode*)node); break;
+	}
+}
+
 static char lastPageError[1024];
 static int pdfLoadPage(PDFContext* ctx) {
 	if (fullPageBuffer != NULL) {
@@ -384,6 +463,24 @@ static int pdfLoadPage(PDFContext* ctx) {
 		pdf_droppage(ctx->page);
 	ctx->page = 0;
 
+	// empty store to save memory
+	if (ctx->xref->store)
+		pdf_emptystore(ctx->xref->store);
+	/*
+	pdf_item *item;
+	fz_obj *key;
+	list<fz_obj *key> keys;
+	for (item = ctx->xref->store->root; item; item = item->next) {
+		if (item->kind == PDF_KIMAGE)
+			keys << key;
+	}
+	list<fz_obj *key>::iterator it(keys.begin);
+	while (it != keys.end()) {
+		
+		++it;
+	}
+	*/
+
 	obj = pdf_getpageobject(ctx->pages, ctx->pageno - 1);
 
 	error = pdf_loadpage(&ctx->page, ctx->xref, obj);
@@ -393,7 +490,12 @@ static int pdfLoadPage(PDFContext* ctx) {
 		return -1;
 	}
 
-	//printf("\n\n------------------------------------------------\n");
+	//printf("\n\n debug tree ------------------------------------------------\n");
+	//fz_debugtree(ctx->page->tree);
+
+	//optimizeNode(ctx->page->tree->root);
+
+	//printf("\n\n OPT debug tree OPT ------------------------------------------------\n");
 	//fz_debugtree(ctx->page->tree);
 
 	recalcScreenMediaBox(ctx);
@@ -407,7 +509,7 @@ BKPDF::BKPDF(string& f) : ctx(0), fileName(f), panX(0), panY(0), loadNewPage(fal
 }
 
 static BKPDF* singleton = 0;
-
+static void bkfree_all();
 BKPDF::~BKPDF() {
 	if (ctx != 0) {
 		saveLastView();
@@ -421,7 +523,11 @@ BKPDF::~BKPDF() {
 		fz_droppixmap(fullPageBuffer);
 		fullPageBuffer = NULL;
 	}
+
+	bkfree_all();
 }
+
+// PDF memory pooling ----------------------------------------------------------
 
 static long long alloc_mallocs = 0;
 static long long alloc_malloc_size = 0;
@@ -430,6 +536,11 @@ static long long alloc_reallocs = 0;
 static long long alloc_realloc_size = 0;
 static long long alloc_large_realloc = 0;
 
+static long long alloc_current = 0;
+typedef map<void*, int> AllocMap;
+typedef AllocMap::iterator AllocMapIt;
+static AllocMap alloc_allocs;
+
 static void reset_allocs() {
 	alloc_mallocs = 0;
 	alloc_malloc_size = 0;
@@ -437,6 +548,8 @@ static void reset_allocs() {
 	alloc_reallocs = 0;
 	alloc_realloc_size = 0;
 	alloc_large_realloc = 0;
+	alloc_current = 0;
+	alloc_allocs.clear();
 }
 
 static void print_allocs() {
@@ -455,13 +568,12 @@ static void print_allocs() {
 
 static void* bkmalloc(fz_memorycontext *mem, int n) {
 	void* buf = NULL;
-	/*if (n >= 64)
-		buf = memalign(16, n);
-	else*/
-		buf = malloc(n);
-	memset(buf, 0, n);
+	buf = malloc(n);
+	//memset(buf, 0, n);
 	alloc_malloc_size += n;
 	++alloc_mallocs;
+	alloc_allocs[buf] = n;
+	alloc_current += n;
 	return buf;
 }
 
@@ -469,15 +581,36 @@ static void *bkrealloc(fz_memorycontext *mem, void *p, int n) {
 	++alloc_reallocs;
 	alloc_realloc_size += n;
 	alloc_large_realloc = alloc_large_realloc < n ? n : alloc_large_realloc;
-#ifndef PSP
-	//printf("%d\n", n);
-#endif
-	return realloc(p, n);
+	AllocMapIt it = alloc_allocs.find(p);
+	if (it != alloc_allocs.end()) {
+		alloc_current -= (*it).second;
+		alloc_allocs.erase(it);
+	}
+	void* r = realloc(p, n);
+	alloc_allocs[r] = n;
+	alloc_current += n;
+	return r;
 }
 
 static void bkfree(fz_memorycontext *mem, void *p) {
-	free(p);
+	AllocMapIt it = alloc_allocs.find(p);
+	if (it != alloc_allocs.end()) {
+		alloc_current -= (*it).second;
+		alloc_allocs.erase(it);
+	}
 	++alloc_frees;
+	free(p);
+}
+
+static void bkfree_all() {
+	printf("bkfree_all - %d\n", (int)alloc_current);
+	AllocMapIt it = alloc_allocs.begin();
+	if (it != alloc_allocs.end()) {
+		free((*it).first);
+		++it;
+	}
+	alloc_current = 0;
+	alloc_allocs.clear();
 }
 
 static fz_memorycontext bkmem = { bkmalloc, bkrealloc, bkfree };
@@ -488,11 +621,13 @@ BKPDF* BKPDF::create(string& file) {
 		printf("cannot open more than 1 pdf at the same time\n");
 		return singleton;
 	}
+
+	reset_allocs();
 	
 	BKPDF* b = new BKPDF(file);
 	singleton = b;
 
-	//fz_setmemorycontext(&bkmem);
+	fz_setmemorycontext(&bkmem);
 	fz_cpudetect();
 	fz_accelerate();
 
@@ -530,7 +665,6 @@ BKPDF* BKPDF::create(string& file) {
 	//int position = BKBookmark::getLastView(b->filePath);
 	//b->setPage(position);
 	
-	reset_allocs();
 	b->pageError = pdfLoadPage(ctx) != 0;
 
 	FZScreen::resetReps();
@@ -538,6 +672,33 @@ BKPDF* BKPDF::create(string& file) {
 	print_allocs();
 	lastScrollFlag = BKUser::options.pdfFastScroll;
 	return b;
+}
+
+static void pdfClose(PDFContext* ctx) {
+	if (ctx->page)
+		pdf_droppage(ctx->page);
+	ctx->page = 0;
+
+	if (ctx->pages)
+		pdf_droppagetree(ctx->pages);
+	ctx->pages = 0;
+
+	/*if (ctx->image)
+		fz_droppixmap(ctx->image);
+	ctx->image = nil;*/
+
+	if (ctx->outline)
+		pdf_dropoutline(ctx->outline);
+	ctx->outline = 0;
+
+	if (ctx->xref->store)
+		pdf_dropstore(ctx->xref->store);
+	ctx->xref->store = 0;
+
+	pdf_closexref(ctx->xref);
+	ctx->xref = 0;
+
+	printf("alloc_current = %d\n", (int)alloc_current);
 }
 
 void BKPDF::clipCoords(float& nx, float& ny) {
@@ -1048,6 +1209,11 @@ int BKPDF::updateContent() {
 		setBanner(t);
 		return BK_CMD_MARK_DIRTY;
 	}
+
+	struct mallinfo mi = mallinfo();
+	printf("alloc_current = %d\n", (int)alloc_current);
+	printf("mi.uordblks = %d\n", mi.uordblks);
+	printf("mi.arena = %d\n", mi.arena);
 
 	/*bannerFrames--;
 	if (bannerFrames < 0)

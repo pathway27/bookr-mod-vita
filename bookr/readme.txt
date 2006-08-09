@@ -60,8 +60,11 @@ Changelog
 Bookr 0.x.x - xx xx 200x
 ============================
 - Added support for PDF files with CJK fonts xxx EXPLAIN xxx
-- Fixed font corruption for large font sizes.
-
+- Fixed many memory leaks in the image loader for PDF files. Bookr
+should now be able to load and display PDF files with more and larger
+images than before.
+- Fixed font corruption for large font sizes in the text viewer.
+- Fixed memory leaks releasing the PDF viewer singleton.
 
 Bookr 0.7.0 - April 9th 2006
 ============================

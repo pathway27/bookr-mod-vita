@@ -7,6 +7,9 @@
 
 void pdf_dropimage(fz_image *fzimg)
 {
+#ifndef PSP
+	printf("DI\n");
+#endif
 	pdf_image *img = (pdf_image*)fzimg;
 	fz_dropbuffer(img->samples);
 	if (img->mask)
@@ -36,6 +39,7 @@ pdf_loadinlineimage(pdf_image **imgp, pdf_xref *xref,
 	img->super.drop = pdf_dropimage;
 	img->super.n = 0;
 	img->super.a = 0;
+	img->super.refs = 0;
 	img->indexed = nil;
 	img->usecolorkey = 0;
 	img->mask = nil;
@@ -192,6 +196,25 @@ loadcolorkey(int *colorkey, int bpc, int indexed, fz_obj *obj)
 		colorkey[i] = fz_toint(fz_arrayget(obj, i)) * scale;
 }
 
+fz_error * fakeImageTile(fz_image *img, fz_pixmap *tile) {
+	int y, x, k;
+	for (y = 0; y < tile->h; y++) {
+		for (x = 0; x < tile->w; x++) {
+			//tile->samples[(y * tile->w + x) * tile->n] = 255;
+			//int i = 255;//tmp->samples[y * tile->w + x] / bpcfact;
+			for (k = 0; k < tile->n; k++) {
+				tile->samples[(y * tile->w + x) * tile->n + k] = 255;
+			}
+			//i = CLAMP(i, 0, src->indexed->high);
+			//for (k = 0; k < src->indexed->base->n; k++) {
+				//tile->samples[(y * tile->w + x) * tile->n + k + 1] =
+					//src->indexed->lookup[i * src->indexed->base->n + k];
+			//}
+		}
+	}
+	return 0;
+}
+
 /* TODO error cleanup */
 fz_error *
 pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
@@ -211,7 +234,9 @@ pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
 	fz_colorspace *cs = nil;
 	pdf_indexed *indexed = nil;
 	int stride;
-
+#ifndef PSP
+	printf("LI\n");
+#endif
 	if ((*imgp = pdf_finditem(xref->store, PDF_KIMAGE, ref)))
 	{
 		fz_keepimage((fz_image*)*imgp);
@@ -221,6 +246,8 @@ pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
 	img = fz_malloc(sizeof(pdf_image));
 	if (!img)
 		return fz_outofmem;
+
+	img->super.refs = 0;
 
 	pdf_logimage("load image %d %d (%p) {\n", fz_tonum(ref), fz_togen(ref), img);
 
@@ -404,6 +431,30 @@ pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
 	img->bpc = bpc;
 	img->mask = (fz_image*)mask;
 	img->usecolorkey = usecolorkey;
+	if (img->mask)
+		fz_keepimage(img->mask);
+
+	// ccm
+	#if 0
+	if (w*h > 2500) {
+		fz_dropbuffer(img->samples);
+		fz_newbuffer(&img->samples, 8);
+		img->super.w = 1;
+		img->super.h = 1;
+		img->super.n = 3;
+		img->super.a = 0;
+		unsigned char *p;
+		for (p = img->samples->bp; p < img->samples->ep; p++)
+			*p = 0x7f;
+		img->indexed = 0;
+		img->stride = (1 * (3 + 0) * 8 + 7) / 8; //(w * (n + a) * bpc + 7) / 8;
+		img->super.cs = cs;
+		img->super.loadtile = fakeImageTile;
+		img->bpc = 8;
+		img->mask = NULL;
+		img->usecolorkey = 0;
+	}
+	#endif
 
 	pdf_logimage("}\n");
 
