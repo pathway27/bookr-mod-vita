@@ -607,7 +607,7 @@ static void bkfree(fz_memorycontext *mem, void *p) {
 }
 
 static void bkfree_all() {
-	printf("bkfree_all - %d\n", (int)alloc_current);
+	//printf("bkfree_all - %d\n", (int)alloc_current);
 	AllocMapIt it = alloc_allocs.begin();
 	if (it != alloc_allocs.end()) {
 		free((*it).first);
@@ -706,7 +706,7 @@ static void pdfClose(PDFContext* ctx) {
 		fz_droprenderer(ctx->rast);
 	ctx->rast = 0;
 
-	printf("alloc_current = %d\n", (int)alloc_current);
+	//printf("alloc_current = %d\n", (int)alloc_current);
 }
 
 void BKPDF::clipCoords(float& nx, float& ny) {
@@ -1217,11 +1217,6 @@ int BKPDF::updateContent() {
 		setBanner(t);
 		return BK_CMD_MARK_DIRTY;
 	}
-
-	struct mallinfo mi = mallinfo();
-	printf("alloc_current = %d\n", (int)alloc_current);
-	printf("mi.uordblks = %d\n", mi.uordblks);
-	printf("mi.arena = %d\n", mi.arena);
 
 	/*bannerFrames--;
 	if (bannerFrames < 0)

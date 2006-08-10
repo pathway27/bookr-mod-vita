@@ -427,3 +427,9 @@ int FZScreen::getBattery() {
 	return 0;
 }
 
+int FZScreen::getUsedMemory() {
+	struct mallinfo mi = mallinfo();
+	return mi.uordblks;
+	//return mi.arena;
+}
+

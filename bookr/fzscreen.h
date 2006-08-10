@@ -269,6 +269,7 @@ public:
 
 	static void getTime(int &h, int &m);
 	static int getBattery();
+	static int getUsedMemory();
 };
 
 #endif

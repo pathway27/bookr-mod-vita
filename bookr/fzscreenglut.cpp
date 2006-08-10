@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <cstring>
 #include <time.h>
+#include <malloc.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -586,5 +587,11 @@ void FZScreen::getTime(int &h, int &m) {
 
 int FZScreen::getBattery() {
 	return 100;
+}
+
+int FZScreen::getUsedMemory() {
+	struct mallinfo mi = mallinfo();
+	return mi.uordblks;
+	//return mi.arena;
 }
 
