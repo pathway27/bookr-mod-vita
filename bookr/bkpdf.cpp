@@ -52,7 +52,6 @@ static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f,
 static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
 
 // singleton
-static fz_renderer *fzrast = NULL;
 static unsigned int* bounceBuffer = NULL;
 static unsigned int* backBuffer = NULL;
 static fz_pixmap* fullPageBuffer = NULL;
@@ -76,15 +75,12 @@ struct PDFContext {
 	int zoomLevel;
 	float rotate;
 	int rotateLevel;
+
+	fz_renderer *rast;
 };
 
 static int pdfInit() {
 	fz_error *error;
-	if (fzrast == NULL) {
-		error = fz_newrenderer(&fzrast, pdf_devicergb, 0, 1024 * 512);
-		if (error)
-			return -1;
-	}
 	if (bounceBuffer == NULL) {
 		bounceBuffer = (unsigned int*)memalign(16, 480*272*4);
 	}
@@ -99,6 +95,13 @@ static PDFContext* pdfOpen(char *filename) {
 	memset(ctx, 0, sizeof(PDFContext));
 	fz_error *error;
 	fz_obj *obj;
+
+	error = fz_newrenderer(&ctx->rast, pdf_devicergb, 0, 1024 * 512);
+	if (error) {
+		printf("err0: %s\n", error->msg);
+		delete ctx;
+		return 0;
+	}
 
 	/*
 	* Open PDF and load xref table
@@ -294,7 +297,7 @@ static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h, boo
 		ir.y1 = ir.y0 + h;
 	}*/
 	fz_pixmap* pix = (fz_pixmap*)malloc(sizeof(fz_pixmap));
-	error = fz_rendertree(&pix, fzrast, ctx->page->tree, ctm, ir, 1);
+	error = fz_rendertree(&pix, ctx->rast, ctx->page->tree, ctm, ir, 1);
 	if (error) {
 		return 0;
 	}
@@ -466,6 +469,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	// empty store to save memory
 	if (ctx->xref->store)
 		pdf_emptystore(ctx->xref->store);
+	bk_pdf_resetbufferssize();
 	/*
 	pdf_item *item;
 	fz_obj *key;
@@ -627,7 +631,7 @@ BKPDF* BKPDF::create(string& file) {
 	BKPDF* b = new BKPDF(file);
 	singleton = b;
 
-	fz_setmemorycontext(&bkmem);
+	//fz_setmemorycontext(&bkmem);
 	fz_cpudetect();
 	fz_accelerate();
 
@@ -697,6 +701,10 @@ static void pdfClose(PDFContext* ctx) {
 
 	pdf_closexref(ctx->xref);
 	ctx->xref = 0;
+
+	if (ctx->rast)
+		fz_droprenderer(ctx->rast);
+	ctx->rast = 0;
 
 	printf("alloc_current = %d\n", (int)alloc_current);
 }

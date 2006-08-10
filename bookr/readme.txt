@@ -60,6 +60,8 @@ Changelog
 Bookr 0.x.x - xx xx 200x
 ============================
 - Added support for PDF files with CJK fonts xxx EXPLAIN xxx
+- Bookr will now try to block images from loading when it is runing
+low on memory.
 - Fixed many memory leaks in the image loader for PDF files. Bookr
 should now be able to load and display PDF files with more and larger
 images than before.

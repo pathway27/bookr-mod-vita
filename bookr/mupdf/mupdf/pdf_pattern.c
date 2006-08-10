@@ -11,7 +11,7 @@ pdf_keeppattern(pdf_pattern *pat)
 void
 pdf_droppattern(pdf_pattern *pat)
 {
-	if (--pat->refs == 0)
+	if (--pat->refs <= 0)
 	{
 		if (pat->tree)
 			fz_droptree(pat->tree);
@@ -40,6 +40,9 @@ pdf_loadpattern(pdf_pattern **patp, pdf_xref *xref, fz_obj *dict, fz_obj *stmref
 	pat = fz_malloc(sizeof(pdf_pattern));
 	if (!pat)
 		return fz_outofmem;
+
+	//pat->refs = 0;
+	pat->refs = 1;
 
 	pat->tree = nil;
 	pat->ismask = fz_toint(fz_dictgets(dict, "PaintType")) == 2;

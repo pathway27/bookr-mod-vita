@@ -14,7 +14,7 @@ fz_dropimage(fz_image *image)
 #ifndef PSP
 	printf("fz_dropimage, imaage %p, image->refs: %d\n", image, image->refs);
 #endif
-	if (--image->refs == 0)
+	if (--image->refs <= 0)
 	{
 		if (image->drop)
 			image->drop(image);

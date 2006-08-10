@@ -215,6 +215,16 @@ fz_error * fakeImageTile(fz_image *img, fz_pixmap *tile) {
 	return 0;
 }
 
+static const int image_buffers_size_max = 5*1024*1024;
+static int image_buffers_size = 0;
+void bk_pdf_resetbufferssize() {
+	image_buffers_size = 0;
+}
+
+int bk_pdf_overflowbuffers() {
+	return image_buffers_size >= image_buffers_size_max ? 1 : 0;
+}
+
 /* TODO error cleanup */
 fz_error *
 pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
@@ -435,14 +445,16 @@ pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
 		fz_keepimage(img->mask);
 
 	// ccm
-	#if 0
-	if (w*h > 2500) {
+	#if 1
+	int bs = (int)(img->samples->wp) - (int)(img->samples->rp);
+	if (image_buffers_size + bs >= image_buffers_size_max) {
 		fz_dropbuffer(img->samples);
 		fz_newbuffer(&img->samples, 8);
 		img->super.w = 1;
 		img->super.h = 1;
 		img->super.n = 3;
 		img->super.a = 0;
+		img->super.refs = 0;
 		unsigned char *p;
 		for (p = img->samples->bp; p < img->samples->ep; p++)
 			*p = 0x7f;
@@ -453,6 +465,8 @@ pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
 		img->bpc = 8;
 		img->mask = NULL;
 		img->usecolorkey = 0;
+	} else {
+		image_buffers_size += bs;
 	}
 	#endif
 
