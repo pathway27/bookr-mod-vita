@@ -27,6 +27,8 @@ pdf_newlink(pdf_link **linkp, fz_rect bbox, fz_obj *dest)
 void
 pdf_droplink(pdf_link *link)
 {
+	if (link == nil)
+		return;
 	if (link->next)
 		pdf_droplink(link->next);
 	if (link->dest)
