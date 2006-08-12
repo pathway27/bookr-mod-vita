@@ -27,7 +27,6 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include <malloc.h>
 
 #include "bkbookmark.h"
 
@@ -528,6 +527,8 @@ BKPDF::~BKPDF() {
 		fullPageBuffer = NULL;
 	}
 
+//#error reactivate the hash!
+//#error idea - list allocs linear, list frees linear, do merge every N allocs
 	bkfree_all();
 }
 
@@ -631,7 +632,7 @@ BKPDF* BKPDF::create(string& file) {
 	BKPDF* b = new BKPDF(file);
 	singleton = b;
 
-	//fz_setmemorycontext(&bkmem);
+	fz_setmemorycontext(&bkmem);
 	fz_cpudetect();
 	fz_accelerate();
 
