@@ -215,7 +215,7 @@ fz_error * fakeImageTile(fz_image *img, fz_pixmap *tile) {
 	return 0;
 }
 
-static const int image_buffers_size_max = 5*1024*1024;
+static const int image_buffers_size_max = 8*1024*1024;
 static int image_buffers_size = 0;
 void bk_pdf_resetbufferssize() {
 	image_buffers_size = 0;
@@ -401,28 +401,39 @@ pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
 	else
 		stride = (w * (n + a) * bpc + 7) / 8;
 
-	error = pdf_loadstream(&img->samples, xref, fz_tonum(ref), fz_togen(ref));
-	if (error)
-	{
-		/* TODO: colorspace? */
-		fz_free(img);
-		return error;
-	}
-
-	if (img->samples->wp - img->samples->bp < stride * h)
-	{
-		/* TODO: colorspace? */
-		fz_dropbuffer(img->samples);
-		fz_free(img);
-		return fz_throw("syntaxerror: truncated image data");
-	}
-
-	/* 0 means opaque and 1 means transparent, so we invert to get alpha */
-	if (ismask)
-	{
-		unsigned char *p;
-		for (p = img->samples->bp; p < img->samples->ep; p++)
-			*p = ~*p;
+	// ccm
+	// do not load images larger than 2MB uncompressed
+	int early_reject = 0;
+	if (h * stride <= 2*1024*1024) {
+		error = pdf_loadstream(&img->samples, xref, fz_tonum(ref), fz_togen(ref));
+		if (error)
+		{
+			/* TODO: colorspace? */
+			fz_free(img);
+			return error;
+		}
+	
+		if (img->samples->wp - img->samples->bp < stride * h)
+		{
+			/* TODO: colorspace? */
+			fz_dropbuffer(img->samples);
+			fz_free(img);
+			return fz_throw("syntaxerror: truncated image data");
+		}
+	
+		/* 0 means opaque and 1 means transparent, so we invert to get alpha */
+		if (ismask)
+		{
+			unsigned char *p;
+			for (p = img->samples->bp; p < img->samples->ep; p++)
+				*p = ~*p;
+		}
+	} else {
+#ifndef PSP
+		printf("LI - %p - early reject\n", img);
+#endif
+		img->samples = nil;
+		early_reject = 1;
 	}
 
 	/*
@@ -446,9 +457,17 @@ pdf_loadimage(pdf_image **imgp, pdf_xref *xref, fz_obj *dict, fz_obj *ref)
 
 	// ccm
 	#if 1
-	int bs = (int)(img->samples->wp) - (int)(img->samples->rp);
-	if (image_buffers_size + bs >= image_buffers_size_max) {
-		fz_dropbuffer(img->samples);
+	int bs = 0;
+	if (img->samples)
+		bs = (int)(img->samples->wp) - (int)(img->samples->rp);
+	if (early_reject || (image_buffers_size + bs >= image_buffers_size_max)) {
+#ifndef PSP
+		printf("LI - %p - optimized out\n", img);
+#endif
+		if (img->samples)
+			fz_dropbuffer(img->samples);
+		if (img->mask)
+			fz_dropimage(img->mask);
 		fz_newbuffer(&img->samples, 8);
 		img->super.w = 1;
 		img->super.h = 1;
