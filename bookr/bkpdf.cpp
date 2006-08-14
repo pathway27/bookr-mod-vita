@@ -295,7 +295,7 @@ static fz_pixmap* pdfRenderTile(PDFContext* ctx, int x, int y, int w, int h, boo
 		ir.x1 = ir.x0 + w;
 		ir.y1 = ir.y0 + h;
 	}*/
-	fz_pixmap* pix = (fz_pixmap*)malloc(sizeof(fz_pixmap));
+	fz_pixmap* pix = NULL;
 	error = fz_rendertree(&pix, ctx->rast, ctx->page->tree, ctm, ir, 1);
 	if (error) {
 		return 0;

@@ -59,7 +59,7 @@ loadshadedict(fz_shade **shadep, pdf_xref *xref, fz_obj *dict, fz_obj *ref, fz_m
 	if (!shade)
 		return fz_outofmem;
 
-	shade->refs = 1;
+	shade->refs = 0;
 	shade->usebackground = 0;
 	shade->usefunction = 0;
 	shade->matrix = matrix;

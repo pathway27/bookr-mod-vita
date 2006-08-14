@@ -4,7 +4,8 @@
 void
 fz_initfont(fz_font *font, char *name)
 {
-	font->refs = 1;
+	//font->refs = 1;
+	font->refs = 0;
 	strlcpy(font->name, name, sizeof font->name);
 
 	font->wmode = 0;

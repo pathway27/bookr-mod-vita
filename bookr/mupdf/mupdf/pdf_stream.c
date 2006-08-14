@@ -285,6 +285,25 @@ pdf_buildfilter(fz_filter **filterp, pdf_xref *xref, fz_obj *stmobj, int oid, in
 
 			error = fz_newpipeline(&pipe, base, tmp);
 			fz_dropfilter(tmp);
+
+			// ccm
+/*
+==22792== 119,744 (39,859 direct, 79,885 indirect) bytes in 251 blocks are definitely lost in loss record 97 of 101
+==22792==    at 0x401B422: malloc (vg_replace_malloc.c:149)
+==22792==    by 0x804E87C: bkmalloc(fz_memorycontext_s*, int) (bkpdf.cpp:576)
+==22792==    by 0x80BC598: fz_malloc (base_memory.c:65)
+==22792==    by 0x80B60C1: fz_newnullfilter (filt_null.c:16)
+==22792==    by 0x807B4A5: buildrawfilter (pdf_stream.c:190)
+==22792==    by 0x807B647: pdf_buildfilter (pdf_stream.c:260)
+==22792==    by 0x807BAC6: pdf_openstream (pdf_stream.c:418)
+==22792==    by 0x807BC12: pdf_loadstream (pdf_stream.c:473)
+==22792==    by 0x8080407: pdf_loadimage (pdf_image.c:408)
+==22792==    by 0x8082201: preloadxobject (pdf_resources.c:151)
+==22792==    by 0x808278D: pdf_loadresources (pdf_resources.c:357)
+==22792==    by 0x8081417: pdf_loadpage (pdf_page.c:201)
+*/
+			fz_dropfilter(base);
+
 			if (error)
 				goto cleanup2;
 		}

@@ -42,7 +42,7 @@ fz_keepfilter(fz_filter *f)
 void
 fz_dropfilter(fz_filter *f)
 {
-	if (--f->refs == 0)
+	if (--f->refs <= 0)
 	{
 		if (f->drop)
 			f->drop(f);
