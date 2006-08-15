@@ -18,11 +18,11 @@ to your Memory Stick \PSP\GAME folder.
 Optional CJK PDF Support
 ========================
 In order to support Chinese, Japanese and Korean PDF documents an external font
-pack must be downloaded and installed. Around 65MB of additional space are
+pack must be downloaded and installed. Around 65MB of additional space is
 required in your Memory Stick.
 
 1) Download the file named cjk-fonts-1.zip from the following URL:
-xxxxxxxxxxxx
+http://sourceforge.net/project/showfiles.php?group_id=149290&package_id=200753
 
 2) Create the following folder in your Memory Stick, where X: is the drive unit
 where your PSP is mounted:
@@ -93,13 +93,13 @@ Bookr 0.7.1 - xx xx 2006
 - Added single line scroll for the analog pad in the text viewer.
 - Bookr will now try to block images from loading in PDF files when it is
 runing low on memory.
-- Fixed many memory leaks in the image loader for PDF files. Bookr should now
-be able to load and display PDF files with more images than before.
+- Fixed many memory leaks in the image loader for PDF files. Bookr can load
+and display PDF files with more images than before.
 - Fixed memory leaks releasing the PDF viewer singleton.
 - Restored full page scroll with cursor buttons.
 - Fixed font corruption for large font sizes in the text viewer.
 - Fixed page positions in the text viewer after changing the font size and/or
-font rotation. Boormarks for text files are not compatible with older
+font rotation. Bookmarks for text files are not compatible with older
 releases.
 
 Bookr 0.7.0 - April 9th 2006
