@@ -66,6 +66,7 @@ runing low on memory.
 - Fixed many memory leaks in the image loader for PDF files. Bookr should now
 be able to load and display PDF files with more images than before.
 - Fixed memory leaks releasing the PDF viewer singleton.
+- Restored full page scroll with cursor buttons.
 - Fixed font corruption for large font sizes in the text viewer.
 - Fixed page positions in the text viewer after changing the font size and/or
 font rotation. Boormarks for text files are not compatible with older

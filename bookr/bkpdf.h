@@ -42,6 +42,7 @@ class BKPDF : public BKDocument {
 	void panBuffer(int nx, int ny);
 	void clipCoords(float& nx, float& ny);
 	void redrawBuffer();
+	int prePan(int x, int y);
 
 	string title;
 

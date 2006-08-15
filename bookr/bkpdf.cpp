@@ -932,15 +932,7 @@ void BKPDF::getFileName(string& s) {
 	s = fileName;
 }
 
-int BKPDF::pan(int x, int y) {
-	if (x > -32 && x < 32)
-		x = 0;
-	if (y > -32 && y < 32)
-		y = 0;
-	if (x == 0 && y == 0)
-		return 0;
-	x >>= 2;
-	y >>= 2;
+int BKPDF::prePan(int x, int y) {
 	float nx = float(panX + x);
 	float ny = float(panY + y);
 	clipCoords(nx, ny);
@@ -950,20 +942,32 @@ int BKPDF::pan(int x, int y) {
 	return BK_CMD_MARK_DIRTY;
 }
 
+int BKPDF::pan(int x, int y) {
+	if (x > -32 && x < 32)
+		x = 0;
+	if (y > -32 && y < 32)
+		y = 0;
+	if (x == 0 && y == 0)
+		return 0;
+	x >>= 2;
+	y >>= 2;
+	return prePan(x, y);
+}
+
 int BKPDF::screenUp() {
-	return pan(0, -250);
+	return prePan(0, -250);
 }
 
 int BKPDF::screenDown() {
-	return pan(0, 250);
+	return prePan(0, 250);
 }
 
 int BKPDF::screenLeft() {
-	return pan(-460, 0);
+	return prePan(-460, 0);
 }
 
 int BKPDF::screenRight() {
-	return pan(460, 0);
+	return prePan(460, 0);
 }
 
 void BKPDF::renderContent() {
