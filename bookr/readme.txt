@@ -11,8 +11,37 @@ Public License v2. At the moment it supports plain text and PDF files.
 Install
 =======
 You need a Sony PSP with firmware version 1.5. Other firmware versions are not
-supported. To install simply copy the bookr/ and bookr%/ folders to your Memory
-Stick /PSP/GAME folder.
+supported. To install simply copy the __SCE__bookr and %__SCE__bookr folders
+to your Memory Stick \PSP\GAME folder.
+
+
+Optional CJK PDF Support
+========================
+In order to support Chinese, Japanese and Korean PDF documents an external font
+pack must be downloaded and installed. Around 65MB of additional space are
+required in your Memory Stick.
+
+1) Download the file named cjk-fonts-1.zip from the following URL:
+xxxxxxxxxxxx
+
+2) Create the following folder in your Memory Stick, where X: is the drive unit
+where your PSP is mounted:
+X:\PSP\GAME\__SCE__bookr\fonts
+
+3) Extract the contents of the cjk-fonts-1.zip file into the folder. The final
+file structure must look like this:
+X:\PSP\GAME\__SCE__bookr\fonts\Adobe-CNS1-UCS2
+X:\PSP\GAME\__SCE__bookr\fonts\Adobe-GB1-UCS2
+X:\PSP\GAME\__SCE__bookr\fonts\Adobe-Japan1-UCS2
+X:\PSP\GAME\__SCE__bookr\fonts\Adobe-Korea1-UCS2
+X:\PSP\GAME\__SCE__bookr\fonts\batang.ttf
+X:\PSP\GAME\__SCE__bookr\fonts\bkai00mp.ttf
+X:\PSP\GAME\__SCE__bookr\fonts\bsmi00lp.ttf
+X:\PSP\GAME\__SCE__bookr\fonts\dotum.ttf
+X:\PSP\GAME\__SCE__bookr\fonts\gbsn00lp.ttf
+X:\PSP\GAME\__SCE__bookr\fonts\gkai00mp.ttf
+X:\PSP\GAME\__SCE__bookr\fonts\kochi-gothic.ttf
+X:\PSP\GAME\__SCE__bookr\fonts\kochi-mincho.ttf
 
 
 Acknowledgments
@@ -59,7 +88,7 @@ Changelog
 
 Bookr 0.7.1 - xx xx 2006
 ============================
-- Added support for PDF files with CJK fonts xxx EXPLAIN xxx
+- Added support for PDF files with Chinese, Japanese and Korean text.
 - Added a memory usage counter.
 - Added single line scroll for the analog pad in the text viewer.
 - Bookr will now try to block images from loading in PDF files when it is
