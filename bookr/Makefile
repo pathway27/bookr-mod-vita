@@ -51,3 +51,8 @@ res_logo.c: data/logo.png
 	sed s/static// temp > $@
 	rm -f temp
 
+sce: kxploit
+	rm -Rf __SCE__bookr
+	rm -Rf __SCE__bookr%
+	mv bookr __SCE__bookr
+	mv bookr% %__SCE__bookr
