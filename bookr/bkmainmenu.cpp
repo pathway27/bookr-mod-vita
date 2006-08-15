@@ -311,7 +311,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		if (selItem == 1) {
 			BKUser::options.pdfFastScroll = !BKUser::options.pdfFastScroll;
 			buildOptionMenu();
-			popupText = "Fast images will cause instability with many PDF files.\nWhen reporting a bug make it very clear if you were using\nfast images or not. Also try the same file without fast images\nmode before reporting a bug.";
+			popupText = "Fast images will cause instability with many PDF files.\nWhen reporting a bug make it very clear if you were using\nfast images or not. Also try the same file without fast\nimages mode before reporting a bug.";
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
 		}
