@@ -68,6 +68,7 @@ class BKFancyText : public BKDocument {
 	int maxY;
 	FZFont* font;
 	int rotation;
+	int lastFontSize;
 
 	int linesPerPage;
 	int totalPages;
@@ -82,6 +83,9 @@ class BKFancyText : public BKDocument {
 	void resizeView(int widht, int height);
 	void resetFonts();
 	int setLine(int l);
+	int runForLine(int l);
+	int lineForRun(int r);
+
 
 	// a lot of ebook formats use HTML as a display format, on top of a
 	// container format. so it makes sense to put the parser/tokenizer in

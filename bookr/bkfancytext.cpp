@@ -21,7 +21,9 @@
 using namespace std;
 #include "bkfancytext.h"
 
-BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0) { }
+BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0) {
+	lastFontSize = BKUser::options.txtSize;
+}
 BKFancyText::~BKFancyText() {
 	if (runs)
 		delete[] runs;
@@ -393,6 +395,8 @@ void BKFancyText::resetFonts() {
 }
 
 int BKFancyText::updateContent() {
+	if (lastFontSize != BKUser::options.txtSize)
+		return BK_CMD_RELOAD;
 	return 0;
 }
 
@@ -456,6 +460,20 @@ int BKFancyText::setLine(int l) {
 	return oldTL != topLine ? BK_CMD_MARK_DIRTY : 0;
 }
 
+int BKFancyText::runForLine(int l) {
+	if (l >= nLines || l < 0)
+		return 0;
+	return lines[l].firstRun;
+}
+
+int BKFancyText::lineForRun(int r) {
+	int l = 0;
+	for (; l < nLines; l++) {
+		if (lines[l].firstRun >= r)
+			break;
+	}
+	return l;
+}
 
 bool BKFancyText::isPaginated() {
 	return true;
@@ -515,14 +533,18 @@ int BKFancyText::setRotation(int r) {
 	if (r == rotation)
 		return 0;
 	rotation = r;
+	int run = runForLine(topLine);
 	if (rotation < 0)
 		rotation = 3;
 	if (rotation >= 4)
 		rotation = 0;
-	if (rotation == 0 || rotation == 2)
+	if (rotation == 0 || rotation == 2) {
 		resizeView(480, 272);
-	else
+		setLine(lineForRun(run));
+	} else {
 		resizeView(272, 480);
+		setLine(lineForRun(run));
+	}
 	return BK_CMD_MARK_DIRTY;
 }
 
@@ -531,16 +553,14 @@ bool BKFancyText::isBookmarkable() {
 }
 
 void BKFancyText::getBookmarkPosition(map<string, int>& m) {
-	//m["topLineFirstRun"] = lines[topLine].firstRun;
-	m["topLine"] = topLine;
+	m["topLineFirstRun"] = runForLine(topLine);
 	m["zoom"] = 0;
 	m["rotation"] = rotation;
 }
 
 int BKFancyText::setBookmarkPosition(map<string, int>& m) {
-	setLine(m["topLine"]);
-	//setZoomLevel(m["zoom"]);
 	setRotation(m["rotation"]);
+	setLine(lineForRun(m["topLineFirstRun"]));
 	return BK_CMD_MARK_DIRTY;
 }
 

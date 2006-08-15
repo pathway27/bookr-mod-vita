@@ -57,17 +57,19 @@ http://sourceforge.net/tracker/?group_id=149290&atid=774198
 Changelog
 =========
 
-Bookr 0.x.x - xx xx 200x
+Bookr 0.7.1 - xx xx 2006
 ============================
 - Added support for PDF files with CJK fonts xxx EXPLAIN xxx
-- Added a memory counter
-- Bookr will now try to block images from loading when it is runing
-low on memory.
-- Fixed many memory leaks in the image loader for PDF files. Bookr
-should now be able to load and display PDF files with more and larger
-images than before.
-- Fixed font corruption for large font sizes in the text viewer.
+- Added a memory usage counter.
+- Bookr will now try to block images from loading in PDF files when it is
+runing low on memory.
+- Fixed many memory leaks in the image loader for PDF files. Bookr should now
+be able to load and display PDF files with more images than before.
 - Fixed memory leaks releasing the PDF viewer singleton.
+- Fixed font corruption for large font sizes in the text viewer.
+- Fixed page positions in the text viewer after changing the font size and/or
+font rotation. Boormarks for text files are not compatible with older
+releases.
 
 Bookr 0.7.0 - April 9th 2006
 ============================
