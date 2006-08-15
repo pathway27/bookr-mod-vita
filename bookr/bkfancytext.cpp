@@ -21,7 +21,7 @@
 using namespace std;
 #include "bkfancytext.h"
 
-BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0) {
+BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0), holdScroll(false) {
 	lastFontSize = BKUser::options.txtSize;
 }
 BKFancyText::~BKFancyText() {
@@ -499,10 +499,15 @@ int BKFancyText::setCurrentPage(int p) {
 int BKFancyText::pan(int x, int y) {
 	if (y > -32 && y < 32)
 		y = 0;
-	if (y == 0)
+	if (y == 0) {
+		holdScroll = false;
 		return 0;
-	y >>= 6;
-	return setLine(topLine + y);
+	}
+	if (y != 0 && !holdScroll) {
+		holdScroll = true;
+		return setLine(topLine + ((y < 0) ? -1 : 1));
+	}
+	return 0;
 }
 
 int BKFancyText::screenUp() {

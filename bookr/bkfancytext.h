@@ -86,6 +86,7 @@ class BKFancyText : public BKDocument {
 	int runForLine(int l);
 	int lineForRun(int r);
 
+	bool holdScroll;
 
 	// a lot of ebook formats use HTML as a display format, on top of a
 	// container format. so it makes sense to put the parser/tokenizer in

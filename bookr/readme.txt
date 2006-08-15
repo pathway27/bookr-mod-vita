@@ -61,6 +61,7 @@ Bookr 0.7.1 - xx xx 2006
 ============================
 - Added support for PDF files with CJK fonts xxx EXPLAIN xxx
 - Added a memory usage counter.
+- Added single line scroll for the analog pad in the text viewer.
 - Bookr will now try to block images from loading in PDF files when it is
 runing low on memory.
 - Fixed many memory leaks in the image loader for PDF files. Bookr should now
