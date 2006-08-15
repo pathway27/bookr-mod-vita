@@ -86,7 +86,7 @@ http://sourceforge.net/tracker/?group_id=149290&atid=774198
 Changelog
 =========
 
-Bookr 0.7.1 - xx xx 2006
+Bookr 0.7.1 - August 16th 2006
 ============================
 - Added support for PDF files with Chinese, Japanese and Korean text.
 - Added a memory usage counter.
