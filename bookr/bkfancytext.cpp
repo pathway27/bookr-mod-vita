@@ -23,6 +23,9 @@ using namespace std;
 
 BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0), holdScroll(false) {
 	lastFontSize = BKUser::options.txtSize;
+	lastFontFace = BKUser::options.txtFont;
+	lastHeightPct = BKUser::options.txtHeightPct;
+	lastWrapCR = BKUser::options.txtWrapCR;
 }
 BKFancyText::~BKFancyText() {
 	if (runs)
@@ -153,7 +156,7 @@ void BKFancyText::reflow(int width) {
 
 void BKFancyText::resizeView(int width, int height) {
 	reflow(width - 10 - 10);
-	linesPerPage = (height - 10) / font->getLineHeight();
+	linesPerPage = (height - 10) / (font->getLineHeight()*(BKUser::options.txtHeightPct/100.0));
 	maxY = height - 10;
 	totalPages = (nLines / linesPerPage) + 1;
 }
@@ -343,13 +346,41 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 	list<BKRun> tempRuns;
 	int li = 0;
 	BKRun run;
+	int lastbreak = 0;
 	for (int i = 0; i < length; ++i) {
 		if (b[i] == 10) {
-			run.text = &b[li];
-			run.n = i - li;
-			li = i;
-			run.lineBreak = true;
-			tempRuns.push_back(run);
+			bool bBreak = true;
+			if( BKUser::options.txtWrapCR > 0 )
+			{
+//				if( i-lastbreak < 100 )
+//				{
+//					b[i] = 'X';
+//					bBreak = false;
+//				} else
+//					lastbreak = i;
+				bBreak = true;
+				for( int j = 1 ; j <= BKUser::options.txtWrapCR+1 ; j++ )
+				{
+					if( i+j >= length || b[i+j] != 10 )
+						bBreak = false;
+				}
+				if( !bBreak )
+				{
+					for( int j = 1 ; j <= BKUser::options.txtWrapCR+1 ; j++ )
+					{
+						if( i+j < length && b[i+j] == 10 )
+							b[i+j] = 32;
+					}
+				}
+			}
+			if( bBreak )
+			{
+				run.text = &b[li];
+				run.n = i - li;
+				li = i;
+				run.lineBreak = true;
+				tempRuns.push_back(run);
+			}
 		}
 	}
 	// last run
@@ -395,7 +426,10 @@ void BKFancyText::resetFonts() {
 }
 
 int BKFancyText::updateContent() {
-	if (lastFontSize != BKUser::options.txtSize)
+	if (lastFontSize != BKUser::options.txtSize
+	 || lastFontFace != BKUser::options.txtFont 
+	 || lastHeightPct != BKUser::options.txtHeightPct // should be able to just resize view here
+	 || lastWrapCR != BKUser::options.txtWrapCR )
 		return BK_CMD_RELOAD;
 	return 0;
 }
@@ -435,7 +469,7 @@ void BKFancyText::renderContent() {
 			++run;
 		} while (n > 0);
 		//y += lines[i].vSpace;
-		y += font->getLineHeight();
+		y += font->getLineHeight()*(BKUser::options.txtHeightPct/100.0);
 		//if (y > maxY)
 		//	break;
 	}
@@ -534,8 +568,8 @@ int BKFancyText::getRotation() {
 	return rotation;
 }
 
-int BKFancyText::setRotation(int r) {
-	if (r == rotation)
+int BKFancyText::setRotation(int r, bool bForce) {
+	if (r == rotation && !bForce)
 		return 0;
 	rotation = r;
 	int run = runForLine(topLine);

@@ -30,6 +30,9 @@
 #include "fzscreen.h"
 #include "fztexture.h"
 
+#include "bkdocument.h"
+extern BKDocument* documentLayer;
+
 FZScreen::FZScreen() {
 }
 
@@ -51,6 +54,9 @@ static unsigned int* list;
 
 /* Exit callback */
 int exit_callback(int arg1, int arg2, void *common) {
+//		if( documentLayer )
+//			delete documentLayer;
+
         sceKernelExitGame();
         return 0;
 }
@@ -410,6 +416,10 @@ void FZScreen::setSpeed(int v) {
 		return;
 	scePowerSetCpuClockFrequency(speedValues[v*2]);
 	scePowerSetBusClockFrequency(speedValues[v*2+1]);
+}
+
+int FZScreen::getSpeed() {
+	return scePowerGetCpuClockFrequency();
 }
 
 void FZScreen::getTime(int &h, int &m) {

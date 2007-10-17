@@ -60,10 +60,15 @@ class BKUser {
 		int txtBGColor;
 		bool txtJustify;
 		int pspSpeed;
+		int pspMenuSpeed;
 		bool displayLabels;
 		bool pdfInvertColors;
 		int pdfBGColor;
 		string lastFolder;
+		string lastFontFolder;
+		int txtHeightPct;
+		bool loadLastFile;
+		int txtWrapCR;
 	};
 	static Options options;
 };

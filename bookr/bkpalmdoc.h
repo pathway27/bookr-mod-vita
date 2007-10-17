@@ -29,6 +29,7 @@ using namespace std;
 class BKPalmDoc : public BKFancyText {
 	private:
 	string fileName;
+	string title;
 	char* buffer;
 
 	protected:

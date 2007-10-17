@@ -143,7 +143,7 @@ int palmdoc_is_palmdoc(char const *src_file_name) {
 	return 1;
 }
 
-char* palmdoc_decode(char const *src_file_name, int* length, int* isMobi) {
+char* palmdoc_decode(char const *src_file_name, int* length, int* isMobi, char* title) {
 	buffer		buf;
 	int		compression, doc_size;
 	DWord		file_size, offset, rec_size;
@@ -184,6 +184,9 @@ char* palmdoc_decode(char const *src_file_name, int* length, int* isMobi) {
 	} else {
 		*isMobi = 0;
 	}
+
+	if( title )
+		strncpy(title,header.name,dmDBNameLength);
 
 	num_records = ntohs( header.recordList.numRecords ) - 1; /* w/o rec 0 */
 

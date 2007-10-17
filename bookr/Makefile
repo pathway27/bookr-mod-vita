@@ -1,22 +1,25 @@
 # to fix: compile manually the mupdf libs first...
 # cd mupdf; make
 
+PSP_FW_VERSION = 150
+PSP_FW_VERSION = 371 
+BUILD_PRX = 1 
 PSP_EBOOT_ICON=data/icon0.png
 TARGET=bookr
-OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o
+OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o 
 OBJS+=bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
-OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
-OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o bkmemcpy.S
+OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o bkmemcpy.S
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o 
 
 INCDIR =
-CFLAGS = -Imupdf/include -G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
+CFLAGS = -Imupdf/include -Idjvu/libdjvupsp -G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
 LIBDIR =
 LDFLAGS =
-LIBS=-Lmupdf/libs -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgum -lpspgu -lpsppower -lpsprtc -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
+LIBS=-Lmupdf/libs -Ldjvu/libs -ldjvulibre -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgum -lpspgu -lpsppower -lpsprtc -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
 
 
 EXTRA_TARGETS = EBOOT.PBP

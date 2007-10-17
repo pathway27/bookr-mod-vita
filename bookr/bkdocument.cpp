@@ -19,6 +19,7 @@
 
 #include "bkdocument.h"
 #include "bkpdf.h"
+#include "bkdjvu.h"
 #include "bkpalmdoc.h"
 #include "bkplaintext.h"
 
@@ -26,19 +27,24 @@ BKDocument* BKDocument::create(string& filePath) {
 	BKDocument* doc = 0;
 	if (BKPDF::isPDF(filePath)) {
 		doc = BKPDF::create(filePath);
+	} else if (BKDJVU::isDJVU(filePath)) {
+		doc = BKDJVU::create(filePath);
 	} else if (BKPalmDoc::isPalmDoc(filePath)) {
 		doc = BKPalmDoc::create(filePath);
 	} else {
 		doc = BKPlainText::create(filePath);
 	}
 	if (doc != 0)
+	{
 		doc->buildToolbarMenus();
-	if (doc->isBookmarkable()) {
-		BKBookmark b;
-		string fn;
-		doc->getFileName(fn);
-		if (BKBookmarksManager::getLastView(fn, b)) {
-			doc->setBookmarkPosition(b.viewData);
+
+		if (doc->isBookmarkable()) {
+			BKBookmark b;
+			string fn;
+			doc->getFileName(fn);
+			if (BKBookmarksManager::getLastView(fn, b)) {
+				doc->setBookmarkPosition(b.viewData);
+			}
 		}
 	}
 	return doc;
@@ -63,6 +69,7 @@ void BKDocument::saveLastView() {
 		b.lastView = true;
 		getBookmarkPosition(b.viewData);
 		BKBookmarksManager::addBookmark(fn, b);
+		BKBookmarksManager::setLastFile(fn);
 	}
 }
 
@@ -305,12 +312,12 @@ void BKDocument::buildToolbarMenus() {
 		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
 
-		/*i.label = "Go to page";
+		i.label = "Go to page";
 		i.iconX = 0;
 		i.iconY = 53;
 		i.iconW = 18;
 		i.iconH = 26;
-		toolbarMenus[1].push_back(i);*/
+		toolbarMenus[1].push_back(i);
 	} else {
 		ToolbarItem i;
 		i.label = "No pagination support";
@@ -434,7 +441,7 @@ int BKDocument::processEventsForToolbar() {
 		}
 	}
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[FZ_REPS_CROSS] == 1) {
 		// add bookmark
 		if (toolbarSelMenu == 0 && toolbarSelMenuItem == 0 && isBookmarkable()) {
 			string fn, t;
@@ -485,7 +492,7 @@ int BKDocument::processEventsForToolbar() {
 		}
 		// go to page
 		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 4 && isPaginated()) {
-			// ...
+			return BK_CMD_INVOKE_PAGE_CHOOSER;
 		}
 		int zi = 3;
 		int zo = 2;
@@ -528,17 +535,21 @@ int BKDocument::processEventsForToolbar() {
 
 		// rotate cw
 		if (toolbarSelMenu == 3 && toolbarSelMenuItem == 0 && isRotable()) {
+			FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 			int z = getRotation();
 			z++;
 			int r = setRotation(z);
+			FZScreen::setSpeed(BKUser::options.pspSpeed);
 			if (r != 0)
 				return r;
 		}
 		// rotate ccw
 		if (toolbarSelMenu == 3 && toolbarSelMenuItem == 1 && isRotable()) {
+			FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 			int z = getRotation();
 			z--;
 			int r = setRotation(z);
+			FZScreen::setSpeed(BKUser::options.pspSpeed);
 			if (r != 0)
 				return r;
 		}
@@ -673,10 +684,10 @@ void BKDocument::render() {
 	FZScreen::ambientColor(0xffcccccc);
 	int tw = textW((char*)it.circleLabel.c_str(), fontBig);
 	if (it.circleLabel.size() > 0) {
-		drawImage(480 - tw - 65, 248, 20, 20, 31, 70);
+		drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
 	}
 	if (it.triangleLabel.size() > 0) {
-		drawImage(37, 248, 20, 18, 9, 53);
+		drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
 	}
 
 	// icon bar

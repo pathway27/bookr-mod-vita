@@ -69,6 +69,9 @@ class BKFancyText : public BKDocument {
 	FZFont* font;
 	int rotation;
 	int lastFontSize;
+	string lastFontFace;
+	int	lastHeightPct;
+	int lastWrapCR;
 
 	int linesPerPage;
 	int totalPages;
@@ -127,7 +130,7 @@ class BKFancyText : public BKDocument {
 
 	virtual bool isRotable();
 	virtual int getRotation();
-	virtual int setRotation(int);
+	virtual int setRotation(int, bool bForce=false);
 
 	virtual bool isBookmarkable();
 	virtual void getBookmarkPosition(map<string, int>&);

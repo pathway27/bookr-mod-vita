@@ -890,7 +890,7 @@ int BKPDF::getRotation() {
 	return ctx->rotateLevel;
 }
 
-int BKPDF::setRotation(int z) {
+int BKPDF::setRotation(int z, bool bForce) {
 	if (z == ctx->rotateLevel)
 		return 0;
 	int n = 4;
@@ -1263,6 +1263,8 @@ bool BKPDF::isPDF(string& file) {
 	char header[4];
 	memset((void*)header, 0, 4);
 	FILE* f = fopen(file.c_str(), "r");
+	if( !f )
+		return false;
 	fread(header, 4, 1, f);
 	fclose(f);
 	return header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46;

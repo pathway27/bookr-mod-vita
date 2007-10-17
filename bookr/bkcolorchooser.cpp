@@ -105,10 +105,10 @@ int BKColorChooser::update(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 	}
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[FZ_REPS_CIRCLE] == 1) {
 		return ret;
 	}
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[FZ_REPS_CROSS] == 1) {
 		hueMode = !hueMode;
 		return BK_CMD_MARK_DIRTY;
 	}

@@ -38,6 +38,7 @@
 			...
 		</bookmark>
 	</file>
+	<lastfile filename=""/>
 </bookmarks>
 
 */
@@ -112,6 +113,14 @@ static TiXmlNode* fileNode(string& filename) {
 	return 0;
 }
 
+static TiXmlElement* lastFileNode() {
+	if (doc == 0)
+		loadXML();
+	TiXmlElement* root = doc->RootElement();
+	TiXmlElement* file = root->FirstChildElement("lastfile");
+	return file;
+}
+
 static TiXmlNode* loadOrAddFileNode(string& filename) {
 	if (doc == 0)
 		loadXML();
@@ -145,6 +154,29 @@ static void loadBookmark(TiXmlNode* _bn, BKBookmark& b) {
 		b.viewData.insert(pair<string, int>(key, value));
 		vd = vd->NextSiblingElement("viewdata");
 	}
+}
+
+// find the last read bookmark for a given file
+string BKBookmarksManager::getLastFile() {
+	TiXmlElement* file = lastFileNode();
+	if (file == 0)
+		return string();
+	return file->Attribute("filename");
+}
+
+// save last use file
+void BKBookmarksManager::setLastFile(string& filename) {
+	TiXmlElement* file = lastFileNode();
+	if (file != 0)
+	{
+		file->SetAttribute("filename", filename.c_str());
+	} else {
+		TiXmlElement* root = doc->RootElement();
+		TiXmlElement efile("lastfile");
+		efile.SetAttribute("filename", filename.c_str());
+		root->InsertEndChild(efile);
+	}
+	saveXML();
 }
 
 // find the last read bookmark for a given file

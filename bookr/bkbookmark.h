@@ -47,6 +47,11 @@ class BKBookmarksManager {
 	#define BOOKMARK_XML_BASE "%s/%s"
 
 	public:
+	
+	// find the last file used
+	static string getLastFile();
+	static void	setLastFile( string& filename );
+
 	// find the last read bookmark for a given file
 	static bool getLastView(string& filename, BKBookmark&);
 	// load all the bookmarks for a given file

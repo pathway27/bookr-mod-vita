@@ -51,14 +51,19 @@ void BKUser::setDefaultOptions() {
 	options.txtRotation = 0;
 	options.txtFont = "bookr:builtin";
 	options.txtSize = 11;
+	options.txtHeightPct = 100;
 	options.txtFGColor = 0;
 	options.txtBGColor = 0xffffff;
 	options.txtJustify = true;
 	options.pspSpeed = 0;
+	options.pspMenuSpeed = 0;
 	options.displayLabels = true;
 	options.pdfInvertColors = false;
 	options.pdfBGColor = 0x505050;
 	options.lastFolder = FZScreen::basePath();
+	options.lastFontFolder = FZScreen::basePath();
+	options.loadLastFile = false;
+	options.txtWrapCR = 0;
 }
 
 void BKUser::save() {
@@ -93,14 +98,19 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"txtRotation\" value=\"%d\" />\n", options.txtRotation);
 	fprintf(f, "\t\t<set option=\"txtFont\" value=\"%s\" />\n", options.txtFont.c_str());
 	fprintf(f, "\t\t<set option=\"txtSize\" value=\"%d\" />\n", options.txtSize);
+	fprintf(f, "\t\t<set option=\"txtHeightPct\" value=\"%d\" />\n", options.txtHeightPct);
 	fprintf(f, "\t\t<set option=\"txtFGColor\" value=\"%d\" />\n", options.txtFGColor);
 	fprintf(f, "\t\t<set option=\"txtBGColor\" value=\"%d\" />\n", options.txtBGColor);
 	fprintf(f, "\t\t<set option=\"txtJustify\" value=\"%d\" />\n", options.txtJustify ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pspSpeed\" value=\"%d\" />\n", options.pspSpeed);
+	fprintf(f, "\t\t<set option=\"pspMenuSpeed\" value=\"%d\" />\n", options.pspMenuSpeed);
 	fprintf(f, "\t\t<set option=\"displayLabels\" value=\"%d\" />\n", options.displayLabels ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pdfInvertColors\" value=\"%d\" />\n", options.pdfInvertColors ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pdfBGColor\" value=\"%d\" />\n", options.pdfBGColor);
 	fprintf(f, "\t\t<set option=\"lastFolder\" value=\"%s\" />\n", options.lastFolder.c_str());
+	fprintf(f, "\t\t<set option=\"lastFontFolder\" value=\"%s\" />\n", options.lastFontFolder.c_str());
+	fprintf(f, "\t\t<set option=\"loadLastFile\" value=\"%d\" />\n", options.loadLastFile ? 1 : 0);
+	fprintf(f, "\t\t<set option=\"txtWrapCR\" value=\"%d\" />\n", options.txtWrapCR);
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -166,14 +176,19 @@ void BKUser::load() {
 			else if (strncmp(option, "txtRotation",     128) == 0) options.txtRotation     = atoi(value);
 			else if (strncmp(option, "txtFont",         128) == 0) options.txtFont         = value;
 			else if (strncmp(option, "txtSize",         128) == 0) options.txtSize         = atoi(value);
+			else if (strncmp(option, "txtHeightPct",    128) == 0) options.txtHeightPct    = atoi(value);
 			else if (strncmp(option, "txtFGColor",      128) == 0) options.txtFGColor      = atoi(value);
 			else if (strncmp(option, "txtBGColor",      128) == 0) options.txtBGColor      = atoi(value);
 			else if (strncmp(option, "txtJustify",      128) == 0) options.txtJustify      = atoi(value) != 0;
 			else if (strncmp(option, "pspSpeed",        128) == 0) options.pspSpeed        = atoi(value);
+			else if (strncmp(option, "pspMenuSpeed",    128) == 0) options.pspMenuSpeed    = atoi(value);
 			else if (strncmp(option, "displayLabels",   128) == 0) options.displayLabels   = atoi(value) != 0;
 			else if (strncmp(option, "pdfInvertColors", 128) == 0) options.pdfInvertColors = atoi(value) != 0;
 			else if (strncmp(option, "pdfBGColor",      128) == 0) options.pdfBGColor      = atoi(value);
 			else if (strncmp(option, "lastFolder",      128) == 0) options.lastFolder      = value;
+			else if (strncmp(option, "lastFontFolder",  128) == 0) options.lastFontFolder  = value;
+			else if (strncmp(option, "loadLastFile",    128) == 0) options.loadLastFile    = atoi(value) != 0;
+			else if (strncmp(option, "txtWrapCR",       128) == 0) options.txtWrapCR       = atoi(value);
 	
 			eset = eset->NextSiblingElement("set"); 
 		}
@@ -190,8 +205,12 @@ void BKUser::load() {
 		options.txtRotation = 0;
 		operror = true;
 	}
-	if (options.txtSize < 6 && options.txtSize > 20) {
+	if (options.txtSize < 6 || options.txtSize > 20) {
 		options.txtSize = 11;
+		operror = true;
+	}
+	if (options.txtHeightPct < 50 || options.txtHeightPct > 150) {
+		options.txtHeightPct = 100;
 		operror = true;
 	}
 	if ((options.txtFGColor & 0xff000000) != 0) {
@@ -208,6 +227,10 @@ void BKUser::load() {
 	}
 	if (options.pspSpeed < 0 || options.pspSpeed > 6) {
 		options.pspSpeed = 0;
+		operror = true;
+	}
+	if (options.pspMenuSpeed < 0 || options.pspMenuSpeed > 6) {
+		options.pspMenuSpeed = 0;
 		operror = true;
 	}
 	if (operror)

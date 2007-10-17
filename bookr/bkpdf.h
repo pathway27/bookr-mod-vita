@@ -81,7 +81,7 @@ class BKPDF : public BKDocument {
 
 	virtual bool isRotable();
 	virtual int getRotation();
-	virtual int setRotation(int);
+	virtual int setRotation(int, bool bForce=false);
 
 	virtual bool isBookmarkable();
 	virtual void getBookmarkPosition(map<string, int>&);

@@ -266,6 +266,7 @@ public:
 	static char* speedLabels[];
 	static int speedValues[];
 	static void setSpeed(int v);
+	static int getSpeed();
 
 	static void getTime(int &h, int &m);
 	static int getBattery();

@@ -69,7 +69,8 @@ class BKDocument : public BKLayer {
 	protected:
 	BKDocument();
 	virtual void saveLastView();
-	~BKDocument();
+	public:
+	virtual ~BKDocument();
 
 	public:
 	// BKLayer::update is implemented outside the document viewers.
@@ -138,7 +139,7 @@ class BKDocument : public BKLayer {
 	// Rotation (0 = 0deg, 1 = 90deg, 2 = 180deg, 3 = 240deg)
 	virtual bool isRotable() = 0;
 	virtual int getRotation() = 0;
-	virtual int setRotation(int) = 0;
+	virtual int setRotation(int, bool bForce=false) = 0;
 
 	// Bookmark support. The returned map is a black box
 	// for the bookmarking system.

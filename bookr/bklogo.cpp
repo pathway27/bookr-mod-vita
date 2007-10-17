@@ -59,7 +59,7 @@ void BKLogo::render() {
 	drawPill(150, 240, 180, 20, 6, 31, 1);
 	fontBig->bindForDisplay();
 	FZScreen::ambientColor(0xff000000);
-	drawTextHC("Version 0.7.1", fontBig, 180);
+	drawTextHC("Version 0.7.1 FG-PSM-DJVU", fontBig, 180);
 	FZScreen::ambientColor(0xffffffff);
 	if (loading)
 		drawTextHC("Loading...", fontBig, 244);
@@ -75,6 +75,8 @@ void BKLogo::render() {
 		FZScreen::ambientColor(0xffffffff);
 		drawTextHC("Press Start", fontBig, 244);
 	}
+	string e;
+	drawClockAndBattery(e);
 }
 
 BKLogo* BKLogo::create() {

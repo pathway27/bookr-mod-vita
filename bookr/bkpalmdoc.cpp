@@ -36,12 +36,15 @@ BKPalmDoc* BKPalmDoc::create(string& file) {
 	r->fileName = file;
 	int length = 0;
 	int isMobi = 0;
+	char ctitle[dmDBNameLength];
 
 	// convert file to plain text
-	char* b = palmdoc_decode(file.c_str(), &length, &isMobi);
+	char* b = palmdoc_decode(file.c_str(), &length, &isMobi, ctitle);
 	if (b == NULL) {
 		return 0;
 	}
+
+	r->title = ctitle;
 
 	if (isMobi) {
 		r->buffer = BKFancyText::parseHTML(r, b, length);
@@ -59,7 +62,7 @@ void BKPalmDoc::getFileName(string& fn) {
 }
 
 void BKPalmDoc::getTitle(string& t) {
-	t = "FIX PALMDOC TITLES";
+	t = title;
 }
 
 void BKPalmDoc::getType(string& t) {

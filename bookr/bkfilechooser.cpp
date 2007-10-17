@@ -24,7 +24,10 @@
 #include "bkuser.h"
 
 BKFileChooser::BKFileChooser(string& t, int r) : title(t), ret(r) {
-	path = BKUser::options.lastFolder;
+	if( r == BK_CMD_SET_FONT )
+		path = BKUser::options.lastFontFolder;
+	else
+		path = BKUser::options.lastFolder;
 	updateDirFiles();
 }
 
@@ -49,13 +52,16 @@ void BKFileChooser::updateDirFiles() {
 	}
 	if (dirFiles.size() == 0)
 		dirFiles.push_back(FZDirent("<Empty folder>", 0, 0));
-	BKUser::options.lastFolder = path;
+	if( ret == BK_CMD_SET_FONT )
+		BKUser::options.lastFontFolder = path;
+	else
+		BKUser::options.lastFolder = path;
 }
 
 int BKFileChooser::update(unsigned int buttons) {
 	menuCursorUpdate(buttons, (int)dirFiles.size());
 	int* b = FZScreen::ctrlReps();
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[FZ_REPS_CROSS] == 1) {
 		//printf("selected %s\n", dirFiles[selItem].name.c_str());
 		if (dirFiles[selItem].stat & FZ_STAT_IFDIR ) {
 			path += "/" + dirFiles[selItem].name;
@@ -83,7 +89,7 @@ int BKFileChooser::update(unsigned int buttons) {
 		topItem = 0;
 		updateDirFiles();
 	}
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[FZ_REPS_CIRCLE] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 	if (b[FZ_REPS_START] == 1) {

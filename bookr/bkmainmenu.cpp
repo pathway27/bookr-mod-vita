@@ -131,6 +131,10 @@ void BKMainMenu::buildOptionMenu() {
 	t = txt;
 	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
+	snprintf(txt, 1024, "Plain text - Line Height: %d Pct", BKUser::options.txtHeightPct);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+
 	t = "Plain text - Justify text: ";
 	t += BKUser::options.txtJustify ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
@@ -148,6 +152,9 @@ void BKMainMenu::buildOptionMenu() {
 	snprintf(txt, 1024, "CPU/Bus speed: %s", FZScreen::speedLabels[BKUser::options.pspSpeed]);
 	t = txt;
 	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	snprintf(txt, 1024, "Menu speed: %s", FZScreen::speedLabels[BKUser::options.pspMenuSpeed]);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
 	t = "Display page loading and numbering labels: ";
 	t += BKUser::options.displayLabels ? "Enabled" : "Disabled";
@@ -163,6 +170,14 @@ void BKMainMenu::buildOptionMenu() {
 	optionItems.push_back(mi);
 
 	optionItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
+
+	t = "Autoload last file: ";
+	t += BKUser::options.loadLastFile ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
+	snprintf(txt, 1024, "Plain text - Wrap CRs: %d", BKUser::options.txtWrapCR);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
@@ -184,7 +199,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[FZ_REPS_CROSS] == 1) {
 		if (selItem == 0) {
 			return BK_CMD_INVOKE_OPEN_FILE;
 		}
@@ -201,7 +216,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == 3) {
-			popupText = "Bookr - a document viewer for the Sony PSP.\nProgramming by Carlos and Edward.\nVisit http://bookr.sf.net for new versions.\nThis program is licensed under the terms of the GPL v2.\nUses the MuPDF library under the terms of the AFPL.";
+			popupText = "Bookr - a document viewer for the Sony PSP.\nProgramming by Carlos and Edward.\nVisit http://bookr.sf.net for new versions.\nThis program is licensed under the terms of the GPL v2.\nUses the MuPDF library under the terms of the AFPL.\nUses the GPL djvulibre library for psp ported by Yang.Hu.\nContains features added by Paul Murray.\nBuild by Francois Gurin (http://www.shot.org/psp/)";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
@@ -221,7 +236,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 		}
 	}
 
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[FZ_REPS_CIRCLE] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
@@ -271,7 +286,7 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[FZ_REPS_CROSS] == 1) {
 		if (selItem == 0) {
 			BKUser::setDefaultControls();
 			BKUser::save();
@@ -283,7 +298,7 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 		return BK_CMD_MARK_DIRTY;
 	}
 
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[FZ_REPS_CIRCLE] == 1) {
 		selItem = 0;
 		topItem = 0;
 		mode = BKMM_MAIN;
@@ -302,7 +317,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[FZ_REPS_CROSS] == 1) {
 		if (selItem == 0) {
 			BKUser::setDefaultOptions();
 			buildOptionMenu();
@@ -318,35 +333,40 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		if (selItem == 2) {
 			return BK_CMD_INVOKE_OPEN_FONT;
 		}
-		if (selItem == 4) {
+		if (selItem == 4+1) {
 			BKUser::options.txtJustify = !BKUser::options.txtJustify;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 5) {
+		if (selItem == 5+1) {
 			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG;
 		}
-		if (selItem == 6) {
+		if (selItem == 6+1) {
 			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG;
 		}
-		if (selItem == 8) {
+		if (selItem == 8+2) {
 			BKUser::options.displayLabels = !BKUser::options.displayLabels;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 9) {
+		if (selItem == 9+2) {
 			BKUser::options.pdfInvertColors = !BKUser::options.pdfInvertColors;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 10) {
+		if (selItem == 10+2) {
 			return BK_CMD_INVOKE_COLOR_CHOOSER_PDFBG;
 		}
-		if (selItem == 11) {
+		if (selItem == 11+2) {
 			BKBookmarksManager::clear();
 			popupText = "Bookmarks cleared.";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
+		}
+		if (selItem == 12+2) {
+			BKUser::options.loadLastFile = !BKUser::options.loadLastFile;
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY; //?
 		}
 		/*if (selItem == 2) {
 			if (BKUser::options.txtRotation == 0) {
@@ -372,7 +392,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 	}
 
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[FZ_REPS_CIRCLE] == 1) {
 		selItem = 0;
 		topItem = 0;
 		mode = BKMM_MAIN;
@@ -397,7 +417,15 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 7) {
+		} else if (selItem == 4) {
+			BKUser::options.txtHeightPct -= 5;
+			if (BKUser::options.txtHeightPct < 50) {
+				BKUser::options.txtHeightPct = 50;
+			} else {
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 7+1) {
 			--BKUser::options.pspSpeed;
 			if (BKUser::options.pspSpeed < 0) {
 				BKUser::options.pspSpeed = 0;
@@ -406,6 +434,26 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 					FZScreen::setSpeed(5);
 				else
 					FZScreen::setSpeed(BKUser::options.pspSpeed);
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 8+1) {
+			--BKUser::options.pspMenuSpeed;
+			if (BKUser::options.pspMenuSpeed < 0) {
+				BKUser::options.pspMenuSpeed = 0;
+			} else {
+//				if (BKUser::options.pspMenuSpeed == 0)
+//					FZScreen::setSpeed(5);
+//				else
+//					FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 13+2) {
+			--BKUser::options.txtWrapCR;
+			if (BKUser::options.txtWrapCR < 0) {
+				BKUser::options.txtWrapCR = 0;
+			} else {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
@@ -421,7 +469,15 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 7) {
+		} else if (selItem == 4) {
+			BKUser::options.txtHeightPct += 5;
+			if (BKUser::options.txtHeightPct > 150) {
+				BKUser::options.txtHeightPct = 150;
+			} else {
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 7+1) {
 			++BKUser::options.pspSpeed;
 			if (BKUser::options.pspSpeed > 6) {
 				BKUser::options.pspSpeed = 6;
@@ -430,6 +486,26 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 					FZScreen::setSpeed(5);
 				else
 					FZScreen::setSpeed(BKUser::options.pspSpeed);
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 8+1) {
+			++BKUser::options.pspMenuSpeed;
+			if (BKUser::options.pspMenuSpeed > 6) {
+				BKUser::options.pspMenuSpeed = 6;
+			} else {
+//				if (BKUser::options.pspMenuSpeed == 0)
+//					FZScreen::setSpeed(5);
+//				else
+//					FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
+				buildOptionMenu();
+			}
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == 13+2) {
+			++BKUser::options.txtWrapCR;
+			if (BKUser::options.txtWrapCR > 3) {
+				BKUser::options.txtWrapCR = 3;
+			} else {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;

@@ -21,6 +21,7 @@
 #include "bkdocument.h"
 #include "bkfilechooser.h"
 #include "bkcolorchooser.h"
+#include "bkpagechooser.h"
 #include "bkmainmenu.h"
 #include "bklogo.h"
 #include "bkpopup.h"
@@ -44,29 +45,87 @@ static bool isTTF(string& file) {
 	return header[0] == 0x0 && header[1] == 0x1 && header[2] == 0x0 && header[3] == 0x0;
 }
 
+BKDocument* documentLayer = 0;
+
+
 int main(int argc, char* argv[]) {
 	BKDocument* documentLayer = 0;
 	FZScreen::setupCallbacks();
 	FZScreen::open(argc, argv);
 	FZScreen::setupCtrl();
 	BKUser::init();
-	FZScreen::setSpeed(BKUser::options.pspSpeed);
+	FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 	FZ_DEBUG_SCREEN_INIT
 
 	BKLayer::load();
 	bkLayers layers;
 	BKFileChooser* fs = 0;
 	BKColorChooser* cs = 0;
+	BKPageChooser* ps = 0;
 	BKMainMenu* mm = BKMainMenu::create();
 	layers.push_back(BKLogo::create());
 	layers.push_back(mm);
 
 	FZScreen::dcacheWritebackAll();
 
+
+	if( BKUser::options.loadLastFile )
+	{
+		string s = BKBookmarksManager::getLastFile();
+		if( s.substr(0,5) == "ms0:/" )
+		{
+				// clear layers
+				bkLayersIt it(layers.begin());
+				bkLayersIt end(layers.end());
+				while (it != end) {
+					(*it)->release();
+					++it;
+				}
+				layers.clear();
+				// little hack to display a loading screen
+				BKLogo* l = BKLogo::create();
+				l->setLoading(true);
+				FZScreen::startDirectList();
+				l->render();
+				FZScreen::endAndDisplayList();
+				FZScreen::waitVblankStart();
+				FZScreen::swapBuffers();
+				FZScreen::checkEvents();
+				l->release();
+				// detect file type and add a new display layer
+				documentLayer = BKDocument::create(s);
+				if (documentLayer == 0) {
+					// error, back to logo screen
+					BKLogo* l = BKLogo::create();
+					l->setError(true);
+					layers.push_back(l);
+					FZScreen::swapBuffers();
+				} else {
+					// file loads ok, add the layer
+					layers.push_back(documentLayer);
+				}
+		}
+	}
+
+	FZScreen::setSpeed(BKUser::options.pspSpeed);
+
 	bool dirty = true;
+//	bool vdirty = true;
 	bool exitApp = false;
 	int reloadTimer = 0;
 	while (!exitApp) {
+//		if(vdirty) {
+//			FZScreen::startDirectList();
+//			// render layers back to front
+//			bkLayersIt it(layers.begin());
+//			bkLayersIt end(layers.end());
+//			while (it != end) {
+//				(*it)->update(0);
+//				(*it)->render();
+//				++it;
+//			}
+//			FZScreen::endAndDisplayList();
+//		} else 
 		if (dirty) {
 			FZScreen::startDirectList();
 			// render layers back to front
@@ -91,6 +150,7 @@ int main(int argc, char* argv[]) {
 
 		int buttons = FZScreen::readCtrl();
 		dirty = buttons != 0;
+//		vdirty = 0;
 
 		// the last layer always owns the input focus
 		bkLayersIt it(layers.end());
@@ -123,6 +183,9 @@ int main(int argc, char* argv[]) {
 					dirty = true;                                        
 				}
 			} break;
+			case BK_CMD_MARK_VERY_DIRTY:
+//				dirty = true;
+//				vdirty = true;
 			case BK_CMD_MARK_DIRTY:
 				dirty = true;
 			break;
@@ -138,11 +201,33 @@ int main(int argc, char* argv[]) {
 				fs = BKFileChooser::create(title, BK_CMD_SET_FONT);
 				layers.push_back(fs);
 			} break;
+			case BK_CMD_INVOKE_PAGE_CHOOSER: {
+				if (documentLayer && documentLayer->isPaginated()) {
+					ps = BKPageChooser::create(documentLayer->getTotalPages(), 
+							documentLayer->getCurrentPage(),
+							BK_CMD_OPEN_PAGE);
+					layers.push_back(ps);
+				}
+			} break;
+			case BK_CMD_OPEN_PAGE: {
+				if (documentLayer && documentLayer->isPaginated()) {
+					int pagenum = ps->getCurrentPage();
+					int r = documentLayer->setCurrentPage(pagenum);
+					if (r != 0)
+						command = r;
+				}
+				bkLayersIt it(layers.end());
+				--it;
+				(*it)->release();
+				layers.erase(it);
+			} break;
 			case BK_CMD_OPEN_FILE:
 			case BK_CMD_RELOAD: {
 				// open a file as a document
 				string s;
 				
+				FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
+
 				if (command == BK_CMD_RELOAD) {
 					documentLayer->getFileName(s);
 					documentLayer = 0;
@@ -152,6 +237,7 @@ int main(int argc, char* argv[]) {
 					fs->getFullPath(s);
 					fs = 0;
 				}
+
 				// clear layers
 				bkLayersIt it(layers.begin());
 				bkLayersIt end(layers.end());
@@ -181,6 +267,9 @@ int main(int argc, char* argv[]) {
 					// file loads ok, add the layer
 					layers.push_back(documentLayer);
 				}
+
+				FZScreen::setSpeed(BKUser::options.pspSpeed);
+
 				dirty = true;
 			} break;
 			case BK_CMD_SET_FONT: {
@@ -264,6 +353,7 @@ int main(int argc, char* argv[]) {
 				layers.erase(it);
 			} break;
 			case BK_CMD_EXIT: {
+					FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 					exitApp = true;
 			}
 			break;
