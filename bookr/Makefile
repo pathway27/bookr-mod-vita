@@ -2,11 +2,11 @@
 # cd mupdf; make
 
 PSP_FW_VERSION = 150
-PSP_FW_VERSION = 371 
-BUILD_PRX = 1 
+#PSP_FW_VERSION = 371 
+#BUILD_PRX = 1 
 PSP_EBOOT_ICON=data/icon0.png
 TARGET=bookr
-OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o 
+OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o 
 OBJS+=bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
 OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o bkmemcpy.S
@@ -20,7 +20,6 @@ ASFLAGS = $(CFLAGS)
 LIBDIR =
 LDFLAGS =
 LIBS=-Lmupdf/libs -Ldjvu/libs -ldjvulibre -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgum -lpspgu -lpsppower -lpsprtc -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
-
 
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = Bookr - Book Reader
