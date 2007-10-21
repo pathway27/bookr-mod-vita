@@ -1,7 +1,8 @@
 /*
  * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com)
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,6 +23,7 @@
 #include "fzscreen.h"
 
 #include "bkcolorchooser.h"
+#include "bkuser.h"
 
 //static void RGBtoHSV(float r, float g, float b, float *h, float *s, float *v);
 static void HSVtoRGB(float *r, float *g, float *b, float h, float s, float v);
@@ -35,7 +37,7 @@ struct COLOUR {
 };
 static HSV RGB2HSV(COLOUR c1);
 
-BKColorChooser::BKColorChooser(int c, int r) : color(c), hueY(0), svX(0), svY(0), hueTex(0), hueMode(false), ret(r) {
+BKColorChooser::BKColorChooser(int cs, int c, int r) : colorScheme(cs), color(c), hueY(0), svX(0), svY(0), hueTex(0), hueMode(false), ret(r) {	
 }
 
 BKColorChooser::~BKColorChooser() {
@@ -55,7 +57,7 @@ void BKColorChooser::recalcColor() {
 
 int BKColorChooser::update(unsigned int buttons) {
 	int* b = FZScreen::ctrlReps();
-	if (b[FZ_REPS_DOWN] == 1 || b[FZ_REPS_DOWN] > 20) {
+	if (b[BKUser::controls.menuDown] == 1 || b[BKUser::controls.menuDown] > 20) {
 		if (hueMode) {
 			++hueY;
 			if (hueY > 144) {
@@ -70,7 +72,7 @@ int BKColorChooser::update(unsigned int buttons) {
 		recalcColor();
 		return BK_CMD_MARK_DIRTY;
 	}
-	if (b[FZ_REPS_UP] == 1 || b[FZ_REPS_UP] > 20) {
+	if (b[BKUser::controls.menuUp] == 1 || b[BKUser::controls.menuUp] > 20) {
 		if (hueMode) {
 			--hueY;
 			if (hueY < 0) {
@@ -85,7 +87,7 @@ int BKColorChooser::update(unsigned int buttons) {
 		recalcColor();
 		return BK_CMD_MARK_DIRTY;
 	}
-	if (b[FZ_REPS_RIGHT] == 1 || b[FZ_REPS_RIGHT] > 20) {
+	if (b[BKUser::controls.menuRight] == 1 || b[BKUser::controls.menuRight] > 20) {
 		if (!hueMode) {
 			++svX;
 			if (svX > 144) {
@@ -95,7 +97,7 @@ int BKColorChooser::update(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 	}
-	if (b[FZ_REPS_LEFT] == 1 || b[FZ_REPS_LEFT] > 20) {
+	if (b[BKUser::controls.menuLeft] == 1 || b[BKUser::controls.menuLeft] > 20) {
 		if (!hueMode) {
 			--svX;
 			if (svX < 0) {
@@ -105,20 +107,29 @@ int BKColorChooser::update(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 	}
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[BKUser::controls.select] == 1) {  
 		return ret;
 	}
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[BKUser::controls.alternate] == 1) {
 		hueMode = !hueMode;
 		return BK_CMD_MARK_DIRTY;
+	}
+	if (b[BKUser::controls.cancel] == 1) {
+		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 	return 0;
 }
 
 void BKColorChooser::render() {
-	string title("Select color");
-	string tl("");
-	string cl(hueMode ? "Switch to saturation/value selection" : "Switch to hue selection");
+	string title;
+	switch (ret) {
+		case BK_CMD_SET_TXTFG:	title="Select text color (plain text only)";	break;
+		case BK_CMD_SET_TXTBG:	title="Select background color (plain text and PDF)"; 	break;
+	default:	break;
+	}
+	string cl("Select this color");
+	string tl(hueMode ? "Switch to saturation/value selection" : "Switch to hue selection");
+	
 	drawDialogFrame(title, tl, cl, 0);
 
 	const int x = 75;
@@ -182,8 +193,17 @@ void BKColorChooser::render() {
 	drawText("Selected color", fontBig, 300, y + 10);
 }
 
-BKColorChooser* BKColorChooser::create(int c, int re) {
-	BKColorChooser* f = new BKColorChooser(c | 0xff000000, re);
+BKColorChooser* BKColorChooser::create(int cs, int re) {	
+	int c;
+	switch (re) {
+	case BK_CMD_SET_TXTFG:	c = BKUser::options.colorSchemes[cs].txtFGColor;	
+		break;
+	case BK_CMD_SET_TXTBG:	
+	default:				c = BKUser::options.colorSchemes[cs].txtBGColor;
+	break;
+	}
+
+	BKColorChooser* f = new BKColorChooser(cs, c | 0xff000000, re);
 	FZImage* img = FZImage::createEmpty(32, 128, 0, FZImage::rgba32);
 	unsigned int* p = (unsigned int*)img->getData();
 	const float inc = 360.0f / 128.0f;

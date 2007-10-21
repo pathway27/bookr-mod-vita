@@ -1,10 +1,10 @@
 /*
  * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com)
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -323,7 +323,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	int scrY = 0;
 	char *t =(char*)circleLabel.c_str(); 
 	int tw = textW(t, fontBig);
-
+	
 	texUI->bindForDisplay();
 	FZScreen::ambientColor(0xf0222222);
 	// back
@@ -336,17 +336,37 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	drawTPill(25, 272 - 30 + scrY, 480 - 46 - 11, 30, 6, 31, 1);
 	// icons
 	FZScreen::ambientColor(0xff000000);
-	//drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
-	drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
+//drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
+//	drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
+	switch (BKUser::controls.select) {
+	case FZ_REPS_CROSS:	
+		drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); 
+		break;
+	case FZ_REPS_CIRCLE:
+	default:
+		drawImage(430, 29 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+		break;
+	}
+	
 	FZScreen::ambientColor(0xffcccccc);
 	// circle or other context icon
 	if (flags & BK_MENU_ITEM_USE_LR_ICON) {
 		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_LRARROWS_XSIZE, BK_IMG_LRARROWS_YSIZE, BK_IMG_LRARROWS_X, BK_IMG_LRARROWS_Y);
 	} else {
-		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+		switch(BKUser::controls.select) {
+		case FZ_REPS_CROSS:
+			drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+			break;
+		case FZ_REPS_CIRCLE:
+		default:
+			drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+			break;
+		}
+//		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
 	}
 	if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
 		//drawImage(37, 248 + scrY, 20, 20, 107, 5);
+//		drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
 		drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
 	}
 
@@ -431,8 +451,10 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 			break;
 		if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
 			int tw = textW((char*)items[i + topItem].label.c_str(), fontBig);
-			FZScreen::ambientColor(items[i + topItem].color | 0xff000000);
-			drawRect(40 + 25 + tw + 10, 60 + i*fontBig->getLineHeight() + scrY + 3, 70, 15, 6, 31, 1);
+			FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
+			drawRect(40 + 25 + tw + 10, 60 + i*fontBig->getLineHeight() + scrY, 30, 15, 6, 31, 1);
+			FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
+			drawRect(40 + 25 + tw + 15, 60 + i*fontBig->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
 		}
 	}
 
@@ -476,7 +498,16 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 	drawPill(45, 5 + y, 480 - 86 - 10, 20, 6, 31, 1);
 	// icons
 	FZScreen::ambientColor(bg1|0xff000000);
-	drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+//	drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+	switch (BKUser::controls.select) {
+	case FZ_REPS_CIRCLE:
+		drawImage(410, 9 + y, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+		break;
+	case FZ_REPS_CROSS:
+	default:
+		drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+		break;
+	}
 
 	fontBig->bindForDisplay();
 
@@ -516,13 +547,13 @@ void BKLayer::drawClockAndBattery(string& extra) {
 
 void BKLayer::menuCursorUpdate(unsigned int buttons, int max) {
 	int* b = FZScreen::ctrlReps();
-	if (b[FZ_REPS_UP] == 1 || b[FZ_REPS_UP] > 20) {
+	if (b[BKUser::controls.menuUp] == 1 || b[BKUser::controls.menuUp] > 20) {
 		selItem--;
 		if (selItem < 0) {
 			selItem = max - 1;
 		}
 	}
-	if (b[FZ_REPS_DOWN] == 1 || b[FZ_REPS_DOWN] > 20) {
+	if (b[BKUser::controls.menuDown] == 1 || b[BKUser::controls.menuDown] > 20) {
 		selItem++;
 		if (selItem >= max) {
 			selItem = 0;

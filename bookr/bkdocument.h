@@ -69,8 +69,7 @@ class BKDocument : public BKLayer {
 	protected:
 	BKDocument();
 	virtual void saveLastView();
-	public:
-	virtual ~BKDocument();
+	~BKDocument();
 
 	public:
 	// BKLayer::update is implemented outside the document viewers.

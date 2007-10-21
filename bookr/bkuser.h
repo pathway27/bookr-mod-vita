@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +21,8 @@
 #ifndef BKUSER_H
 #define BKUSER_H
 
+#include <vector>
+
 class BKUser {
 	private:
 	static void load();
@@ -31,6 +34,7 @@ class BKUser {
 	static void setDefaultOptions();
 
 	struct Controls {
+		// in-book controls
 		int previousPage;
 		int nextPage;
 		int previous10Pages;
@@ -41,9 +45,28 @@ class BKUser {
 		int screenRight;
 		int zoomIn;
 		int zoomOut;
+		int showToolbar;	// Start
+		int showMainMenu;	// Select		
+		
+		// menu controls
+		int select;		// Circle or Cross
+		int cancel;		// Cross or Circle
+		int alternate;	// Triangle
+		int details;	// Square - not currently used
+		int menuUp;
+		int menuDown;
+		int menuLeft;
+		int menuRight;
+		int resume;		// Start
 	};
+	
 	static Controls controls;
-
+	
+	struct ColorScheme {
+		int	txtFGColor;
+		int txtBGColor;
+	};
+	
 	struct Options {
 		bool pdfFastScroll;
 
@@ -56,14 +79,13 @@ class BKUser {
 
 		string txtFont;
 		int txtSize;
-		int txtFGColor;
-		int txtBGColor;
+		vector<ColorScheme> colorSchemes;
+		int currentScheme;
 		bool txtJustify;
 		int pspSpeed;
 		int pspMenuSpeed;
 		bool displayLabels;
 		bool pdfInvertColors;
-		int pdfBGColor;
 		string lastFolder;
 		string lastFontFolder;
 		int txtHeightPct;

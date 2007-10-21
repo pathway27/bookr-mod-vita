@@ -215,7 +215,7 @@ int BKDocument::processEventsForView() {
 				return r;
 		}
 	}
-
+	
 	// button handling - rotation - TO DO
 	/*
 	virtual bool isRotable() = 0;
@@ -226,12 +226,12 @@ int BKDocument::processEventsForView() {
 	// bookmarks and other features are not supported by mapeable keys
 
 	// main menu
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		return BK_CMD_INVOKE_MENU;
 	}
 
 	// toolbar
-	if (b[FZ_REPS_SELECT] == 1) {
+	if (b[BKUser::controls.showToolbar] == 1) {
 		mode = BKDOC_TOOLBAR;
 		return BK_CMD_MARK_DIRTY;
 	}
@@ -403,16 +403,16 @@ void BKDocument::buildToolbarMenus() {
 int BKDocument::processEventsForToolbar() {
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_UP] == 1 || b[FZ_REPS_UP] > 20) {
+	if (b[BKUser::controls.menuUp] == 1 || b[BKUser::controls.menuUp] > 20) {
 		toolbarSelMenuItem++;
 	}
-	if (b[FZ_REPS_DOWN] == 1 || b[FZ_REPS_DOWN] > 20) {
+	if (b[BKUser::controls.menuDown] == 1 || b[BKUser::controls.menuDown] > 20) {
 		toolbarSelMenuItem--;
 	}
-	if (b[FZ_REPS_LEFT] == 1 || b[FZ_REPS_LEFT] > 20) {
+	if (b[BKUser::controls.menuLeft] == 1 || b[BKUser::controls.menuLeft] > 20) {
 		toolbarSelMenu--;
 	}
-	if (b[FZ_REPS_RIGHT] == 1 || b[FZ_REPS_RIGHT] > 20) {
+	if (b[BKUser::controls.menuRight] == 1 || b[BKUser::controls.menuRight] > 20) {
 		toolbarSelMenu++;
 	}
 
@@ -426,7 +426,7 @@ int BKDocument::processEventsForToolbar() {
 	if (toolbarSelMenuItem < 0)
 		toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
 
-	if (b[FZ_REPS_TRIANGLE] == 1) {
+	if (b[BKUser::controls.alternate] == 1) {
 		// delete bookmark
 		if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
 			string fn;
@@ -441,7 +441,7 @@ int BKDocument::processEventsForToolbar() {
 		}
 	}
 
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[BKUser::controls.select] == 1) {
 		// add bookmark
 		if (toolbarSelMenu == 0 && toolbarSelMenuItem == 0 && isBookmarkable()) {
 			string fn, t;
@@ -556,12 +556,12 @@ int BKDocument::processEventsForToolbar() {
 	}
 
 	// main menu
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		return BK_CMD_INVOKE_MENU;
 	}
 
 	// view
-	if (b[FZ_REPS_SELECT] == 1) {
+	if (b[BKUser::controls.showToolbar] == 1) {
 		mode = BKDOC_VIEW;
 		return BK_CMD_MARK_DIRTY;
 	}

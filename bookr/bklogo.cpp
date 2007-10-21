@@ -38,7 +38,7 @@ void BKLogo::setError(bool v) {
 
 int BKLogo::update(unsigned int buttons) {
 	int* b = FZScreen::ctrlReps();
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		return BK_CMD_INVOKE_MENU;
 	}
 	return 0;
@@ -75,8 +75,6 @@ void BKLogo::render() {
 		FZScreen::ambientColor(0xffffffff);
 		drawTextHC("Press Start", fontBig, 244);
 	}
-	string e;
-	drawClockAndBattery(e);
 }
 
 BKLogo* BKLogo::create() {

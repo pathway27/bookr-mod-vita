@@ -439,7 +439,7 @@ int BKFancyText::resume() {
 }
 
 void BKFancyText::renderContent() {
-	FZScreen::clear(BKUser::options.txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
+	FZScreen::clear(BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
 	FZScreen::matricesFor2D(rotation);
 	FZScreen::enable(FZ_TEXTURE_2D);
@@ -450,7 +450,7 @@ void BKFancyText::renderContent() {
 
 	//bool txtJustify; ??
 
-	FZScreen::ambientColor(0xff000000 | BKUser::options.txtFGColor);
+	FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
 	int y = 10;
 	int bn = topLine + linesPerPage;
 	if (bn >= nLines) bn = nLines;

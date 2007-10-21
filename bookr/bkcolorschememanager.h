@@ -1,6 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ * Copyright (C) 2007 Christian Payeur (christian dot payeur at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef BKMAINMENU_H
-#define BKMAINMENU_H
+#ifndef BKCOLORSCHEMEMANAGER_H
+#define BKCOLORSCHEMEMANAGER_H
 
 #include "fzscreen.h"
 
@@ -26,44 +26,23 @@ using namespace std;
 
 #include "bklayer.h"
 
-class BKMainMenu : public BKLayer {
-	#define BKMM_MAIN 0
-	#define BKMM_CONTROLS 1
-	#define BKMM_OPTIONS 2
 
-	int mode;
-	bool captureButton;
-	vector<BKMenuItem> mainItems;
-	vector<BKMenuItem> controlItems;
-	vector<BKMenuItem> optionItems;
-	int updateMain(unsigned int buttons);
-	int updateControls(unsigned int buttons);
-	int updateOptions(unsigned int buttons);
-	void buildMainMenu();
-	void buildControlMenu();
-	void buildOptionMenu();
 
-	string popupText;
-	int popupMode;
-	int frames;
+class BKColorSchemeManager : public BKLayer {
+	string title;
+	int	colorScheme;
 
 	protected:
-	BKMainMenu();	
-	~BKMainMenu();
+	BKColorSchemeManager(string& t);
+	~BKColorSchemeManager();
 
 	public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
+	virtual int getColorScheme();
 	
-	static BKMainMenu* create();	
-
-	string getPopupText();
-	int getPopupMode();
-	void rebuildMenu();
-
-	typedef vector<BKMenuItem>::iterator bkMenuItemIt;
+	static BKColorSchemeManager* create(string& t);
 	
 };
 
-#endif
-
+#endif /*BKCOLORSCHEMEMANAGER_H*/

@@ -31,7 +31,7 @@ BKPopup::~BKPopup() {
 int BKPopup::update(unsigned int buttons) {
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[BKUser::controls.cancel] == 1) {
 			return BK_CMD_CLOSE_TOP_LAYER;
 	}
 

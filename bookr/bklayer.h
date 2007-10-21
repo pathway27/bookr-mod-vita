@@ -30,7 +30,6 @@ using namespace std;
 
 #define BK_CMD_CLOSE_TOP_LAYER 1
 #define BK_CMD_MARK_DIRTY 2
-#define BK_CMD_MARK_VERY_DIRTY 7
 #define BK_CMD_EXIT 3
 #define BK_CMD_RELOAD 4
 #define BK_CMD_MAINMENU_POPUP 5
@@ -48,7 +47,7 @@ using namespace std;
 #define BK_CMD_INVOKE_OPEN_FONT 102
 #define BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG 103
 #define BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG 104
-#define BK_CMD_INVOKE_COLOR_CHOOSER_PDFBG 105
+#define BK_CMD_INVOKE_COLOR_SCHEME_MANAGER 105
 #define BK_CMD_INVOKE_PAGE_CHOOSER 106
 
 #define BK_IMG_TRIANGLE_X 9
@@ -117,7 +116,8 @@ class BKLayer : public FZRefCounted {
 		string circleLabel;
 		string triangleLabel;
 		int flags;
-		unsigned int color;
+		unsigned int fgcolor;
+		unsigned int bgcolor;
 		BKMenuItem() : flags(0) { }
 		BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }
 		BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }

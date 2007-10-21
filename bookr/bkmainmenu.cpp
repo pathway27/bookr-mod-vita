@@ -1,7 +1,8 @@
 /*
  * Bookr: document reader for the Sony PSP
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com)
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -25,12 +26,45 @@
 #include "bkbookmark.h"
 #include "bkpopup.h"
 
+// Main menu layout
+#define MAIN_MENU_ITEM_OPEN_FILE				0
+#define MAIN_MENU_ITEM_CONTROLS					1
+#define MAIN_MENU_ITEM_OPTIONS					2
+#define MAIN_MENU_ITEM_ABOUT					3
+#define MAIN_MENU_ITEM_EXIT						4
+
+// Controls menu layout
+#define CONTROLS_MENU_ITEM_RESTORE_DEFAULTS		0
+#define CONTROLS_MENU_ITEM_PREVIOUS_PAGE		1
+#define CONTROLS_MENU_ITEM_NEXT_PAGE			2
+#define CONTROLS_MENU_ITEM_PREVIOUS_10_PAGES	3
+#define CONTROLS_MENU_ITEM_NEXT_10_PAGES		4
+#define CONTROLS_MENU_ITEM_SCREEN_UP			5
+#define CONTROLS_MENU_ITEM_SCREEN_DOWN			6
+#define CONTROLS_MENU_ITEM_SCREEN_LEFT			7
+#define CONTROLS_MENU_ITEM_SCREEN_RIGHT			8
+#define CONTROLS_MENU_ITEM_ZOOM_IN				9
+#define CONTROLS_MENU_ITEM_ZOOM_OUT				10
+
+// Options menu layout
+#define OPTIONS_MENU_ITEM_RESTORE_DEFAULTS		0
+#define OPTIONS_MENU_ITEM_SET_CONTROL_STYLE		1
+#define OPTIONS_MENU_ITEM_PDF_FAST_IMAGES		2
+#define OPTIONS_MENU_ITEM_CHOOSE_FONT			3
+#define OPTIONS_MENU_ITEM_FONT_SIZE				4
+#define OPTIONS_MENU_ITEM_SET_LINE_HEIGHT		5
+#define OPTIONS_MENU_ITEM_JUSTIFY_TEXT			6
+#define OPTIONS_MENU_ITEM_COLOR_SCHEMES			7
+#define OPTIONS_MENU_ITEM_CPU_BUS_SPEED			8
+#define OPTIONS_MENU_ITEM_CPU_MENU_SPEED		9
+#define OPTIONS_MENU_ITEM_DISPLAY_LABELS		10
+#define OPTIONS_MENU_ITEM_INVERT_COLORS_PDF		11
+#define OPTIONS_MENU_ITEM_CLEAR_BOOKMARKS		12
+#define OPTIONS_MENU_ITEM_LOAD_LAST_FILE		13
+#define OPTIONS_MENU_ITEM_WRAP_TEXT				14
+
 BKMainMenu::BKMainMenu() : mode(BKMM_MAIN), captureButton(false), frames(0) {
-	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
-	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
-	mainItems.push_back(BKMenuItem("Options", "Select", 0));
-	mainItems.push_back(BKMenuItem("About", "Select", 0));
-	mainItems.push_back(BKMenuItem("Exit", "Select", 0));
+	buildMainMenu();
 	buildControlMenu();
 	buildOptionMenu();
 }
@@ -54,13 +88,21 @@ void BKMainMenu::rebuildMenu() {
 	}
 }
 
+void BKMainMenu::buildMainMenu() {
+	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
+	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
+	mainItems.push_back(BKMenuItem("Options", "Select", 0));
+	mainItems.push_back(BKMenuItem("About", "Select", 0));
+	mainItems.push_back(BKMenuItem("Exit", "Select", 0));	
+}
+
 void BKMainMenu::buildControlMenu() {
 	string cb("Change button");
 
 	controlItems.clear();
 
 	controlItems.push_back(BKMenuItem("Restore defaults", "Select", 0));
-
+	
 	string t("Previous page: ");
 	t += FZScreen::nameForButtonReps(BKUser::controls.previousPage);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
@@ -106,7 +148,14 @@ void BKMainMenu::buildOptionMenu() {
 	optionItems.clear();
 	optionItems.push_back(BKMenuItem("Restore defaults", "Select", 0));
 
-	string t("PDF - Fast images (zoom limited to 2x): ");
+	string t("Menu control style: ");
+	switch(BKUser::controls.select) {
+	case FZ_REPS_CIRCLE:	t.append("Asian");	break;
+	case FZ_REPS_CROSS:		t.append("Western"); break;
+	}
+	optionItems.push_back(BKMenuItem(t, "Choose", BK_MENU_ITEM_USE_LR_ICON));
+	
+	t = ("PDF - Fast images (zoom limited to 2x): ");
 	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
@@ -139,14 +188,11 @@ void BKMainMenu::buildOptionMenu() {
 	t += BKUser::options.txtJustify ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
-	t = "Plain text - Foreground color: ";
-	mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
-	mi.color = BKUser::options.txtFGColor;
-	optionItems.push_back(mi);
-
-	t = "Plain text - Background color: ";
-	mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
-	mi.color = BKUser::options.txtBGColor;
+	t = "Color schemes";
+	mi = BKMenuItem(t, "Choose", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_USE_LR_ICON | BK_MENU_ITEM_COLOR_RECT);
+	mi.triangleLabel = "Manage schemes";
+	mi.bgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor;
+	mi.fgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor;
 	optionItems.push_back(mi);
 
 	snprintf(txt, 1024, "CPU/Bus speed: %s", FZScreen::speedLabels[BKUser::options.pspSpeed]);
@@ -163,11 +209,6 @@ void BKMainMenu::buildOptionMenu() {
 	t = "PDF - Invert colors: ";
 	t += BKUser::options.pdfInvertColors ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
-
-	t = "PDF - Background color: ";
-	mi = BKMenuItem(t, "Select", BK_MENU_ITEM_COLOR_RECT);
-	mi.color = BKUser::options.pdfBGColor;
-	optionItems.push_back(mi);
 
 	optionItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
 
@@ -199,28 +240,28 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_CROSS] == 1) {
-		if (selItem == 0) {
+	if (b[BKUser::controls.select] == 1) {
+		if (selItem == MAIN_MENU_ITEM_OPEN_FILE) {
 			return BK_CMD_INVOKE_OPEN_FILE;
 		}
-		if (selItem == 1) {
+		if (selItem == MAIN_MENU_ITEM_CONTROLS) {
 			selItem = 0;
 			topItem = 0;
 			mode = BKMM_CONTROLS;
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 2) {
+		if (selItem == MAIN_MENU_ITEM_OPTIONS) {
 			selItem = 0;
 			topItem = 0;
 			mode = BKMM_OPTIONS;
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 3) {
-			popupText = "Bookr - a document viewer for the Sony PSP.\nProgramming by Carlos and Edward.\nVisit http://bookr.sf.net for new versions.\nThis program is licensed under the terms of the GPL v2.\nUses the MuPDF library under the terms of the AFPL.\nUses the GPL djvulibre library for psp ported by Yang.Hu.\nContains features added by Paul Murray.\nBuild by Francois Gurin (http://www.shot.org/psp/)";
+		if (selItem == MAIN_MENU_ITEM_ABOUT) {
+			popupText = "Bookr - a document viewer for the Sony PSP.\nProgramming by Carlos, Edward and Chris.\nVisit http://bookr.sf.net for new versions.\nThis program is licensed under the terms of the GPL v2.\nUses the MuPDF and djvulibre libraries under the terms \nof their respective licenses. \nDjVu format support by Yang Hu.\nSeveral features by Paul Murray.";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
-		if (selItem == 4) {
+		if (selItem == MAIN_MENU_ITEM_EXIT) {
 #if 0
 			if (reader != NULL) {
 				// Set bookmark now
@@ -236,11 +277,11 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 		}
 	}
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[BKUser::controls.cancel] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
@@ -265,16 +306,16 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 			return 0;
 		int repsCode = FZScreen::repsForButtonMask(buttons);
 		switch (selItem) {
-			case  1: BKUser::controls.previousPage = repsCode; break;
-			case  2: BKUser::controls.nextPage = repsCode; break;
-			case  3: BKUser::controls.previous10Pages = repsCode; break;
-			case  4: BKUser::controls.next10Pages = repsCode; break;
-			case  5: BKUser::controls.screenUp = repsCode; break;
-			case  6: BKUser::controls.screenDown = repsCode; break;
-			case  7: BKUser::controls.screenLeft = repsCode; break;
-			case  8: BKUser::controls.screenRight = repsCode; break;
-			case  9: BKUser::controls.zoomIn = repsCode; break;
-			case 10: BKUser::controls.zoomOut = repsCode; break;
+			case CONTROLS_MENU_ITEM_PREVIOUS_PAGE: 		BKUser::controls.previousPage = repsCode; break;
+			case CONTROLS_MENU_ITEM_NEXT_PAGE: 			BKUser::controls.nextPage = repsCode; break;
+			case CONTROLS_MENU_ITEM_PREVIOUS_10_PAGES: 	BKUser::controls.previous10Pages = repsCode; break;
+			case CONTROLS_MENU_ITEM_NEXT_10_PAGES: 		BKUser::controls.next10Pages = repsCode; break;
+			case CONTROLS_MENU_ITEM_SCREEN_UP: 			BKUser::controls.screenUp = repsCode; break;
+			case CONTROLS_MENU_ITEM_SCREEN_DOWN: 		BKUser::controls.screenDown = repsCode; break;
+			case CONTROLS_MENU_ITEM_SCREEN_LEFT: 		BKUser::controls.screenLeft = repsCode; break;
+			case CONTROLS_MENU_ITEM_SCREEN_RIGHT: 		BKUser::controls.screenRight = repsCode; break;
+			case CONTROLS_MENU_ITEM_ZOOM_IN: 			BKUser::controls.zoomIn = repsCode; break;
+			case CONTROLS_MENU_ITEM_ZOOM_OUT: 			BKUser::controls.zoomOut = repsCode; break;
 		}
 		BKUser::save();
 		buildControlMenu();
@@ -286,8 +327,8 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_CROSS] == 1) {
-		if (selItem == 0) {
+	if (b[BKUser::controls.select] == 1) {
+		if (selItem == CONTROLS_MENU_ITEM_RESTORE_DEFAULTS) {
 			BKUser::setDefaultControls();
 			BKUser::save();
 			buildControlMenu();			
@@ -298,14 +339,14 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 		return BK_CMD_MARK_DIRTY;
 	}
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[BKUser::controls.cancel] == 1) {
 		selItem = 0;
 		topItem = 0;
 		mode = BKMM_MAIN;
 		return BK_CMD_MARK_DIRTY;
 	}
 
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
@@ -317,53 +358,47 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 
 	int* b = FZScreen::ctrlReps();
 
-	if (b[FZ_REPS_CROSS] == 1) {
-		if (selItem == 0) {
+	if (b[BKUser::controls.select] == 1) {
+		if (selItem == OPTIONS_MENU_ITEM_RESTORE_DEFAULTS) {
 			BKUser::setDefaultOptions();
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 1) {
+		if (selItem == OPTIONS_MENU_ITEM_PDF_FAST_IMAGES) {
 			BKUser::options.pdfFastScroll = !BKUser::options.pdfFastScroll;
 			buildOptionMenu();
 			popupText = "Fast images will cause instability with many PDF files.\nWhen reporting a bug make it very clear if you were using\nfast images or not. Also try the same file without fast\nimages mode before reporting a bug.";
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 2) {
+		if (selItem == OPTIONS_MENU_ITEM_CHOOSE_FONT) {
 			return BK_CMD_INVOKE_OPEN_FONT;
 		}
-		if (selItem == 4+1) {
+		if (selItem == OPTIONS_MENU_ITEM_JUSTIFY_TEXT) {
 			BKUser::options.txtJustify = !BKUser::options.txtJustify;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 5+1) {
-			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG;
+		if (selItem == OPTIONS_MENU_ITEM_COLOR_SCHEMES) {
+			return BK_CMD_INVOKE_COLOR_SCHEME_MANAGER;//_TXTFG;
 		}
-		if (selItem == 6+1) {
-			return BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG;
-		}
-		if (selItem == 8+2) {
+		if (selItem == OPTIONS_MENU_ITEM_DISPLAY_LABELS) {
 			BKUser::options.displayLabels = !BKUser::options.displayLabels;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 9+2) {
+		if (selItem == OPTIONS_MENU_ITEM_INVERT_COLORS_PDF) {
 			BKUser::options.pdfInvertColors = !BKUser::options.pdfInvertColors;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == 10+2) {
-			return BK_CMD_INVOKE_COLOR_CHOOSER_PDFBG;
-		}
-		if (selItem == 11+2) {
+		if (selItem == OPTIONS_MENU_ITEM_CLEAR_BOOKMARKS) {
 			BKBookmarksManager::clear();
 			popupText = "Bookmarks cleared.";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
-		if (selItem == 12+2) {
+		if (selItem == OPTIONS_MENU_ITEM_LOAD_LAST_FILE) {
 			BKUser::options.loadLastFile = !BKUser::options.loadLastFile;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY; //?
@@ -384,15 +419,18 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}*/
 	}
 
-	if (b[FZ_REPS_TRIANGLE] == 1) {
-		if (selItem == 2) {
+	if (b[BKUser::controls.alternate] == 1) {
+		if (selItem == OPTIONS_MENU_ITEM_CHOOSE_FONT) {
 			BKUser::options.txtFont = "bookr:builtin";
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
+		if (selItem == OPTIONS_MENU_ITEM_COLOR_SCHEMES) {
+			return BK_CMD_INVOKE_COLOR_SCHEME_MANAGER;
+		}
 	}
 
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[BKUser::controls.cancel] == 1) {
 		selItem = 0;
 		topItem = 0;
 		mode = BKMM_MAIN;
@@ -400,7 +438,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		return BK_CMD_MARK_DIRTY;
 	}
 
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		selItem = 0;
 		topItem = 0;
 		mode = BKMM_MAIN;
@@ -408,8 +446,22 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
-	if (b[FZ_REPS_LEFT] == 1) {
-		if (selItem == 3) {
+	if (b[BKUser::controls.menuLeft] == 1) {
+		if (selItem == OPTIONS_MENU_ITEM_SET_CONTROL_STYLE) {
+			switch(BKUser::controls.select) {
+			case FZ_REPS_CIRCLE:
+				BKUser::controls.select = FZ_REPS_CROSS;
+				BKUser::controls.cancel = FZ_REPS_CIRCLE;
+				break;
+			case FZ_REPS_CROSS:
+			default:
+				BKUser::controls.select = FZ_REPS_CIRCLE;
+				BKUser::controls.cancel = FZ_REPS_CROSS;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == OPTIONS_MENU_ITEM_FONT_SIZE) {
 			--BKUser::options.txtSize;
 			if (BKUser::options.txtSize < 6) {
 				BKUser::options.txtSize = 6;
@@ -417,7 +469,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 4) {
+		} else if (selItem == OPTIONS_MENU_ITEM_SET_LINE_HEIGHT) {
 			BKUser::options.txtHeightPct -= 5;
 			if (BKUser::options.txtHeightPct < 50) {
 				BKUser::options.txtHeightPct = 50;
@@ -425,7 +477,15 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 7+1) {
+		}  else if (selItem == OPTIONS_MENU_ITEM_COLOR_SCHEMES) {
+			if (BKUser::options.currentScheme == 0) {
+				BKUser::options.currentScheme = BKUser::options.colorSchemes.size()-1;
+			} else {
+				BKUser::options.currentScheme--;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == OPTIONS_MENU_ITEM_CPU_BUS_SPEED) {
 			--BKUser::options.pspSpeed;
 			if (BKUser::options.pspSpeed < 0) {
 				BKUser::options.pspSpeed = 0;
@@ -437,19 +497,15 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 8+1) {
+		} else if (selItem == OPTIONS_MENU_ITEM_CPU_MENU_SPEED) {
 			--BKUser::options.pspMenuSpeed;
 			if (BKUser::options.pspMenuSpeed < 0) {
 				BKUser::options.pspMenuSpeed = 0;
 			} else {
-//				if (BKUser::options.pspMenuSpeed == 0)
-//					FZScreen::setSpeed(5);
-//				else
-//					FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 13+2) {
+		} else if (selItem == OPTIONS_MENU_ITEM_WRAP_TEXT) {
 			--BKUser::options.txtWrapCR;
 			if (BKUser::options.txtWrapCR < 0) {
 				BKUser::options.txtWrapCR = 0;
@@ -460,8 +516,22 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 	}
 
-	if (b[FZ_REPS_RIGHT] == 1) {
-		if (selItem == 3) {
+	if (b[BKUser::controls.menuRight] == 1) {
+		if (selItem == OPTIONS_MENU_ITEM_SET_CONTROL_STYLE) {
+			switch(BKUser::controls.select) {
+			case FZ_REPS_CIRCLE:
+				BKUser::controls.select = FZ_REPS_CROSS;
+				BKUser::controls.cancel = FZ_REPS_CIRCLE;
+				break;
+			case FZ_REPS_CROSS:
+			default:
+				BKUser::controls.select = FZ_REPS_CIRCLE;
+				BKUser::controls.cancel = FZ_REPS_CROSS;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == OPTIONS_MENU_ITEM_FONT_SIZE) {
 			++BKUser::options.txtSize;
 			if (BKUser::options.txtSize > 20) {
 				BKUser::options.txtSize = 20;
@@ -469,7 +539,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 4) {
+		} else if (selItem == OPTIONS_MENU_ITEM_SET_LINE_HEIGHT) {
 			BKUser::options.txtHeightPct += 5;
 			if (BKUser::options.txtHeightPct > 150) {
 				BKUser::options.txtHeightPct = 150;
@@ -477,7 +547,14 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 7+1) {
+		} else if (selItem == OPTIONS_MENU_ITEM_COLOR_SCHEMES) {
+			BKUser::options.currentScheme ++;
+			if ((uint) BKUser::options.currentScheme >= BKUser::options.colorSchemes.size()) {
+				BKUser::options.currentScheme = 0;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;	
+		} else if (selItem == OPTIONS_MENU_ITEM_CPU_BUS_SPEED) {
 			++BKUser::options.pspSpeed;
 			if (BKUser::options.pspSpeed > 6) {
 				BKUser::options.pspSpeed = 6;
@@ -489,7 +566,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 8+1) {
+		} else if (selItem == OPTIONS_MENU_ITEM_CPU_MENU_SPEED) {
 			++BKUser::options.pspMenuSpeed;
 			if (BKUser::options.pspMenuSpeed > 6) {
 				BKUser::options.pspMenuSpeed = 6;
@@ -501,7 +578,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == 13+2) {
+		} else if (selItem == OPTIONS_MENU_ITEM_WRAP_TEXT) {
 			++BKUser::options.txtWrapCR;
 			if (BKUser::options.txtWrapCR > 3) {
 				BKUser::options.txtWrapCR = 3;

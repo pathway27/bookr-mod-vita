@@ -487,7 +487,8 @@ void BKDJVU::redrawBuffer() {
 	}
 	if(bufferStart != bounceBuffer) {
 		unsigned int *d = (unsigned int*)bounceBuffer;
-		const unsigned int c = BKUser::options.pdfBGColor;
+		//const unsigned int c = BKUser::options.pdfBGColor;
+		const unsigned int c = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor;
 		for (int i = 0; i < 480*272; i++) {
 			*d++ = c;
 		}

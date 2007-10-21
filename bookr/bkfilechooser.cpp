@@ -61,7 +61,7 @@ void BKFileChooser::updateDirFiles() {
 int BKFileChooser::update(unsigned int buttons) {
 	menuCursorUpdate(buttons, (int)dirFiles.size());
 	int* b = FZScreen::ctrlReps();
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[BKUser::controls.select] == 1) {
 		//printf("selected %s\n", dirFiles[selItem].name.c_str());
 		if (dirFiles[selItem].stat & FZ_STAT_IFDIR ) {
 			path += "/" + dirFiles[selItem].name;
@@ -72,7 +72,7 @@ int BKFileChooser::update(unsigned int buttons) {
 			return ret;
 		}
 	}
-	if (b[FZ_REPS_TRIANGLE] == 1) {
+	if (b[BKUser::controls.alternate] == 1) {
 		// try to remove one dir
 		int lastSlash = path.rfind('/');
 		if (lastSlash != -1) {
@@ -89,10 +89,10 @@ int BKFileChooser::update(unsigned int buttons) {
 		topItem = 0;
 		updateDirFiles();
 	}
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[BKUser::controls.cancel] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 	return 0;

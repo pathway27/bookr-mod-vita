@@ -1,7 +1,8 @@
 /*
  * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com)
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -22,8 +23,12 @@
 #include "fzscreen.h"
 #include "bkuser.h"
 
+#include <string>
+
 BKUser::Controls BKUser::controls;
 BKUser::Options BKUser::options;
+
+int csSize = 0;
 
 void BKUser::init() {
 	setDefaultControls();
@@ -32,17 +37,30 @@ void BKUser::init() {
 }
 
 void BKUser::setDefaultControls() {
-	// set default controls for pdf
-	controls.previousPage     = FZ_REPS_SQUARE;
-	controls.nextPage         = FZ_REPS_TRIANGLE;
-	controls.previous10Pages  = FZ_REPS_CIRCLE;
-	controls.next10Pages      = FZ_REPS_CROSS;
-	controls.screenUp         = FZ_REPS_UP;
-	controls.screenDown       = FZ_REPS_DOWN;
-	controls.screenLeft       = FZ_REPS_LEFT;
-	controls.screenRight      = FZ_REPS_RIGHT;
-	controls.zoomIn           = FZ_REPS_RTRIGGER;
-	controls.zoomOut          = FZ_REPS_LTRIGGER;
+	// set in-book default controls
+	controls.previousPage     	= FZ_REPS_SQUARE;
+	controls.nextPage         	= FZ_REPS_TRIANGLE;
+	controls.previous10Pages  	= FZ_REPS_CIRCLE;
+	controls.next10Pages      	= FZ_REPS_CROSS;
+	controls.screenUp         	= FZ_REPS_UP;
+	controls.screenDown       	= FZ_REPS_DOWN;
+	controls.screenLeft       	= FZ_REPS_LEFT;
+	controls.screenRight      	= FZ_REPS_RIGHT;
+	controls.zoomIn           	= FZ_REPS_RTRIGGER;
+	controls.zoomOut          	= FZ_REPS_LTRIGGER;
+	controls.showMainMenu		= FZ_REPS_START;
+	controls.showToolbar		= FZ_REPS_SELECT;
+	
+	// set menu default controls
+	controls.select				= FZ_REPS_CIRCLE;//FZ_REPS_CIRCLE;
+	controls.cancel				= FZ_REPS_CROSS;//FZ_REPS_CROSS;
+	controls.alternate			= FZ_REPS_TRIANGLE;
+	controls.details			= FZ_REPS_SQUARE;	
+	controls.menuUp				= FZ_REPS_UP;
+	controls.menuDown			= FZ_REPS_DOWN;
+	controls.menuLeft			= FZ_REPS_LEFT;
+	controls.menuRight			= FZ_REPS_RIGHT;	
+	controls.resume				= FZ_REPS_START;
 }
 
 void BKUser::setDefaultOptions() {
@@ -52,14 +70,25 @@ void BKUser::setDefaultOptions() {
 	options.txtFont = "bookr:builtin";
 	options.txtSize = 11;
 	options.txtHeightPct = 100;
-	options.txtFGColor = 0;
-	options.txtBGColor = 0xffffff;
+
+	options.colorSchemes.clear();
+	
+	ColorScheme aScheme;
+	aScheme.txtBGColor = 0xffffff;
+	aScheme.txtFGColor = 0;
+	options.colorSchemes.push_back(aScheme);
+	
+	aScheme.txtBGColor = 0;
+	aScheme.txtFGColor = 0xffffff;
+	options.colorSchemes.push_back(aScheme);
+	
+	options.currentScheme = 0;
+
 	options.txtJustify = true;
 	options.pspSpeed = 0;
 	options.pspMenuSpeed = 0;
 	options.displayLabels = true;
 	options.pdfInvertColors = false;
-	options.pdfBGColor = 0x505050;
 	options.lastFolder = FZScreen::basePath();
 	options.lastFontFolder = FZScreen::basePath();
 	options.loadLastFile = false;
@@ -89,28 +118,27 @@ void BKUser::save() {
 	fprintf(f, "\t\t<bind action=\"controls.screenRight\" button=\"%d\" />\n", controls.screenRight);
 	fprintf(f, "\t\t<bind action=\"controls.zoomIn\" button=\"%d\" />\n", controls.zoomIn);
 	fprintf(f, "\t\t<bind action=\"controls.zoomOut\" button=\"%d\" />\n", controls.zoomOut);
-
+	
 	fprintf(f, "\t</controls>\n");
 
 	fprintf(f, "\t<options>\n");
-
-	fprintf(f, "\t\t<set option=\"pdfFastScroll\" value=\"%d\" />\n", options.pdfFastScroll ? 1 : 0);
-	fprintf(f, "\t\t<set option=\"txtRotation\" value=\"%d\" />\n", options.txtRotation);
-	fprintf(f, "\t\t<set option=\"txtFont\" value=\"%s\" />\n", options.txtFont.c_str());
 	fprintf(f, "\t\t<set option=\"txtSize\" value=\"%d\" />\n", options.txtSize);
+	fprintf(f, "\t\t<set option=\"menuControlStyle\" value=\"%s\" />\n", controls.select == FZ_REPS_CIRCLE ? "asian" : "western");
 	fprintf(f, "\t\t<set option=\"txtHeightPct\" value=\"%d\" />\n", options.txtHeightPct);
-	fprintf(f, "\t\t<set option=\"txtFGColor\" value=\"%d\" />\n", options.txtFGColor);
-	fprintf(f, "\t\t<set option=\"txtBGColor\" value=\"%d\" />\n", options.txtBGColor);
+	for (uint i = 0; i < options.colorSchemes.size(); i++) {
+		fprintf(f, "\t\t<set option=\"colorScheme\" id=\"%d\" foreground=\"%d\" background=\"%d\" />\n", i, options.colorSchemes[i].txtFGColor, options.colorSchemes[i].txtBGColor);
+	}
+	fprintf(f, "\t\t<set option=\"currentScheme\" value=\"%d\" />\n", options.currentScheme);
 	fprintf(f, "\t\t<set option=\"txtJustify\" value=\"%d\" />\n", options.txtJustify ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"pspSpeed\" value=\"%d\" />\n", options.pspSpeed);
 	fprintf(f, "\t\t<set option=\"pspMenuSpeed\" value=\"%d\" />\n", options.pspMenuSpeed);
 	fprintf(f, "\t\t<set option=\"displayLabels\" value=\"%d\" />\n", options.displayLabels ? 1 : 0);
-	fprintf(f, "\t\t<set option=\"pdfInvertColors\" value=\"%d\" />\n", options.pdfInvertColors ? 1 : 0);
-	fprintf(f, "\t\t<set option=\"pdfBGColor\" value=\"%d\" />\n", options.pdfBGColor);
 	fprintf(f, "\t\t<set option=\"lastFolder\" value=\"%s\" />\n", options.lastFolder.c_str());
 	fprintf(f, "\t\t<set option=\"lastFontFolder\" value=\"%s\" />\n", options.lastFontFolder.c_str());
 	fprintf(f, "\t\t<set option=\"loadLastFile\" value=\"%d\" />\n", options.loadLastFile ? 1 : 0);
 	fprintf(f, "\t\t<set option=\"txtWrapCR\" value=\"%d\" />\n", options.txtWrapCR);
+
+
 
 	fprintf(f, "\t</options>\n");
 	fprintf(f, "</user>\n");
@@ -162,29 +190,65 @@ void BKUser::load() {
 	}
 
 	TiXmlElement* eoptions = root->FirstChildElement("options");
+	
+	bool isFirstColorSchemeLoad = true;
+	
 	if (eoptions != 0) {
 		TiXmlElement* eset = eoptions->FirstChildElement("set");
 	
 		while (eset) {
 			const char* option = eset->Attribute("option");
 			const char* value = eset->Attribute("value");
-			if (option == 0 || value == 0) {
+			if (option == 0 || (value == 0 && (strncmp(option, "colorScheme", 128) != 0))) {
 				printf("invalid user.xml in line %d\n", eset->Row());
 				break;
 			}
-			     if (strncmp(option, "pdfFastScroll",   128) == 0) options.pdfFastScroll   = atoi(value) != 0;
-			else if (strncmp(option, "txtRotation",     128) == 0) options.txtRotation     = atoi(value);
-			else if (strncmp(option, "txtFont",         128) == 0) options.txtFont         = value;
+			else if (strncmp(option, "menuControlStyle",128) == 0) {
+				// default is asian so we only do the western case
+				if(strncmp(value, "western", 128) == 0) {
+					BKUser::controls.select = FZ_REPS_CROSS;
+					BKUser::controls.cancel = FZ_REPS_CIRCLE;
+				} else if (strncmp(value, "asian", 128) != 0) {
+					printf("invalid user.xml in line %d\n", eset->Row());
+					break;
+				}
+			}
 			else if (strncmp(option, "txtSize",         128) == 0) options.txtSize         = atoi(value);
 			else if (strncmp(option, "txtHeightPct",    128) == 0) options.txtHeightPct    = atoi(value);
-			else if (strncmp(option, "txtFGColor",      128) == 0) options.txtFGColor      = atoi(value);
-			else if (strncmp(option, "txtBGColor",      128) == 0) options.txtBGColor      = atoi(value);
-			else if (strncmp(option, "txtJustify",      128) == 0) options.txtJustify      = atoi(value) != 0;
+			else if (strncmp(option, "txtSize",         128) == 0) options.txtSize         = atoi(value);
+			else if (strncmp(option, "colorScheme",		128) == 0) {
+				
+				// Get the scheme number and color values
+				const char* id = eset->Attribute("id");
+				const char* foreground = eset->Attribute("foreground");
+				const char* background = eset->Attribute("background");
+				
+				if (id == 0 || foreground == 0 || background == 0) {
+					printf("invalid user.xml in line %d\n", eset->Row());
+					break;
+				}
+				
+				// This is needed to ensure that a user who wishes to have a single
+				// color profile can do so. Not clearing would leave the second default
+				// scheme active.
+				if (isFirstColorSchemeLoad) {
+					options.colorSchemes.clear();
+					isFirstColorSchemeLoad = false;
+				}
+				
+				int iId = atoi(id);
+				if (iId >= options.colorSchemes.size()) {
+					options.colorSchemes.resize(iId+1);
+				}
+				
+				options.colorSchemes[iId].txtBGColor = atoi(background);
+				options.colorSchemes[iId].txtFGColor = atoi(foreground);	 
+			}
+			else if (strncmp(option, "currentScheme",   128) == 0) options.currentScheme   = atoi(value);
 			else if (strncmp(option, "pspSpeed",        128) == 0) options.pspSpeed        = atoi(value);
 			else if (strncmp(option, "pspMenuSpeed",    128) == 0) options.pspMenuSpeed    = atoi(value);
 			else if (strncmp(option, "displayLabels",   128) == 0) options.displayLabels   = atoi(value) != 0;
 			else if (strncmp(option, "pdfInvertColors", 128) == 0) options.pdfInvertColors = atoi(value) != 0;
-			else if (strncmp(option, "pdfBGColor",      128) == 0) options.pdfBGColor      = atoi(value);
 			else if (strncmp(option, "lastFolder",      128) == 0) options.lastFolder      = value;
 			else if (strncmp(option, "lastFontFolder",  128) == 0) options.lastFontFolder  = value;
 			else if (strncmp(option, "loadLastFile",    128) == 0) options.loadLastFile    = atoi(value) != 0;
@@ -205,6 +269,7 @@ void BKUser::load() {
 		options.txtRotation = 0;
 		operror = true;
 	}
+	
 	if (options.txtSize < 6 || options.txtSize > 20) {
 		options.txtSize = 11;
 		operror = true;
@@ -213,18 +278,22 @@ void BKUser::load() {
 		options.txtHeightPct = 100;
 		operror = true;
 	}
-	if ((options.txtFGColor & 0xff000000) != 0) {
-		options.txtFGColor &= 0xffffff;
-		operror = true;
+	
+	vector<ColorScheme>::iterator thisColor = options.colorSchemes.begin();
+	while (thisColor != options.colorSchemes.end()) {
+
+		if ((thisColor->txtFGColor & 0xff000000) != 0) {
+			thisColor->txtFGColor &= 0xffffff;
+			operror = true;
+		}
+		
+		if ((thisColor->txtBGColor & 0xff000000) != 0) {
+			thisColor->txtBGColor &= 0xffffff;
+			operror = true;
+		}
+		thisColor++;
 	}
-	if ((options.txtBGColor & 0xff000000) != 0) {
-		options.txtBGColor &= 0xffffff;
-		operror = true;
-	}
-	if ((options.pdfBGColor & 0xff000000) != 0) {
-		options.pdfBGColor &= 0xffffff;
-		operror = true;
-	}
+
 	if (options.pspSpeed < 0 || options.pspSpeed > 6) {
 		options.pspSpeed = 0;
 		operror = true;

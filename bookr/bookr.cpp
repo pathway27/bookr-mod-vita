@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +23,7 @@
 #include "bkfilechooser.h"
 #include "bkcolorchooser.h"
 #include "bkpagechooser.h"
+#include "bkcolorschememanager.h"
 #include "bkmainmenu.h"
 #include "bklogo.h"
 #include "bkpopup.h"
@@ -45,9 +47,6 @@ static bool isTTF(string& file) {
 	return header[0] == 0x0 && header[1] == 0x1 && header[2] == 0x0 && header[3] == 0x0;
 }
 
-BKDocument* documentLayer = 0;
-
-
 int main(int argc, char* argv[]) {
 	BKDocument* documentLayer = 0;
 	FZScreen::setupCallbacks();
@@ -61,6 +60,7 @@ int main(int argc, char* argv[]) {
 	bkLayers layers;
 	BKFileChooser* fs = 0;
 	BKColorChooser* cs = 0;
+	BKColorSchemeManager* csm = 0;
 	BKPageChooser* ps = 0;
 	BKMainMenu* mm = BKMainMenu::create();
 	layers.push_back(BKLogo::create());
@@ -150,7 +150,6 @@ int main(int argc, char* argv[]) {
 
 		int buttons = FZScreen::readCtrl();
 		dirty = buttons != 0;
-//		vdirty = 0;
 
 		// the last layer always owns the input focus
 		bkLayersIt it(layers.end());
@@ -183,11 +182,9 @@ int main(int argc, char* argv[]) {
 					dirty = true;                                        
 				}
 			} break;
-			case BK_CMD_MARK_VERY_DIRTY:
-//				dirty = true;
-//				vdirty = true;
 			case BK_CMD_MARK_DIRTY:
 				dirty = true;
+				mm->rebuildMenu();
 			break;
 			case BK_CMD_INVOKE_OPEN_FILE: {
 				// add a file chooser layer
@@ -310,41 +307,34 @@ int main(int argc, char* argv[]) {
 					)
 				);
 			break;
+			case BK_CMD_INVOKE_COLOR_SCHEME_MANAGER: {//TXTFG:
+				// add a color scheme manager layer
+				string title("Manage color schemes");
+				csm = BKColorSchemeManager::create(title);
+				layers.push_back(csm);
+			} break;
 			case BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG:
 				// add a color chooser layer
-				cs = BKColorChooser::create(BKUser::options.txtFGColor, BK_CMD_SET_TXTFG);
+				cs = BKColorChooser::create(csm->getColorScheme(), BK_CMD_SET_TXTFG);
 				layers.push_back(cs);
 			break;
-			case BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG:
-				// add a color chooser layer
-				cs = BKColorChooser::create(BKUser::options.txtBGColor, BK_CMD_SET_TXTBG);
-				layers.push_back(cs);
-			break;
-			case BK_CMD_INVOKE_COLOR_CHOOSER_PDFBG:
-				// add a color chooser layer
-				cs = BKColorChooser::create(BKUser::options.pdfBGColor, BK_CMD_SET_PDFBG);
-				layers.push_back(cs);
-			break;
+
 			case BK_CMD_SET_TXTFG: {
-				BKUser::options.txtFGColor = cs->getColor();
+				BKUser::options.colorSchemes[csm->getColorScheme()].txtFGColor = cs->getColor();
 				BKUser::save();
 				mm->rebuildMenu();
 				bkLayersIt it(layers.end());
 				--it;
 				(*it)->release();
 				layers.erase(it);
+				
+				// After choosing the foreground color, choose the background one
+				cs = BKColorChooser::create(csm->getColorScheme(), BK_CMD_SET_TXTBG);
+				layers.push_back(cs);
+				
 			} break;
 			case BK_CMD_SET_TXTBG: {
-				BKUser::options.txtBGColor = cs->getColor();
-				BKUser::save();
-				mm->rebuildMenu();
-				bkLayersIt it(layers.end());
-				--it;
-				(*it)->release();
-				layers.erase(it);
-			} break;
-			case BK_CMD_SET_PDFBG: {
-				BKUser::options.pdfBGColor = cs->getColor();
+				BKUser::options.colorSchemes[csm->getColorScheme()].txtBGColor = cs->getColor();
 				BKUser::save();
 				mm->rebuildMenu();
 				bkLayersIt it(layers.end());

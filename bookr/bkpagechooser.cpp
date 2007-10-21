@@ -54,17 +54,17 @@ int BKPageChooser::getCurrentPage() {
 
 int BKPageChooser::update(unsigned int buttons) {
 	int* b = FZScreen::ctrlReps();
-	if (b[FZ_REPS_LEFT] == 1 || b[FZ_REPS_LEFT] > 20) {
+	if (b[BKUser::controls.menuLeft] == 1 || b[BKUser::controls.menuLeft] > 20) {
 		if(++currentPosition >= numOfDigit)
 			currentPosition = 0;
 		return BK_CMD_MARK_DIRTY;
 	}
-	if (b[FZ_REPS_RIGHT] == 1 || b[FZ_REPS_RIGHT] > 20) {
+	if (b[BKUser::controls.menuRight] == 1 || b[BKUser::controls.menuRight] > 20) {
 		if(--currentPosition < 0)
 			currentPosition = numOfDigit-1;
 		return BK_CMD_MARK_DIRTY;
 	}
-	if (b[FZ_REPS_UP] == 1 || b[FZ_REPS_UP] > 20) {
+	if (b[BKUser::controls.menuUp] == 1 || b[BKUser::controls.menuUp] > 20) {
 		int numChange = currentPage;
 		int newPage = 0;
 		for(int i = 0; i < currentPosition; ++i)
@@ -87,7 +87,7 @@ int BKPageChooser::update(unsigned int buttons) {
 		}
 		return BK_CMD_MARK_DIRTY;
 	}
-	if (b[FZ_REPS_DOWN] == 1 || b[FZ_REPS_DOWN] > 20) {
+	if (b[BKUser::controls.menuDown] == 1 || b[BKUser::controls.menuDown] > 20) {
 		int numChange = currentPage;
 		int newPage = 0;
 		for(int i = 0; i < currentPosition; ++i)
@@ -110,19 +110,19 @@ int BKPageChooser::update(unsigned int buttons) {
 		}
 		return BK_CMD_MARK_DIRTY;
 	}
-	if (b[FZ_REPS_CIRCLE] == 1) {
+	if (b[BKUser::controls.cancel] == 1) {
 		if(currentPage == 0 || currentPage > totalPage) {
 			return 0;
 		}
 		return ret;
 	}
-	if (b[FZ_REPS_CROSS] == 1) {
+	if (b[BKUser::controls.select] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
-	if (b[FZ_REPS_SELECT] == 1) {
+	if (b[BKUser::controls.showToolbar] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
-	if (b[FZ_REPS_START] == 1) {
+	if (b[BKUser::controls.showMainMenu] == 1) {
 		return BK_CMD_INVOKE_MENU;
 	}
 	return 0;

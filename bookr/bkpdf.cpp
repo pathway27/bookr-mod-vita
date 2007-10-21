@@ -1054,7 +1054,7 @@ void BKPDF::redrawBuffer() {
 		unsigned int* d = bounceBuffer;
 		if (fillGrey) {
 			unsigned int *dd = d;
-			const unsigned int c = BKUser::options.pdfBGColor;
+			const unsigned int c = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor;
 			for (int i = 0; i < 480*272; i++) {
 				*dd = c;
 				++dd;
@@ -1094,7 +1094,7 @@ void BKPDF::redrawBuffer() {
 	// fill bg area if needed
 	if (pix->w < 480 || pix->h < 272) {
 		unsigned int *dd = d;
-		const unsigned int c = BKUser::options.pdfBGColor;
+		const unsigned int c = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor;
 		for (int i = 0; i < 480*272; i++) {
 			*dd = c;
 			++dd;
