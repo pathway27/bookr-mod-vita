@@ -8,36 +8,30 @@ OEX=o
 AR=ar
 ARFLAGS=r
 
-CXXFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags` -DMAC
-CFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags` -DMAC
-LDFLAGS=-g3 -Wall -W -Wno-unused -O0 -pipe
-LIBS=-Lmupdf/libs -lapps -lmupdf -lraster -lworld -lfonts -lstream -lbase -lm -framework GLUT -framework OpenGL -framework AGL -framework Cocoa -framework Carbon -framework QuickTime -framework Foundation -ldl -lobjc -lstdc++ -L/usr/local/lib -lz -lpng -lfreetype -ljpeg
+DEFS = -DMAC
+INCS = -Imupdf/include -Idjvu/libdjvupsp `freetype-config --cflags`
+OPTS = -g3 -Wall -W -Wno-unused -O0 -pipe
+LIBDIRS = -Lmupdf/libs -Ldjvu/libs -L/sw/lib -L/usr/X11/lib
+FLAGS= ${INCS} ${OPTS} ${DEFS}
+CFLAGS = ${FLAGS}
+CXXFLAGS = ${FLAGS}
+LDFLAGS= ${OPTS} -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
+
+LIBS= ${LIBDIRS} -lmupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm -framework GLUT -framework OpenGL -framework AGL -framework Cocoa -framework Carbon -framework QuickTime -framework Foundation -ldl -lobjc -lstdc++ -L/usr/local/lib -lz -lpng -lfreetype -ljpeg
 
 EXE=bookr.glut
 
 all: $(EXE)
 
-OBJS:=bkbook.o bkpdf.o bklayer.o bkfilechooser.o bklogo.o bookr.o
-OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o
-#OBJS+=tinystr.o tinyxmlerror.o tinyxml.o
-
-#bookrglut.cpp: fontpng.c
-
-#bkstrlines.cpp: fontdata.c
-
-#fontdata.c: bvs20-256x128.bnt
-#	bin2c bvs20-256x128.bnt fontdata.c fontdata
-
-#fontpng.c: bvs20-256x128_00.png
-#	bin2c bvs20-256x128_00.png fontpng.c fontpng
-
+OBJS:= bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
+OBJS+= fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
+OBJS+= tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
+OBJS+= res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o 
 
 $(EXE): $(OBJS)
 	@(cd mupdf; make -f Makefile.glut)
+	@(cd djvu;  make -f Makefile.glut)
 	$(CLINK) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
-
-#%.a: $(OBJS)
-#	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 %.$(OEX): %.cpp
 	$(CXX) $(CXXFLAGS) $< -c -o $@
@@ -45,11 +39,30 @@ $(EXE): $(OBJS)
 %.$(OEX): %.c
 	$(CC) $(CFLAGS) $< -c -o $@
 
-#%.$(OEX): %.asm
-#	$(NASM) $(NASMFLAGS) $< -o $@
+res_uifont.c: data/urwgothicb.pfb
+	bin2c $< temp res_uifont
+	sed s/static// temp > $@
+	rm -f temp
 
-#%.$(OEX): %.rc
-#	$(WINDRES) $< -O coff -o $@
+res_txtfont.c: data/vera.ttf
+	bin2c $< temp res_txtfont
+	sed s/static// temp > $@
+	rm -f temp
+
+res_uitex.c: data/ui.png
+	bin2c $< temp res_uitex
+	sed s/static// temp > $@
+	rm -f temp
+
+res_uitex2.c: data/ui2.png
+	bin2c $< temp res_uitex2
+	sed s/static// temp > $@
+	rm -f temp
+
+res_logo.c: data/logo.png
+	bin2c $< temp res_logo
+	sed s/static// temp > $@
+	rm -f temp
 
 clean:
 	rm -f  $(EXE)

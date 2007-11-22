@@ -10,8 +10,9 @@ OEX=o
 AR=ar
 ARFLAGS=rc
 
-CXXFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
-CFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+JPEGLIBINC = -I/sw/include
+CXXFLAGS=-I../include ${JPEGLIBINC} -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CFLAGS=-I../include ${JPEGLIBINC} -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
 
 all: $(TARGET_LIB)
 

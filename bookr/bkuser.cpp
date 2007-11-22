@@ -125,7 +125,7 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"txtSize\" value=\"%d\" />\n", options.txtSize);
 	fprintf(f, "\t\t<set option=\"menuControlStyle\" value=\"%s\" />\n", controls.select == FZ_REPS_CIRCLE ? "asian" : "western");
 	fprintf(f, "\t\t<set option=\"txtHeightPct\" value=\"%d\" />\n", options.txtHeightPct);
-	for (uint i = 0; i < options.colorSchemes.size(); i++) {
+	for (unsigned int i = 0; i < options.colorSchemes.size(); i++) {
 		fprintf(f, "\t\t<set option=\"colorScheme\" id=\"%d\" foreground=\"%d\" background=\"%d\" />\n", i, options.colorSchemes[i].txtFGColor, options.colorSchemes[i].txtBGColor);
 	}
 	fprintf(f, "\t\t<set option=\"currentScheme\" value=\"%d\" />\n", options.currentScheme);

@@ -11,8 +11,9 @@ OEX=o
 AR=ar
 ARFLAGS=rc
 
-CXXFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
-CFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+FTOBSDIR = -I/sw/lib/freetype2/include/freetype2
+CXXFLAGS=-I../include ${FTOBSDIR} -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CFLAGS=-I../include ${FTOBSDIR} -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
 
 all: $(TARGET_LIB)
 

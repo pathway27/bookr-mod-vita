@@ -7,8 +7,8 @@ OEX=o
 AR=ar
 ARFLAGS=rc
 
-CXXFLAGS=-DARCH_X86 -mmmx -I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
-CFLAGS=-DARCH_X86 -mmmx -I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CXXFLAGS= -mmmx -I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CFLAGS= -mmmx -I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
 
 all: $(TARGET_LIB)
 

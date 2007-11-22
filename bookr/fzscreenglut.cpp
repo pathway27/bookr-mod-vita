@@ -22,13 +22,14 @@
 #include <stdio.h>
 #include <cstring>
 #include <time.h>
-#include <malloc.h>
+#include <sys/malloc.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
 
 #ifdef MAC
 #include <GLUT/glut.h>
+#include <Carbon/Carbon.h>
 #elif defined (__CYGWIN__)
 #include "cygwin/freeglut.h"
 #else
@@ -578,6 +579,14 @@ int FZScreen::getSuspendSerial() {
 void FZScreen::setSpeed(int v) {
 }
 
+int FZScreen::getSpeed() {
+#ifdef MAC
+	return CurrentProcessorSpeed();
+#else
+	return 0;
+#endif
+}
+
 void FZScreen::getTime(int &h, int &m) {
 	time_t t = time(NULL);
 	struct tm* lt = localtime(&t);
@@ -590,8 +599,22 @@ int FZScreen::getBattery() {
 }
 
 int FZScreen::getUsedMemory() {
+#ifdef MAC
+/*
+	ProcessSerialNumber* PSN;
+	ProcessInfoRec* info;
+
+	GetCurrentProcess(PSN);
+	GetProcessInformation(PSN, info);
+	
+	return info->processSize;
+*/
+	return 0;
+#else
 	struct mallinfo mi = mallinfo();
 	return mi.uordblks;
 	//return mi.arena;
+#endif
 }
+	
 

@@ -549,7 +549,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		} else if (selItem == OPTIONS_MENU_ITEM_COLOR_SCHEMES) {
 			BKUser::options.currentScheme ++;
-			if ((uint) BKUser::options.currentScheme >= BKUser::options.colorSchemes.size()) {
+			if ((unsigned int) BKUser::options.currentScheme >= BKUser::options.colorSchemes.size()) {
 				BKUser::options.currentScheme = 0;
 			}
 			buildOptionMenu();

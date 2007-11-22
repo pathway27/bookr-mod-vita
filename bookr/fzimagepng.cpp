@@ -33,8 +33,14 @@ static void* memalign(int t, int s) {
 
 static FZInputStream* inStream = 0;
 //static void fz_png_read(png_structp t, png_bytep data, png_uint_32 size) {
+#ifdef MAC
+static void fz_png_read(png_structp t, png_bytep data, png_size_t size) {
+	inStream->getBlock((char*)data, size);
+#else
 static void fz_png_read(png_structp t, png_bytep data, unsigned int size) {
 	inStream->getBlock((char*)data, size);
+
+#endif	
 }
 
 FZImage* FZImage::createFromPNG(FZInputStream* in) {

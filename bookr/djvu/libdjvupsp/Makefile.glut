@@ -1,0 +1,69 @@
+PACKAGE_NAME = djvulibre
+PACKAGE_VERSION = 3.5.19
+
+DEFS = -DHAVE_CONFIG_H
+OPTS = -DNDEBUG -DNO_MMX=1 -O2 -G0 -Wall -Wno-non-virtual-dtor
+CXXRPOFLAGS = 
+JPEG_LIBS=-ljpeg
+JPEG_CFLAGS=
+THREAD_LIBS = 
+#THREAD_CFLAGS = -DTHREADMODEL=COTHREADS
+#THREAD_CFLAGS = -DTHREADMODEL=POSIXTHREADS
+THREAD_CFLAGS = -DTHREADMODEL=NOTHREADS
+
+srcdir = .
+configdir = ./config
+incdir = /sw/include
+
+INCS = -I${srcdir} -I${configdir} -I${incdir}
+FLAGS = ${DEFS} ${INCS} ${OPTS} ${JPEG_CFLAGS} ${THREAD_CFLAGS}
+LIBS=  ${JPEG_LIBS} ${THREAD_LIBS} -lm 
+CFLAGS = ${FLAGS}   
+CXXFLAGS =  ${FLAGS} ${CXXPICFLAGS} ${CXXRPOFLAGS}   
+
+TARGET_LIB = libdjvulibre.a
+
+OBJS=\
+	DjVuGlobal.o DjVuGlobalMemory.o GOS.o GException.o GContainer.o \
+	GString.o GThreads.o GRect.o GSmartPointer.o  MMX.o Arrays.o \
+	GBitmap.o GPixmap.o GScaler.o DjVuPalette.o ByteStream.o \
+	IFFByteStream.o BSByteStream.o BSEncodeByteStream.o ZPCodec.o \
+	JB2Image.o JB2EncodeCodec.o IW44Image.o IW44EncodeCodec.o \
+	MMRDecoder.o JPEGDecoder.o DataPool.o GURL.o DjVuFileCache.o \
+	DjVuPort.o GMapAreas.o DjVuAnno.o GIFFManager.o DjVuText.o \
+	DjVuInfo.o DjVuFile.o DjVuImage.o DjVuDocument.o \
+	DjVmDir.o DjVmDoc.o DjVmDir0.o DjVmNav.o DjVuNavDir.o \
+	DjVuErrorList.o DjVuDocEditor.o DjVuToPS.o DjVuDumpHelper.o \
+	DjVuMessageLite.o DjVuMessage.o GUnicode.o UnicodeByteStream.o \
+	XMLParser.o XMLTags.o miniexp.o ddjvuapi.o debug.o
+
+CXX=g++
+CC=gcc
+OEX=o
+AR=ar
+ARFLAGS=rc
+
+all: $(TARGET_LIB)
+
+%.a: $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+	ranlib $@
+	cp $@ ../libs
+
+%.$(OEX): %.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+%.$(OEX): %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+clean:
+	rm -f  $(TARGET_LIB)
+	rm -Rf *.o
+	rm -f gmon.out
+	
+# Dependencies
+include Makefile.dep	
+	
+	
+#	CXXFLAGS=-DARCH_X86 -I../include -g3 -Wall -W -Wno-unused -O0 -pipe #`freetype-config --cflags`
+#	CFLAGS=-DARCH_X86 -I../include -g3 -Wall -W -Wno-unused -O0 -pipe #`freetype-config --cflags`

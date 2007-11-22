@@ -38,7 +38,7 @@ int BKColorSchemeManager::update(unsigned int buttons) {
 	int* b = FZScreen::ctrlReps();
 	
 	if (b[BKUser::controls.select] == 1) {
-		if ((uint) selItem == BKUser::options.colorSchemes.size() &&
+		if ((unsigned int) selItem == BKUser::options.colorSchemes.size() &&
 			selItem < 100) {
 			BKUser::ColorScheme newScheme;
 			newScheme.txtBGColor = 0xDDDDDD;

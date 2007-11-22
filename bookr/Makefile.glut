@@ -11,7 +11,7 @@ ARFLAGS=r
 CXXFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
 CFLAGS=-Imupdf/include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
 LDFLAGS=-g3 -Wall -W -Wno-unused -O0 -pipe
-LIBS=-Lmupdf/libs -lmupdf -lraster -lworld -lfonts -lstream -lbase -lfreetype -lz -lpng -ljpeg -lglut -lGL -L/usr/X11R6/lib -lGLU -lX11 -lXext -lm
+LIBS=-Lmupdf/libs -Ldjvu/libs -lmupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lfreetype -lz -lpng -ljpeg -lglut -lGL -L/usr/X11R6/lib -lGLU -lX11 -lXext -lm
 
 EXE=bookr.glut
 
