@@ -1,0 +1,470 @@
+Index: ByteStream.cpp
+===================================================================
+RCS file: /cvsroot/djvu/djvulibre-3.5/libdjvu/ByteStream.cpp,v
+retrieving revision 1.24
+diff -u -p -d -r1.24 ByteStream.cpp
+--- ByteStream.cpp	14 Jul 2007 01:21:56 -0000	1.24
++++ ByteStream.cpp	11 Jun 2009 03:48:54 -0000
+@@ -62,6 +62,9 @@
+ // Our original implementation consisted of multiple classes.
+ // <http://prdownloads.sourceforge.net/djvu/DjVu2_2b-src.tgz>.
+ 
++// Modified by Yang.Hu, 8/10/2007
++// define dup and add include files for psp
++
+ #ifdef HAVE_CONFIG_H
+ # include "config.h"
+ #endif
+@@ -81,13 +84,13 @@
+ # include <io.h>
+ #endif
+ 
+-#ifdef UNIX
+-# ifndef HAS_MEMMAP
+-#  define HAS_MEMMAP 1
+-# endif
+-#endif
++// #ifdef UNIX
++// # ifndef HAS_MEMMAP
++// #  define HAS_MEMMAP 1
++// # endif
++// #endif
+ 
+-#ifdef UNIX
++#if defined(PSP)
+ # include <sys/types.h>
+ # include <sys/stat.h>
+ # include <unistd.h>
+@@ -95,17 +98,22 @@
+ # ifdef HAS_MEMMAP
+ #  include <sys/mman.h>
+ # endif
+-#endif
+-
+-#ifdef macintosh
+-# ifndef UNIX
+-#  include <unistd.h>
++__inline int dup (int fd) {return fcntl (fd, F_DUPFD, 0);}
++#elif defined(UNIX)
++# include <sys/types.h>
++# include <sys/stat.h>
++# include <unistd.h>
++# include <errno.h>
++# ifdef HAS_MEMMAP
++#  include <sys/mman.h>
++# endif
++#elif defined(macintosh)
++# include <unistd.h>
+ _MSL_IMP_EXP_C int _dup(int);
+ _MSL_IMP_EXP_C int _dup2(int,int);
+ _MSL_IMP_EXP_C int _close(int);
+ __inline int dup(int _a ) { return _dup(_a);}
+ __inline int dup2(int _a, int _b ) { return _dup2(_a, _b);}
+-# endif
+ #endif
+ 
+ #ifdef WIN32
+Index: DjVuToPS.cpp
+===================================================================
+RCS file: /cvsroot/djvu/djvulibre-3.5/libdjvu/DjVuToPS.cpp,v
+retrieving revision 1.27
+diff -u -p -d -r1.27 DjVuToPS.cpp
+--- DjVuToPS.cpp	5 Aug 2008 20:50:35 -0000	1.27
++++ DjVuToPS.cpp	11 Jun 2009 03:48:56 -0000
+@@ -56,6 +56,9 @@
+ // $Id: djvu-20090611.patch,v 1.1 2009/06/11 03:51:52 papaya Exp $
+ // $Name:  $
+ 
++// Modified by Yang.Hu, 8/15/2007
++// add implementation for psp, almost the same as unix except uid
++
+ #ifdef HAVE_CONFIG_H
+ # include "config.h"
+ #endif
+@@ -335,7 +338,8 @@ store_doc_prolog(ByteStream &str, int pa
+   time_t tm=time(0);
+   write(str, "%%%%CreationDate: %s", ctime(&tm));
+   // For
+-#ifdef UNIX
++#ifndef PSP
++  #ifdef UNIX
+   passwd *pswd = getpwuid(getuid());
+   if (pswd)
+     {
+@@ -350,6 +354,7 @@ store_doc_prolog(ByteStream &str, int pa
+       if (s)
+         write(str, "%%%%For: %s\n", s);
+     }
++  #endif
+ #endif
+   // Language
+   write(str, "%%%%LanguageLevel: %d\n", options.get_level());
+Index: GOS.cpp
+===================================================================
+RCS file: /cvsroot/djvu/djvulibre-3.5/libdjvu/GOS.cpp,v
+retrieving revision 1.17
+diff -u -p -d -r1.17 GOS.cpp
+--- GOS.cpp	10 Mar 2008 13:58:54 -0000	1.17
++++ GOS.cpp	11 Jun 2009 03:48:57 -0000
+@@ -56,6 +56,9 @@
+ // $Id: djvu-20090611.patch,v 1.1 2009/06/11 03:51:52 papaya Exp $
+ // $Name:  $
+ 
++// Modified by Yang.Hu, 8/10/2007
++// add include <sys/select.h> for psp
++
+ #ifdef HAVE_CONFIG_H
+ # include "config.h"
+ #endif
+@@ -100,6 +103,7 @@
+ # include <sys/types.h>
+ # include <sys/stat.h>
+ # include <sys/time.h>
++# include <sys/select.h>
+ # include <fcntl.h>
+ # include <pwd.h>
+ # include <stdio.h>
+Index: GURL.cpp
+===================================================================
+RCS file: /cvsroot/djvu/djvulibre-3.5/libdjvu/GURL.cpp,v
+retrieving revision 1.29
+diff -u -p -d -r1.29 GURL.cpp
+--- GURL.cpp	27 Jan 2008 16:16:26 -0000	1.29
++++ GURL.cpp	11 Jun 2009 03:48:58 -0000
+@@ -56,6 +56,9 @@
+ // $Id: djvu-20090611.patch,v 1.1 2009/06/11 03:51:52 papaya Exp $
+ // $Name:  $
+ 
++// Modified by Yang.Hu, 8/15/2007
++// add implementation for psp
++
+ #ifdef HAVE_CONFIG_H
+ # include "config.h"
+ #endif
+@@ -182,7 +185,9 @@ static const char percent='%';
+ static const char localhostspec1[] = "//localhost/";
+ static const char localhostspec2[] = "///";
+ static const char nillchar=0;
+-#if defined(UNIX)
++#if defined(PSP)
++static char const * const root = &nillchar;
++#elif defined(UNIX)
+   static const char tilde='~';
+   static const char root[] = "/";
+ #elif defined(WIN32) || defined(OS2)
+@@ -290,6 +295,36 @@ GURL::beautify_path(GUTF8String xurl)
+   // Convert /./ stuff into plain /
+   for(;(ptr=strstr(start, "/./"));collapse(ptr, 2))
+     EMPTY_LOOP;
++#if defined(PSP)
++  if(!xurl.cmp(filespec,sizeof(filespec)-1))
++  {
++	int offset=1;
++	if(start&&(start[0] == '/')&& 
++           !xurl.cmp("file:////",sizeof("file:////")-1))
++	{
++	  collapse(start, 1);
++	  offset=0;
++	}
++    for(ptr=start+offset;(ptr=strchr(ptr, '/'));)
++	{
++	  ++ptr;
++	  if('m' == ptr[0] && 's' == ptr[1] && isdigit(ptr[2]))
++	  {
++	    if((ptr[3] == ':')&&(ptr[4]=='/'))
++		{
++		  char *buffer2;
++                  GPBuffer<char> gbuffer2(buffer2,strlen(ptr)+1);
++		  strcpy(buffer2,ptr);
++		  gbuffer.resize(strlen(ptr)+sizeof(localhost));
++		  strcpy(buffer,localhost);
++		  strcat(buffer,buffer2);
++		  ptr=(start=buffer+sizeof(localhost)+2)+1;
++		}
++	  }
++	}
++  }
++#endif
++
+ #if defined(WIN32) || defined(OS2)
+   if(!xurl.cmp(filespec,sizeof(filespec)-1))
+   {
+@@ -441,6 +476,14 @@ GURL::GURL(const GUTF8String & url_in)
+ GURL::GURL(const GNativeString & url_in)
+   : url(url_in.getNative2UTF8()), validurl(false)
+ {
++#if defined(PSP)
++  if(is_valid() && is_local_file_url())
++  {
++    GURL::Filename::UTF8 xurl(UTF8Filename());
++    url=xurl.get_string(true);
++    validurl=false;
++  }
++#endif
+ #if defined(WIN32) || defined(OS2)
+   if(is_valid() && is_local_file_url())
+   {
+@@ -1073,7 +1116,9 @@ GURL::encode_reserved(const GUTF8String 
+   for (; *s; s++,d++)
+   {
+     // Convert directory separator to slashes
+-#if defined(WIN32) || defined(OS2)
++#if defined(PSP)
++    if (*s == slash )
++#elif defined(WIN32) || defined(OS2)
+     if (*s == backslash || *s== slash)
+ #else
+ #ifdef macintosh
+@@ -1323,6 +1368,15 @@ GURL::UTF8Filename(void) const
+     else if ( !GStringRep::cmp(localhostspec2, url_ptr, sizeof(localhostspec2)-1 ) )
+       // RFC 1738 local host form
+       url_ptr += sizeof(localhostspec2)-1;
++    else if ( (strlen(url_ptr) > 6 )    // "file://ms<number>:/<path>"
++	&& (url_ptr[0] == slash)    // "file://ms<number>|/<path>"
++	&& (url_ptr[1] == slash)
++	&& (url_ptr[2] == 'm')
++	&& (url_ptr[3] == 's')
++	&& (isdigit(url_ptr[4]))
++        && ( url_ptr[5] == colon || url_ptr[5] == '|' )
++        && (url_ptr[6] == slash) )
++      url_ptr += 2;
+     else if ( (strlen(url_ptr) > 4)   // "file://<letter>:/<path>"
+         && (url_ptr[0] == slash)      // "file://<letter>|/<path>"
+         && (url_ptr[1] == slash)
+@@ -1354,6 +1408,15 @@ GURL::UTF8Filename(void) const
+     retval = expand_name(url_ptr,root);
+ #endif
+     
++#if defined(PSP)
++    if (('m' == url_ptr[0]) && ('s' == url_ptr[1]) && isdigit(url_ptr[2]) && url_ptr[3]=='|' && url_ptr[4]== slash)
++    {
++	GUTF8String drive;
++	drive.format("%c%c%c%c%c", url_ptr[0],url_ptr[1],url_ptr[2],colon,slash);
++	retval = expand_name(url_ptr+5, drive);
++    }
++#endif
++    
+ #if defined(WIN32) || defined(OS2)
+     if (url_ptr[0] && url_ptr[1]=='|' && url_ptr[2]== slash)
+     {
+@@ -1502,7 +1565,8 @@ GURL::follow_symlinks(void) const
+ {
+   GURL ret = *this;
+ #if defined(S_IFLNK)
+-#if defined(UNIX) || defined(macintosh)
++  #ifndef PSP
++    #if defined(UNIX) || defined(macintosh)
+   int lnklen;
+   char lnkbuf[MAXPATHLEN+1];
+   struct stat buf;
+@@ -1514,7 +1578,8 @@ GURL::follow_symlinks(void) const
+       GNativeString lnk(lnkbuf);
+       ret = GURL(lnk, ret.base());
+     }
+-#endif
++    #endif
++  #endif
+ #endif
+   return ret;
+ }
+@@ -1663,8 +1728,118 @@ GURL::expand_name(const GUTF8String &xfn
+   GUTF8String retval;
+   const size_t maxlen=xfname.length()*9+MAXPATHLEN+10;
+   char * const string_buffer = retval.getbuf(maxlen);
+-  // UNIX implementation
+-#if defined(UNIX)
++
++#if defined(PSP)  // PSP implementation
++  // Handle base
++  strcpy(string_buffer, (char const *)(from ? expand_name(from) : GOS::cwd()));
++
++  // Process absolute vs. relative path
++  char *s = string_buffer;
++  if(fname)
++  {
++    // Handle absolute part of fname
++    //      Put absolute part of the file name in string_buffer, and
++    //      the relative part pointed to by fname.
++    if (fname[0] == slash)
++    {
++      if(fname[1] == slash)
++      {       // Case "//abcd"
++        s[0]=s[1]=slash; s[2]=0;
++      }
++      else
++      {       // Case "/abcd" or "/"
++              //    File is at the root of the current drive. Delete the
++              //    slash at the beginning of the filename and leave
++              //    an explicit identification of the root of the drive in
++              //    string_buffer.
++        fname++;
++        s[5] = '\0';
++       }
++     }
++     else if (fname[0] && fname[3]==colon)
++     {
++       if (fname[4]!=slash)
++       {       // Case "x:abcd"
++         if ( s[2] != fname[2] || s[3] != colon)
++         {
++           s[0]='m';
++           s[1]='s';
++           s[2]=fname[2];
++           s[3]=colon;
++           s[4]=0;
++           // not implement yet
++         }
++         fname += 4;
++       } 
++       else if (fname[5] != slash)
++       {       // Case "x:/abcd"
++         s[0]='m';
++         s[1]='s';
++         s[2]=fname[2];
++         s[3]=colon;
++         s[4]=slash;
++         s[5]=0;
++         fname += 5;
++       }
++       else
++       {       // Case "x://abcd"
++         s[0]=s[1]=slash;
++         s[2]=0;
++         fname += 6;
++       }
++     }  
++    // Process path components
++    s = string_buffer + strlen(string_buffer);
++    for(;fname[0]== slash;fname++)
++      EMPTY_LOOP;
++
++    while(fname[0])
++    {
++      if (fname[0] == dot )
++      {
++        if (!fname[1] || fname[1]== slash)
++        {
++          fname++;
++          continue;
++        }else if (fname[1]== dot && (fname[2]== slash || !fname[2]))
++        {
++          fname +=2;
++          for(;s>string_buffer+5 && *(s-1)== slash; s--)
++            EMPTY_LOOP;
++          for(;s>string_buffer+5 && *(s-1)!= slash; s--)
++            EMPTY_LOOP;
++          continue;
++        }
++      }
++      if (s==string_buffer)
++      {
++        s += 5;
++      }
++      if (*(s-1)!= slash)
++      {
++        *s = slash;
++        s++;
++      }
++      while (*fname &&(*fname!= slash))
++      {
++        *s = *fname++;
++        if ((size_t)((++s)-string_buffer) > maxlen)
++        {
++          G_THROW( ERR_MSG("GURL.big_name") );
++        }
++      }
++      *s = 0;
++      for(;fname[0]== slash;fname++)
++        EMPTY_LOOP;
++    }
++  }
++  if (!fname || !fname[0])
++  {
++    for(;s>string_buffer+5 && *(s-1) == slash; s--)
++      EMPTY_LOOP;
++    *s = 0;
++  }
++#elif defined(UNIX)  // UNIX implementation
+   // Perform tilde expansion
+   GUTF8String senv;
+   if (fname && fname[0]==tilde)
+Index: ddjvuapi.cpp
+===================================================================
+RCS file: /cvsroot/djvu/djvulibre-3.5/libdjvu/ddjvuapi.cpp,v
+retrieving revision 1.91
+diff -u -p -d -r1.91 ddjvuapi.cpp
+--- ddjvuapi.cpp	17 May 2009 23:57:42 -0000	1.91
++++ ddjvuapi.cpp	11 Jun 2009 03:48:58 -0000
+@@ -55,6 +55,9 @@
+ 
+ /* $Id: djvu-20090611.patch,v 1.1 2009/06/11 03:51:52 papaya Exp $ */
+ 
++// Modified by Yang.Hu, 8/20/2007
++// add DDJVU_FORMAT_RGBMASK32 for 32bit RGBA color
++
+ #ifdef HAVE_CONFIG_H
+ # include "config.h"
+ #endif
+@@ -2083,6 +2086,7 @@ ddjvu_format_create(ddjvu_format_style_t
+         }
+         break;
+       }
++    case DDJVU_FORMAT_RGB32:
+     case DDJVU_FORMAT_RGB24:
+     case DDJVU_FORMAT_BGR24:
+     case DDJVU_FORMAT_GREY8:
+@@ -2149,6 +2153,14 @@ fmt_convert_row(const GPixel *p, int w, 
+         }
+         break;
+       }
++    case DDJVU_FORMAT_RGB32:    /* truecolor 32 bits in RGB order */
++      { 
++        while (--w >= 0) { 
++          buf[0]=p->r; buf[1]=p->g; buf[2]=p->b; buf[3] = 0xFF;
++          buf+=4; p+=1; 
++        }
++        break;
++      }
+     case DDJVU_FORMAT_RGBMASK16: /* truecolor 16 bits with masks */
+       {
+         uint16_t *b = (uint16_t*)buf;
+@@ -2244,6 +2256,14 @@ fmt_convert_row(unsigned char *p, unsign
+         }
+         break;
+       }
++    case DDJVU_FORMAT_RGB32:    /* truecolor 32 bits in RGB order */
++      { 
++        while (--w >= 0) { 
++          buf[0]=buf[1]=buf[2]=buf[3]=g[*p];
++          buf+=4; p+=1; 
++        }
++        break;
++      }
+     case DDJVU_FORMAT_RGBMASK16: /* truecolor 16 bits with masks */
+       {
+         uint16_t *b = (uint16_t*)buf;
+Index: ddjvuapi.h
+===================================================================
+RCS file: /cvsroot/djvu/djvulibre-3.5/libdjvu/ddjvuapi.h,v
+retrieving revision 1.66
+diff -u -p -d -r1.66 ddjvuapi.h
+--- ddjvuapi.h	17 Apr 2008 19:57:21 -0000	1.66
++++ ddjvuapi.h	11 Jun 2009 03:48:58 -0000
+@@ -56,6 +56,9 @@
+ 
+ /* $Id: djvu-20090611.patch,v 1.1 2009/06/11 03:51:52 papaya Exp $ */
+ 
++// Modified by Yang.Hu, 8/20/2007
++// add DDJVU_FORMAT_RGBMASK32 for 32bit RGBA color
++
+ #ifndef DDJVUAPI_H
+ #define DDJVUAPI_H
+ 
+@@ -1176,6 +1179,7 @@ ddjvu_unmap_rect(ddjvu_rectmapper_t *map
+ typedef enum {
+   DDJVU_FORMAT_BGR24,           /* truecolor 24 bits in BGR order */
+   DDJVU_FORMAT_RGB24,           /* truecolor 24 bits in RGB order */
++  DDJVU_FORMAT_RGB32,           /* truecolor 32 bits in RGB order */
+   DDJVU_FORMAT_RGBMASK16,       /* truecolor 16 bits with masks */
+   DDJVU_FORMAT_RGBMASK32,       /* truecolor 32 bits with masks */
+   DDJVU_FORMAT_GREY8,           /* greylevel 8 bits */

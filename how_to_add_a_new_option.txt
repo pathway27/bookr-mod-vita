@@ -1,0 +1,8 @@
+0. add macro of new option in bkmainmenu.cpp
+1. add a new member to struct Options in bkuser.h;
+2. add its default value in BKUser::setDefaultOptions() in bkuser.cpp
+3. add code to read/write its value from/to user.xml in BKUser::load()/BKUser::save() of bkuser.cpp
+4. add code to display its entry in options menu. bkmainmenu.cpp 
+5. add code to change its value in bkmainmenu.cpp
+6. add code to use its value.
+

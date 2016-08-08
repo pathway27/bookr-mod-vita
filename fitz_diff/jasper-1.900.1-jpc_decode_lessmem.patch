@@ -1,0 +1,180 @@
+--- old-jasper-1.900.1/src/libjasper/jpc/jpc_dec.c	2009-06-02 11:27:30.000000000 +0800
++++ new-jasper-1.900.1/src/libjasper/jpc/jpc_dec.c	2009-06-02 12:20:01.000000000 +0800
+@@ -175,6 +175,7 @@
+ static int jpc_pi_addpchgfrompoc(jpc_pi_t *pi, jpc_poc_t *poc);
+ 
+ static int jpc_dec_decode(jpc_dec_t *dec);
++static int jpc_dec_decode_lessmem(jpc_dec_t *dec);
+ static jpc_dec_t *jpc_dec_create(jpc_dec_importopts_t *impopts, jas_stream_t *in);
+ static void jpc_dec_destroy(jpc_dec_t *dec);
+ static void jpc_dequantize(jas_matrix_t *x, jpc_fix_t absstepsize);
+@@ -230,6 +231,10 @@
+ 	{0, JPC_MH | JPC_TPH, jpc_dec_process_unk}
+ };
+ 
++/* decode mode: 0 - normal; 1 - slower but less memory */
++/* this value is supposed to be modified externally */
++	int jpc_decode_mode = 0;
++
+ /******************************************************************************\
+ * The main entry point for the JPEG-2000 decoder.
+ \******************************************************************************/
+@@ -254,8 +259,15 @@
+ 	}
+ 
+ 	/* Do most of the work. */
+-	if (jpc_dec_decode(dec)) {
+-		goto error;
++	if (jpc_decode_mode == 1){
++	  if (jpc_dec_decode_lessmem(dec)) {
++	    goto error;
++	  }
++	}
++	else {
++	  if (jpc_dec_decode(dec)) {
++	    goto error;
++	  }
+ 	}
+ 
+   // GeoJasper: dima - begin - first declare all components as GRAY and if there are more than 3 set first 3 as RGB
+@@ -431,6 +443,140 @@
+ 	return 0;
+ }
+ 
++static int jpc_dec_decode_lessmem(jpc_dec_t *dec)
++{
++	jpc_ms_t *ms;
++	jpc_dec_mstabent_t *mstabent;
++	int ret;
++	jpc_cstate_t *cstate;
++
++	/* process tiles one by one. slower but less memory required.*/
++	int t_curtile = 0;
++	int t_tilemax = 0;
++	long t_curstreampos = jas_stream_tell(dec->in);
++	short t_canprocessnow = 0;
++	long before_ms_pos = 0;
++
++	if (!(cstate = jpc_cstate_create())) {
++		return -1;
++	}
++	dec->cstate = cstate;
++
++      while (t_curtile<=t_tilemax){
++	jas_stream_seek(dec->in, t_curstreampos, SEEK_SET);
++	/* Initially, we should expect to encounter a SOC marker segment. */
++	dec->state = JPC_MHSOC;
++
++	for (;;) {
++	  
++	  /* Get the next marker segment in the code stream. */
++	  before_ms_pos = jas_stream_tell(dec->in);
++	  if (!(ms = jpc_getms(dec->in, cstate))) {
++	    
++	    // GeoJasper: dima - adobe photoshop cs2 files seem not to end with the EOC marker
++	    // although they carry additional pair of SOT/SOD markers
++	    // we can catch this by checking for tile number and leave
++	    if (dec->tiles && dec->tiles->partno >= dec->tiles->numparts && dec->state == JPC_TPHSOT) {
++	      break;  /* break out of for(;;) , originally return 0; */
++	    }
++	    
++	    jas_eprintf("cannot get marker segment\n");
++	    return -1;
++	  }
++	  mstabent = jpc_dec_mstab_lookup(ms->id);
++	  assert(mstabent);
++
++
++		/* Process the marker segment. */
++	  if (mstabent->action) {
++	    if (mstabent->id == JPC_MS_SOT){
++	      /* sot ms, get its tileno, update t_tilemax. 
++	       * if tileno equals t_curtile, set t_canprocessnow to true and call action.
++	       * else set t_canprocessnow to false and skip calling action.
++	       */
++	      jpc_sot_t* sot = &ms->parms.sot;
++	      if (sot->tileno>t_tilemax)
++		t_tilemax = sot->tileno;
++	      if (sot->tileno == t_curtile){
++		t_canprocessnow = 1;
++		/* Ensure that this type of marker segment is permitted
++		   at this point in the code stream. */
++		if (!(dec->state & mstabent->validstates)) {
++		  jas_eprintf("unexpected marker segment type %d %d\n", dec->state, mstabent->validstates);
++		  jpc_ms_destroy(ms);
++		  return -1;
++		}
++		ret = (*mstabent->action)(dec, ms);
++	      }
++	      else{
++		t_canprocessnow = 0;
++		ret = 0;
++		jas_stream_seek(dec->in, before_ms_pos+sot->len, SEEK_SET);
++		dec->state = JPC_TPHSOT;
++	      }
++	    }
++	    else if (mstabent->id == JPC_MS_SOD){
++	      /* sod ms, process only when t_canprocessnow is true; otherwise just find and goto the end of this segment.*/
++	      if (t_canprocessnow){
++		/* Ensure that this type of marker segment is permitted
++		   at this point in the code stream. */
++		if (!(dec->state & mstabent->validstates)) {
++		  jas_eprintf("unexpected marker segment type %d %d\n", dec->state, mstabent->validstates);
++		  jpc_ms_destroy(ms);
++		  return -1;
++		}
++		ret = (*mstabent->action)(dec, ms);
++	      }
++	      else{
++		ret = 0;
++		dec->state = JPC_TPHSOT;
++	      }
++	    }
++	    else {
++	      /* Other ms, process for only once, when t_curtile is 0. 
++	       * Don't know if it is right to do so ...*/
++	      if (!t_curtile){
++		/* Ensure that this type of marker segment is permitted
++		   at this point in the code stream. */
++		if (!(dec->state & mstabent->validstates)) {
++		  jas_eprintf("unexpected marker segment type %d %d\n", dec->state, mstabent->validstates);
++		  jpc_ms_destroy(ms);
++		  return -1;
++		}
++		ret = (*mstabent->action)(dec, ms);
++	      }
++	      else{
++		ret = 0;
++		dec->state = JPC_TPHSOT;
++	      }
++	    }
++	    
++	    /*		    fprintf(stderr,"JASPER calling action for id: %d\n", mstabent->id);
++			    ret = (*mstabent->action)(dec, ms);
++			    fprintf(stderr,"JASPER done action for id: %d\n", mstabent->id);
++	    */
++	  }
++	  
++	  else {
++	    /* No explicit action is required. */
++	    ret = 0;
++	  }
++	  
++	  /* Destroy the marker segment. */
++	  jpc_ms_destroy(ms);
++	  
++	  if (ret < 0) {
++	    return -1;
++	  } else if (ret > 0) {
++	    break;
++	  }
++	  
++	}
++	t_curtile ++;
++      }
++      return 0;
++}
++
+ static int jpc_dec_process_crg(jpc_dec_t *dec, jpc_ms_t *ms)
+ {
+ 	int cmptno;

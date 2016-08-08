@@ -1,0 +1,13 @@
+--- old-jasper-1.900.1/acaux/config.sub	2007-01-20 05:54:42.000000000 +0800
++++ jasper-1.900.1/acaux/config.sub	2009-06-02 12:36:44.000000000 +0800
+@@ -819,6 +819,10 @@ case $basic_machine in
+ 	ps2)
+ 		basic_machine=i386-ibm
+ 		;;
++	psp)
++		basic_machine=mipsallegrexel-psp
++		os=-elf
++		;;
+ 	pw32)
+ 		basic_machine=i586-unknown
+ 		os=-pw32

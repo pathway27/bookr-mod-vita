@@ -1,0 +1,938 @@
+diff -upNrd orig/jasper-1.900.1/src/libjasper/base/jas_image.c jasper-1.900.1/src/libjasper/base/jas_image.c
+--- orig/jasper-1.900.1/src/libjasper/base/jas_image.c	2007-01-20 05:43:05.000000000 +0800
++++ jasper-1.900.1/src/libjasper/base/jas_image.c	2009-04-21 03:54:31.000000000 +0800
+@@ -3,6 +3,11 @@
+  *   British Columbia.
+  * Copyright (c) 2001-2003 Michael David Adams.
+  * All rights reserved.
++
++ GeoJasper revision: dima <dima@dimin.net>
++   11/07/2003 15:00 - dima - aux_buf added for j_image_t
++   22/09/2003 14:40 - dima - small correction in jas_image_writecmpt
++   2007-04-23 12:23 - dima - updated for a vector of metadata boxes
+  */
+ 
+ /* __START_OF_JASPER_LICENSE__
+@@ -83,6 +88,33 @@
+ #include "jasper/jas_string.h"
+ 
+ /******************************************************************************\
++* GeoJasper: dima - progress functions
++\******************************************************************************/
++
++#if !defined( JAS_PROGRESS_PROC_DEFINED )
++  #define JAS_PROGRESS_PROC_DEFINED
++  jas_progress_proc_t   progress_proc   = NULL;
++  jas_test_abort_proc_t test_abort_proc = NULL;
++#endif
++
++void jas_set_progress_proc( jas_progress_proc_t new_proc ) {
++  progress_proc = new_proc;
++}
++
++void jas_do_progress( int done, int total, char *descr ) {
++  if (progress_proc != NULL) progress_proc( done, total, descr );
++}
++
++void jas_set_test_abort_proc( jas_test_abort_proc_t new_proc ) {
++  test_abort_proc = new_proc;
++}
++
++int jas_test_abort( ) {
++  if (test_abort_proc != NULL) return test_abort_proc();
++  else return 0;
++}
++
++/******************************************************************************\
+ * Types.
+ \******************************************************************************/
+ 
+@@ -183,6 +215,31 @@ jas_image_t *jas_image_create(int numcmp
+ 	return image;
+ }
+ 
++// GeoJasper: begin - dima - metadata box buffer utils
++jas_metadata_box_t jas_box_init( void ) {
++  jas_metadata_box_t box;
++  memset( (void *)box.id, 0, 16 );
++  box.size = 0;
++  box.buf  = NULL;
++  return box;
++}
++
++bool jas_box_alloc ( jas_metadata_box_t *box, unsigned long size ) {
++  if (box == NULL) return false;
++  *box = jas_box_init();        
++  if ( box->buf = (uint_fast8_t *) jas_malloc( size ) )
++    box->size = size;
++  return (bool) box->buf;
++}
++
++void jas_box_free( jas_metadata_box_t *box ) {
++  if (box == NULL) return;
++  if ( (box->size != 0) && (box->buf != NULL) )
++    jas_free(box->buf);
++  *box = jas_box_init();
++}
++// GeoJasper: end   - dima - metadata box buffer utils
++
+ jas_image_t *jas_image_create0()
+ {
+ 	jas_image_t *image;
+@@ -202,6 +259,15 @@ jas_image_t *jas_image_create0()
+ 	image->inmem_ = true;
+ 	image->cmprof_ = 0;
+ 
++  // GeoJasper: begin - dima - buffer defines
++  {
++    int i;
++    image->metadata.count = JAS_IMAGE_NUM_BOXES;
++    for (i=0; i<image->metadata.count; ++i)
++      image->metadata.boxes[i] = jas_box_init();
++  }
++  // GeoJasper: end - dima - buffer defines
++
+ 	return image;
+ }
+ 
+@@ -283,6 +349,11 @@ void jas_image_destroy(jas_image_t *imag
+ {
+ 	int i;
+ 
++  // GeoJasper: begin - dima - free buffers
++  for (i=0; i<image->metadata.count; ++i)
++    jas_box_free( &image->metadata.boxes[i] );
++  // GeoJasper: end - dima - free buffers
++
+ 	if (image->cmpts_) {
+ 		for (i = 0; i < image->numcmpts_; ++i) {
+ 			jas_image_cmpt_destroy(image->cmpts_[i]);
+@@ -479,9 +550,9 @@ int jas_image_writecmpt(jas_image_t *ima
+ 		return -1;
+ 	}
+ 
+-	if (jas_matrix_numrows(data) != height || jas_matrix_numcols(data) != width) {
++	if (jas_matrix_numrows(data) < height || jas_matrix_numcols(data) < width) {
+ 		return -1;
+-	}
++	}	// GeoJasper: dima, change != to <
+ 
+ 	dr = jas_matrix_getref(data, 0, 0);
+ 	drs = jas_matrix_rowstep(data);
+@@ -908,6 +979,25 @@ int jas_image_readcmptsample(jas_image_t
+ 	return bitstoint(v, cmpt->prec_, cmpt->sgnd_);
+ }
+ 
++int jas_image_readcmptsample_mem(jas_image_t *image, int cmptno, int x, int y)
++{
++	jas_image_cmpt_t *cmpt;
++	uint_fast32_t v;
++	int k;
++	int c;
++
++	cmpt = image->cmpts_[cmptno];
++	jas_stream_memobj_t *m = (jas_stream_memobj_t *) cmpt->stream_->obj_;
++	v = 0;
++	for (k=0; k < cmpt->cps_; ++k) {
++		if ((c = (m->buf_[(cmpt->width_ * y + x) * cmpt->cps_ + k])) == EOF) {
++			return -1;
++		}
++		v = (v << 8) | (c & 0xff);
++	}
++	return bitstoint(v, cmpt->prec_, cmpt->sgnd_);
++}
++
+ void jas_image_writecmptsample(jas_image_t *image, int cmptno, int x, int y,
+   int_fast32_t v)
+ {
+diff -upNrd orig/jasper-1.900.1/src/libjasper/base/jas_stream.c jasper-1.900.1/src/libjasper/base/jas_stream.c
+--- orig/jasper-1.900.1/src/libjasper/base/jas_stream.c	2007-01-20 05:43:05.000000000 +0800
++++ jasper-1.900.1/src/libjasper/base/jas_stream.c	2009-04-21 03:54:31.000000000 +0800
+@@ -275,7 +275,8 @@ jas_stream_t *jas_stream_fopen(const cha
+ 	}
+ 	obj->fd = -1;
+ 	obj->flags = 0;
+-	obj->pathname[0] = '\0';
++	//obj->pathname[0] = '\0';
++  strncpy(obj->pathname, filename, DIM_MAX_FILE_NAME); // GeoJasper: dima
+ 	stream->obj_ = (void *) obj;
+ 
+ 	/* Select the operations for a file stream object. */
+diff -upNrd orig/jasper-1.900.1/src/libjasper/include/jasper/jas_config2.h jasper-1.900.1/src/libjasper/include/jasper/jas_config2.h
+--- orig/jasper-1.900.1/src/libjasper/include/jasper/jas_config2.h	2007-01-20 05:43:04.000000000 +0800
++++ jasper-1.900.1/src/libjasper/include/jasper/jas_config2.h	2009-04-21 03:54:31.000000000 +0800
+@@ -70,12 +70,16 @@
+  * normally defined by configure.
+  */
+ 
+-#define	uchar		unsigned char
+-#define	ushort		unsigned short
+-#define	uint		unsigned int
+-#define	ulong		unsigned long
+-#define	longlong	long long
++#define SIZEOF_INT 4
++#define SIZEOF_LONG 4
++
++#define	uchar unsigned char
++#define	ushort unsigned short
++#define	uint unsigned int
++#define	ulong unsigned long
++#define	longlong long long
+ #define	ulonglong	unsigned long long
++
+ /*#define	ssize_t		int*/
+ 
+ #define	HAVE_FCNTL_H		1
+@@ -85,5 +89,8 @@
+ #define	HAVE_SYS_TYPES_H	1
+ #define	HAVE_STDLIB_H		1
+ #define	HAVE_STDDEF_H		1
++#define STDC_HEADERS 1
++#define HAVE_STRING_H 1
++#define HAVE_STRINGS_H 1
+ 
+ #endif
+
+diff -upNrd orig/jasper-1.900.1/src/libjasper/include/jasper/jas_config.h.in jasper-1.900.1/src/libjasper/include/jasper/jas_config.h.in
+--- orig/jasper-1.900.1/src/libjasper/include/jasper/jas_config.h.in	2007-01-20 05:55:00.000000000 +0800
++++ jasper-1.900.1/src/libjasper/include/jasper/jas_config.h.in	2009-04-21 03:54:31.000000000 +0800
+@@ -16,7 +16,8 @@
+ #if !defined(JAS_WIN_MSVC_BUILD)
+ /* A configure-based build is being used. */
+ 
+-
++/* Define if running on MacOSX */
++#undef JAS_MACX_OPENGL
+ 
+ /* Extra debugging support */
+ #undef DEBUG
+@@ -120,12 +121,40 @@
+ /* Define to the version of this package. */
+ #undef PACKAGE_VERSION
+ 
++/* The size of a `int', as computed by sizeof. */
++#undef SIZEOF_INT
++
++/* The size of a `long', as computed by sizeof. */
++#undef SIZEOF_LONG
++
++/* The size of a `long long', as computed by sizeof. */
++#undef SIZEOF_LONG_LONG
++
++/* The size of a `short', as computed by sizeof. */
++#undef SIZEOF_SHORT
++
++/* The size of a `unsigned int', as computed by sizeof. */
++#undef SIZEOF_UNSIGNED_INT
++
++/* The size of a `unsigned long', as computed by sizeof. */
++#undef SIZEOF_UNSIGNED_LONG
++
++/* The size of a `unsigned long long', as computed by sizeof. */
++#undef SIZEOF_UNSIGNED_LONG_LONG
++
++/* The size of a `unsigned short', as computed by sizeof. */
++#undef SIZEOF_UNSIGNED_SHORT
++
+ /* Define to 1 if you have the ANSI C header files. */
+ #undef STDC_HEADERS
+ 
+ /* Version number of package */
+ #undef VERSION
+ 
++/* Define to 1 if your processor stores words with the most significant byte
++   first (like Motorola and SPARC, unlike Intel and VAX). */
++#undef WORDS_BIGENDIAN
++
+ /* Define to 1 if the X Window System is missing or not being used. */
+ #undef X_DISPLAY_MISSING
+ 
+diff -upNrd orig/jasper-1.900.1/src/libjasper/include/jasper/jas_image.h jasper-1.900.1/src/libjasper/include/jasper/jas_image.h
+--- orig/jasper-1.900.1/src/libjasper/include/jasper/jas_image.h	2007-01-20 05:43:04.000000000 +0800
++++ jasper-1.900.1/src/libjasper/include/jasper/jas_image.h	2009-04-21 04:03:35.000000000 +0800
+@@ -3,6 +3,10 @@
+  *   British Columbia.
+  * Copyright (c) 2001-2003 Michael David Adams.
+  * All rights reserved.
++
++ GeoJasper Revision:
++   11/07/2003 15:00 - dima - auxBuffer added for j_image_t : dima <dima@dimin.net>
++   2007-04-23 12:23 - dima - updated for a vector of metadata boxes
+  */
+ 
+ /* __START_OF_JASPER_LICENSE__
+@@ -178,6 +182,43 @@ typedef struct {
+ 
+ } jas_image_cmpt_t;
+ 
++
++// GeoJasper: dima - begin - metadata boxes defs
++// this field was added for aditional information about the image e.g. GeoTiff information
++#define JAS_IMAGE_NUM_BOXES 2
++#define JAS_IMAGE_BOX_GEO 0
++#define JAS_IMAGE_BOX_XMP 1
++
++typedef struct {
++  unsigned char   id[16]; // magic number of the UUID box stored
++  unsigned int    size;   // size of the buffer
++  unsigned char  *buf;    // the buffer wirh the box contents
++} jas_metadata_box_t;
++
++// here we use static array for metadata boxes for robustness, there are only two we eventually use anyways, 
++// in the future this can become dynamic, thus the count variable
++typedef struct {
++  unsigned int       count; // number of boxes, currently always 2
++  jas_metadata_box_t boxes[JAS_IMAGE_NUM_BOXES]; // the vector with box buffers
++} jas_metadata_boxes_t;
++
++jas_metadata_box_t jas_box_init( void );
++bool jas_box_alloc ( jas_metadata_box_t *box, unsigned long size );
++void jas_box_free  ( jas_metadata_box_t *box );
++// GeoJasper: dima - end - metadata boxes defs
++
++// GeoJasper: dima - begin - progress functions
++typedef void ( *jas_progress_proc_t) (int done, int total, char *descr);
++typedef int  ( *jas_test_abort_proc_t)( void );
++
++void jas_set_progress_proc( jas_progress_proc_t new_proc );
++void jas_set_test_abort_proc( jas_test_abort_proc_t new_proc );
++
++void jas_do_progress( int done, int total, char *descr ); 
++int  jas_test_abort( );
++// GeoJasper: dima - end - progress functions
++
++
+ /* Image class. */
+ 
+ typedef struct {
+@@ -212,6 +253,11 @@ typedef struct {
+ 
+ 	bool inmem_;
+ 
++  // GeoJasper: dima 
++  // this field here added for aditional information about the image e.g. GeoTiff information
++  jas_metadata_boxes_t metadata;
++  // GeoJasper
++
+ } jas_image_t;
+ 
+ /* Component parameters class. */
+@@ -445,6 +491,7 @@ int jas_image_depalettize(jas_image_t *i
+   int_fast32_t *lutents, int dtype, int newcmptno);
+ 
+ int jas_image_readcmptsample(jas_image_t *image, int cmptno, int x, int y);
++int jas_image_readcmptsample_mem(jas_image_t *image, int cmptno, int x, int y);
+ void jas_image_writecmptsample(jas_image_t *image, int cmptno, int x, int y,
+   int_fast32_t v);
+ 
+diff -upNrd orig/jasper-1.900.1/src/libjasper/include/jasper/jas_stream.h jasper-1.900.1/src/libjasper/include/jasper/jas_stream.h
+--- orig/jasper-1.900.1/src/libjasper/include/jasper/jas_stream.h	2007-01-20 05:43:04.000000000 +0800
++++ jasper-1.900.1/src/libjasper/include/jasper/jas_stream.h	2009-04-21 03:54:31.000000000 +0800
+@@ -248,10 +248,12 @@ typedef struct {
+ /*
+  * File descriptor file object.
+  */
++#define DIM_MAX_FILE_NAME 2048
+ typedef struct {
+ 	int fd;
+ 	int flags;
+-	char pathname[L_tmpnam + 1];
++	//char pathname[L_tmpnam + 1];
++	char pathname[DIM_MAX_FILE_NAME]; // dima: GeoJasper uses this field to store full file name
+ } jas_stream_fileobj_t;
+ 
+ #define	JAS_STREAM_FILEOBJ_DELONCLOSE	0x01
+diff -upNrd orig/jasper-1.900.1/src/libjasper/include/jasper/jas_version.h jasper-1.900.1/src/libjasper/include/jasper/jas_version.h
+--- orig/jasper-1.900.1/src/libjasper/include/jasper/jas_version.h	2007-01-20 05:43:04.000000000 +0800
++++ jasper-1.900.1/src/libjasper/include/jasper/jas_version.h	2009-04-21 03:54:31.000000000 +0800
+@@ -84,7 +84,10 @@ extern "C" {
+ #define	JAS_VERSION		"unknown"
+ #endif
+ 
++#define GJAS_VERSION "1.4.0"
++
+ #define	JAS_COPYRIGHT \
++  "GeoJasPer Copyright (c) 2003-2007 Dmitry Fedorov.\n" \
+ 	"Copyright (c) 2001-2006 Michael David Adams.\n" \
+ 	"Copyright (c) 1999-2000 Image Power, Inc. and the University of\n" \
+ 	"  British Columbia.\n" \
+@@ -93,16 +96,11 @@ extern "C" {
+ #define	JAS_NOTES \
+ 	"For more information about this software, please visit the following\n" \
+ 	"web sites/pages:\n" \
++  "\nGeoJasper - Geographical enhancements:\n" \
++	"    dimin@dimin.net <http://www.dimin.net>\n" \
++	"\nJPEG-2000 implementation:\n" \
+ 	"    http://www.ece.uvic.ca/~mdadams/jasper\n" \
+-	"    http://www.jpeg.org/software\n" \
+-	"To be added to the (moderated) JasPer software announcements\n" \
+-	"mailing list, send an email to:\n" \
+-	"    jasper-announce-subscribe@yahoogroups.com\n" \
+-	"To be added to the (unmoderated) JasPer software discussion\n" \
+-	"mailing list, send an email to:\n" \
+-	"    jasper-discussion-subscribe@yahoogroups.com\n" \
+-	"Please send any bug reports to:\n" \
+-	"    mdadams@ieee.org\n"
++	"    http://www.jpeg.org/software\n"
+ 
+ /******************************************************************************\
+ * Functions.
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jp2/jp2_cod.c jasper-1.900.1/src/libjasper/jp2/jp2_cod.c
+--- orig/jasper-1.900.1/src/libjasper/jp2/jp2_cod.c	2007-01-20 05:43:05.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jp2/jp2_cod.c	2009-04-21 03:54:31.000000000 +0800
+@@ -3,6 +3,9 @@
+  *   British Columbia.
+  * Copyright (c) 2001-2002 Michael David Adams.
+  * All rights reserved.
++
++ GeoJasper revision: Dima (11/07/2003 17:29 - UUID from j_image_t)
++ Modifications by Andrey Kiselev <dron@remotesensing.org> to handle UUID box properly.
+  */
+ 
+ /* __START_OF_JASPER_LICENSE__
+@@ -127,6 +130,11 @@ static void jp2_pclr_destroy(jp2_box_t *
+ static int jp2_pclr_getdata(jp2_box_t *box, jas_stream_t *in);
+ static int jp2_pclr_putdata(jp2_box_t *box, jas_stream_t *out);
+ static void jp2_pclr_dumpdata(jp2_box_t *box, FILE *out);
++// GeoJasper: dima - uuid
++static void jp2_uuid_destroy(jp2_box_t *box);
++static int jp2_uuid_getdata(jp2_box_t *box, jas_stream_t *in);
++static int jp2_uuid_putdata(jp2_box_t *box, jas_stream_t *out);
++
+ 
+ /******************************************************************************\
+ * Local data.
+@@ -164,7 +172,8 @@ jp2_boxinfo_t jp2_boxinfos[] = {
+ 	{JP2_BOX_XML, "XML", 0,
+ 	  {0, 0, 0, 0, 0}},
+ 	{JP2_BOX_UUID, "UUID", 0,
+-	  {0, 0, 0, 0, 0}},
++	  //{0, 0, 0, 0, 0}},
++	  {0, jp2_uuid_destroy, jp2_uuid_getdata, jp2_uuid_putdata, 0}}, // GeoJasper: dima - uuid
+ 	{JP2_BOX_UINF, "UINF", JP2_BOX_SUPER,
+ 	  {0, 0, 0, 0, 0}},
+ 	{JP2_BOX_ULST, "ULST", 0,
+@@ -876,6 +885,56 @@ static void jp2_pclr_dumpdata(jp2_box_t 
+ 	}
+ }
+ 
++static void jp2_uuid_destroy(jp2_box_t *box)
++{
++  jp2_uuid_t *uuid = &box->data.uuid;
++  if (uuid->data)
++  {
++      jas_free(uuid->data);
++      uuid->data = NULL;
++  }
++}
++
++static int jp2_uuid_getdata(jp2_box_t *box, jas_stream_t *in)
++{
++  jp2_uuid_t *uuid = &box->data.uuid;
++  int i;
++  
++  for (i = 0; i < 16; i++)
++  {
++    if (jp2_getuint8(in, &uuid->uuid[i]))
++      return -1;
++  }
++  
++  uuid->data_len = box->datalen - 16;
++  uuid->data = jas_malloc(uuid->data_len * sizeof(uint_fast8_t));
++  for (i = 0; i < uuid->data_len; i++)
++  {
++    if (jp2_getuint8(in, &uuid->data[i]))
++      return -1;
++  }
++  return 0;
++}
++
++static int jp2_uuid_putdata(jp2_box_t *box, jas_stream_t *out)
++{
++  jp2_uuid_t *uuid = &box->data.uuid;
++  int i;
++  
++  for (i = 0; i < 16; i++)
++  {
++      if (jp2_putuint8(out, uuid->uuid[i]))
++    return -1;
++  }
++  
++  for (i = 0; i < uuid->data_len; i++)
++  {
++      if (jp2_putuint8(out, uuid->data[i]))
++    return -1;
++  }
++  return 0;
++}
++
+ static int jp2_getint(jas_stream_t *in, int s, int n, int_fast32_t *val)
+ {
+ 	int c;
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jp2/jp2_cod.h jasper-1.900.1/src/libjasper/jp2/jp2_cod.h
+--- orig/jasper-1.900.1/src/libjasper/jp2/jp2_cod.h	2007-01-20 05:43:05.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jp2/jp2_cod.h	2009-04-21 03:54:31.000000000 +0800
+@@ -3,6 +3,9 @@
+  *   British Columbia.
+  * Copyright (c) 2001-2002 Michael David Adams.
+  * All rights reserved.
++
++ GeoJasper revision: Dima (11/07/2003 17:29 - UUID from j_image_t)
++ Modifications by Andrey Kiselev <dron@remotesensing.org> to handle UUID box properly.
+  */
+ 
+ /* __START_OF_JASPER_LICENSE__
+@@ -118,6 +121,20 @@
+ #define	JP2_JP_MAGIC	0x0d0a870a
+ #define	JP2_JP_LEN		12
+ 
++// Magic sequence for GeoJP2 UUID box
++static unsigned char msi_uuid[16] =
++        { 0xb1,0x4b,0xf8,0xbd,
++          0x08,0x3d,0x4b,0x43, 
++          0xa5,0xae,0x8c,0xd7,
++          0xd5,0xa6,0xce,0x03};
++
++// Magic sequence for XMP UUID box
++static unsigned char xmp_uuid[16] =
++        { 0xBE, 0x7A, 0xCF, 0xCB, 
++          0x97, 0xA9, 0x42, 0xE8, 
++          0x9C, 0x71, 0x99, 0x94,
++          0x91, 0xE3, 0xAF, 0xAC };
++
+ typedef struct {
+ 	uint_fast32_t magic;
+ } jp2_jp_t;
+@@ -229,6 +246,12 @@ typedef struct {
+ 	jp2_cmapent_t *ents;
+ } jp2_cmap_t;
+ 
++typedef struct {
++	uint_fast32_t data_len;
++	uint_fast8_t uuid[16];
++	uint_fast8_t *data;
++} jp2_uuid_t;
++
+ #define	JP2_CMAP_DIRECT		0
+ #define	JP2_CMAP_PALETTE	1
+ 
+@@ -257,6 +280,7 @@ typedef struct {
+ 		jp2_pclr_t pclr;
+ 		jp2_cdef_t cdef;
+ 		jp2_cmap_t cmap;
++		jp2_uuid_t uuid;
+ 	} data;
+ 
+ } jp2_box_t;
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jp2/jp2_dec.c jasper-1.900.1/src/libjasper/jp2/jp2_dec.c
+--- orig/jasper-1.900.1/src/libjasper/jp2/jp2_dec.c	2007-01-20 05:43:05.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jp2/jp2_dec.c	2009-04-21 04:15:59.000000000 +0800
+@@ -3,6 +3,8 @@
+  *   British Columbia.
+  * Copyright (c) 2001-2003 Michael David Adams.
+  * All rights reserved.
++
++ GeoJasper revision: Dima (11/07/2003 17:29 - UUID and additional args)
+  */
+ 
+ /* __START_OF_JASPER_LICENSE__
+@@ -116,6 +118,15 @@ jas_image_t *jp2_decode(jas_stream_t *in
+ 	jas_icchdr_t icchdr;
+ 	jas_iccprof_t *iccprof;
+ 
++  // GeoJasper: dima - begin - temporary metadata buffers
++  //jas_aux_buffer_t aux_buf;
++  //aux_buf.id = 0;
++  jas_metadata_boxes_t tmp_metadata;
++  tmp_metadata.count = JAS_IMAGE_NUM_BOXES;
++  for (i=0; i<tmp_metadata.count; ++i)
++    tmp_metadata.boxes[i] = jas_box_init();
++  // GeoJasper: dima - end - temporary metadata buffers
++
+ 	dec = 0;
+ 	box = 0;
+ 	image = 0;
+@@ -197,6 +208,24 @@ jas_image_t *jp2_decode(jas_stream_t *in
+ 				box = 0;
+ 			}
+ 			break;
++    //-------------------------------------------------------
++    case JP2_BOX_UUID: // GeoJasper: dima - begin extract uuid
++      {
++        int box_id = -1;
++        if ( memcmp( box->data.uuid.uuid, msi_uuid, sizeof(msi_uuid) ) == 0 ) box_id = JAS_IMAGE_BOX_GEO;
++        if ( memcmp( box->data.uuid.uuid, xmp_uuid, sizeof(xmp_uuid) ) == 0 ) box_id = JAS_IMAGE_BOX_XMP;
++
++        if( box_id >= 0 ) {
++          jas_metadata_box_t *metabox = &tmp_metadata.boxes[box_id]; 
++          if ( jas_box_alloc( metabox, box->data.uuid.data_len ) ) {
++            memcpy( metabox->id, box->data.uuid.uuid, sizeof(msi_uuid) );
++            memcpy( metabox->buf, box->data.uuid.data, metabox->size );
++          } // if box allocated
++        } // if uuid box contains info to copy
++      }
++
++			break; // GeoJasper: end - begin extract uuid
++    //-------------------------------------------------------
+ 		}
+ 		if (box) {
+ 			jp2_box_destroy(box);
+@@ -325,12 +354,14 @@ jas_image_t *jp2_decode(jas_stream_t *in
+ 			/* Is the component number reasonable? */
+ 			if (dec->cmap->data.cmap.ents[i].cmptno >= JAS_CAST(uint, jas_image_numcmpts(dec->image))) {
+ 				jas_eprintf("error: invalid component number in CMAP box\n");
+-				goto error;
++				dec->numchans = i;
++				break;
+ 			}
+ 			/* Is the LUT index reasonable? */
+ 			if (dec->cmap->data.cmap.ents[i].pcol >= dec->pclr->data.pclr.numchans) {
+ 				jas_eprintf("error: invalid CMAP LUT index\n");
+-				goto error;
++				dec->numchans = i;
++				break;
+ 			}
+ 		}
+ 	}
+@@ -386,6 +417,7 @@ jas_image_t *jp2_decode(jas_stream_t *in
+ 	/* Determine the type of each component. */
+ 	if (dec->cdef) {
+ 		for (i = 0; i < dec->numchans; ++i) {
++		  if (dec->image->cmpts_[dec->chantocmptlut[dec->cdef->data.cdef.ents[i].channo]])
+ 			jas_image_setcmpttype(dec->image,
+ 			  dec->chantocmptlut[dec->cdef->data.cdef.ents[i].channo],
+ 			  jp2_getct(jas_image_clrspc(dec->image),
+@@ -393,17 +425,28 @@ jas_image_t *jp2_decode(jas_stream_t *in
+ 		}
+ 	} else {
+ 		for (i = 0; i < dec->numchans; ++i) {
++		  if (dec->image->cmpts_[dec->chantocmptlut[i]])
+ 			jas_image_setcmpttype(dec->image, dec->chantocmptlut[i],
+ 			  jp2_getct(jas_image_clrspc(dec->image), 0, i + 1));
+ 		}
+ 	}
+ 
++  // GeoJasper: dima - let's preserve the actual image data by marking unknown components as gray
+ 	/* Delete any components that are not of interest. */
++  /*
+ 	for (i = jas_image_numcmpts(dec->image); i > 0; --i) {
+ 		if (jas_image_cmpttype(dec->image, i - 1) == JAS_IMAGE_CT_UNKNOWN) {
+ 			jas_image_delcmpt(dec->image, i - 1);
+ 		}
+ 	}
++  */
++  // GeoJasper: dima - let's preserve the actual image data by marking unknown components as gray
++	for (i = jas_image_numcmpts(dec->image); i > 0; --i) {
++		if (jas_image_cmpttype(dec->image, i-1) == JAS_IMAGE_CT_UNKNOWN) {
++			jas_image_setcmpttype(dec->image, i-1, JAS_IMAGE_CT_GRAY_Y);
++		}
++	}
++
+ 
+ 	/* Ensure that some components survived. */
+ 	if (!jas_image_numcmpts(dec->image)) {
+@@ -415,6 +458,14 @@ jas_eprintf("no of components is %d\n", 
+ #endif
+ 
+ 	/* Prevent the image from being destroyed later. */
++
++  // GeoJasper: begin - dima - copy buffers to the output image
++  for (i=0; i<tmp_metadata.count; ++i) {
++    dec->image->metadata.boxes[i] = tmp_metadata.boxes[i];
++    tmp_metadata.boxes[i] = jas_box_init();
++  }
++  // GeoJasper: end - dima - copy buffers to the output image
++
+ 	image = dec->image;
+ 	dec->image = 0;
+ 
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jp2/jp2_enc.c jasper-1.900.1/src/libjasper/jp2/jp2_enc.c
+--- orig/jasper-1.900.1/src/libjasper/jp2/jp2_enc.c	2007-01-20 05:43:05.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jp2/jp2_enc.c	2009-04-21 03:54:31.000000000 +0800
+@@ -3,6 +3,8 @@
+  *   British Columbia.
+  * Copyright (c) 2001-2003 Michael David Adams.
+  * All rights reserved.
++
++  GeoJasper revision: Dima (11/07/2003 17:29 - UUID)
+  */
+ 
+ /* __START_OF_JASPER_LICENSE__
+@@ -327,6 +329,37 @@ int sgnd;
+ 	tmpstream = 0;
+ 
+ 	/*
++	 * Output the UUID box
++	*/
++  // GeoJasper: dima - write UUID if received any metadata
++  if ( image->metadata.count > 0 ) {
++    int b;
++    for (b=0; b<image->metadata.count; ++b) {
++      jas_metadata_box_t *metabox = &image->metadata.boxes[b]; 
++
++      if ( metabox->size>0 && metabox->buf ) {
++        if (!(box = jp2_box_create( JP2_BOX_UUID )))
++	  	    goto error;
++
++        memcpy( box->data.uuid.uuid, metabox->id, sizeof(msi_uuid) );
++        box->data.uuid.data_len = metabox->size;
++        if ( !(box->data.uuid.data = (uint_fast8_t *)jas_malloc(metabox->size)) )
++          goto error;
++        memcpy( box->data.uuid.data, metabox->buf, metabox->size );
++      
++        if (jp2_box_put(box, out))
++			      goto error;
++
++	      jp2_box_destroy(box);
++	      box = 0;
++	    } // if box contains data
++    } // for boxes
++  } // if there are boxes
++  // GeoJasper: dima - write UUID if received
++
++
++
++	/*
+ 	 * Output the contiguous code stream box.
+ 	 */
+ 
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jpc/jpc_dec.c jasper-1.900.1/src/libjasper/jpc/jpc_dec.c
+--- orig/jasper-1.900.1/src/libjasper/jpc/jpc_dec.c	2007-01-20 05:43:07.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jpc/jpc_dec.c	2009-04-21 03:54:31.000000000 +0800
+@@ -3,6 +3,8 @@
+  *   British Columbia.
+  * Copyright (c) 2001-2003 Michael David Adams.
+  * All rights reserved.
++
++ GeoJasper revision: Dima - multiple chanels and photoshop cs2 support
+  */
+ 
+ /* __START_OF_JASPER_LICENSE__
+@@ -237,6 +239,7 @@ jas_image_t *jpc_decode(jas_stream_t *in
+ 	jpc_dec_importopts_t opts;
+ 	jpc_dec_t *dec;
+ 	jas_image_t *image;
++  unsigned int i;
+ 
+ 	dec = 0;
+ 
+@@ -255,19 +258,32 @@ jas_image_t *jpc_decode(jas_stream_t *in
+ 		goto error;
+ 	}
+ 
+-	if (jas_image_numcmpts(dec->image) >= 3) {
+-		jas_image_setclrspc(dec->image, JAS_CLRSPC_SRGB);
+-		jas_image_setcmpttype(dec->image, 0,
+-		  JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_R));
+-		jas_image_setcmpttype(dec->image, 1,
+-		  JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_G));
+-		jas_image_setcmpttype(dec->image, 2,
+-		  JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_B));
+-	} else {
+-		jas_image_setclrspc(dec->image, JAS_CLRSPC_SGRAY);
+-		jas_image_setcmpttype(dec->image, 0,
+-		  JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_GRAY_Y));
+-	}
++  // GeoJasper: dima - begin - first declare all components as GRAY and if there are more than 3 set first 3 as RGB
++  /*
++  if (jas_image_numcmpts(dec->image) >= 3) {
++    jas_image_setclrspc(dec->image, JAS_CLRSPC_SRGB);
++    jas_image_setcmpttype(dec->image, 0, JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_R));
++    jas_image_setcmpttype(dec->image, 1, JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_G));
++    jas_image_setcmpttype(dec->image, 2, JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_B));
++  } else {
++    jas_image_setclrspc(dec->image, JAS_CLRSPC_SGRAY);
++    jas_image_setcmpttype(dec->image, 0,
++      JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_GRAY_Y));
++  }
++  */
++
++  // GeoJasper: dima: fisrt define the default for color space to GRAY
++  jas_image_setclrspc(dec->image, JAS_CLRSPC_SGRAY);
++  for (i=0; i<jas_image_numcmpts(dec->image); ++i)
++    jas_image_setcmpttype(dec->image, i, JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_GRAY_Y));
++
++  if (jas_image_numcmpts(dec->image) >= 3) {
++    jas_image_setclrspc(dec->image, JAS_CLRSPC_SRGB);
++    jas_image_setcmpttype(dec->image, 0, JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_R));
++    jas_image_setcmpttype(dec->image, 1, JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_G));
++    jas_image_setcmpttype(dec->image, 2, JAS_IMAGE_CT_COLOR(JAS_CLRSPC_CHANIND_RGB_B));
++  } 
++  // GeoJasper: dima - end - first declare all components as GRAY and if there are more than 3 set first 3 as RGB
+ 
+ 	/* Save the return value. */
+ 	image = dec->image;
+@@ -368,11 +384,19 @@ static int jpc_dec_decode(jpc_dec_t *dec
+ 
+ 	for (;;) {
+ 
+-		/* Get the next marker segment in the code stream. */
+-		if (!(ms = jpc_getms(dec->in, cstate))) {
+-			jas_eprintf("cannot get marker segment\n");
+-			return -1;
+-		}
++    /* Get the next marker segment in the code stream. */
++    if (!(ms = jpc_getms(dec->in, cstate))) {
++
++      // GeoJasper: dima - adobe photoshop cs2 files seem not to end with the EOC marker
++      // although they carry additional pair of SOT/SOD markers
++      // we can catch this by checking for tile number and leave
++      if (dec->tiles && dec->tiles->partno >= dec->tiles->numparts && dec->state == JPC_TPHSOT) {
++        return 0;
++      }
++
++      jas_eprintf("cannot get marker segment\n");
++      return -1;
++    }
+ 
+ 		mstabent = jpc_dec_mstab_lookup(ms->id);
+ 		assert(mstabent);
+@@ -501,6 +525,14 @@ static int jpc_dec_process_sot(jpc_dec_t
+ 		return -1;
+ 	}
+ 	if (tile->numparts > 0 && sot->partno >= tile->numparts) {
++
++    // GeoJasper: dima - photoshop cs2 saves jpeg2000 with additional group of SOT/SOD
++    // here we simply ignore these boxes
++    if (tile->state == JPC_TILE_DONE) {
++      dec->state = JPC_TPH;
++      return 0;
++    }
++
+ 		return -1;
+ 	}
+ 	if (!tile->numparts && sot->numparts > 0) {
+@@ -558,6 +590,17 @@ static int jpc_dec_process_sod(jpc_dec_t
+ 		}
+ 	}
+ 
++  // GeoJasper: dima - photoshop cs2 saves jpeg2000 with additional group of SOT/SOD
++  // here we simply ignore these markers
++  if (tile->numparts > 0 && tile->partno >= tile->numparts) {
++    dec->curtile = 0;
++    // Increment the expected tile-part number.
++    ++tile->partno;
++    // We should expect to encounter a SOT marker segment next.
++    dec->state = JPC_TPHSOT;
++    return 0;
++  }
++
+ 	/* Are packet headers stored in the main header or tile-part header? */
+ 	if (dec->pkthdrstreams) {
+ 		/* Get the stream containing the packet header data for this
+@@ -1067,16 +1110,16 @@ static int jpc_dec_tiledecode(jpc_dec_t 
+ 
+ 
+ 	/* Apply an inverse intercomponent transform if necessary. */
++  // GeoJasper: dima - if there are more components than 3 then do apply the intercomponent transform on first three
++	if (dec->numcomps >= 3)
+ 	switch (tile->cp->mctid) {
+ 	case JPC_MCT_RCT:
+-		assert(dec->numcomps == 3);
+-		jpc_irct(tile->tcomps[0].data, tile->tcomps[1].data,
+-		  tile->tcomps[2].data);
++		//assert(dec->numcomps == 3); // GeoJasper: dima - still apply if there are more component
++		jpc_irct(tile->tcomps[0].data, tile->tcomps[1].data, tile->tcomps[2].data);
+ 		break;
+ 	case JPC_MCT_ICT:
+-		assert(dec->numcomps == 3);
+-		jpc_iict(tile->tcomps[0].data, tile->tcomps[1].data,
+-		  tile->tcomps[2].data);
++		//assert(dec->numcomps == 3); // GeoJasper: dima - still apply if there are more component
++		jpc_iict(tile->tcomps[0].data, tile->tcomps[1].data, tile->tcomps[2].data);
+ 		break;
+ 	}
+ 
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jpc/jpc_enc.c jasper-1.900.1/src/libjasper/jpc/jpc_enc.c
+--- orig/jasper-1.900.1/src/libjasper/jpc/jpc_enc.c	2007-01-20 05:43:07.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jpc/jpc_enc.c	2009-04-21 03:54:31.000000000 +0800
+@@ -165,6 +165,9 @@ static jpc_enc_cp_t *cp_create(char *opt
+ void jpc_enc_cp_destroy(jpc_enc_cp_t *cp);
+ static uint_fast32_t jpc_abstorelstepsize(jpc_fix_t absdelta, int scaleexpn);
+ 
++#define	GJPC_QCX_EXPN(x)		(((x) & (~0x1f)), (((x) & 0x1f) << 11))
++#define	GJPC_QCX_MANT(x)		(((x) & (~0x7ff)), ((x) & 0x7ff))
++
+ static uint_fast32_t jpc_abstorelstepsize(jpc_fix_t absdelta, int scaleexpn)
+ {
+ 	int p;
+@@ -958,7 +961,10 @@ startoff = jas_stream_getrwcount(enc->ou
+ 	if (!(enc->mrk = jpc_ms_create(JPC_MS_COM))) {
+ 		return -1;
+ 	}
+-	sprintf(buf, "Creator: JasPer Version %s", jas_getversion());
++
++  // GeoJasper: dima - add GeoJasper info
++  //sprintf(buf, "Creator: JasPer Version %s", jas_getversion());
++  sprintf(buf, "Creator: GeoJasPer %s JasPer %s", GJAS_VERSION, jas_getversion());
+ 	com = &enc->mrk->parms.com;
+ 	com->len = strlen(buf);
+ 	com->regid = JPC_COM_LATIN;
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jpc/jpc_qmfb.c jasper-1.900.1/src/libjasper/jpc/jpc_qmfb.c
+--- orig/jasper-1.900.1/src/libjasper/jpc/jpc_qmfb.c	2007-01-20 05:43:07.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jpc/jpc_qmfb.c	2009-04-21 03:54:31.000000000 +0800
+@@ -1614,6 +1614,10 @@ int jpc_ft_synthesize(int *a, int xstart
+ 	maxcols = (numcols / JPC_QMFB_COLGRPSIZE) * JPC_QMFB_COLGRPSIZE;
+ 	startptr = &a[0];
+ 	for (i = 0; i < maxcols; i += JPC_QMFB_COLGRPSIZE) {
++    // GeoJasper: dima - progress
++    jas_do_progress( i, maxcols, "jpc: synthesize" ); // dima
++    if (jas_test_abort() == 1) return;
++
+ 		jpc_ft_invlift_colgrp(startptr, numrows, stride, rowparity);
+ 		jpc_qmfb_join_colgrp(startptr, numrows, stride, rowparity);
+ 		startptr += JPC_QMFB_COLGRPSIZE;
+@@ -3127,6 +3131,10 @@ int jpc_ns_synthesize(jpc_fix_t *a, int 
+ 	maxcols = (numcols / JPC_QMFB_COLGRPSIZE) * JPC_QMFB_COLGRPSIZE;
+ 	startptr = &a[0];
+ 	for (i = 0; i < maxcols; i += JPC_QMFB_COLGRPSIZE) {
++    // GeoJasper: dima - progress
++    jas_do_progress( i, maxcols, "jpc: synthesize" ); // dima
++    if (jas_test_abort() == 1) return;
++
+ 		jpc_ns_invlift_colgrp(startptr, numrows, stride, rowparity);
+ 		jpc_qmfb_join_colgrp(startptr, numrows, stride, rowparity);
+ 		startptr += JPC_QMFB_COLGRPSIZE;
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jpc/jpc_t1dec.c jasper-1.900.1/src/libjasper/jpc/jpc_t1dec.c
+--- orig/jasper-1.900.1/src/libjasper/jpc/jpc_t1dec.c	2007-01-20 05:43:07.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jpc/jpc_t1dec.c	2009-04-21 03:54:31.000000000 +0800
+@@ -157,6 +157,11 @@ int jpc_dec_decodecblks(jpc_dec_t *dec, 
+ 	  --compcnt, ++tcomp) {
+ 		for (rlvlcnt = tcomp->numrlvls, rlvl = tcomp->rlvls;
+ 		  rlvlcnt > 0; --rlvlcnt, ++rlvl) {
++
++      // GeoJasper: dima - progress
++      jas_do_progress( (tcomp->numrlvls-rlvlcnt), (tcomp->numrlvls-1), "jpc: decode" );
++      if (jas_test_abort() == 1) return -1;
++
+ 			if (!rlvl->bands) {
+ 				continue;
+ 			}
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jpc/jpc_t1enc.c jasper-1.900.1/src/libjasper/jpc/jpc_t1enc.c
+--- orig/jasper-1.900.1/src/libjasper/jpc/jpc_t1enc.c	2007-01-20 05:43:07.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jpc/jpc_t1enc.c	2009-04-21 03:54:31.000000000 +0800
+@@ -130,7 +130,12 @@ int jpc_enc_enccblks(jpc_enc_t *enc)
+ 	for (tcmpt = tile->tcmpts; tcmpt != endcomps; ++tcmpt) {
+ 		endlvls = &tcmpt->rlvls[tcmpt->numrlvls];
+ 		for (lvl = tcmpt->rlvls; lvl != endlvls; ++lvl) {
+-			if (!lvl->bands) {
++
++      // GeoJasper: dima - progress
++      jas_do_progress( (int) lvl, (int) (endlvls-1), "jpc: encode" );
++      if (jas_test_abort() == 1) return -1;      
++
++      if (!lvl->bands) {
+ 				continue;
+ 			}
+ 			endbands = &lvl->bands[lvl->numbands];
+diff -upNrd orig/jasper-1.900.1/src/libjasper/jpg/jpg_enc.c jasper-1.900.1/src/libjasper/jpg/jpg_enc.c
+--- orig/jasper-1.900.1/src/libjasper/jpg/jpg_enc.c	2007-01-20 05:43:04.000000000 +0800
++++ jasper-1.900.1/src/libjasper/jpg/jpg_enc.c	2009-04-21 03:54:31.000000000 +0800
+@@ -360,6 +360,7 @@ static J_COLOR_SPACE tojpgcs(int colorsp
+ 		abort();
+ 		break;
+ 	}
++  return JCS_RGB;
+ }
+ 
+ /* Parse the encoder options string. */
