@@ -1,3 +1,21 @@
+Note: This is bookr-mod - an enhanced version of Bookr which was at v0.9
+  The original Bookr (found at the below link) and bookr-mod was licensed under GPLv2.
+  I'm trying my best to adhere to the license by,
+    - Including the original sources
+    - source code of my program
+    - original copyright and mine
+    - changes are the commits in the repo
+    - GPLv2 license on my program
+  please add an issue if i did anything wrong.
+
+  I last accessed the source (ongoogle code) before it
+  went down.
+
+  An archived copy can be found at archive.is/g3kVX.
+
+  You can also download the original archive i downloaded
+  in the releases of this repo of both bookr and bookr-mod.
+
 ================================================================
 Bookr - a document reader for the Sony PSP - http://bookr.sf.net
 ================================================================
