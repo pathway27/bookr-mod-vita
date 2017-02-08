@@ -1,0 +1,6 @@
+#ifndef BOOKRCONFIG_H
+#define BOOKRCONFIG_H
+
+const char *GIT_VERSION = "@GIT_VERSION@";
+
+#endif

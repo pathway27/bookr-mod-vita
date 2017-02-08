@@ -1,0 +1,12 @@
+# Motivations
+
+Learning C++
+Programming the Vita
+Porting experience
+
+Notes
+
+Checking for preprocessor macro variables on your tool chain
+arm-vita-eabi-gcc -dM -E - < /dev/null | grep -i VITA
+
+that's how i found __vita__
