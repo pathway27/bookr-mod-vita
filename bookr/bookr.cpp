@@ -29,6 +29,7 @@
 #include "bkmainmenu.h"
 #include "bklogo.h"
 #include "bkpopup.h"
+#include "bklogging.h"
 
 #ifdef PSP
 #include <pspkernel.h>
@@ -59,6 +60,9 @@ bool isHTMOrCHM(string& file) {
 }
 
 int main(int argc, char* argv[]) {
+
+	initLogging();
+
 	BKDocument* documentLayer = 0;
 	FZScreen::setupCallbacks();
 	FZScreen::open(argc, argv);
@@ -401,6 +405,8 @@ int main(int argc, char* argv[]) {
 
 	FZScreen::close();
 	FZScreen::exit();
+
+	finalizeLogging();
 
 	return 0;
 }

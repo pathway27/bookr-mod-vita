@@ -135,7 +135,7 @@ class BKLayer : public FZRefCounted {
 
 	void drawPopup(string& text, string& title, int bg1, int bg2, int fg);
 
-	void drawClockAndBattery(string& extra);
+	void drawClockAndBattery(string& extra, bool reduced);
 
 	public:
 	virtual int update(unsigned int buttons) = 0;

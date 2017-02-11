@@ -434,6 +434,13 @@ int FZScreen::getBattery() {
 	return 0;
 }
 
+int FZScreen::getBatteryMinutes() {
+	if (scePowerIsBatteryExist()) {
+		return scePowerGetBatteryLifeTime();
+	}
+	return 0;
+}
+
 int FZScreen::getUsedMemory() {
 	struct mallinfo mi = mallinfo();
 	return mi.uordblks;

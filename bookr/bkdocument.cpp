@@ -23,6 +23,7 @@
 #include "bkdjvu.h"
 #include "bkpalmdoc.h"
 #include "bkplaintext.h"
+#include "bklogging.h"
 
 BKDocument* BKDocument::create(string& filePath) {
 	BKDocument* doc = 0;
@@ -33,6 +34,7 @@ BKDocument* BKDocument::create(string& filePath) {
 	} else if (BKPalmDoc::isPalmDoc(filePath)) {
 		doc = BKPalmDoc::create(filePath);
 	} else {
+		logDebug("Deduced plain text file for path: %s", filePath.c_str());
 		doc = BKPlainText::create(filePath);
 	}
 	if (doc != 0)
@@ -571,6 +573,7 @@ int BKDocument::processEventsForToolbar() {
 }
 
 void BKDocument::render() {
+	logDebug("In render()");
 	// content
 	renderContent();
 
@@ -742,6 +745,6 @@ void BKDocument::render() {
 		snprintf(tp, 256, "Page %d of %d", getCurrentPage(), getTotalPages());
 		t = tp;
 	}
-	drawClockAndBattery(t);
+	drawClockAndBattery(t, true);
 }
 

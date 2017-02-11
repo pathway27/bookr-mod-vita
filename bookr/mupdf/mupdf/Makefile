@@ -5,14 +5,12 @@ OBJS+=pdf_fontagl.o pdf_fontenc.o pdf_cmap.o pdf_unicode.o pdf_font.o pdf_type3.
 OBJS+=pdf_function.o pdf_colorspace1.o pdf_colorspace2.o pdf_image.o pdf_pattern.o pdf_shade.o pdf_shade1.o pdf_shade4.o pdf_xobject.o
 OBJS+=pdf_build.o pdf_interpret.o pdf_page.o pdf_pagetree.o pdf_resources.o pdf_store.o
 
-INCDIR=../include
-CFLAGS=-G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
+PS2SDK_FREETYPE=C:/Users/Giorgos/ps2sdk-ports/trunk/freetype-2.4.12
+
+INCDIR=../include $(PS2SDK_FREETYPE)/include
+CFLAGS=-G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2 -DFT2_BUILD_LIBRARY
 CXXFLAGS=$(CFLAGS) -fno-exceptions -fno-rtti -I/usr/local/pspdev/psp/include/freetype2
 ASFLAGS=$(CFLAGS)
-
-LIBDIR=
-LDFLAGS=
-LIBS=-lpspgu -lz -lm -lfreetype
 
 #EXTRA_TARGETS = EBOOT.PBP
 #PSP_EBOOT_TITLE = Bookr - Book Reader

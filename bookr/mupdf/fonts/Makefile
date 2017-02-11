@@ -9,10 +9,6 @@ CFLAGS=-G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
 CXXFLAGS=$(CFLAGS) -fno-exceptions -fno-rtti -I/usr/local/pspdev/psp/include/freetype2
 ASFLAGS=$(CFLAGS)
 
-LIBDIR=
-LDFLAGS=
-LIBS=-lpspgu -lz -lm -lfreetype
-
 #EXTRA_TARGETS = EBOOT.PBP
 #PSP_EBOOT_TITLE = Bookr - Book Reader
 

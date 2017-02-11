@@ -170,19 +170,17 @@ void BKLayer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
 }
 
 int BKLayer::textWidthRange(char* t, int n, FZFont* font) {
-	FZCharMetrics* fontChars = font->getMetrics();
 	int baseX = 0;
 	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
 		int idx = *p;
 		// printable & white space
 		if (idx >= 32)
-			baseX += fontChars[idx].xadvance;
+			baseX += font->getMetrics(idx)->xadvance;
 	}
 	return baseX;
 }
 
 int BKLayer::textW(char* t, FZFont* font) {
-	FZCharMetrics* fontChars = font->getMetrics();
 	// precalc vertex count
 	int vc = 0;
 	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
@@ -202,12 +200,12 @@ int BKLayer::textW(char* t, FZFont* font) {
 		}
 		// white space
 		if (idx == 32) {
-			baseX += fontChars[idx].xadvance;
+			baseX += font->getMetrics(idx)->xadvance;
 			continue;
 		}
 		// printable
 		if (idx > 32) {
-			baseX += fontChars[idx].xadvance;
+			baseX += font->getMetrics(idx)->xadvance;
 			continue;
 		}
 	}
@@ -223,7 +221,6 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bo
 	if (n < 0) {
 		n = strlen(t);
 	}
-	FZCharMetrics* fontChars = font->getMetrics();
 	// precalc vertex count
 	int vc = 0;
 	int i = 0;
@@ -256,7 +253,7 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bo
 			if (usePS)
 				fx += ps;
 			else
-				baseX += fontChars[idx].xadvance;
+				baseX += font->getMetrics(idx)->xadvance;
 			continue;
 		}
 		// printable
@@ -265,21 +262,23 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bo
 			int botright = topleft + 1;
 			int cx = usePS ? x + int(floor(fx)) : baseX;
 
-			vertices[topleft].u = fontChars[idx].x;
-			vertices[topleft].v = fontChars[idx].y;
-			vertices[topleft].x = cx + fontChars[idx].xoffset;
-			vertices[topleft].y = baseY + fontChars[idx].yoffset;
+			FZCharMetrics *fontChar = font->getMetrics(idx);
+
+			vertices[topleft].u = fontChar->x;
+			vertices[topleft].v = fontChar->y;
+			vertices[topleft].x = cx + fontChar->xoffset;
+			vertices[topleft].y = baseY + fontChar->yoffset;
 			vertices[topleft].z = 0;
 
-			vertices[botright].u = fontChars[idx].x + fontChars[idx].width;
-			vertices[botright].v = fontChars[idx].y + fontChars[idx].height;
-			vertices[botright].x = cx + fontChars[idx].xoffset + fontChars[idx].width;
-			vertices[botright].y = baseY + fontChars[idx].yoffset + fontChars[idx].height;
+			vertices[botright].u = fontChar->x + fontChar->width;
+			vertices[botright].v = fontChar->y + fontChar->height;
+			vertices[botright].x = cx + fontChar->xoffset + fontChar->width;
+			vertices[botright].y = baseY + fontChar->yoffset + fontChar->height;
 			vertices[botright].z = 0;
 
-			baseX += fontChars[idx].xadvance;
+			baseX += fontChar->xadvance;
 			if (usePS)
-				fx += float(fontChars[idx].xadvance);
+				fx += float(fontChar->xadvance);
 			iv+=2;
 			continue;
 		}
@@ -516,13 +515,15 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 	drawText((char*)text.c_str(), fontBig, 51, y + 35);
 }
 
-void BKLayer::drawClockAndBattery(string& extra) {
+void BKLayer::drawClockAndBattery(string& extra, bool reduced) {
 	texUI->bindForDisplay();
 	FZScreen::ambientColor(0xffbbbbbb);
-	drawImage(350, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
+	drawImage(300, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
 	drawImage(405, 222, BK_IMG_CLOCK_XSIZE, BK_IMG_CLOCK_YSIZE, BK_IMG_CLOCK_X, BK_IMG_CLOCK_Y);
 //	drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
-	drawImage(287, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
+	if (!reduced)
+		drawImage(237, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, 
+									BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
 	fontSmall->bindForDisplay();
 	FZScreen::ambientColor(0xffbbbbbb);
 	int ew = textW((char*)extra.c_str(), fontSmall);
@@ -530,22 +531,25 @@ void BKLayer::drawClockAndBattery(string& extra) {
 	int h = 0, m = 0;
 	FZScreen::getTime(h, m);
 	int b = FZScreen::getBattery();
+	int bm = FZScreen::getBatteryMinutes();
 	int mem = FZScreen::getUsedMemory();
 	int speed = FZScreen::getSpeed();
 	char t1[20];
 	snprintf(t1, 20, "%02d:%02d", h, m);
-	char t2[20];
-	snprintf(t2, 20, "%d%%", b);
+	char t2[50];
+	snprintf(t2, 50, "%d%% (%dh %dm)", b, bm / 60, bm % 60);
 	char t3[20];
 //	snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
 	snprintf(t3, 20, "%dK", mem / 1024);
 	char t4[20];
 	snprintf(t4, 20, "%dMHz", speed);
 	drawText(t1, fontSmall, 425, 224);
-	drawText(t2, fontSmall, 370, 224);
-	drawText(t3, fontSmall, 310, 224);
+	drawText(t2, fontSmall, 320, 224);
+	if (!reduced)
+		drawText(t3, fontSmall, 260, 224);
 //	drawText(t4, fontSmall, 240, 224);
-	drawText(t4, fontSmall, 235, 224);
+	if (!reduced)
+		drawText(t4, fontSmall, 185, 224);
 }
 
 void BKLayer::menuCursorUpdate(unsigned int buttons, int max) {

@@ -19,12 +19,17 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <sys/stat.h>
 #include "tinyxml.h"
 
 #include "fzscreen.h"
 #include "bkuser.h"
 
-#include <string>
+int fileExists(const char *filename) {
+  struct stat buffer;   
+  return (stat (filename, &buffer) == 0);
+}
+
 
 BKUser::Controls BKUser::controls;
 BKUser::Options BKUser::options;
@@ -141,6 +146,7 @@ void BKUser::save() {
 	fprintf(f, "\t\t<set option=\"pspSpeed\" value=\"%d\" />\n", options.pspSpeed);
 	fprintf(f, "\t\t<set option=\"pspMenuSpeed\" value=\"%d\" />\n", options.pspMenuSpeed);
 	fprintf(f, "\t\t<set option=\"displayLabels\" value=\"%d\" />\n", options.displayLabels ? 1 : 0);
+	fprintf(f, "\t\t<set option=\"txtFont\" value=\"%s\" />\n", options.txtFont.c_str());
 	fprintf(f, "\t\t<set option=\"lastFolder\" value=\"%s\" />\n", options.lastFolder.c_str());
 	fprintf(f, "\t\t<set option=\"lastFontFolder\" value=\"%s\" />\n", options.lastFontFolder.c_str());
 	fprintf(f, "\t\t<set option=\"loadLastFile\" value=\"%d\" />\n", options.loadLastFile ? 1 : 0);
@@ -261,6 +267,7 @@ void BKUser::load() {
 			else if (strncmp(option, "pspMenuSpeed",    128) == 0) options.pspMenuSpeed    = atoi(value);
 			else if (strncmp(option, "displayLabels",   128) == 0) options.displayLabels   = atoi(value) != 0;
 			else if (strncmp(option, "pdfInvertColors", 128) == 0) options.pdfInvertColors = atoi(value) != 0;
+			else if (strncmp(option, "txtFont",         128) == 0) options.txtFont         = fileExists(value) ? value : "bookr:builtin";
 			else if (strncmp(option, "lastFolder",      128) == 0) options.lastFolder      = value;
 			else if (strncmp(option, "lastFontFolder",  128) == 0) options.lastFontFolder  = value;
 			else if (strncmp(option, "loadLastFile",    128) == 0) options.loadLastFile    = atoi(value) != 0;

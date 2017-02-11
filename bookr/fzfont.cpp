@@ -30,6 +30,7 @@ static void* memalign(int t, int s) {
 #endif
 
 #include "fzfont.h"
+#include "bkplaintext.h"
 
 FZFont::FZFont() : metrics(0) {
 }
@@ -39,6 +40,7 @@ FZFont::~FZFont() {
 		free(metrics);
 	metrics = 0;
 }
+
 
 // based on http://gpwiki.org/index.php/OpenGL_Font_System
 
@@ -57,7 +59,7 @@ FZFont* FZFont::createFromFile(char* fileName, int fontSize, bool autohint) {
 		return 0;
 	}
 
-	return createProto(library, face, fontSize, autohint);
+	return createProto(library, face, fontSize, autohint, 0);
 }
 
 FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize, int fontSize, bool autohint) {
@@ -75,10 +77,11 @@ FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize, int font
 		return 0;
 	}
 
-	return createProto(library, face, fontSize, autohint);
+	return createProto(library, face, fontSize, autohint, 0);
 }
 
-FZFont* FZFont::createProto(FT_Library& library, FT_Face& face, int fontSize, bool autohint) {
+FZFont* FZFont::createProto(FT_Library& library, FT_Face& face, 
+					int fontSize, bool autohint, uint32_t startCodePoint) {
 	// Margins around characters to prevent them from 'bleeding' into
 	// each other.
 	int margin = 3;
@@ -103,7 +106,7 @@ FZFont* FZFont::createProto(FT_Library& library, FT_Face& face, int fontSize, bo
 	int loadMode = FT_LOAD_DEFAULT;
 	if (autohint)
 		loadMode |= FT_LOAD_FORCE_AUTOHINT;
-	for (int i = 0; i < 256; ++i) {
+	for (int i = startCodePoint; i < startCodePoint + 256; ++i) {
 		// Look up the character in the font file.
 		int char_index = FT_Get_Char_Index(face, i);
 		if (i < 32)
@@ -156,8 +159,10 @@ FZFont* FZFont::createProto(FT_Library& library, FT_Face& face, int fontSize, bo
 	int x = margin, y = margin + max_ascent;
 
 	// Drawing loop
-	for (int i = 0; i < 256; ++i) {
-		int char_index = FT_Get_Char_Index(face, i);
+	for (int i = startCodePoint; i < startCodePoint + 256; ++i) {
+
+		int char_index = FT_Get_Char_Index(face, ISO_8859_7_CHARMAP(i));
+
 		if (i < 32)
 			char_index = 0;
 		
@@ -211,7 +216,16 @@ int FZFont::getLineHeight() {
 	return lineHeight;
 }
 
-FZCharMetrics* FZFont::getMetrics() {
-	return metrics;
+FZCharMetrics* FZFont::getMetrics(uint32_t index) {
+	/* Find alignment point. */
+	uint32_t alignmentPoint = index / 256;
+	if (codePointToMetricsArr.find(alignmentPoint) != codePointToMetricsArr.end()) {
+
+	}
+	else {
+
+	}
+	//FZCharMetrics *metricsArr = codePointToMetricsArr[0];
+	return metrics + index;
 }
 

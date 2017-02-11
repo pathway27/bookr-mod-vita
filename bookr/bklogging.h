@@ -1,6 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ * Copyright (C) 2015 Giorgos Tzampanakis (giorgos.tzampanakis@gmail.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,34 +17,23 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef BKPLAINTEXT_H
-#define BKPLAINTEXT_H
+#ifndef BKLOGGING_H
+#define BKLOGGING_H
 
-#include "fzscreen.h"
+#include <stdio.h>
 
-using namespace std;
+//#define LOGGING_ENABLED
+#define LOG_LEVEL_THRESHOLD -100
 
-#include "bkfancytext.h"
+#define LOG_LEVEL_DEBUG 0
+#define LOG_LEVEL_ERROR 50
 
-class BKPlainText : public BKFancyText {
-	private:
-	string fileName;
-	char* buffer;
+#define MAIN_LOG_PATH "logs/log.log"
 
-	protected:
-	BKPlainText();
-	~BKPlainText();
+extern FILE* BK_MAIN_LOG_FILE;
 
-	public:
-	virtual void getFileName(string&);
-	virtual void getTitle(string&);
-	virtual void getType(string&);
-
-	static BKPlainText* create(string& file);
-};
-
-unsigned char ISO_8859_7_INV_CHARMAP(uint32_t byte);
-uint32_t ISO_8859_7_CHARMAP(unsigned char byte);
+void initLogging();
+void finalizeLogging();
+void logDebug(char *fmt, ...);
 
 #endif
-

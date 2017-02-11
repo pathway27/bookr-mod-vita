@@ -20,24 +20,29 @@
 #ifndef FZFONT_H
 #define FZFONT_H
 
+#include <map>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
 #include "fztexture.h"
 
+typedef unsigned int uint32_t;
+
 struct FZCharMetrics {
 	short x, y, width, height, xoffset, yoffset, xadvance;
 };
 
 /**
- * Represents a font.
+ * Holds a texture with rendered glyphs.
  */
 class FZFont : public FZTexture {
 
+	std::map<uint32_t, FZCharMetrics*> codePointToMetricsArr;
 	FZCharMetrics* metrics;
 	int lineHeight;
-	static FZFont* createProto(FT_Library& library, FT_Face& face, int fontSize, bool autohint);
+	static FZFont* createProto(FT_Library& library, FT_Face& face, 
+								int fontSize, bool autohint, uint32_t startCodePoint);
 
 protected:
 	FZFont();
@@ -49,10 +54,7 @@ public:
 	 */
 	int getLineHeight();
 
-	/**
-	 * Get char metrics. Array is always for 256 chars, for the time being...
-	 */
-	FZCharMetrics* getMetrics();
+	FZCharMetrics* getMetrics(uint32_t index);
 
 	/**
 	 * Create a new font texture with Freetype.
