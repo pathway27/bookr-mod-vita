@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DjVuGlobal.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _DJVUGLOBAL_H
 #define _DJVUGLOBAL_H
@@ -102,7 +102,7 @@ inline void * operator new(size_t, void * ptr) { return ptr; }
     @memo
     Global definitions.
     @version
-    #$Id$#
+    #$Id: DjVuGlobal.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $#
     @author
     L\'eon Bottou <leonb@research.att.com> -- empty file.\\
     Bill Riemers <docbill@sourceforge.net> -- real work.  */

@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: JB2Image.h,v 1.1 2007/10/17 20:28:59 cpayeur Exp $
+// $Name:  $
 
 #ifndef _JB2IMAGE_H
 #define _JB2IMAGE_H
@@ -158,7 +158,7 @@
     \end{itemize}
 
     @version
-    #$Id$#
+    #$Id: JB2Image.h,v 1.1 2007/10/17 20:28:59 cpayeur Exp $#
     @memo
     Coding bilevel images with JB2.
     @author

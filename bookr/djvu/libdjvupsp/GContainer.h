@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GContainer.h,v 1.1 2007/10/17 20:29:00 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GCONTAINER_H_
 #define _GCONTAINER_H_
@@ -132,7 +132,7 @@ namespace DJVU {
     L\'eon Bottou <leonb@research.att.com> -- initial implementation.\\
     Andrei Erofeev <eaf@geocities.com> -- bug fixes.
     @version 
-    #$Id$# */
+    #$Id: GContainer.h,v 1.1 2007/10/17 20:29:00 cpayeur Exp $# */
 //@{
 
 

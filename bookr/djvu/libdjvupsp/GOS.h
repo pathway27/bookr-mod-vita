@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GOS.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GOS_H_
 #define _GOS_H_
@@ -82,7 +82,7 @@
     @author
     L\'eon Bottou <leonb@research.att.com> -- Initial implementation
     @version
-    #$Id$#
+    #$Id: GOS.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $#
 */
 //@{
 

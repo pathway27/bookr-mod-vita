@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DjVuDumpHelper.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _DJVUDUMPHELPER_H
 #define _DJVUDUMPHELPER_H
@@ -77,7 +77,7 @@
     L\'eon Bottou <leonb@research.att.com> -- as a separate program.\\
     Andrei Erofeev <eaf@geocities.com> -- as a class.
     @version
-    #$Id$# */
+    #$Id: DjVuDumpHelper.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# */
 //@{
 
 

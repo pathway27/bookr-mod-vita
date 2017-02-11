@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DataPool.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _DATAPOOL_H
 #define _DATAPOOL_H
@@ -98,7 +98,7 @@ class ByteStream;
 
     @memo Thread safe data storage
     @author Andrei Erofeev <eaf@geocities.com>
-    @version #$Id$#
+    @version #$Id: DataPool.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $#
 */
 
 //@{

@@ -54,7 +54,7 @@
 //C- +------------------------------------------------------------------
 */
 
-/* $Id$ */
+/* $Id: ddjvuapi.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $ */
 
 // Modified by Yang.Hu, 8/20/2007
 // add DDJVU_FORMAT_RGBMASK32 for 32bit RGBA color

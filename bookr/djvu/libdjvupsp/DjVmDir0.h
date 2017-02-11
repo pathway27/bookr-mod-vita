@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DjVmDir0.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _DJVMDIR0_H
 #define _DJVMDIR0_H
@@ -91,7 +91,7 @@ class ByteStream;
 
     @memo Directory of DjVu all-in-one-file DjVu documents.
     @author Andrei Erofeev <eaf@geocities.com>
-    @version #$Id$# */
+    @version #$Id: DjVmDir0.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# */
 
 //@{
 

@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@ using namespace std;
 #include "bklayer.h"
 
 class BKFileChooser : public BKLayer {
+	bool convertToVN;
 	string path;
 	string title;
 	int ret;
@@ -43,6 +45,8 @@ class BKFileChooser : public BKLayer {
 
 	void getCurrentDirent(FZDirent& de);
 	void getFullPath(string& s);
+	void getFileName(string& s);
+	bool isConvertToVN();
 
 	static BKFileChooser* create(string& t, int r);
 };

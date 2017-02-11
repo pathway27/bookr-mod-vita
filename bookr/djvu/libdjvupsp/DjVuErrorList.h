@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DjVuErrorList.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _DJVUERRORLIST_H
 #define _DJVUERRORLIST_H
@@ -83,7 +83,7 @@ class ByteStream;
 
     @memo DjVuErrorList class.
     @author Bill C Riemers <docbill@sourceforge.net>
-    @version #$Id$#
+    @version #$Id: DjVuErrorList.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $#
 */
 
 //@{

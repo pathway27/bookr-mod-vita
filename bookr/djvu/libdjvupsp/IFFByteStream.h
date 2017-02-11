@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: IFFByteStream.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _IFFBYTESTREAM_H_
 #define _IFFBYTESTREAM_H_
@@ -123,7 +123,7 @@
 // with their re-implementation of ByteStreams.
 
     @version
-    #$Id$# */
+    #$Id: IFFByteStream.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# */
 //@{
 
 

@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: XMLParser.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $
+// $Name:  $
 
 #ifndef _LT_XMLPARSER__
 #define _LT_XMLPARSER__

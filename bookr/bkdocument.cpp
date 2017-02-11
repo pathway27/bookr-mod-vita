@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,7 +127,7 @@ int BKDocument::processEventsForView() {
 
 	// button handling - pagination
 	if (isPaginated()) {
-		int n = getTotalPages();
+//		int n = getTotalPages();
 		int p = getCurrentPage();
 		int op = p;
 		if (b[BKUser::controls.nextPage] == 1) {

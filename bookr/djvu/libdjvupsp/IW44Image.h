@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: IW44Image.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $
+// $Name:  $
 
 #ifndef IW44IMAGE_H_
 #define IW44IMAGE_H_
@@ -162,7 +162,7 @@
 // Only superficial changes.  The meat is mine.
 
     @version
-    #$Id$# */
+    #$Id: IW44Image.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $# */
 //@{
 
 

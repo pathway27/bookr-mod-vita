@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GScaler.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GSCALER_H_
 #define _GSCALER_H_
@@ -100,7 +100,7 @@ namespace DJVU {
     @author
     L\'eon Bottou <leonb@research.att.com>
     @version
-    #$Id$# */
+    #$Id: GScaler.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $# */
 //@{
 
 

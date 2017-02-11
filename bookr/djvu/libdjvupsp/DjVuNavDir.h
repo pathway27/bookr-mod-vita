@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DjVuNavDir.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _DJVUNAVDIR_H
 #define _DJVUNAVDIR_H
@@ -89,7 +89,7 @@ class ByteStream;
 
     @memo DjVu Navigation Directory
     @author Andrei Erofeev <eaf@geocities.com>
-    @version #$Id$#
+    @version #$Id: DjVuNavDir.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $#
 */
 
 //@{

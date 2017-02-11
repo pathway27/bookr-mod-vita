@@ -521,7 +521,8 @@ void BKLayer::drawClockAndBattery(string& extra) {
 	FZScreen::ambientColor(0xffbbbbbb);
 	drawImage(350, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
 	drawImage(405, 222, BK_IMG_CLOCK_XSIZE, BK_IMG_CLOCK_YSIZE, BK_IMG_CLOCK_X, BK_IMG_CLOCK_Y);
-	drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
+//	drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
+	drawImage(287, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
 	fontSmall->bindForDisplay();
 	FZScreen::ambientColor(0xffbbbbbb);
 	int ew = textW((char*)extra.c_str(), fontSmall);
@@ -536,13 +537,15 @@ void BKLayer::drawClockAndBattery(string& extra) {
 	char t2[20];
 	snprintf(t2, 20, "%d%%", b);
 	char t3[20];
-	snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
+//	snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
+	snprintf(t3, 20, "%dK", mem / 1024);
 	char t4[20];
 	snprintf(t4, 20, "%dMHz", speed);
 	drawText(t1, fontSmall, 425, 224);
 	drawText(t2, fontSmall, 370, 224);
 	drawText(t3, fontSmall, 310, 224);
-	drawText(t4, fontSmall, 240, 224);
+//	drawText(t4, fontSmall, 240, 224);
+	drawText(t4, fontSmall, 235, 224);
 }
 
 void BKLayer::menuCursorUpdate(unsigned int buttons, int max) {

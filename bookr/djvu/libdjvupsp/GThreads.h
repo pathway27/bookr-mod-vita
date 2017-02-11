@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GThreads.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GTHREADS_H_
 #define _GTHREADS_H_
@@ -129,7 +129,7 @@
 // GSafeFlags should go because it not as safe as it claims.
 
     @version
-    #$Id$# */
+    #$Id: GThreads.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $# */
 //@{
 
 

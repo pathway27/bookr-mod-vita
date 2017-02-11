@@ -27,6 +27,9 @@
 #include <psprtc.h>
 #include <malloc.h>
 
+#include <string.h>
+#include <algorithm>
+
 #include "fzscreen.h"
 #include "fztexture.h"
 

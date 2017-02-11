@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GSmartPointer.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GSMARTPOINTER_H_
 #define _GSMARTPOINTER_H_
@@ -88,7 +88,7 @@
 // <http://prdownloads.sourceforge.net/djvu/DjVu2_2b-src.tgz>.
 
     @version 
-    #$Id$# 
+    #$Id: GSmartPointer.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# 
     @args
 */
 //@{

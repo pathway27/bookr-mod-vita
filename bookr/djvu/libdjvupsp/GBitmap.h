@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GBitmap.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GBITMAP_H_
 #define _GBITMAP_H_
@@ -103,7 +103,7 @@ class ByteStream;
     @author
     L\'eon Bottou <leonb@research.att.com>
     @version
-    #$Id$#
+    #$Id: GBitmap.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $#
 
  */
 //@{

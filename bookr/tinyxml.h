@@ -1,6 +1,7 @@
 /*
 www.sourceforge.net/projects/tinyxml
 Original code (2.0 and earlier )copyright (c) 2000-2002 Lee Thomason (www.grinninglizard.com)
+Modified in 2009 by Nguyen Chi Tam (nguyenchitam@gmail.com)
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any
@@ -338,7 +339,7 @@ private:
 	};
 	enum
 	{
-		NUM_ENTITY = 5,
+		NUM_ENTITY = 6,
 		MAX_ENTITY_LENGTH = 6
 
 	};
@@ -1259,6 +1260,7 @@ public:
 	virtual void Print( FILE* cfile, int depth = 0 ) const;
 	// [internal use]
 	void SetError( int err, const char* errorLocation, TiXmlParsingData* prevData, TiXmlEncoding encoding );
+	void SetError( int err, const char* errorLocation, TiXmlParsingData* prevData, TiXmlEncoding encoding, const char* errDetail);
 
 protected :
 	virtual void StreamOut ( TIXML_OSTREAM * out) const;

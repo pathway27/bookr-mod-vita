@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GOS.cpp,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 // Modified by Yang.Hu, 8/10/2007
 // add include <sys/select.h> for psp

@@ -2,6 +2,7 @@
  * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +29,11 @@
 
 // Main menu layout
 #define MAIN_MENU_ITEM_OPEN_FILE				0
-#define MAIN_MENU_ITEM_CONTROLS					1
-#define MAIN_MENU_ITEM_OPTIONS					2
-#define MAIN_MENU_ITEM_ABOUT					3
-#define MAIN_MENU_ITEM_EXIT						4
+#define MAIN_MENU_ITEM_BROWSE_CACHE				1
+#define MAIN_MENU_ITEM_CONTROLS					2
+#define MAIN_MENU_ITEM_OPTIONS					3
+#define MAIN_MENU_ITEM_ABOUT					4
+#define MAIN_MENU_ITEM_EXIT						5
 
 // Controls menu layout
 #define CONTROLS_MENU_ITEM_RESTORE_DEFAULTS		0
@@ -50,18 +52,24 @@
 #define OPTIONS_MENU_ITEM_RESTORE_DEFAULTS		0
 #define OPTIONS_MENU_ITEM_SET_CONTROL_STYLE		1
 #define OPTIONS_MENU_ITEM_PDF_FAST_IMAGES		2
-#define OPTIONS_MENU_ITEM_CHOOSE_FONT			3
-#define OPTIONS_MENU_ITEM_FONT_SIZE				4
-#define OPTIONS_MENU_ITEM_SET_LINE_HEIGHT		5
-#define OPTIONS_MENU_ITEM_JUSTIFY_TEXT			6
-#define OPTIONS_MENU_ITEM_COLOR_SCHEMES			7
-#define OPTIONS_MENU_ITEM_CPU_BUS_SPEED			8
-#define OPTIONS_MENU_ITEM_CPU_MENU_SPEED		9
-#define OPTIONS_MENU_ITEM_DISPLAY_LABELS		10
-#define OPTIONS_MENU_ITEM_INVERT_COLORS_PDF		11
-#define OPTIONS_MENU_ITEM_CLEAR_BOOKMARKS		12
-#define OPTIONS_MENU_ITEM_LOAD_LAST_FILE		13
-#define OPTIONS_MENU_ITEM_WRAP_TEXT				14
+#define OPTIONS_MENU_ITEM_PDF_INVERT_COLORS		3
+#define OPTIONS_MENU_ITEM_PLAIN_CHOOSE_FONT		4
+#define OPTIONS_MENU_ITEM_PLAIN_FONT_SIZE		5
+#define OPTIONS_MENU_ITEM_PLAIN_SET_LINE_HEIGHT	6
+#define OPTIONS_MENU_ITEM_PLAIN_JUSTIFY_TEXT	7
+#define OPTIONS_MENU_ITEM_PLAIN_WRAP_TEXT		8
+#define OPTIONS_MENU_ITEM_BROWSER_TEXTSIZE		9
+#define OPTIONS_MENU_ITEM_BROWSER_DISPLAYMODE	10
+#define OPTIONS_MENU_ITEM_BROWSER_ENABLEFLASH	11
+#define OPTIONS_MENU_ITEM_BROWSER_INTERFACEMODE	12
+#define OPTIONS_MENU_ITEM_BROWSER_CONFIRMEXIT	13
+#define OPTIONS_MENU_ITEM_BROWSER_SHOWCURSOR	14
+#define OPTIONS_MENU_ITEM_COLOR_SCHEMES			15
+#define OPTIONS_MENU_ITEM_DISPLAY_LABELS		16
+#define OPTIONS_MENU_ITEM_LOAD_LAST_FILE		17
+#define OPTIONS_MENU_ITEM_CPU_BUS_SPEED			18
+#define OPTIONS_MENU_ITEM_CPU_MENU_SPEED		19
+#define OPTIONS_MENU_ITEM_CLEAR_BOOKMARKS		20
 
 BKMainMenu::BKMainMenu() : mode(BKMM_MAIN), captureButton(false), frames(0) {
 	buildMainMenu();
@@ -90,6 +98,7 @@ void BKMainMenu::rebuildMenu() {
 
 void BKMainMenu::buildMainMenu() {
 	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
+	mainItems.push_back(BKMenuItem("Browse chm cache", "Select", 0));
 	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
 	mainItems.push_back(BKMenuItem("Options", "Select", 0));
 	mainItems.push_back(BKMenuItem("About", "Select", 0));
@@ -159,6 +168,10 @@ void BKMainMenu::buildOptionMenu() {
 	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
+	t = "PDF - Invert colors: ";
+	t += BKUser::options.pdfInvertColors ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
 	t = "Plain text - Font file: ";
 	if (BKUser::options.txtFont == "bookr:builtin") {
 		t += "built-in";
@@ -188,34 +201,6 @@ void BKMainMenu::buildOptionMenu() {
 	t += BKUser::options.txtJustify ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
 
-	t = "Color schemes";
-	mi = BKMenuItem(t, "Choose", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_USE_LR_ICON | BK_MENU_ITEM_COLOR_RECT);
-	mi.triangleLabel = "Manage schemes";
-	mi.bgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor;
-	mi.fgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor;
-	optionItems.push_back(mi);
-
-	snprintf(txt, 1024, "CPU/Bus speed: %s", FZScreen::speedLabels[BKUser::options.pspSpeed]);
-	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
-	snprintf(txt, 1024, "Menu speed: %s", FZScreen::speedLabels[BKUser::options.pspMenuSpeed]);
-	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
-
-	t = "Display page loading and numbering labels: ";
-	t += BKUser::options.displayLabels ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
-
-	t = "PDF - Invert colors: ";
-	t += BKUser::options.pdfInvertColors ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
-
-	optionItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
-
-	t = "Autoload last file: ";
-	t += BKUser::options.loadLastFile ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
-
 	snprintf(txt, 1024, "Plain text - Wrap CRs: %d", BKUser::options.txtWrapCR);
 	t = txt;
 	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
@@ -224,6 +209,55 @@ void BKMainMenu::buildOptionMenu() {
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));*/
+
+	snprintf(txt, 1024, "Browser - Text size: %s", FZScreen::browserTextSizes[BKUser::options.browserTextSize]);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+
+	snprintf(txt, 1024, "Browser - Display mode: %s", FZScreen::browserDisplayModes[BKUser::options.browserDisplayMode]);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+
+	t = "Browser - Flash content: ";
+	t += BKUser::options.browserEnableFlash ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
+	snprintf(txt, 1024, "Browser - Interface mode: %s", FZScreen::browserInterfaceModes[BKUser::options.browserInterfaceMode]);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+
+	t = "Browser - Exit confirmation: ";
+	t += BKUser::options.browserConfirmExit ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
+	t = "Browser - Show cursor: ";
+	t += BKUser::options.browserShowCursor ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
+	t = "Color schemes";
+	mi = BKMenuItem(t, "Choose", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_USE_LR_ICON | BK_MENU_ITEM_COLOR_RECT);
+	mi.triangleLabel = "Manage schemes";
+	mi.bgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor;
+	mi.fgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor;
+	optionItems.push_back(mi);
+
+	t = "Display page loading and numbering labels: ";
+	t += BKUser::options.displayLabels ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
+	t = "Autoload last file: ";
+	t += BKUser::options.loadLastFile ? "Enabled" : "Disabled";
+	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+
+	snprintf(txt, 1024, "CPU/Bus speed: %s", FZScreen::speedLabels[BKUser::options.pspSpeed]);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	snprintf(txt, 1024, "Menu speed: %s", FZScreen::speedLabels[BKUser::options.pspMenuSpeed]);
+	t = txt;
+	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+
+	optionItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
+
 }
 
 int BKMainMenu::update(unsigned int buttons) {
@@ -244,6 +278,9 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 		if (selItem == MAIN_MENU_ITEM_OPEN_FILE) {
 			return BK_CMD_INVOKE_OPEN_FILE;
 		}
+		if (selItem == MAIN_MENU_ITEM_BROWSE_CACHE) {
+			return BK_CMD_INVOKE_BROWSE_CACHE;
+		}
 		if (selItem == MAIN_MENU_ITEM_CONTROLS) {
 			selItem = 0;
 			topItem = 0;
@@ -257,7 +294,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == MAIN_MENU_ITEM_ABOUT) {
-			popupText = "Bookr - a document viewer for the Sony PSP.\nProgramming by Carlos, Edward and Chris.\nVisit http://bookr.sf.net for new versions.\nThis program is licensed under the terms of the GPL v2.\nUses the MuPDF and djvulibre libraries under the terms \nof their respective licenses. \nDjVu format support by Yang Hu.\nSeveral features by Paul Murray.";
+			popupText = "Bookr - a document viewer for the Sony PSP.\nOriginal version by Carlos and Edward.\nV8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\nThis program is licensed under the terms of the GPL v2.\nThis program uses the following libraries/projects:\n MuPDF library under the terms of the AFPL.\n chmlib 0.39 by Jed Wing <jedwin@ugcs.caltech.edu>\n VnConv by Pham Kim Long <longp@cslab.felk.cvut.cz>\n DjVuLibre 3.5 by Leon Bottou and Yann Le Cun";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
@@ -371,10 +408,10 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == OPTIONS_MENU_ITEM_CHOOSE_FONT) {
+		if (selItem == OPTIONS_MENU_ITEM_PLAIN_CHOOSE_FONT) {
 			return BK_CMD_INVOKE_OPEN_FONT;
 		}
-		if (selItem == OPTIONS_MENU_ITEM_JUSTIFY_TEXT) {
+		if (selItem == OPTIONS_MENU_ITEM_PLAIN_JUSTIFY_TEXT) {
 			BKUser::options.txtJustify = !BKUser::options.txtJustify;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
@@ -387,7 +424,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == OPTIONS_MENU_ITEM_INVERT_COLORS_PDF) {
+		if (selItem == OPTIONS_MENU_ITEM_PDF_INVERT_COLORS) {
 			BKUser::options.pdfInvertColors = !BKUser::options.pdfInvertColors;
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
@@ -417,10 +454,26 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}*/
+
+		if (selItem == OPTIONS_MENU_ITEM_BROWSER_ENABLEFLASH) {
+			BKUser::options.browserEnableFlash = !BKUser::options.browserEnableFlash;
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == OPTIONS_MENU_ITEM_BROWSER_CONFIRMEXIT) {
+			BKUser::options.browserConfirmExit = !BKUser::options.browserConfirmExit;
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		}
+		if (selItem == OPTIONS_MENU_ITEM_BROWSER_SHOWCURSOR) {
+			BKUser::options.browserShowCursor = !BKUser::options.browserShowCursor;
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		}
 	}
 
 	if (b[BKUser::controls.alternate] == 1) {
-		if (selItem == OPTIONS_MENU_ITEM_CHOOSE_FONT) {
+		if (selItem == OPTIONS_MENU_ITEM_PLAIN_CHOOSE_FONT) {
 			BKUser::options.txtFont = "bookr:builtin";
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
@@ -461,7 +514,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == OPTIONS_MENU_ITEM_FONT_SIZE) {
+		if (selItem == OPTIONS_MENU_ITEM_PLAIN_FONT_SIZE) {
 			--BKUser::options.txtSize;
 			if (BKUser::options.txtSize < 6) {
 				BKUser::options.txtSize = 6;
@@ -469,7 +522,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == OPTIONS_MENU_ITEM_SET_LINE_HEIGHT) {
+		} else if (selItem == OPTIONS_MENU_ITEM_PLAIN_SET_LINE_HEIGHT) {
 			BKUser::options.txtHeightPct -= 5;
 			if (BKUser::options.txtHeightPct < 50) {
 				BKUser::options.txtHeightPct = 50;
@@ -505,7 +558,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == OPTIONS_MENU_ITEM_WRAP_TEXT) {
+		} else if (selItem == OPTIONS_MENU_ITEM_PLAIN_WRAP_TEXT) {
 			--BKUser::options.txtWrapCR;
 			if (BKUser::options.txtWrapCR < 0) {
 				BKUser::options.txtWrapCR = 0;
@@ -513,8 +566,30 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_TEXTSIZE) {
+			--BKUser::options.browserTextSize;
+			if (BKUser::options.browserTextSize < 0) {
+				BKUser::options.browserTextSize = 2;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_DISPLAYMODE) {
+			--BKUser::options.browserDisplayMode;
+			if (BKUser::options.browserDisplayMode < 0) {
+				BKUser::options.browserDisplayMode = 2;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_INTERFACEMODE) {
+			--BKUser::options.browserInterfaceMode;
+			if (BKUser::options.browserInterfaceMode < 0) {
+				BKUser::options.browserInterfaceMode = 2;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
 		}
 	}
+
 
 	if (b[BKUser::controls.menuRight] == 1) {
 		if (selItem == OPTIONS_MENU_ITEM_SET_CONTROL_STYLE) {
@@ -531,7 +606,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == OPTIONS_MENU_ITEM_FONT_SIZE) {
+		if (selItem == OPTIONS_MENU_ITEM_PLAIN_FONT_SIZE) {
 			++BKUser::options.txtSize;
 			if (BKUser::options.txtSize > 20) {
 				BKUser::options.txtSize = 20;
@@ -539,7 +614,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == OPTIONS_MENU_ITEM_SET_LINE_HEIGHT) {
+		} else if (selItem == OPTIONS_MENU_ITEM_PLAIN_SET_LINE_HEIGHT) {
 			BKUser::options.txtHeightPct += 5;
 			if (BKUser::options.txtHeightPct > 150) {
 				BKUser::options.txtHeightPct = 150;
@@ -578,7 +653,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
-		} else if (selItem == OPTIONS_MENU_ITEM_WRAP_TEXT) {
+		} else if (selItem == OPTIONS_MENU_ITEM_PLAIN_WRAP_TEXT) {
 			++BKUser::options.txtWrapCR;
 			if (BKUser::options.txtWrapCR > 3) {
 				BKUser::options.txtWrapCR = 3;
@@ -586,8 +661,30 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				buildOptionMenu();
 			}
 			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_TEXTSIZE) {
+			++BKUser::options.browserTextSize;
+			if (BKUser::options.browserTextSize > 2) {
+				BKUser::options.browserTextSize = 0;
+		}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_DISPLAYMODE) {
+			++BKUser::options.browserDisplayMode;
+			if (BKUser::options.browserDisplayMode > 2) {
+				BKUser::options.browserDisplayMode = 0;
+	}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
+		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_INTERFACEMODE) {
+			++BKUser::options.browserInterfaceMode;
+			if (BKUser::options.browserInterfaceMode > 2) {
+				BKUser::options.browserInterfaceMode = 0;
+			}
+			buildOptionMenu();
+			return BK_CMD_MARK_DIRTY;
 		}
 	}
+
 
 	return 0;
 }

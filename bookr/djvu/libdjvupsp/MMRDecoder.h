@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: MMRDecoder.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $
+// $Name:  $
 
 #ifndef _MMRDECODER_H_
 #define _MMRDECODER_H_
@@ -133,7 +133,7 @@ class JB2Image;
     @memo
     CCITT-G4/MMR decoder.
     @version
-    #$Id$#
+    #$Id: MMRDecoder.h,v 1.1 2007/10/17 20:28:57 cpayeur Exp $#
     @author
     Parag Deshmukh <parag@sanskrit.lz.att.com> \\
     Leon Bottou <leonb@research.att.com> */

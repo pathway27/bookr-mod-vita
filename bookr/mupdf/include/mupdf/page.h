@@ -11,8 +11,10 @@ struct pdf_pagetree_s
 {
 	int count;
 	int cursor;
-	fz_obj **pref;
-	fz_obj **pobj;
+	fz_obj *pref;
+	fz_obj *pobj;
+	int *indexes;
+	fz_obj **supers;
 };
 
 struct pdf_page_s
@@ -41,7 +43,7 @@ struct pdf_textline_s
 /* pagetree.c */
 fz_error *pdf_loadpagetree(pdf_pagetree **pp, pdf_xref *xref);
 int pdf_getpagecount(pdf_pagetree *pages);
-fz_obj *pdf_getpageobject(pdf_pagetree *pages, int p);
+fz_obj *pdf_getpageobject(pdf_pagetree *pages, int p, pdf_xref *xref);
 void pdf_debugpagetree(pdf_pagetree *pages);
 void pdf_droppagetree(pdf_pagetree *pages);
 

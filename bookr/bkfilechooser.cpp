@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +25,7 @@
 #include "bkuser.h"
 
 BKFileChooser::BKFileChooser(string& t, int r) : title(t), ret(r) {
+	convertToVN = false;
 	if( r == BK_CMD_SET_FONT )
 		path = BKUser::options.lastFontFolder;
 	else
@@ -41,6 +43,14 @@ void BKFileChooser::getCurrentDirent(FZDirent& de) {
 
 void BKFileChooser::getFullPath(string& s) {
 	s = path + "/" + dirFiles[selItem].name;
+}
+
+void BKFileChooser::getFileName(string& s) {
+	s = dirFiles[selItem].name;
+}
+
+bool BKFileChooser::isConvertToVN() {
+	return convertToVN;
 }
 
 void BKFileChooser::updateDirFiles() {
@@ -69,9 +79,19 @@ int BKFileChooser::update(unsigned int buttons) {
 			topItem = 0;
 			updateDirFiles();
 		} else if (dirFiles[selItem].stat & FZ_STAT_IFREG) {
+			convertToVN = false;
 			return ret;
 		}
 	}
+
+	if (b[BKUser::controls.details] == 1) {
+		if (!(dirFiles[selItem].stat & FZ_STAT_IFDIR)
+				&& (dirFiles[selItem].stat & FZ_STAT_IFREG)) {
+			convertToVN = true;
+			return ret;
+		}
+	}
+
 	if (b[BKUser::controls.alternate] == 1) {
 		// try to remove one dir
 		int lastSlash = path.rfind('/');

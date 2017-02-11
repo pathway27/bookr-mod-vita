@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: ByteStream.cpp,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 // From: Leon Bottou, 1/31/2002
 // This file has very little to do with my initial implementation.

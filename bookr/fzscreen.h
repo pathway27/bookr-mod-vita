@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -203,7 +204,7 @@ public:
 	static void exit();
 
 	/**
-	 * Start list for inmediate display.
+	 * Start list for immediate display.
 	 */
 	static void startDirectList();
 
@@ -271,6 +272,10 @@ public:
 	static void getTime(int &h, int &m);
 	static int getBattery();
 	static int getUsedMemory();
+
+	static char* browserTextSizes[];
+	static char* browserDisplayModes[];
+	static char* browserInterfaceModes[];
 };
 
 #endif

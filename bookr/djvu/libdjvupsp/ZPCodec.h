@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: ZPCodec.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _ZPCODEC_H
 #define _ZPCODEC_H
@@ -189,7 +189,7 @@ class ByteStream;
     @memo
     Binary adaptive quasi-arithmetic coder.
     @version
-    #$Id$#
+    #$Id: ZPCodec.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $#
     @author
     L\'eon Bottou <leonb@research.att.com> */
 //@{

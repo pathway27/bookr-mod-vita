@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GRect.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GRECT_H_
 #define _GRECT_H_
@@ -77,7 +77,7 @@
     @author
     L\'eon Bottou <leonb@research.att.com> -- initial implementation.
     @version
-    #$Id$# */
+    #$Id: GRect.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# */
 //@{
 
 #include "DjVuGlobal.h"

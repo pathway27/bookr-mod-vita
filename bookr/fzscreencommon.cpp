@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +36,7 @@ const char* FZScreen::nameForButton(int mask) {
 	if (mask & FZ_CTRL_HOME    ) return "Home";
 	if (mask & FZ_CTRL_HOLD    ) return "Hold";
 	if (mask & FZ_CTRL_NOTE    ) return "Note";
-	return "Unknow button";
+	return "Unknown button";
 }
 
 const char* FZScreen::nameForButtonReps(int button) {
@@ -54,7 +55,7 @@ const char* FZScreen::nameForButtonReps(int button) {
 	if (button == FZ_REPS_HOME    ) return "Home";
 	if (button == FZ_REPS_HOLD    ) return "Hold";
 	if (button == FZ_REPS_NOTE    ) return "Note";
-	return "Unknow button";
+	return "Unknown button";
 }
 
 int FZScreen::repsForButtonMask(int mask) {
@@ -96,3 +97,17 @@ int FZScreen::speedValues[14] = {
 	333, 166
 };
 
+char* FZScreen::browserTextSizes[3] =
+{
+	"Large", "Normal", "Small"
+};
+
+char* FZScreen::browserDisplayModes[3] =
+{
+	"Normal", "Fit", "Smart-Fit"
+};
+
+char* FZScreen::browserInterfaceModes[3] =
+{
+	"Full", "Limited", "None"
+};

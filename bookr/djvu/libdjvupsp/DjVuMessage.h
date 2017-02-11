@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DjVuMessage.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 
 #ifndef __DJVU_MESSAGE_H__

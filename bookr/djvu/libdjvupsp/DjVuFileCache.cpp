@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: DjVuFileCache.cpp,v 1.1 2007/10/17 20:28:59 cpayeur Exp $
+// $Name:  $
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"

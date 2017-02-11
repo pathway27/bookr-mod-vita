@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: BSByteStream.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _BSBYTESTREAM_H
 #define _BSBYTESTREAM_H
@@ -144,7 +144,7 @@
     @memo
     Simple Burrows-Wheeler general purpose compressor.
     @version
-    #$Id$# */
+    #$Id: BSByteStream.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# */
 //@{
 
 

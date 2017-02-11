@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: ByteStream.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _BYTESTREAM_H
 #define _BYTESTREAM_H
@@ -99,7 +99,7 @@
 
 
     @version
-    #$Id$# */
+    #$Id: ByteStream.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# */
 //@{
 
 

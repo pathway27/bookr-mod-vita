@@ -1,6 +1,7 @@
 /*
  * bkpagechooser: random page accessing extension for bookr 
  * Copyright (C) 2007 Yang.Hu (findreams at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,13 +111,13 @@ int BKPageChooser::update(unsigned int buttons) {
 		}
 		return BK_CMD_MARK_DIRTY;
 	}
-	if (b[BKUser::controls.cancel] == 1) {
+	if (b[BKUser::controls.select] == 1) {
 		if(currentPage == 0 || currentPage > totalPage) {
 			return 0;
 		}
 		return ret;
 	}
-	if (b[BKUser::controls.select] == 1) {
+	if (b[BKUser::controls.cancel] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 	if (b[BKUser::controls.showToolbar] == 1) {

@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GPixmap.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GPIXMAP_H_
 #define _GPIXMAP_H_
@@ -81,7 +81,7 @@
     @author
     L\'eon Bottou <leonb@research.att.com>
     @version
-    #$Id$# */
+    #$Id: GPixmap.h,v 1.1 2007/10/17 20:28:58 cpayeur Exp $# */
 //@{
 
 

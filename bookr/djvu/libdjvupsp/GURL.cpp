@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 // 
-// $Id$
-// $Name$
+// $Id: GURL.cpp,v 1.1 2007/10/17 20:28:58 cpayeur Exp $
+// $Name:  $
 
 // Modified by Yang.Hu, 8/15/2007
 // add implementation for psp

@@ -2,6 +2,7 @@
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,6 +92,13 @@ class BKUser {
 		int txtHeightPct;
 		bool loadLastFile;
 		int txtWrapCR;
+
+		int browserTextSize;
+		int browserDisplayMode;
+		bool browserEnableFlash;
+		int browserInterfaceMode;
+		bool browserConfirmExit;
+		bool browserShowCursor;
 	};
 	static Options options;
 };

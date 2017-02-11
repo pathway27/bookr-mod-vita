@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +42,7 @@ using namespace std;
 #define BK_CMD_SET_TXTBG 23
 #define BK_CMD_SET_PDFBG 24
 #define BK_CMD_OPEN_PAGE 25
+#define BK_CMD_OPEN_CACHE 26
 
 #define BK_CMD_INVOKE_MENU 100
 #define BK_CMD_INVOKE_OPEN_FILE 101
@@ -49,6 +51,7 @@ using namespace std;
 #define BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG 104
 #define BK_CMD_INVOKE_COLOR_SCHEME_MANAGER 105
 #define BK_CMD_INVOKE_PAGE_CHOOSER 106
+#define BK_CMD_INVOKE_BROWSE_CACHE 107
 
 #define BK_IMG_TRIANGLE_X 9
 #define BK_IMG_TRIANGLE_Y 53

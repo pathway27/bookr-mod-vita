@@ -1,7 +1,8 @@
 /*
- * Bookr: document reader for the Sony PSP 
+ * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@
 #include "fzscreen.h"
 #include "bkdocument.h"
 #include "bkfilechooser.h"
+#include "bkcachechooser.h"
 #include "bkcolorchooser.h"
 #include "bkpagechooser.h"
 #include "bkcolorschememanager.h"
@@ -31,8 +33,11 @@
 #ifdef PSP
 #include <pspkernel.h>
 PSP_MODULE_INFO("Bookr", 0, 1, 1);
+PSP_HEAP_SIZE_KB(-7*1024);
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
 #endif
+
+extern int processCHMHTM(bkLayers& layers, string filepath, bool convertToVN);
 
 extern "C" {
 	int main(int argc, char* argv[]);
@@ -47,6 +52,12 @@ static bool isTTF(string& file) {
 	return header[0] == 0x0 && header[1] == 0x1 && header[2] == 0x0 && header[3] == 0x0;
 }
 
+bool isHTMOrCHM(string& file) {
+	string tmp = file.substr(file.find_last_of("."));
+	return stricmp(tmp.c_str(), ".htm") == 0 || stricmp(tmp.c_str(), ".html")
+			== 0 || stricmp(tmp.c_str(), ".chm") == 0;
+}
+
 int main(int argc, char* argv[]) {
 	BKDocument* documentLayer = 0;
 	FZScreen::setupCallbacks();
@@ -59,6 +70,7 @@ int main(int argc, char* argv[]) {
 	BKLayer::load();
 	bkLayers layers;
 	BKFileChooser* fs = 0;
+	BKCacheChooser* ccs = 0;
 	BKColorChooser* cs = 0;
 	BKColorSchemeManager* csm = 0;
 	BKPageChooser* ps = 0;
@@ -125,7 +137,7 @@ int main(int argc, char* argv[]) {
 //				++it;
 //			}
 //			FZScreen::endAndDisplayList();
-//		} else 
+//		} else
 		if (dirty) {
 			FZScreen::startDirectList();
 			// render layers back to front
@@ -179,16 +191,16 @@ int main(int argc, char* argv[]) {
 
 				if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD) {
 					// repaint
-					dirty = true;                                        
+					dirty = true;
 				}
 			} break;
 			case BK_CMD_MARK_DIRTY:
 				dirty = true;
-				mm->rebuildMenu();
+//				mm->rebuildMenu();
 			break;
 			case BK_CMD_INVOKE_OPEN_FILE: {
 				// add a file chooser layer
-				string title("Select document to open");
+				string title("Open (use SQUARE to open Vietnamese chm/html)");
 				fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
 				layers.push_back(fs);
 			} break;
@@ -200,7 +212,7 @@ int main(int argc, char* argv[]) {
 			} break;
 			case BK_CMD_INVOKE_PAGE_CHOOSER: {
 				if (documentLayer && documentLayer->isPaginated()) {
-					ps = BKPageChooser::create(documentLayer->getTotalPages(), 
+					ps = BKPageChooser::create(documentLayer->getTotalPages(),
 							documentLayer->getCurrentPage(),
 							BK_CMD_OPEN_PAGE);
 					layers.push_back(ps);
@@ -218,12 +230,21 @@ int main(int argc, char* argv[]) {
 				(*it)->release();
 				layers.erase(it);
 			} break;
+			case BK_CMD_INVOKE_BROWSE_CACHE: {
+				// add a file chooser layer
+				string title("Cache");
+				ccs = BKCacheChooser::create(title, BK_CMD_OPEN_CACHE);
+				layers.push_back(ccs);
+			} break;
 			case BK_CMD_OPEN_FILE:
+			case BK_CMD_OPEN_CACHE:
 			case BK_CMD_RELOAD: {
 				// open a file as a document
 				string s;
-				
+
 				FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
+
+				bool convertToVN = false;
 
 				if (command == BK_CMD_RELOAD) {
 					documentLayer->getFileName(s);
@@ -232,9 +253,14 @@ int main(int argc, char* argv[]) {
 				if (command == BK_CMD_OPEN_FILE) {
 					// open selected file
 					fs->getFullPath(s);
+					convertToVN = fs->isConvertToVN();
 					fs = 0;
 				}
-
+				if (command == BK_CMD_OPEN_CACHE) {
+					// open selected cache
+					ccs->getFullPath(s);
+					ccs = 0;
+				}
 				// clear layers
 				bkLayersIt it(layers.begin());
 				bkLayersIt end(layers.end());
@@ -253,6 +279,21 @@ int main(int argc, char* argv[]) {
 				FZScreen::swapBuffers();
 				FZScreen::checkEvents();
 				l->release();
+
+
+				if (isHTMOrCHM(s)) {
+
+					processCHMHTM(layers, s, convertToVN);
+
+					// add a main menu layer
+					layers.push_back(BKLogo::create());
+					mm = BKMainMenu::create();
+					layers.push_back(mm);
+
+					dirty = true;
+					break;
+				}
+
 				// detect file type and add a new display layer
 				documentLayer = BKDocument::create(s);
 				if (documentLayer == 0) {
@@ -327,11 +368,11 @@ int main(int argc, char* argv[]) {
 				--it;
 				(*it)->release();
 				layers.erase(it);
-				
+
 				// After choosing the foreground color, choose the background one
 				cs = BKColorChooser::create(csm->getColorScheme(), BK_CMD_SET_TXTBG);
 				layers.push_back(cs);
-				
+
 			} break;
 			case BK_CMD_SET_TXTBG: {
 				BKUser::options.colorSchemes[csm->getColorScheme()].txtBGColor = cs->getColor();
@@ -352,7 +393,7 @@ int main(int argc, char* argv[]) {
 
 	bkLayersIt it(layers.begin());
 	bkLayersIt end(layers.end());
-	while (it != end) {	
+	while (it != end) {
 		(*it)->release();
 		++it;
 	}

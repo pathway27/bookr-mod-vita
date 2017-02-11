@@ -1,19 +1,21 @@
 # to fix: compile manually the mupdf libs first...
 # cd mupdf; make
-
-PSP_FW_VERSION = 150
-#PSP_FW_VERSION = 371 
-#BUILD_PRX = 1 
 PSP_EBOOT_ICON=data/icon0.png
 TARGET=bookr
-OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o 
+OBJS:=bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o
 OBJS+=bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 OBJS+=fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenpsp.o fzscreencommon.o
-OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o bkmemcpy.S
-OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o 
+OBJS+=tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o bkmemcpy.o
+OBJS+=res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o
+OBJS+=chmlib/chm_lib.o chmlib/lzx.o
+OBJS+=vnconv\byteio.o vnconv\charset.o vnconv\data.o vnconv\error.o vnconv\pattern.o
+OBJS+=bkcachechooser.o vnconv\webviqrconv.o
+OBJS+=pspchm.o
 
 INCDIR =
-CFLAGS = -Imupdf/include -Idjvu/libdjvupsp -G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
+CFLAGS = -Imupdf/include -Idjvu/libdjvupsp -G0 -Wall -O2 -Ic:/pspsdk/psp/include/freetype2
+#CFLAGS += -g
+#BUILD_PRX=1
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
@@ -21,8 +23,9 @@ LIBDIR =
 LDFLAGS =
 LIBS=-Lmupdf/libs -Ldjvu/libs -ldjvulibre -lmupdf -lraster -lworld -lfonts -lstream -lbase -lpspgum -lpspgu -lpsppower -lpsprtc -lpng -lz -ljpeg -lm -lfreetype -lstdc++ -lsupc++
 
+
 EXTRA_TARGETS = EBOOT.PBP
-PSP_EBOOT_TITLE = Bookr - Book Reader
+PSP_EBOOT_TITLE = Book Reader V8.1
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 #USE_PSPSDK_LIBC=1

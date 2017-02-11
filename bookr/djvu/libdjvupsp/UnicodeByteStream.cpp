@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 //
-// $Id$
-// $Name$
+// $Id: UnicodeByteStream.cpp,v 1.1 2007/10/17 20:29:00 cpayeur Exp $
+// $Name:  $
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"

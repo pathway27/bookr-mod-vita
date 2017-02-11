@@ -1,6 +1,7 @@
 /*
  * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +53,7 @@ static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
 
 // singleton
 static unsigned int* bounceBuffer = NULL;
-static unsigned int* backBuffer = NULL;
+//static unsigned int* backBuffer = NULL;
 static fz_pixmap* fullPageBuffer = NULL;
 
 struct PDFContext {
@@ -79,13 +80,13 @@ struct PDFContext {
 };
 
 static int pdfInit() {
-	fz_error *error;
+//	fz_error *error;
 	if (bounceBuffer == NULL) {
 		bounceBuffer = (unsigned int*)memalign(16, 480*272*4);
 	}
-	if (backBuffer == NULL) {
-		backBuffer = (unsigned int*)memalign(16, 480*272*4);
-	}
+//	if (backBuffer == NULL) {
+//		backBuffer = (unsigned int*)memalign(16, 480*272*4);
+//	}
 	return 0;
 }
 
@@ -484,7 +485,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	}
 	*/
 
-	obj = pdf_getpageobject(ctx->pages, ctx->pageno - 1);
+	obj = pdf_getpageobject(ctx->pages, ctx->pageno - 1, ctx->xref);
 
 	error = pdf_loadpage(&ctx->page, ctx->xref, obj);
 	if (error) {

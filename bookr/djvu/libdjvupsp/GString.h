@@ -53,8 +53,8 @@
 //C- | MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 //C- +------------------------------------------------------------------
 //
-// $Id$
-// $Name$
+// $Id: GString.h,v 1.1 2007/10/17 20:28:59 cpayeur Exp $
+// $Name:  $
 
 #ifndef _GSTRING_H_
 #define _GSTRING_H_
@@ -105,7 +105,7 @@
 // This could be fixed.  But there are better things to do in djvulibre.
     
     @version
-    #$Id$# */
+    #$Id: GString.h,v 1.1 2007/10/17 20:28:59 cpayeur Exp $# */
 //@{
 
 
