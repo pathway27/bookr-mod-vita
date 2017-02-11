@@ -6,8 +6,8 @@ OBJS+=pdf_function.o pdf_colorspace1.o pdf_colorspace2.o pdf_image.o pdf_pattern
 OBJS+=pdf_build.o pdf_interpret.o pdf_page.o pdf_pagetree.o pdf_resources.o pdf_store.o
 
 INCDIR=../include
-CFLAGS=-G0 -Wall -O2 -I/usr/local/pspdev/psp/include/freetype2
-CXXFLAGS=$(CFLAGS) -fno-exceptions -fno-rtti -I/usr/local/pspdev/psp/include/freetype2
+CFLAGS=-G0 -Wall -O2 -ID:/pspsdk/psp/include/freetype2
+CXXFLAGS=$(CFLAGS) -fno-exceptions -fno-rtti -ID:/pspsdk/psp/include/freetype2
 ASFLAGS=$(CFLAGS)
 
 LIBDIR=

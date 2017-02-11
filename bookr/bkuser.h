@@ -99,6 +99,8 @@ class BKUser {
 		int browserInterfaceMode;
 		bool browserConfirmExit;
 		bool browserShowCursor;
+
+		string menuLanguage;
 	};
 	static Options options;
 };

@@ -22,6 +22,7 @@
 #include "fzscreen.h"
 #include <pspthreadman.h>
 #include "bklogo.h"
+#include "BKLocalization.h"
 
 BKLogo::BKLogo() : loading(false), error(false), text("") {
 }
@@ -64,7 +65,7 @@ void BKLogo::render() {
 	drawTextHC("PDF - TXT - PalmDoc - DJVU - CHM - HTML", fontBig, 180);
 	FZScreen::ambientColor(0xffffffff);
 	if (loading)
-		drawTextHC("Loading...", fontBig, 244);
+		drawTextHC((char*)BKLocalization::current.loading.c_str(), fontBig, 244);
 	else if (text.length() > 0)
 		drawTextHC((char*) text.c_str(), fontBig, 244);
 	else {
@@ -77,7 +78,7 @@ void BKLogo::render() {
 			drawTextHC("Error: invalid or corrupted file", fontBig, 130);
 		}
 		FZScreen::ambientColor(0xffffffff);
-		drawTextHC("Press Start", fontBig, 244);
+		drawTextHC((char*)BKLocalization::current.pressStart.c_str(), fontBig, 244);
 	}
 }
 

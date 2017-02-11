@@ -1,0 +1,79 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bookr", "bookr\bookr.vcproj", "{BF1664EE-90B1-4AA7-97F3-D304FE4A2E33}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "djvu", "djvu", "{BF558F07-3391-4ABD-B6EB-E0380BA18167}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mupdf", "mupdf", "{AC2796AA-5BC3-453C-924F-8AC95D8FB2FD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libdjvupsp", "bookr\djvu\libdjvupsp\libdjvupsp.vcproj", "{9650E4AC-07E5-479C-B432-01DB53B05015}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base", "bookr\mupdf\base\base.vcproj", "{3BF0139A-18A8-4391-B6C5-47749AABA3E1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fonts", "bookr\mupdf\fonts\fonts.vcproj", "{305CC1F5-025D-423E-B4A4-65D56A7BC84E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mupdf", "bookr\mupdf\mupdf\mupdf.vcproj", "{EEE91182-4CAA-4D86-8B7A-BE64C807B541}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raster", "bookr\mupdf\raster\raster.vcproj", "{568AFC19-06A1-40A7-A276-BCE75D1721C4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stream", "bookr\mupdf\stream\stream.vcproj", "{C0853163-5822-4F62-A745-C0280B3FE750}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "world", "bookr\mupdf\world\world.vcproj", "{4BE6E326-A446-49EC-8AA4-B86E9E9996A7}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF1664EE-90B1-4AA7-97F3-D304FE4A2E33}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BF1664EE-90B1-4AA7-97F3-D304FE4A2E33}.Debug|Win32.Build.0 = Debug|Win32
+		{BF1664EE-90B1-4AA7-97F3-D304FE4A2E33}.Release|Win32.ActiveCfg = Release|Win32
+		{BF1664EE-90B1-4AA7-97F3-D304FE4A2E33}.Release|Win32.Build.0 = Release|Win32
+		{9650E4AC-07E5-479C-B432-01DB53B05015}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9650E4AC-07E5-479C-B432-01DB53B05015}.Debug|Win32.Build.0 = Debug|Win32
+		{9650E4AC-07E5-479C-B432-01DB53B05015}.Release|Win32.ActiveCfg = Release|Win32
+		{9650E4AC-07E5-479C-B432-01DB53B05015}.Release|Win32.Build.0 = Release|Win32
+		{3BF0139A-18A8-4391-B6C5-47749AABA3E1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3BF0139A-18A8-4391-B6C5-47749AABA3E1}.Debug|Win32.Build.0 = Debug|Win32
+		{3BF0139A-18A8-4391-B6C5-47749AABA3E1}.Release|Win32.ActiveCfg = Release|Win32
+		{3BF0139A-18A8-4391-B6C5-47749AABA3E1}.Release|Win32.Build.0 = Release|Win32
+		{305CC1F5-025D-423E-B4A4-65D56A7BC84E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{305CC1F5-025D-423E-B4A4-65D56A7BC84E}.Debug|Win32.Build.0 = Debug|Win32
+		{305CC1F5-025D-423E-B4A4-65D56A7BC84E}.Release|Win32.ActiveCfg = Release|Win32
+		{305CC1F5-025D-423E-B4A4-65D56A7BC84E}.Release|Win32.Build.0 = Release|Win32
+		{EEE91182-4CAA-4D86-8B7A-BE64C807B541}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EEE91182-4CAA-4D86-8B7A-BE64C807B541}.Debug|Win32.Build.0 = Debug|Win32
+		{EEE91182-4CAA-4D86-8B7A-BE64C807B541}.Release|Win32.ActiveCfg = Release|Win32
+		{EEE91182-4CAA-4D86-8B7A-BE64C807B541}.Release|Win32.Build.0 = Release|Win32
+		{568AFC19-06A1-40A7-A276-BCE75D1721C4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{568AFC19-06A1-40A7-A276-BCE75D1721C4}.Debug|Win32.Build.0 = Debug|Win32
+		{568AFC19-06A1-40A7-A276-BCE75D1721C4}.Release|Win32.ActiveCfg = Release|Win32
+		{568AFC19-06A1-40A7-A276-BCE75D1721C4}.Release|Win32.Build.0 = Release|Win32
+		{C0853163-5822-4F62-A745-C0280B3FE750}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C0853163-5822-4F62-A745-C0280B3FE750}.Debug|Win32.Build.0 = Debug|Win32
+		{C0853163-5822-4F62-A745-C0280B3FE750}.Release|Win32.ActiveCfg = Release|Win32
+		{C0853163-5822-4F62-A745-C0280B3FE750}.Release|Win32.Build.0 = Release|Win32
+		{4BE6E326-A446-49EC-8AA4-B86E9E9996A7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4BE6E326-A446-49EC-8AA4-B86E9E9996A7}.Debug|Win32.Build.0 = Debug|Win32
+		{4BE6E326-A446-49EC-8AA4-B86E9E9996A7}.Release|Win32.ActiveCfg = Release|Win32
+		{4BE6E326-A446-49EC-8AA4-B86E9E9996A7}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9650E4AC-07E5-479C-B432-01DB53B05015} = {BF558F07-3391-4ABD-B6EB-E0380BA18167}
+		{3BF0139A-18A8-4391-B6C5-47749AABA3E1} = {AC2796AA-5BC3-453C-924F-8AC95D8FB2FD}
+		{305CC1F5-025D-423E-B4A4-65D56A7BC84E} = {AC2796AA-5BC3-453C-924F-8AC95D8FB2FD}
+		{EEE91182-4CAA-4D86-8B7A-BE64C807B541} = {AC2796AA-5BC3-453C-924F-8AC95D8FB2FD}
+		{568AFC19-06A1-40A7-A276-BCE75D1721C4} = {AC2796AA-5BC3-453C-924F-8AC95D8FB2FD}
+		{C0853163-5822-4F62-A745-C0280B3FE750} = {AC2796AA-5BC3-453C-924F-8AC95D8FB2FD}
+		{4BE6E326-A446-49EC-8AA4-B86E9E9996A7} = {AC2796AA-5BC3-453C-924F-8AC95D8FB2FD}
+	EndGlobalSection
+EndGlobal

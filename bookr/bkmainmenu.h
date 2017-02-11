@@ -43,6 +43,9 @@ class BKMainMenu : public BKLayer {
 	void buildControlMenu();
 	void buildOptionMenu();
 
+	void rebuildMenuFontAndText();
+	void rebuildMenuFont();
+
 	string popupText;
 	int popupMode;
 	int frames;

@@ -88,9 +88,11 @@ using namespace std;
 #define BK_IMG_FOLDER_YSIZE 20
 
 class BKLayer : public FZRefCounted {
-	protected:
+	public:
 	static FZFont* fontBig;
 	static FZFont* fontSmall;
+
+	protected:
 	static FZTexture* texUI;
 	static FZTexture* texUI2;
 	static FZTexture* texLogo;

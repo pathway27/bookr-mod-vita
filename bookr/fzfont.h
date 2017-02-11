@@ -41,6 +41,8 @@ class FZFont : public FZTexture {
 
 protected:
 	FZFont();
+
+public:
 	~FZFont();
 
 public:
@@ -57,7 +59,7 @@ public:
 	/**
 	 * Create a new font texture with Freetype.
 	 */
-	static FZFont* createFromFile(char* fileName, int fontSize, bool autohint);
+	static FZFont* createFromFile(const char* fileName, int fontSize, bool autohint);
 	static FZFont* createFromMemory(unsigned char* buffer, int bufferSize, int fontSize, bool autohint);
 };
 

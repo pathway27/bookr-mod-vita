@@ -19,42 +19,45 @@
  */
 
 #include "fzscreen.h"
+#include "bklocalization.h"
 
-const char* FZScreen::nameForButton(int mask) {
-	if (mask & FZ_CTRL_SELECT  ) return "Select";
-	if (mask & FZ_CTRL_START   ) return "Start";
-	if (mask & FZ_CTRL_UP      ) return "Up";
-	if (mask & FZ_CTRL_RIGHT   ) return "Right";
-	if (mask & FZ_CTRL_DOWN    ) return "Down";
-	if (mask & FZ_CTRL_LEFT    ) return "Left";
-	if (mask & FZ_CTRL_LTRIGGER) return "Left trigger";
-	if (mask & FZ_CTRL_RTRIGGER) return "Right trigger";
-	if (mask & FZ_CTRL_TRIANGLE) return "Triangle";
-	if (mask & FZ_CTRL_CIRCLE  ) return "Circle";
-	if (mask & FZ_CTRL_CROSS   ) return "Cross";
-	if (mask & FZ_CTRL_SQUARE  ) return "Square";
-	if (mask & FZ_CTRL_HOME    ) return "Home";
-	if (mask & FZ_CTRL_HOLD    ) return "Hold";
-	if (mask & FZ_CTRL_NOTE    ) return "Note";
+const char* FZScreen::nameForButton(int mask) 
+{
+	if (mask & FZ_CTRL_SELECT  ) return BKLocalization::current.buttonSelect.c_str();
+	if (mask & FZ_CTRL_START   ) return BKLocalization::current.buttonStart.c_str();
+	if (mask & FZ_CTRL_UP      ) return BKLocalization::current.buttonUp.c_str();
+	if (mask & FZ_CTRL_RIGHT   ) return BKLocalization::current.buttonRight.c_str();
+	if (mask & FZ_CTRL_DOWN    ) return BKLocalization::current.buttonDown.c_str();
+	if (mask & FZ_CTRL_LEFT    ) return BKLocalization::current.buttonLeft.c_str();
+	if (mask & FZ_CTRL_LTRIGGER) return BKLocalization::current.buttonLeftTrigger.c_str();
+	if (mask & FZ_CTRL_RTRIGGER) return BKLocalization::current.buttonRightTrigger.c_str();
+	if (mask & FZ_CTRL_TRIANGLE) return BKLocalization::current.buttonTriangle.c_str();
+	if (mask & FZ_CTRL_CIRCLE  ) return BKLocalization::current.buttonCircle.c_str();
+	if (mask & FZ_CTRL_CROSS   ) return BKLocalization::current.buttonCross.c_str();
+	if (mask & FZ_CTRL_SQUARE  ) return BKLocalization::current.buttonSquare.c_str();
+	if (mask & FZ_CTRL_HOME    ) return BKLocalization::current.buttonHome.c_str();
+	if (mask & FZ_CTRL_HOLD    ) return BKLocalization::current.buttonHold.c_str();
+	if (mask & FZ_CTRL_NOTE    ) return BKLocalization::current.buttonNote.c_str();
 	return "Unknown button";
 }
 
-const char* FZScreen::nameForButtonReps(int button) {
-	if (button == FZ_REPS_SELECT  ) return "Select";
-	if (button == FZ_REPS_START   ) return "Start";
-	if (button == FZ_REPS_UP      ) return "Up";
-	if (button == FZ_REPS_RIGHT   ) return "Right";
-	if (button == FZ_REPS_DOWN    ) return "Down";
-	if (button == FZ_REPS_LEFT    ) return "Left";
-	if (button == FZ_REPS_LTRIGGER) return "Left trigger";
-	if (button == FZ_REPS_RTRIGGER) return "Right trigger";
-	if (button == FZ_REPS_TRIANGLE) return "Triangle";
-	if (button == FZ_REPS_CIRCLE  ) return "Circle";
-	if (button == FZ_REPS_CROSS   ) return "Cross";
-	if (button == FZ_REPS_SQUARE  ) return "Square";
-	if (button == FZ_REPS_HOME    ) return "Home";
-	if (button == FZ_REPS_HOLD    ) return "Hold";
-	if (button == FZ_REPS_NOTE    ) return "Note";
+const char* FZScreen::nameForButtonReps(int button) 
+{
+	if (button == FZ_REPS_SELECT  ) return BKLocalization::current.buttonSelect.c_str();
+	if (button == FZ_REPS_START   ) return BKLocalization::current.buttonStart.c_str();
+	if (button == FZ_REPS_UP      ) return BKLocalization::current.buttonUp.c_str();
+	if (button == FZ_REPS_RIGHT   ) return BKLocalization::current.buttonRight.c_str();
+	if (button == FZ_REPS_DOWN    ) return BKLocalization::current.buttonDown.c_str();
+	if (button == FZ_REPS_LEFT    ) return BKLocalization::current.buttonLeft.c_str();
+	if (button == FZ_REPS_LTRIGGER) return BKLocalization::current.buttonLeftTrigger.c_str();
+	if (button == FZ_REPS_RTRIGGER) return BKLocalization::current.buttonRightTrigger.c_str();
+	if (button == FZ_REPS_TRIANGLE) return BKLocalization::current.buttonTriangle.c_str();
+	if (button == FZ_REPS_CIRCLE  ) return BKLocalization::current.buttonCircle.c_str();
+	if (button == FZ_REPS_CROSS   ) return BKLocalization::current.buttonCross.c_str();
+	if (button == FZ_REPS_SQUARE  ) return BKLocalization::current.buttonSquare.c_str();
+	if (button == FZ_REPS_HOME    ) return BKLocalization::current.buttonHome.c_str();
+	if (button == FZ_REPS_HOLD    ) return BKLocalization::current.buttonHold.c_str();
+	if (button == FZ_REPS_NOTE    ) return BKLocalization::current.buttonNote.c_str();
 	return "Unknown button";
 }
 

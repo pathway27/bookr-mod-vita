@@ -71,6 +71,7 @@ void BKUser::setDefaultOptions() {
 	options.txtFont = "bookr:builtin";
 	options.txtSize = 11;
 	options.txtHeightPct = 100;
+	options.menuLanguage = "English";
 
 	options.colorSchemes.clear();
 
@@ -130,6 +131,10 @@ void BKUser::save() {
 	fprintf(f, "\t</controls>\n");
 
 	fprintf(f, "\t<options>\n");
+	// OZ: Added Save txtFrom to user.xml
+	fprintf(f, "\t\t<set option=\"menuLanguage\" value=\"%s\" />\n", options.menuLanguage.c_str());
+	fprintf(f, "\t\t<set option=\"txtFont\" value=\"%s\" />\n", options.txtFont.c_str());
+	//
 	fprintf(f, "\t\t<set option=\"txtSize\" value=\"%d\" />\n", options.txtSize);
 	fprintf(f, "\t\t<set option=\"menuControlStyle\" value=\"%s\" />\n", controls.select == FZ_REPS_CIRCLE ? "asian" : "western");
 	fprintf(f, "\t\t<set option=\"txtHeightPct\" value=\"%d\" />\n", options.txtHeightPct);
@@ -211,7 +216,8 @@ void BKUser::load() {
 		while (eset) {
 			const char* option = eset->Attribute("option");
 			const char* value = eset->Attribute("value");
-			if (option == 0 || (value == 0 && (strncmp(option, "colorScheme", 128) != 0))) {
+			if (option == 0 || (value == 0 && (strncmp(option, "colorScheme", 128) != 0))) 
+			{
 				printf("invalid user.xml in line %d\n", eset->Row());
 				break;
 			}
@@ -226,6 +232,10 @@ void BKUser::load() {
 				}
 			}
 			else if (strncmp(option, "txtSize",         128) == 0) options.txtSize         = atoi(value);
+			else if (strncmp(option, "menuLanguage",         128) == 0) options.menuLanguage         = value;
+			// OZ: Added Read txtFrom from user.xml
+			else if (strncmp(option, "txtFont",         128) == 0) options.txtFont         = value;
+			//
 			else if (strncmp(option, "txtHeightPct",    128) == 0) options.txtHeightPct    = atoi(value);
 			else if (strncmp(option, "txtSize",         128) == 0) options.txtSize         = atoi(value);
 			else if (strncmp(option, "colorScheme",		128) == 0) {

@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<localization>
+  <data name="fontFile" value="../fonts/tahoma3.ttf" />
+
+  <data name="buttonSelect" value="Выбрать" />
+  <data name="buttonStart" value="Start" />
+  <data name="buttonUp" value="Вверх" />
+  <data name="buttonRight" value="Вправо" />
+  <data name="buttonDown" value="Вниз" />
+  <data name="buttonLeft" value="Влево" />
+  <data name="buttonLeftTrigger" value="Левый триггер" />
+  <data name="buttonRightTrigger" value="Правый триггер" />
+  <data name="buttonTriangle" value="Треугольник" />
+  <data name="buttonCircle" value="Круг" />
+  <data name="buttonCross" value="Крест" />
+  <data name="buttonSquare" value="Квадрат" />
+
+  <data name="mainMenuTitle" value="Главное меню" />
+  <data name="mainMenuItemOpenFile" value="Открыть файл" />
+  <data name="mainMenuItemSelect" value="Выбрать" />
+  <data name="mainMenuItemBrowseChmCache" value="Просмотреть Chm кеш" />
+  <data name="mainMenuItemControls" value="Управление" />
+  <data name="mainMenuItemOptions" value="Настройка" />
+  <data name="mainMenuItemAbout" value="О программе" />
+  <data name="mainMenuItemExit" value="Выход"/>
+
+  <data name="controlMenuTitle" value="Настройка управления" />
+  <data name="controlMenuItemRestoreDefaults" value="Восстановить значения по умолчанию"/>
+  <data name="controlMenuItemPreviousPage" value="Предыдущая страница: "/>
+  <data name="controlMenuItemNextPage" value="Следующая страница: "/>
+  <data name="controlMenuItemPrevious10Pages" value="Предыдущие 10 страниц: "/>
+  <data name="controlMenuItemNext10pages" value="Следующие 10 страниц: "/>
+  <data name="controlMenuItemScreenUp" value="Экран вверх: "/>
+  <data name="controlMenuItemScreenDown" value="Экран вниз: "/>
+  <data name="controlMenuItemScreenLeft" value="Экран влево: "/>
+  <data name="controlMenuItemScreenRight" value="Экран вправо: "/>
+  <data name="controlMenuItemZoomIn" value="Увеличить масштаб: "/>
+  <data name="controlMenuItemZoomOut" value="Уменьшить масштаб: "/>
+  <data name="controlMenuItemChangeButton" value="Сменить кнопку"/>
+  <data name="controlMenuItemSelect" value="Выбрать"/>
+
+  <data name="optionMenuTitle" value="Настройка" />
+  <data name="optionMenuItemRestoreDefaults" value="Восстановить значения по умолчанию"/>
+  <data name="optionMenuItemMenuLanguage" value="Язык меню: "/>
+  <data name="optionMenuItemMenuControlStyle" value="Стиль управления в меню: "/>
+  <data name="optionMenuItemMenuControlStyleAsian" value="Азиатский"/>
+  <data name="optionMenuItemMenuControlStyleWestern" value="Западный"/>
+  <data name="optionMenuItemPdfFastImage" value="PDF - Ускоренный показ (макс зум 2x): "/>
+  <data name="optionMenuItemPdfInvertColors" value="PDF - Инверсия цветов: "/>
+  <data name="optionMenuItemPlainTextFontFile" value="Текст - Шрифт: "/>
+  <data name="optionMenuItemPlainTextBuiltIn" value="Системный"/>
+  <data name="optionMenuItemSelectFontFile" value="Выбрать шрифт"/>
+  <data name="optionMenuItemUseBuiltInFont" value="Использовать встроенный шрифт"/>
+  <data name="optionMenuItemPlainTextFontSize" value="Текст - Размер шрифта: "/>
+  <data name="optionMenuItemPlainTextLineHeight" value="Текст - Межстрочный интервал: "/>
+  <data name="optionMenuItemPlainTextJustifyText" value="Текст - Выравнивание текста: "/>	
+  <data name="optionMenuItemPlainTextWrapCRs" value="Текст - Удалять переносы строк: "/>	
+  <data name="optionMenuItemBrowserTextSize" value="Html - Размер текста: "/>	
+  <data name="optionMenuItemBrowserDisplayMode" value="Html - Режим отображения: "/>	
+  <data name="optionMenuItemBrowserFlashContent" value="Html - Показать флеш контент: "/>	
+  <data name="optionMenuItemBrowserInterfaceMode" value="Html - Режим интерфейса: "/>	
+  <data name="optionMenuItemBrowserExitConfirmation" value="Html - Подтверждение при выходе: "/>	
+  <data name="optionMenuItemBrowserShowCursor" value="Html - Отображать курсор: "/>	
+
+  <data name="optionMenuItemColorSchemes" value="Цветовые схемы: "/>	
+  <data name="optionMenuItemPixels" value=" пикселей"/>	
+  <data name="optionMenuItemPct" value=" пунктов"/>	
+  <data name="optionMenuItemEnabled" value="Активно"/>	
+  <data name="optionMenuItemDisabled" value="Выключено"/>	
+  <data name="optionMenuItemManageSchemes" value="Сменить схему"/>	
+  <data name="optionMenuItemDisplayPageLoading" value="Отображать количество страниц и нумерацию: "/>	
+  <data name="optionMenuItemAutoLoadLastFile" value="Автоматически загружать последний файл: "/>	
+  <data name="optionMenuItemCPUSpeed" value="Частота процессора/системной шины: "/>	
+  <data name="optionMenuItemMenuSpeed" value="Частота процессора в меню: "/>	
+  <data name="optionMenuItemClearBookmarks" value="Очистить закладки"/>	
+
+  <data name="optionMenuItemChoose" value="Выбрать"/>	
+  <data name="optionMenuItemChange" value="Сменить"/>	
+  <data name="optionMenuItemToggle" value="Сменить"/>	
+  <data name="optionMenuItemSelect" value="Выбрать"/>
+
+  <data name="bookmarksClearedWarning" value="Закладки очищены"/>	
+  <data name="pdfFastWarning" value="Данный режим приведет к нестабильности с большим 
+количеством файлов. 
+При сообщении об ошибке укажите используете вы этот 
+режим или нет. Также попробуйте открыть файл без 
+этого режим прежде чем сообщать об ошибке."/>	
+  <data name="pressNewButtonWarning" value="Нажмите новую кнопку"/>	
+
+  <data name="pressStart" value="Нажмите Start"/>	
+  <data name="loading" value="Загрузка ..."/>	
+  <data name="addBookmark" value="Добавить закладку"/>	
+  <data name="page" value="Страница "/>	
+  <data name="buttonJumpTo" value="Перейти к"/>	
+  <data name="buttonDelete" value="Удалить"/>	
+  <data name="noBookmarksSupport" value="Закладки не поддерживаются"/>	
+  <data name="firstPage" value="Первая страница"/>	
+  <data name="lastPage" value="Последняя страница"/>	
+  <data name="previous10Pages" value="Предыдущие 10 страниц"/>	
+  <data name="next10Pages" value="Следующие 10 страниц"/>	
+  <data name="goToPage" value="Перейти к странице"/>	
+  <data name="noPaginationSupport" value="Навигация не поддерживается"/>	
+  <data name="fitHeight" value="Уместить по высоте"/>	
+  <data name="fitWidth" value="Уместить по ширине"/>	
+  <data name="zoomOut" value="Уменьшить -"/>	
+  <data name="zoomIn" value="Увеличить +"/>	
+  <data name="noZoomSupport" value="Масштабирование не поддерживается"/>	
+  <data name="rotate90Clockwise" value="Повернуть на 90° по часовой"/>	
+  <data name="rotate90Counterclockwise" value="Повернуть на 90° против часовой"/>	
+  <data name="noRotationSupporte" value="Поворот не поддерживается"/>	
+  <data name="of" value=" из "/>	
+
+  <data name="buttonYes" value="Да"/>	
+  <data name="buttonNo" value="Нет"/>
+  <data name="buttonOpen" value="Открыть"/>
+  <data name="clearCache" value="Очистить кеш"/>
+  <data name="deletingCacheWarning" value="Удаление элемента кеша: "/>
+  <data name="deleteCacheWarning" value="Вы действительно хотите удалить "/>
+  <data name="clearCacheWarning" value="Вы действительно хотите очистить весь кеш?"/>
+  <data name="cacheMenuTitle" value="Кеш"/>
+  <data name="buttonDeleteCache" value="Удалить кеш"/>
+  <data name="buttonModify" value="Изменить"/>	
+  <data name="colorSchemesMenuItemColorScheme" value="Цветовая схема"/>	
+  <data name="colorSchemesMenuItemAddColorScheme" value="Добавить цветовую схему..."/>	
+  <data name="buttonAdd" value="Добавить"/>	
+  <data name="emptyFolder" value="<Пустая папка>"/>	
+  <data name="parentFolder" value="Родительская папка"/>	
+  <data name="buttonSelectFile" value="Выбрать файл"/>	
+  <data name="buttonOpenFolder" value="Открыть папку"/>	
+  <data name="selectTextColor" value="Выберите цвет текста (только Текст)"/>	
+  <data name="selectBackgroundColor" value="Выберите цвет фона (только Текст и PDF)"/>	
+  <data name="buttonSelectColor" value="Выбрать цвет"/>	
+  <data name="buttonSwitchToSaturation" value="Переключить на выбор по насыщенности"/>	
+  <data name="buttonSwitchToHue" value="Переключить на выбор по оттенкам"/>		
+  <data name="selectedColor" value="Выбранный цвет"/>		
+  <data name="openFileMenuTitle" value="Выбранный цвет"/>		
+  <data name="openFileMenuTitle" value="Открыть (КВАДРАТ - открыть вьетнамский chm/html)"/>		
+  <data name="openFontMenuTitle" value="Выберите файл со шрифтом"/>			
+  <data name="openFontMenuTitle" value="Выбранный файл не является TrueType шрифтом."/>
+  <data name="manageColorSchemesMenuTitle" value="Управление цветовыми схемами"/>			
+
+  <data name="browserTextSizeLarge" value="Большой"/>			
+  <data name="browserTextSizeNormal" value="Нормальный"/>			
+  <data name="browserTextSizeSmall" value="Маленький"/>				
+
+  <data name="browserDisplayModesNormal" value="Нормальный"/>				
+  <data name="browserDisplayModesFit" value="По ширине"/>				
+  <data name="browserDisplayModesSmartFit" value="Интелектуальный по ширине"/>					
+
+  <data name="browserInterfaceModesFull" value="Полный"/>				
+  <data name="browserInterfaceModesLimited" value="Ограниченный"/>				
+  <data name="browserInterfaceModesNone" value="Нет"/>					
+</localization>

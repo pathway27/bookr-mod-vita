@@ -42,13 +42,14 @@ extern unsigned char res_uifont[];
 };
 
 void BKLayer::load() {
-	fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
-	fontBig->texEnv(FZ_TEX_MODULATE);
-	fontBig->filter(FZ_NEAREST, FZ_NEAREST);
+	// Load Font In BKLocalization
+	//fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
+	//fontBig->texEnv(FZ_TEX_MODULATE);
+	//fontBig->filter(FZ_NEAREST, FZ_NEAREST);
 
-	fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont, 11, false);
-	fontSmall->texEnv(FZ_TEX_MODULATE);
-	fontSmall->filter(FZ_NEAREST, FZ_NEAREST);
+	//fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont, 11, false);
+	//fontSmall->texEnv(FZ_TEX_MODULATE);
+	//fontSmall->filter(FZ_NEAREST, FZ_NEAREST);
 
 	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex, size_res_uitex);
 	FZImage* image = FZImage::createFromPNG(ins);

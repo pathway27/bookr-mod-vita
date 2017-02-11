@@ -29,6 +29,7 @@
 #include "bkmainmenu.h"
 #include "bklogo.h"
 #include "bkpopup.h"
+#include "BKLocalization.h"
 
 #ifdef PSP
 #include <pspkernel.h>
@@ -58,12 +59,26 @@ bool isHTMOrCHM(string& file) {
 			== 0 || stricmp(tmp.c_str(), ".chm") == 0;
 }
 
+// cory1492 Shot fix from 
+int fileExists(string& file)
+{
+	FILE* f = fopen(file.c_str(), "r");
+	if (f == NULL) {
+		return NULL;
+	}
+	fclose(f);
+	return 1;
+}
+//
+
 int main(int argc, char* argv[]) {
 	BKDocument* documentLayer = 0;
 	FZScreen::setupCallbacks();
 	FZScreen::open(argc, argv);
 	FZScreen::setupCtrl();
 	BKUser::init();
+	BKLocalization::init();
+
 	FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 	FZ_DEBUG_SCREEN_INIT
 
@@ -84,7 +99,7 @@ int main(int argc, char* argv[]) {
 	if( BKUser::options.loadLastFile )
 	{
 		string s = BKBookmarksManager::getLastFile();
-		if( s.substr(0,5) == "ms0:/" )
+		if( s.substr(0,5) == "ms0:/" && fileExists(s))
 		{
 				// clear layers
 				bkLayersIt it(layers.begin());
@@ -200,13 +215,13 @@ int main(int argc, char* argv[]) {
 			break;
 			case BK_CMD_INVOKE_OPEN_FILE: {
 				// add a file chooser layer
-				string title("Open (use SQUARE to open Vietnamese chm/html)");
+				string title = BKLocalization::current.openFileMenuTitle;
 				fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
 				layers.push_back(fs);
 			} break;
 			case BK_CMD_INVOKE_OPEN_FONT: {
 				// add a file chooser layer
-				string title("Select font file to open");
+				string title = BKLocalization::current.openFontMenuTitle;
 				fs = BKFileChooser::create(title, BK_CMD_SET_FONT);
 				layers.push_back(fs);
 			} break;
@@ -232,7 +247,7 @@ int main(int argc, char* argv[]) {
 			} break;
 			case BK_CMD_INVOKE_BROWSE_CACHE: {
 				// add a file chooser layer
-				string title("Cache");
+				string title = BKLocalization::current.cacheMenuTitle;
 				ccs = BKCacheChooser::create(title, BK_CMD_OPEN_CACHE);
 				layers.push_back(ccs);
 			} break;
@@ -321,7 +336,7 @@ int main(int argc, char* argv[]) {
 				if (!isTTF(s)) {
 					layers.push_back(BKPopup::create(
 							BKPOPUP_ERROR,
-							"The selected file is not a valid TrueType font."
+							BKLocalization::current.invalidFontFileWarning
 						)
 					);
 					break;
@@ -350,7 +365,7 @@ int main(int argc, char* argv[]) {
 			break;
 			case BK_CMD_INVOKE_COLOR_SCHEME_MANAGER: {//TXTFG:
 				// add a color scheme manager layer
-				string title("Manage color schemes");
+				string title = BKLocalization::current.manageColorSchemesMenuTitle;
 				csm = BKColorSchemeManager::create(title);
 				layers.push_back(csm);
 			} break;

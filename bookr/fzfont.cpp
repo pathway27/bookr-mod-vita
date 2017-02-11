@@ -42,7 +42,7 @@ FZFont::~FZFont() {
 
 // based on http://gpwiki.org/index.php/OpenGL_Font_System
 
-FZFont* FZFont::createFromFile(char* fileName, int fontSize, bool autohint) {
+FZFont* FZFont::createFromFile(const char* fileName, int fontSize, bool autohint) {
 	// This initializes FreeType
 	FT_Library library;
 	if (FT_Init_FreeType(&library) != 0) {

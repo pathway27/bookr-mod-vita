@@ -24,6 +24,7 @@
 
 #include "bkcolorchooser.h"
 #include "bkuser.h"
+#include "bklocalization.h"
 
 //static void RGBtoHSV(float r, float g, float b, float *h, float *s, float *v);
 static void HSVtoRGB(float *r, float *g, float *b, float h, float s, float v);
@@ -123,12 +124,12 @@ int BKColorChooser::update(unsigned int buttons) {
 void BKColorChooser::render() {
 	string title;
 	switch (ret) {
-		case BK_CMD_SET_TXTFG:	title="Select text color (plain text only)";	break;
-		case BK_CMD_SET_TXTBG:	title="Select background color (plain text and PDF)"; 	break;
+		case BK_CMD_SET_TXTFG:	title=BKLocalization::current.selectTextColor;	break;
+		case BK_CMD_SET_TXTBG:	title=BKLocalization::current.selectBackgroundColor; 	break;
 	default:	break;
 	}
-	string cl("Select this color");
-	string tl(hueMode ? "Switch to saturation/value selection" : "Switch to hue selection");
+	string cl(BKLocalization::current.buttonSelectColor);
+	string tl(hueMode ? BKLocalization::current.buttonSwitchToSaturation : BKLocalization::current.buttonSwitchToHue);
 	
 	drawDialogFrame(title, tl, cl, 0);
 
@@ -190,7 +191,7 @@ void BKColorChooser::render() {
 
 	fontBig->bindForDisplay();
 	FZScreen::ambientColor(0xffffffff);
-	drawText("Selected color", fontBig, 300, y + 10);
+	drawText((char*)BKLocalization::current.selectedColor.c_str(), fontBig, 300, y + 10);
 }
 
 BKColorChooser* BKColorChooser::create(int cs, int re) {	

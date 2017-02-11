@@ -3,7 +3,7 @@
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com)
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -26,6 +26,8 @@
 #include "bkdocument.h"
 #include "bkbookmark.h"
 #include "bkpopup.h"
+
+#include "bklocalization.h"
 
 // Main menu layout
 #define MAIN_MENU_ITEM_OPEN_FILE				0
@@ -50,28 +52,30 @@
 
 // Options menu layout
 #define OPTIONS_MENU_ITEM_RESTORE_DEFAULTS		0
-#define OPTIONS_MENU_ITEM_SET_CONTROL_STYLE		1
-#define OPTIONS_MENU_ITEM_PDF_FAST_IMAGES		2
-#define OPTIONS_MENU_ITEM_PDF_INVERT_COLORS		3
-#define OPTIONS_MENU_ITEM_PLAIN_CHOOSE_FONT		4
-#define OPTIONS_MENU_ITEM_PLAIN_FONT_SIZE		5
-#define OPTIONS_MENU_ITEM_PLAIN_SET_LINE_HEIGHT	6
-#define OPTIONS_MENU_ITEM_PLAIN_JUSTIFY_TEXT	7
-#define OPTIONS_MENU_ITEM_PLAIN_WRAP_TEXT		8
-#define OPTIONS_MENU_ITEM_BROWSER_TEXTSIZE		9
-#define OPTIONS_MENU_ITEM_BROWSER_DISPLAYMODE	10
-#define OPTIONS_MENU_ITEM_BROWSER_ENABLEFLASH	11
-#define OPTIONS_MENU_ITEM_BROWSER_INTERFACEMODE	12
-#define OPTIONS_MENU_ITEM_BROWSER_CONFIRMEXIT	13
-#define OPTIONS_MENU_ITEM_BROWSER_SHOWCURSOR	14
-#define OPTIONS_MENU_ITEM_COLOR_SCHEMES			15
-#define OPTIONS_MENU_ITEM_DISPLAY_LABELS		16
-#define OPTIONS_MENU_ITEM_LOAD_LAST_FILE		17
-#define OPTIONS_MENU_ITEM_CPU_BUS_SPEED			18
-#define OPTIONS_MENU_ITEM_CPU_MENU_SPEED		19
-#define OPTIONS_MENU_ITEM_CLEAR_BOOKMARKS		20
+#define OPTIONS_MENU_ITEM_SET_MENU_LANGUAGE		1
+#define OPTIONS_MENU_ITEM_SET_CONTROL_STYLE		2
+#define OPTIONS_MENU_ITEM_PDF_FAST_IMAGES		3
+#define OPTIONS_MENU_ITEM_PDF_INVERT_COLORS		4
+#define OPTIONS_MENU_ITEM_PLAIN_CHOOSE_FONT		5
+#define OPTIONS_MENU_ITEM_PLAIN_FONT_SIZE		6
+#define OPTIONS_MENU_ITEM_PLAIN_SET_LINE_HEIGHT	7
+#define OPTIONS_MENU_ITEM_PLAIN_JUSTIFY_TEXT	8
+#define OPTIONS_MENU_ITEM_PLAIN_WRAP_TEXT		9
+#define OPTIONS_MENU_ITEM_BROWSER_TEXTSIZE		10
+#define OPTIONS_MENU_ITEM_BROWSER_DISPLAYMODE	11
+#define OPTIONS_MENU_ITEM_BROWSER_ENABLEFLASH	12
+#define OPTIONS_MENU_ITEM_BROWSER_INTERFACEMODE	13
+#define OPTIONS_MENU_ITEM_BROWSER_CONFIRMEXIT	14
+#define OPTIONS_MENU_ITEM_BROWSER_SHOWCURSOR	15
+#define OPTIONS_MENU_ITEM_COLOR_SCHEMES			16
+#define OPTIONS_MENU_ITEM_DISPLAY_LABELS		17
+#define OPTIONS_MENU_ITEM_LOAD_LAST_FILE		18
+#define OPTIONS_MENU_ITEM_CPU_BUS_SPEED			19
+#define OPTIONS_MENU_ITEM_CPU_MENU_SPEED		20
+#define OPTIONS_MENU_ITEM_CLEAR_BOOKMARKS		21
 
-BKMainMenu::BKMainMenu() : mode(BKMM_MAIN), captureButton(false), frames(0) {
+BKMainMenu::BKMainMenu() : mode(BKMM_MAIN), captureButton(false), frames(0) 
+{
 	buildMainMenu();
 	buildControlMenu();
 	buildOptionMenu();
@@ -97,166 +101,197 @@ void BKMainMenu::rebuildMenu() {
 }
 
 void BKMainMenu::buildMainMenu() {
-	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
-	mainItems.push_back(BKMenuItem("Browse chm cache", "Select", 0));
-	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
-	mainItems.push_back(BKMenuItem("Options", "Select", 0));
-	mainItems.push_back(BKMenuItem("About", "Select", 0));
-	mainItems.push_back(BKMenuItem("Exit", "Select", 0));	
+	//mainItems.push_back(BKMenuItem("Open file", "Select", 0));
+	mainItems.clear();
+
+	mainItems.push_back(BKMenuItem(BKLocalization::current.mainMenuItemOpenFile, BKLocalization::current.mainMenuItemSelect, 0));
+	mainItems.push_back(BKMenuItem(BKLocalization::current.mainMenuItemBrowseChmCache, BKLocalization::current.mainMenuItemSelect, 0));
+	mainItems.push_back(BKMenuItem(BKLocalization::current.mainMenuItemControls, BKLocalization::current.mainMenuItemSelect, 0));
+	mainItems.push_back(BKMenuItem(BKLocalization::current.mainMenuItemOptions, BKLocalization::current.mainMenuItemSelect, 0));
+	mainItems.push_back(BKMenuItem(BKLocalization::current.mainMenuItemAbout, BKLocalization::current.mainMenuItemSelect, 0));
+	mainItems.push_back(BKMenuItem(BKLocalization::current.mainMenuItemExit, BKLocalization::current.mainMenuItemSelect, 0));
 }
 
 void BKMainMenu::buildControlMenu() {
-	string cb("Change button");
+	string cb(BKLocalization::current.controlMenuItemChangeButton);
 
 	controlItems.clear();
 
-	controlItems.push_back(BKMenuItem("Restore defaults", "Select", 0));
-	
-	string t("Previous page: ");
+	controlItems.push_back(BKMenuItem(BKLocalization::current.controlMenuItemRestoreDefaults, BKLocalization::current.controlMenuItemSelect, 0));
+
+	string t(BKLocalization::current.controlMenuItemPreviousPage);
 	t += FZScreen::nameForButtonReps(BKUser::controls.previousPage);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Next page: ";
+	t = BKLocalization::current.controlMenuItemNextPage;
 	t += FZScreen::nameForButtonReps(BKUser::controls.nextPage);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Previous 10 pages: ";
+	t = BKLocalization::current.controlMenuItemPrevious10Pages;
 	t += FZScreen::nameForButtonReps(BKUser::controls.previous10Pages);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Next 10 pages: ";
+	t = BKLocalization::current.controlMenuItemNext10pages;
 	t += FZScreen::nameForButtonReps(BKUser::controls.next10Pages);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Screen up: ";
+	t = BKLocalization::current.controlMenuItemScreenUp;
 	t += FZScreen::nameForButtonReps(BKUser::controls.screenUp);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Screen down: ";
+	t = BKLocalization::current.controlMenuItemScreenDown;
 	t += FZScreen::nameForButtonReps(BKUser::controls.screenDown);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Screen left: ";
+	t = BKLocalization::current.controlMenuItemScreenLeft;
 	t += FZScreen::nameForButtonReps(BKUser::controls.screenLeft);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Screen right: ";
+	t = BKLocalization::current.controlMenuItemScreenRight;
 	t += FZScreen::nameForButtonReps(BKUser::controls.screenRight);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Zoom in: ";
+	t = BKLocalization::current.controlMenuItemZoomIn;
 	t += FZScreen::nameForButtonReps(BKUser::controls.zoomIn);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 
-	t = "Zoom out: ";
+	t = BKLocalization::current.controlMenuItemZoomOut;
 	t += FZScreen::nameForButtonReps(BKUser::controls.zoomOut);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
 }
 
-void BKMainMenu::buildOptionMenu() {
+void BKMainMenu::buildOptionMenu() 
+{
 	optionItems.clear();
-	optionItems.push_back(BKMenuItem("Restore defaults", "Select", 0));
+	optionItems.push_back(BKMenuItem(BKLocalization::current.optionMenuItemRestoreDefaults, BKLocalization::current.optionMenuItemSelect, 0));
 
-	string t("Menu control style: ");
-	switch(BKUser::controls.select) {
-	case FZ_REPS_CIRCLE:	t.append("Asian");	break;
-	case FZ_REPS_CROSS:		t.append("Western"); break;
+	// OZ Addon
+	string strMenuLanguage(BKLocalization::current.optionMenuItemMenuLanguage);
+	strMenuLanguage += BKUser::options.menuLanguage;
+
+	optionItems.push_back(BKMenuItem(strMenuLanguage, BKLocalization::current.optionMenuItemChoose, BK_MENU_ITEM_USE_LR_ICON));
+	//
+
+	string t(BKLocalization::current.optionMenuItemMenuControlStyle);
+	switch(BKUser::controls.select) 
+	{
+	case FZ_REPS_CIRCLE:	t.append(BKLocalization::current.optionMenuItemMenuControlStyleAsian);	break;
+	case FZ_REPS_CROSS:		t.append(BKLocalization::current.optionMenuItemMenuControlStyleWestern); break;
 	}
-	optionItems.push_back(BKMenuItem(t, "Choose", BK_MENU_ITEM_USE_LR_ICON));
-	
-	t = ("PDF - Fast images (zoom limited to 2x): ");
-	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChoose, BK_MENU_ITEM_USE_LR_ICON));
 
-	t = "PDF - Invert colors: ";
-	t += BKUser::options.pdfInvertColors ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	t = BKLocalization::current.optionMenuItemPdfFastImage;
+	t += BKUser::options.pdfFastScroll ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
 
-	t = "Plain text - Font file: ";
-	if (BKUser::options.txtFont == "bookr:builtin") {
-		t += "built-in";
-	} else {
+	t = BKLocalization::current.optionMenuItemPdfInvertColors;
+	t += BKUser::options.pdfInvertColors ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
+
+	t =  BKLocalization::current.optionMenuItemPlainTextFontFile;
+	if (BKUser::options.txtFont == "bookr:builtin") 
+	{
+		t +=  BKLocalization::current.optionMenuItemPlainTextBuiltIn;
+	} else 
+	{
 		int s = BKUser::options.txtFont.size();
-		if (s > 25) {
+		if (s > 25) 
+		{
 			t += "...";
 			t += string(BKUser::options.txtFont, s - 25, 25);
-		} else {
+		} else 
+		{
 			t += BKUser::options.txtFont;
 		}
 	}
-	BKMenuItem mi = BKMenuItem(t, "Select font file", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL);
-	mi.triangleLabel = "Use built-in font";
+	BKMenuItem mi = BKMenuItem(t,  BKLocalization::current.optionMenuItemSelectFontFile, BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL);
+	mi.triangleLabel = BKLocalization::current.optionMenuItemUseBuiltInFont;
 	optionItems.push_back(mi);
 
 	char txt[1024];
-	snprintf(txt, 1024, "Plain text - Font size: %d pixels", BKUser::options.txtSize);
+	snprintf(txt, 1024, "%s%d%s", BKLocalization::current.optionMenuItemPlainTextFontSize.c_str(), BKUser::options.txtSize, BKLocalization::current.optionMenuItemPixels.c_str());
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChoose, BK_MENU_ITEM_USE_LR_ICON));
 
-	snprintf(txt, 1024, "Plain text - Line Height: %d Pct", BKUser::options.txtHeightPct);
+	snprintf(txt, 1024, "%s%d%s", BKLocalization::current.optionMenuItemPlainTextLineHeight.c_str(), BKUser::options.txtHeightPct, BKLocalization::current.optionMenuItemPct.c_str());
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChange, BK_MENU_ITEM_USE_LR_ICON));
 
-	t = "Plain text - Justify text: ";
-	t += BKUser::options.txtJustify ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	t = BKLocalization::current.optionMenuItemPlainTextJustifyText;
+	t += BKUser::options.txtJustify ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
 
-	snprintf(txt, 1024, "Plain text - Wrap CRs: %d", BKUser::options.txtWrapCR);
+	snprintf(txt, 1024, "%s%d", BKLocalization::current.optionMenuItemPlainTextWrapCRs.c_str(), BKUser::options.txtWrapCR);
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChange, BK_MENU_ITEM_USE_LR_ICON));
 
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", BKUser::options.txtRotation);
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));*/
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));*/
 
-	snprintf(txt, 1024, "Browser - Text size: %s", FZScreen::browserTextSizes[BKUser::options.browserTextSize]);
+	const char* browserTextSizes[3] = {BKLocalization::current.browserTextSizeLarge.c_str(),
+		BKLocalization::current.browserTextSizeNormal.c_str(), 
+		BKLocalization::current.browserTextSizeSmall.c_str()};
+
+	snprintf(txt, 1024, "%s%s", BKLocalization::current.optionMenuItemBrowserTextSize.c_str(),  
+		browserTextSizes[BKUser::options.browserTextSize]);
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChange, BK_MENU_ITEM_USE_LR_ICON));
 
-	snprintf(txt, 1024, "Browser - Display mode: %s", FZScreen::browserDisplayModes[BKUser::options.browserDisplayMode]);
+	const char* browserDisplayModes[3] = {BKLocalization::current.browserDisplayModesNormal.c_str(),
+		BKLocalization::current.browserDisplayModesFit.c_str(), 
+		BKLocalization::current.browserDisplayModesSmartFit.c_str()};
+
+	snprintf(txt, 1024, "%s%s", BKLocalization::current.optionMenuItemBrowserDisplayMode.c_str(),  
+		browserDisplayModes[BKUser::options.browserDisplayMode]);
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChange, BK_MENU_ITEM_USE_LR_ICON));
 
-	t = "Browser - Flash content: ";
-	t += BKUser::options.browserEnableFlash ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	t = BKLocalization::current.optionMenuItemBrowserFlashContent;
+	t += BKUser::options.browserEnableFlash ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
 
-	snprintf(txt, 1024, "Browser - Interface mode: %s", FZScreen::browserInterfaceModes[BKUser::options.browserInterfaceMode]);
+	const char* browserInterfaceModes[3] = {BKLocalization::current.browserInterfaceModesFull.c_str(),
+		BKLocalization::current.browserInterfaceModesLimited.c_str(), 
+		BKLocalization::current.browserInterfaceModesNone.c_str()};
+
+	snprintf(txt, 1024, "%s%s", BKLocalization::current.optionMenuItemBrowserInterfaceMode.c_str(), 
+		browserInterfaceModes[BKUser::options.browserInterfaceMode]);
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChange, BK_MENU_ITEM_USE_LR_ICON));
 
-	t = "Browser - Exit confirmation: ";
-	t += BKUser::options.browserConfirmExit ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	t = BKLocalization::current.optionMenuItemBrowserExitConfirmation;
+	t += BKUser::options.browserConfirmExit ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
 
-	t = "Browser - Show cursor: ";
-	t += BKUser::options.browserShowCursor ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	t = BKLocalization::current.optionMenuItemBrowserShowCursor;
+	t += BKUser::options.browserShowCursor ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
 
-	t = "Color schemes";
-	mi = BKMenuItem(t, "Choose", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_USE_LR_ICON | BK_MENU_ITEM_COLOR_RECT);
-	mi.triangleLabel = "Manage schemes";
+	t = BKLocalization::current.optionMenuItemColorSchemes;
+	mi = BKMenuItem(t, BKLocalization::current.optionMenuItemChoose, BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_USE_LR_ICON | BK_MENU_ITEM_COLOR_RECT);
+	mi.triangleLabel = BKLocalization::current.optionMenuItemManageSchemes;
 	mi.bgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor;
 	mi.fgcolor = BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor;
 	optionItems.push_back(mi);
 
-	t = "Display page loading and numbering labels: ";
-	t += BKUser::options.displayLabels ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	t = BKLocalization::current.optionMenuItemDisplayPageLoading;
+	t += BKUser::options.displayLabels ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
 
-	t = "Autoload last file: ";
-	t += BKUser::options.loadLastFile ? "Enabled" : "Disabled";
-	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
+	t = BKLocalization::current.optionMenuItemAutoLoadLastFile;
+	t += BKUser::options.loadLastFile ? BKLocalization::current.optionMenuItemEnabled : BKLocalization::current.optionMenuItemDisabled;
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemToggle, 0));
 
-	snprintf(txt, 1024, "CPU/Bus speed: %s", FZScreen::speedLabels[BKUser::options.pspSpeed]);
+	snprintf(txt, 1024, "%s%s", BKLocalization::current.optionMenuItemCPUSpeed.c_str(), FZScreen::speedLabels[BKUser::options.pspSpeed]);
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
-	snprintf(txt, 1024, "Menu speed: %s", FZScreen::speedLabels[BKUser::options.pspMenuSpeed]);
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChange, BK_MENU_ITEM_USE_LR_ICON));
+	snprintf(txt, 1024, "%s%s", BKLocalization::current.optionMenuItemMenuSpeed.c_str(), FZScreen::speedLabels[BKUser::options.pspMenuSpeed]);
 	t = txt;
-	optionItems.push_back(BKMenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(BKMenuItem(t, BKLocalization::current.optionMenuItemChange, BK_MENU_ITEM_USE_LR_ICON));
 
-	optionItems.push_back(BKMenuItem("Clear bookmarks", "Select", 0));
+	optionItems.push_back(BKMenuItem(BKLocalization::current.optionMenuItemClearBookmarks, BKLocalization::current.optionMenuItemSelect, 0));
 
 }
 
@@ -294,7 +329,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == MAIN_MENU_ITEM_ABOUT) {
-			popupText = "Bookr - a document viewer for the Sony PSP.\nOriginal version by Carlos and Edward.\nV8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\nThis program is licensed under the terms of the GPL v2.\nThis program uses the following libraries/projects:\n MuPDF library under the terms of the AFPL.\n chmlib 0.39 by Jed Wing <jedwin@ugcs.caltech.edu>\n VnConv by Pham Kim Long <longp@cslab.felk.cvut.cz>\n DjVuLibre 3.5 by Leon Bottou and Yann Le Cun";
+			popupText = "Bookr - a document viewer for the Sony PSP.\nOriginal version by Carlos and Edward.\nV8.2 OZ Edition by Oleg Zhuk <zhukoo@gmail.com>\nThis program is licensed under the terms of the GPL v2.\nThis program uses the following libraries/projects:\n MuPDF library under the terms of the AFPL.\n chmlib 0.39 by Jed Wing <jedwin@ugcs.caltech.edu>\n VnConv by Pham Kim Long <longp@cslab.felk.cvut.cz>\n DjVuLibre 3.5 by Leon Bottou and Yann Le Cun";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
@@ -368,7 +403,7 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 		if (selItem == CONTROLS_MENU_ITEM_RESTORE_DEFAULTS) {
 			BKUser::setDefaultControls();
 			BKUser::save();
-			buildControlMenu();			
+			buildControlMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
 		buttonsHack = 0;
@@ -390,6 +425,16 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 	return 0;
 }
 
+
+void BKMainMenu::rebuildMenuFontAndText()
+{
+	BKLocalization::loadMenuFont();
+
+	buildOptionMenu();
+	buildControlMenu();
+	buildMainMenu();
+}
+
 int BKMainMenu::updateOptions(unsigned int buttons) {
 	menuCursorUpdate(buttons, optionItems.size());
 
@@ -404,7 +449,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		if (selItem == OPTIONS_MENU_ITEM_PDF_FAST_IMAGES) {
 			BKUser::options.pdfFastScroll = !BKUser::options.pdfFastScroll;
 			buildOptionMenu();
-			popupText = "Fast images will cause instability with many PDF files.\nWhen reporting a bug make it very clear if you were using\nfast images or not. Also try the same file without fast\nimages mode before reporting a bug.";
+			popupText = BKLocalization::current.pdfFastWarning;
 			popupMode = BKPOPUP_WARNING;
 			return BKUser::options.pdfFastScroll ? BK_CMD_MAINMENU_POPUP : BK_CMD_MARK_DIRTY;
 		}
@@ -431,7 +476,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 		if (selItem == OPTIONS_MENU_ITEM_CLEAR_BOOKMARKS) {
 			BKBookmarksManager::clear();
-			popupText = "Bookmarks cleared.";
+			popupText = BKLocalization::current.bookmarksClearedWarning;
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
@@ -472,6 +517,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 	}
 
+	// controls.alternate
 	if (b[BKUser::controls.alternate] == 1) {
 		if (selItem == OPTIONS_MENU_ITEM_PLAIN_CHOOSE_FONT) {
 			BKUser::options.txtFont = "bookr:builtin";
@@ -483,6 +529,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 	}
 
+	// controls.cancel
 	if (b[BKUser::controls.cancel] == 1) {
 		selItem = 0;
 		topItem = 0;
@@ -491,6 +538,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		return BK_CMD_MARK_DIRTY;
 	}
 
+	// controls.showMainMenu
 	if (b[BKUser::controls.showMainMenu] == 1) {
 		selItem = 0;
 		topItem = 0;
@@ -499,7 +547,29 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
 
+	// controls.menuLeft
 	if (b[BKUser::controls.menuLeft] == 1) {
+		if(selItem == OPTIONS_MENU_ITEM_SET_MENU_LANGUAGE)
+		{
+			for(int index = 0; index<BKLocalization::availableLanguages.size(); index++)
+			{
+				BKLocalization::Resources resource = BKLocalization::availableLanguages[index];
+
+				if(resource.language == BKUser::options.menuLanguage)
+				{
+					index--;
+					if(index<0)
+						index = BKLocalization::availableLanguages.size()-1;
+					
+					BKLocalization::current = BKLocalization::availableLanguages[index];
+					BKUser::options.menuLanguage = BKLocalization::current.language;
+
+					rebuildMenuFontAndText();
+					break;
+				}
+			}
+			return BK_CMD_MARK_DIRTY;
+		}
 		if (selItem == OPTIONS_MENU_ITEM_SET_CONTROL_STYLE) {
 			switch(BKUser::controls.select) {
 			case FZ_REPS_CIRCLE:
@@ -590,8 +660,29 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 		}
 	}
 
-
+	// controls.menuRight
 	if (b[BKUser::controls.menuRight] == 1) {
+		if(selItem == OPTIONS_MENU_ITEM_SET_MENU_LANGUAGE)
+		{
+			for(int index = 0; index<BKLocalization::availableLanguages.size(); index++)
+			{
+				BKLocalization::Resources resource = BKLocalization::availableLanguages[index];
+
+				if(resource.language == BKUser::options.menuLanguage)
+				{
+					index++;
+					if(index>=BKLocalization::availableLanguages.size())
+						index = 0;
+					
+					BKLocalization::current = BKLocalization::availableLanguages[index];
+					BKUser::options.menuLanguage = BKLocalization::current.language;
+
+					rebuildMenuFontAndText();
+					break;
+				}
+			}
+			return BK_CMD_MARK_DIRTY;
+		}
 		if (selItem == OPTIONS_MENU_ITEM_SET_CONTROL_STYLE) {
 			switch(BKUser::controls.select) {
 			case FZ_REPS_CIRCLE:
@@ -628,7 +719,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				BKUser::options.currentScheme = 0;
 			}
 			buildOptionMenu();
-			return BK_CMD_MARK_DIRTY;	
+			return BK_CMD_MARK_DIRTY;
 		} else if (selItem == OPTIONS_MENU_ITEM_CPU_BUS_SPEED) {
 			++BKUser::options.pspSpeed;
 			if (BKUser::options.pspSpeed > 6) {
@@ -665,14 +756,14 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 			++BKUser::options.browserTextSize;
 			if (BKUser::options.browserTextSize > 2) {
 				BKUser::options.browserTextSize = 0;
-		}
+			}
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_DISPLAYMODE) {
 			++BKUser::options.browserDisplayMode;
 			if (BKUser::options.browserDisplayMode > 2) {
 				BKUser::options.browserDisplayMode = 0;
-	}
+			}
 			buildOptionMenu();
 			return BK_CMD_MARK_DIRTY;
 		} else if (selItem == OPTIONS_MENU_ITEM_BROWSER_INTERFACEMODE) {
@@ -692,24 +783,28 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 void BKMainMenu::render() {
 	string t("");
 	if (mode == BKMM_MAIN) {
-		string title("Main Menu");
+		string title(BKLocalization::current.mainMenuTitle);
 		drawMenu(title, t, mainItems);
 		string e;
 		drawClockAndBattery(e);
 	} else if (mode == BKMM_CONTROLS) {
-		string title("Customize controls");
+		string title(BKLocalization::current.controlMenuTitle);
 		drawMenu(title, t, controlItems);
 	} else if (mode == BKMM_OPTIONS) {
-		string title("Options");
+		string title(BKLocalization::current.optionMenuTitle);
 		drawMenu(title, t, optionItems);
 	}
-	if (captureButton) {
+	if (captureButton) 
+	{
 		texUI->bindForDisplay();
 		FZScreen::ambientColor(0xf0dddddd);
 		drawPill(150, 126, 180, 20, 6, 31, 1);
 		fontBig->bindForDisplay();
 		FZScreen::ambientColor(0xff222222);
-		drawTextHC("Press the new button", fontBig, 130);
+
+		char txt[1024];
+		snprintf(txt, 1024, "%s", BKLocalization::current.pressNewButtonWarning.c_str());
+		drawTextHC(txt, fontBig, 130);
 	}
 }
 

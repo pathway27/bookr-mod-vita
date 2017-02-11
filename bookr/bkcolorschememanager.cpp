@@ -23,6 +23,7 @@
 #include "stdio.h"
 #include "bkcolorschememanager.h"
 #include "bkuser.h"
+#include "bklocalization.h"
 
 BKColorSchemeManager::BKColorSchemeManager(string& t) : title(t) {
 }
@@ -86,11 +87,11 @@ int BKColorSchemeManager::update(unsigned int buttons) {
 
 void BKColorSchemeManager::render() {
 	vector<BKMenuItem> items;
-	string cl("Modify");
+	string cl = BKLocalization::current.buttonModify;
 	string tl("");
 	int n = BKUser::options.colorSchemes.size();
 	for (int i = 0; i < n; i++) {
-		string itemName("Color Scheme");
+		string itemName(BKLocalization::current.colorSchemesMenuItemColorScheme);
 		char index[6] = "";
 		sprintf (index," %d: ", i+1);
 		itemName += index;
@@ -98,11 +99,11 @@ void BKColorSchemeManager::render() {
 		BKMenuItem menuItem = BKMenuItem(itemName, cl, BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_COLOR_RECT);
 		menuItem.bgcolor = BKUser::options.colorSchemes[i].txtBGColor;
 		menuItem.fgcolor = BKUser::options.colorSchemes[i].txtFGColor;
-		menuItem.triangleLabel = "Delete";
+		menuItem.triangleLabel = BKLocalization::current.buttonDelete;
 		items.push_back(menuItem);
 	}
 	
-	BKMenuItem addSchemeMenuItem = BKMenuItem("Add a color scheme...", "Add", 0);
+	BKMenuItem addSchemeMenuItem = BKMenuItem(BKLocalization::current.colorSchemesMenuItemAddColorScheme, BKLocalization::current.buttonAdd, 0);
 	items.push_back(addSchemeMenuItem);
 	drawMenu(title, tl, items);
 }

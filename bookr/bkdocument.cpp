@@ -1,5 +1,5 @@
 /*
- * Bookr: document reader for the Sony PSP 
+ * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
@@ -23,6 +23,7 @@
 #include "bkdjvu.h"
 #include "bkpalmdoc.h"
 #include "bkplaintext.h"
+#include "bklocalization.h"
 
 BKDocument* BKDocument::create(string& filePath) {
 	BKDocument* doc = 0;
@@ -216,7 +217,7 @@ int BKDocument::processEventsForView() {
 				return r;
 		}
 	}
-	
+
 	// button handling - rotation - TO DO
 	/*
 	virtual bool isRotable() = 0;
@@ -244,12 +245,12 @@ void BKDocument::buildToolbarMenus() {
 	toolbarMenus[0].clear();
 	if (isBookmarkable()) {
 		ToolbarItem i;
-		i.label = "Add bookmark";
+		i.label = BKLocalization::current.addBookmark;
 		i.iconX = 19;
 		i.iconY = 0;
 		i.iconW = 22;
 		i.iconH = 26;
-		i.circleLabel = "Select";
+		i.circleLabel = BKLocalization::current.buttonSelect;
 		toolbarMenus[0].push_back(i);
 
 		string fn;
@@ -260,20 +261,20 @@ void BKDocument::buildToolbarMenus() {
 		char t[256];
 		while (it != bookmarkList.end()) {
 			const BKBookmark& b = *it;
-			snprintf(t, 256, "Page %d", b.page);
+			snprintf(t, 256, "%s%d", BKLocalization::current.page.c_str(), b.page);
 			i.label = t;
 			i.iconX = 0;
 			i.iconY = 0;
 			i.iconW = 18;
 			i.iconH = 26;
-			i.circleLabel = "Jump to";
-			i.triangleLabel = "Delete";
+			i.circleLabel = BKLocalization::current.buttonJumpTo;
+			i.triangleLabel = BKLocalization::current.buttonDelete;
 			toolbarMenus[0].push_back(i);
 			++it;
 		}
 	} else {
 		ToolbarItem i;
-		i.label = "No bookmark support";
+		i.label = BKLocalization::current.noBookmarksSupport;
 		i.iconX = 57;
 		i.iconY = 0;
 		i.iconW = 18;
@@ -284,36 +285,36 @@ void BKDocument::buildToolbarMenus() {
 	toolbarMenus[1].clear();
 	if (isPaginated()) {
 		ToolbarItem i;
-		i.label = "First page";
+		i.label = BKLocalization::current.firstPage;
 		i.iconX = 0;
 		i.iconY = 26;
 		i.iconW = 18;
 		i.iconH = 26;
-		i.circleLabel = "Select";
+		i.circleLabel = BKLocalization::current.buttonSelect;
 		toolbarMenus[1].push_back(i);
 
-		i.label = "Last page";
+		i.label = BKLocalization::current.lastPage;
 		i.iconX = 19;
 		i.iconY = 26;
 		i.iconW = 18;
 		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
 
-		i.label = "Previous 10 pages";
+		i.label = BKLocalization::current.previous10Pages;
 		i.iconX = 95;
 		i.iconY = 26;
 		i.iconW = 18;
 		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
 
-		i.label = "Next 10 pages";
+		i.label = BKLocalization::current.next10Pages;
 		i.iconX = 76;
 		i.iconY = 26;
 		i.iconW = 18;
 		i.iconH = 26;
 		toolbarMenus[1].push_back(i);
 
-		i.label = "Go to page";
+		i.label = BKLocalization::current.goToPage;
 		i.iconX = 0;
 		i.iconY = 53;
 		i.iconW = 18;
@@ -321,7 +322,7 @@ void BKDocument::buildToolbarMenus() {
 		toolbarMenus[1].push_back(i);
 	} else {
 		ToolbarItem i;
-		i.label = "No pagination support";
+		i.label = BKLocalization::current.noPaginationSupport;
 		i.iconX = 57;
 		i.iconY = 0;
 		i.iconW = 18;
@@ -332,17 +333,17 @@ void BKDocument::buildToolbarMenus() {
 	toolbarMenus[2].clear();
 	if (isZoomable()) {
 		ToolbarItem i;
-		i.circleLabel = "Select";
+		i.circleLabel = BKLocalization::current.buttonSelect;
 
 		if (hasZoomToFit()) {
-			i.label = "Fit height";
+			i.label = BKLocalization::current.fitHeight;
 			i.iconX = 0;
 			i.iconY = 78;
 			i.iconW = 18;
 			i.iconH = 26;
 			toolbarMenus[2].push_back(i);
-	
-			i.label = "Fit width";
+
+			i.label = BKLocalization::current.fitWidth;
 			i.iconX = 95;
 			i.iconY = 53;
 			i.iconW = 18;
@@ -350,14 +351,14 @@ void BKDocument::buildToolbarMenus() {
 			toolbarMenus[2].push_back(i);
 		}
 
-		i.label = "Zoom out";
+		i.label = BKLocalization::current.zoomOut;
 		i.iconX = 76;
 		i.iconY = 53;
 		i.iconW = 18;
 		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
 
-		i.label = "Zoom in";
+		i.label = BKLocalization::current.zoomIn;
 		i.iconX = 57;
 		i.iconY = 53;
 		i.iconW = 18;
@@ -365,7 +366,7 @@ void BKDocument::buildToolbarMenus() {
 		toolbarMenus[2].push_back(i);
 	} else {
 		ToolbarItem i;
-		i.label = "No zoom support";
+		i.label = BKLocalization::current.noZoomSupport;
 		i.iconX = 57;
 		i.iconY = 0;
 		i.iconW = 18;
@@ -376,15 +377,15 @@ void BKDocument::buildToolbarMenus() {
 	toolbarMenus[3].clear();
 	if (isRotable()) {
 		ToolbarItem i;
-		i.circleLabel = "Select";
-		i.label = "Rotate 90° clockwise";
+		i.circleLabel = BKLocalization::current.buttonSelect;
+		i.label = BKLocalization::current.rotate90Clockwise;
 		i.iconX = 39;
 		i.iconY = 79;
 		i.iconW = 17;
 		i.iconH = 26;
 		toolbarMenus[3].push_back(i);
 
-		i.label = "Rotate 90° counterclockwise";
+		i.label = BKLocalization::current.rotate90Counterclockwise;
 		i.iconX = 57;
 		i.iconY = 79;
 		i.iconW = 17;
@@ -392,7 +393,7 @@ void BKDocument::buildToolbarMenus() {
 		toolbarMenus[3].push_back(i);
 	} else {
 		ToolbarItem i;
-		i.label = "No rotation support";
+		i.label = BKLocalization::current.noRotationSupport;
 		i.iconX = 57;
 		i.iconY = 0;
 		i.iconW = 18;
@@ -512,7 +513,7 @@ int BKDocument::processEventsForToolbar() {
 			zi = 1;
 			zo = 0;
 		}
-		
+
 		// zoom in
 		if (toolbarSelMenu == 2 && toolbarSelMenuItem == zi && isZoomable()) {
 			vector<ZoomLevel> zooms;
@@ -735,11 +736,11 @@ void BKDocument::render() {
 		drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
 	}
 
-	
+
 	string t;
 	if (isPaginated()) {
 		char tp[256];
-		snprintf(tp, 256, "Page %d of %d", getCurrentPage(), getTotalPages());
+		snprintf(tp, 256, "%s%d%s%d", BKLocalization::current.page.c_str(), getCurrentPage(), BKLocalization::current.of.c_str(),  getTotalPages());
 		t = tp;
 	}
 	drawClockAndBattery(t);

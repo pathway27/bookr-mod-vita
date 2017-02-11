@@ -28,14 +28,15 @@
 #include "bkcachechooser.h"
 #include "bkuser.h"
 #include "bklogo.h"
+#include "bklocalization.h"
 
 BKCacheChooser::BKCacheChooser(string& t, int r) :
 	title(t), ret(r), mode(0), lastSelItem(0) {
 	cachePath = FZScreen::basePath();
 	cachePath += "/CACHE";
 	yesnoItems.clear();
-	yesnoItems.push_back(BKMenuItem("Yes", "Select", 0));
-	yesnoItems.push_back(BKMenuItem("No", "Select", 0));
+	yesnoItems.push_back(BKMenuItem(BKLocalization::current.buttonYes, BKLocalization::current.buttonSelect, 0));
+	yesnoItems.push_back(BKMenuItem(BKLocalization::current.buttonNo, BKLocalization::current.buttonSelect, 0));
 	buildCacheMenu();
 }
 
@@ -55,11 +56,11 @@ void BKCacheChooser::buildCacheMenu() {
 	int n = dirFiles.size();
 	for (int i = 0; i < n; i++) {
 		if (dirFiles[i].stat & FZ_STAT_IFDIR) {
-			cacheItems.push_back(BKMenuItem(dirFiles[i].name, "Open", 0));
+			cacheItems.push_back(BKMenuItem(dirFiles[i].name, BKLocalization::current.buttonOpen, 0));
 		}
 	}
 
-	cacheItems.push_back(BKMenuItem("Clear cache", "Select", 0));
+	cacheItems.push_back(BKMenuItem(BKLocalization::current.clearCache, BKLocalization::current.buttonSelect, 0));
 }
 
 int BKCacheChooser::update(unsigned int buttons) {
@@ -116,7 +117,7 @@ int BKCacheChooser::updateDeleteCache(unsigned int buttons) {
 
 	if (b[BKUser::controls.select] == 1) {
 		if (selItem == 0) {
-			BKLogo::show("Deleting cache: " + curItem);
+			BKLogo::show(BKLocalization::current.deletingCacheWarning + curItem);
 			// delete cache
 			string toDelete = cachePath + "/" + curItem;
 			recursiveDelete(toDelete.c_str());
@@ -158,7 +159,7 @@ int BKCacheChooser::updateClearCache(unsigned int buttons) {
 			for (int i = 0; i < n; i++) {
 				if (dirFiles[i].stat & FZ_STAT_IFDIR) {
 					string toDelete = cachePath + "/" + dirFiles[i].name;
-					BKLogo::show("Deleting cache: " + dirFiles[i].name);
+					BKLogo::show(BKLocalization::current.deletingCacheWarning + dirFiles[i].name);
 					recursiveDelete(toDelete.c_str());
 				}
 			}
@@ -187,16 +188,16 @@ int BKCacheChooser::updateClearCache(unsigned int buttons) {
 void BKCacheChooser::render() {
 
 	if (mode == MODE_DELETECACHE) {
-		string title("Are you sure to delete " + curItem + "?");
+		string title(BKLocalization::current.deleteCacheWarning + curItem + "?");
 		string t = "";
 		drawMenu(title, t, yesnoItems);
 	} else if (mode == MODE_CLEARCACHE) {
-		string title("Are you sure to clear all caches?");
+		string title(BKLocalization::current.clearCacheWarning);
 		string t = "";
 		drawMenu(title, t, yesnoItems);
 	} else {
-		string title("Cache");
-		string t = "Delete cache";
+		string title(BKLocalization::current.cacheMenuTitle);
+		string t = BKLocalization::current.buttonDeleteCache;
 		drawMenu(title, t, cacheItems);
 	}
 }

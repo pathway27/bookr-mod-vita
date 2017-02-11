@@ -23,6 +23,7 @@
 
 #include "bkfilechooser.h"
 #include "bkuser.h"
+#include "bklocalization.h"
 
 BKFileChooser::BKFileChooser(string& t, int r) : title(t), ret(r) {
 	convertToVN = false;
@@ -61,7 +62,7 @@ void BKFileChooser::updateDirFiles() {
 		FZScreen::dirContents((char*)path.c_str(), dirFiles);
 	}
 	if (dirFiles.size() == 0)
-		dirFiles.push_back(FZDirent("<Empty folder>", 0, 0));
+		dirFiles.push_back(FZDirent((char*)BKLocalization::current.emptyFolder.c_str(), 0, 0));
 	if( ret == BK_CMD_SET_FONT )
 		BKUser::options.lastFontFolder = path;
 	else
@@ -122,15 +123,15 @@ void BKFileChooser::render() {
 	vector<BKMenuItem> items;
 	int n = dirFiles.size();
 	for (int i = 0; i < n; i++) {
-		string cl("Select file");
+		string cl(BKLocalization::current.buttonSelectFile);
 		int f = 0;
 		if (dirFiles[i].stat & FZ_STAT_IFDIR) {
-			cl = "Open folder";
+			cl = BKLocalization::current.buttonOpenFolder;
 			f = BK_MENU_ITEM_FOLDER;
 		}
 		items.push_back(BKMenuItem(dirFiles[i].name, cl, f)); 
 	}
-	string tl("Parent folder");
+	string tl(BKLocalization::current.parentFolder);
 	drawMenu(title, tl, items);
 }
 
