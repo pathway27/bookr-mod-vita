@@ -35,9 +35,11 @@
 #include <pspkernel.h>
 PSP_MODULE_INFO("Bookr", 0, 1, 1);
 PSP_HEAP_SIZE_KB(-7*1024);
-PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
-#endif
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 
+#endif
+// trying to kill homescreen...load the 'driver' first ofc -scooty
+#include <pspimpose_driver.h>
 extern int processCHMHTM(bkLayers& layers, string filepath, bool convertToVN);
 
 extern "C" {
@@ -59,7 +61,17 @@ bool isHTMOrCHM(string& file) {
 			== 0 || stricmp(tmp.c_str(), ".chm") == 0;
 }
 
+// dummy function for replacing impose(home button menu) -scooty
+int dumy_func(int value)
+{
+	return 0;
+}
+
 int main(int argc, char* argv[]) {
+	// disable home button as 1. bookr has an exit option 2. this is an irshell plugin, let's forget about sony's stuffs... -scooty
+	sceImposeSetHomePopup(0);
+	sceImposeSetUMDPopup(0);
+	sceImposeSetLanguageMode(0, 0);
 
 	initLogging();
 
@@ -85,9 +97,17 @@ int main(int argc, char* argv[]) {
 	FZScreen::dcacheWritebackAll();
 
 
-	if( BKUser::options.loadLastFile )
+	if( BKUser::options.loadLastFile || argc == 2 )
 	{
-		string s = BKBookmarksManager::getLastFile();
+		string s;
+		if(argc == 2){
+			// what was I doing...
+			// string a(argv[1]);
+			// s = a;
+			s.assign(argv[1]);
+		}else{
+			s = BKBookmarksManager::getLastFile();
+		}
 		if( s.substr(0,5) == "ms0:/" )
 		{
 				// clear layers
@@ -130,6 +150,9 @@ int main(int argc, char* argv[]) {
 	bool exitApp = false;
 	int reloadTimer = 0;
 	while (!exitApp) {
+		sceImposeSetHomePopup(0);
+		sceImposeSetUMDPopup(0);
+		sceImposeSetLanguageMode(0, 0);
 //		if(vdirty) {
 //			FZScreen::startDirectList();
 //			// render layers back to front
@@ -410,4 +433,3 @@ int main(int argc, char* argv[]) {
 
 	return 0;
 }
-
