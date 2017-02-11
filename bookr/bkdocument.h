@@ -45,6 +45,17 @@ class BKDocument : public BKLayer {
 	string banner;
 	int tipFrames;
 
+	int thumbnailFrames;
+	int tn_pagew;
+        int tn_pageh;
+        int tn_screenw;
+        int tn_screenh;
+        int tn_screenx;
+        int tn_screeny;
+	int title_skippix;
+	int title_skippix_max;
+	int title_type;
+	BKMenuItem* miTitle;
 	struct ToolbarItem {
 		int lines;
 		int minWidth;
@@ -62,14 +73,27 @@ class BKDocument : public BKLayer {
 
 	vector<ToolbarItem> toolbarMenus[4];
 	BKBookmarkList bookmarkList;
-	void buildToolbarMenus();
 
 	int frames;
+
+	int outline_topItem;
+	int outline_selItem;
 
 	protected:
 	BKDocument();
 	virtual void saveLastView();
 	~BKDocument();
+	string longFileName;
+	/*
+	 * xpos_mode:
+	 * 0 - the same for all pages
+	 * 1 - different for even and odd pages
+	 *     xpos_even/xpos_odd
+	 */
+	int xpos_mode;
+	int xpos_even;
+	int xpos_odd;
+	#define alwaysSetXPos true
 
 	public:
 	// BKLayer::update is implemented outside the document viewers.
@@ -92,11 +116,19 @@ class BKDocument : public BKLayer {
 	virtual void renderContent() = 0;
 
 	// Factory with file detection
-	static BKDocument* create(string& filePath);
+	static BKDocument* create(string& filePath, string& longFileName);
 
 	// Document metadata
 	virtual void getFileName(string&) = 0;
-	virtual void getTitle(string&) = 0;
+
+	// Document title
+	// supported types: 
+	// 0: normal: doc title if it is available, otherwise use filename instead.
+	// 1: doc title
+	// 2: filename
+	// 3: doc title[filename]
+	// 4: filename[doc title]
+	virtual void getTitle(string&, int type = 0) = 0;
 	virtual void getType(string&) = 0;
 
 	// Pagination - a page is clearly defined for a PDF file, but
@@ -125,7 +157,9 @@ class BKDocument : public BKLayer {
 	virtual bool hasZoomToFit() = 0;
 	virtual int setZoomToFitWidth() = 0;
 	virtual int setZoomToFitHeight() = 0;
-
+	virtual int setZoomIn(int left, int right) = 0;
+	virtual void setZoom(float z) = 0;
+	virtual float getCurrentZoom();
 	// Analog pad paning - can be ignored
 	virtual int pan(int, int) = 0;
 
@@ -148,7 +182,34 @@ class BKDocument : public BKLayer {
 
 	// banners
 	void setBanner(char*);
+	void setThumbnail(int pagew, int pageh, int screenw, int screenh, int screenx, int screeny);
+
+	// mode
+	void setMode(int);
+	int getMode();
+
+	// Fast image status
+	virtual int getFastImageStatus();
+
+	//
+	virtual int getOutlineType();
+	virtual void* getOutlines();
+	virtual void gotoOutline(void* o, bool ignoreZoom = false);
+	// set Long file name
+	void setLongFileName(string s);
+
+	// change this from private to public 
+	// because we need call this function after bookmarks are cleared.
+	void buildToolbarMenus();
+	// remember outline selection for each book.
+	void getOutlineSelection(int& top, int& sel);
+	void setOutlineSelection(int top, int sel);
+
 };
 
+//outline types
+#define OUTLINE_NONE	0
+#define OUTLINE_PDF	1
+#define OUTLINE_DJVU	2
 #endif
 

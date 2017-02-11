@@ -107,7 +107,7 @@ void FZTexture::bindForDisplay() {
 static bool validatePow2(unsigned int x, unsigned int maxPow) {
 	bool valid = false;
 	unsigned int i, s;
-	for (i = 0; i < maxPow; ++i) {
+	for (i = 0; i <= maxPow; ++i) {
 		s = 1 << i;
 		if (x == s) {
 			valid = true;

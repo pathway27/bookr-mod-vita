@@ -27,13 +27,17 @@ using namespace std;
 #include "bklayer.h"
 
 
-
 class BKColorSchemeManager : public BKLayer {
 	string title;
 	int	colorScheme;
-
+	vector<BKUser::ColorScheme> *selectedColorSchemes;
+	int *selectedCurrentScheme;
+//	int csmType;
+	int bk_cmd_invoke_color_chooser;
+	    
 	protected:
 	BKColorSchemeManager(string& t);
+	BKColorSchemeManager(string& t, int type);
 	~BKColorSchemeManager();
 
 	public:
@@ -42,6 +46,9 @@ class BKColorSchemeManager : public BKLayer {
 	virtual int getColorScheme();
 	
 	static BKColorSchemeManager* create(string& t);
+	// type: 0 or none for Txt FG
+	// type: 1 for thumbnail color
+	static BKColorSchemeManager* create(string& t, int type);
 	
 };
 

@@ -37,10 +37,10 @@ class BKPlainText : public BKFancyText {
 
 	public:
 	virtual void getFileName(string&);
-	virtual void getTitle(string&);
+	virtual void getTitle(string&, int type = 0);
 	virtual void getType(string&);
 
-	static BKPlainText* create(string& file);
+	static BKPlainText* create(string& file,string& longFileName);
 };
 
 #endif

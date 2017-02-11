@@ -1,0 +1,18 @@
+1. git clone freetype2 code.
+2. make sure using libtool > 2.2.4.Otherwise install libtool 2.2.4 or later first.
+3. edit <libtool_prefix>/share/libtool/config/config.sub
+   search 'ps2)' in a switch-case statement, add these lines below it:
+
+        psp)
+                basic_machine=mipsallegrexel-psp
+                os=-elf
+                ;;
+4. apply patch ft_psp.patch
+5. cd freetype2
+6. sh autogen.sh
+
+7. copy freetype2/libtool to builds/unix
+
+8. LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser" ./configure --host psp --prefix=$(psp-config --psp-prefix)
+
+9 make; make install;

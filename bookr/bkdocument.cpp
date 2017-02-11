@@ -1,7 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,38 +23,60 @@
 #include "bkpalmdoc.h"
 #include "bkplaintext.h"
 
-BKDocument* BKDocument::create(string& filePath) {
+BKDocument* BKDocument::create(string& filePath,string& longFileName) {
+  FILE* f = fopen(filePath.c_str(),"r");
+  if(f){
+    fclose(f);
+  }
+  else{
+    return (BKDocument*)-2;
+  }
 	BKDocument* doc = 0;
+	bool skipBookmark = false;
 	if (BKPDF::isPDF(filePath)) {
-		doc = BKPDF::create(filePath);
+		skipBookmark = true;
+		doc = BKPDF::create(filePath,longFileName);
 	} else if (BKDJVU::isDJVU(filePath)) {
-		doc = BKDJVU::create(filePath);
+		skipBookmark = true;
+		doc = BKDJVU::create(filePath,longFileName);
 	} else if (BKPalmDoc::isPalmDoc(filePath)) {
-		doc = BKPalmDoc::create(filePath);
+	  doc = BKPalmDoc::create(filePath,longFileName);
 	} else {
-		doc = BKPlainText::create(filePath);
+	  doc = BKPlainText::create(filePath,longFileName);
 	}
-	if (doc != 0)
+	if (doc != 0 && (int)doc != -1 )
 	{
+		doc->title_skippix = 0;
+		doc->title_skippix_max = -1;
 		doc->buildToolbarMenus();
-
-		if (doc->isBookmarkable()) {
+		if (doc->isBookmarkable() && ! skipBookmark ) {
 			BKBookmark b;
 			string fn;
 			doc->getFileName(fn);
 			if (BKBookmarksManager::getLastView(fn, b)) {
 				doc->setBookmarkPosition(b.viewData);
+				doc->setZoom(b.zoom);
 			}
 		}
+		doc->outline_selItem = 0;
+		doc->outline_topItem = 0;
+		doc->title_type = BKUser::options.defaultTitleMode;
+		string stitle;
+		doc->getTitle(stitle, doc->title_type % 5);
+		doc->miTitle = new BKMenuItem(stitle,"",0);
+		BKUser::options.t_ignore_x = BKUser::options.ignoreXInOutlineOnSquare;
 	}
-	return doc;
+  	return doc;
 }
 
 BKDocument::BKDocument() : 	mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	tipFrames(120), toolbarSelMenu(0), toolbarSelMenuItem(0), frames(0) {
 	lastSuspendSerial = FZScreen::getSuspendSerial();
+	thumbnailFrames = BKUser::options.thumbnail;
+	miTitle = 0;
 }
 
 BKDocument::~BKDocument() {
+  delete miTitle;
 }
 
 void BKDocument::saveLastView() {
@@ -68,9 +89,10 @@ void BKDocument::saveLastView() {
 		b.page = isPaginated() ? getCurrentPage() : 0;
 		b.createdOn = "to do: creation date";
 		b.lastView = true;
+		b.zoom = isZoomable()? getCurrentZoom() : 0.0f;
 		getBookmarkPosition(b.viewData);
 		BKBookmarksManager::addBookmark(fn, b);
-		BKBookmarksManager::setLastFile(fn);
+		BKBookmarksManager::setLastFile(fn,longFileName);
 	}
 }
 
@@ -78,6 +100,45 @@ void BKDocument::setBanner(char* b) {
 	banner = b;
 	bannerFrames = 60;
 }
+
+void BKDocument::setThumbnail(int pagew, int pageh, int screenw, int screenh, int screenx, int screeny) {
+
+    float ratio = 1.0f;
+    int tn_size = 100;
+    if (pagew > tn_size || pageh > tn_size){
+	if (pagew > pageh)
+	    ratio = tn_size * 1.0f / pagew;
+	else
+	    ratio = tn_size * 1.0f / pageh;
+    }
+
+/*    
+    printf("Set TB: pw: %d\n",pagew);
+    printf("Set TB: ph: %d\n",pageh);
+    printf("Set TB: sw: %d\n",screenw);
+    printf("Set TB: sh: %d\n",screenh);
+    printf("Set TB: sx: %d\n",screenx);
+    printf("Set TB: sy: %d\n",screeny);
+    printf("Set TB: ratio: %f\n",ratio);
+
+*/
+
+    tn_pagew = (int) pagew * ratio;
+    tn_pageh = (int) pageh * ratio;
+    tn_screenw = (int) screenw * ratio + 1;
+    tn_screenh = (int) screenh * ratio + 1;
+    tn_screenx = (int) screenx * ratio;
+    tn_screeny = (int) screeny * ratio;
+    if (tn_screenw + tn_screenx > tn_pagew) 
+	tn_screenw = tn_pagew - tn_screenx;
+
+    if (tn_screenh + tn_screeny > tn_pageh)
+        tn_screenh = tn_pageh - tn_screeny;
+    
+    thumbnailFrames = BKUser::options.thumbnail;
+}
+
+
 
 int BKDocument::update(unsigned int buttons) {
 	// let the view quit update processing early for some special events
@@ -93,10 +154,13 @@ int BKDocument::update(unsigned int buttons) {
 
 	bannerFrames--;
 	tipFrames--;
+	thumbnailFrames--;
 	if (bannerFrames < 0)
 		bannerFrames = 0;
 	if (tipFrames < 0)
 		tipFrames = 0;
+	if (thumbnailFrames < 0)
+	        thumbnailFrames =0;
 
 	// banner fade - this blocks event input during the fade
 	//if (bannerFrames > 0)
@@ -113,6 +177,9 @@ int BKDocument::update(unsigned int buttons) {
 		r = BK_CMD_MARK_DIRTY;
 	if (tipFrames > 0 && r == 0)
 		r = BK_CMD_MARK_DIRTY;
+	if (thumbnailFrames > 0 && r == 0)
+	        r = BK_CMD_MARK_DIRTY;
+
 
 	// clock tick
 	frames++;
@@ -127,7 +194,7 @@ int BKDocument::processEventsForView() {
 
 	// button handling - pagination
 	if (isPaginated()) {
-//		int n = getTotalPages();
+		int n = getTotalPages();
 		int p = getCurrentPage();
 		int op = p;
 		if (b[BKUser::controls.nextPage] == 1) {
@@ -156,7 +223,7 @@ int BKDocument::processEventsForView() {
 		}*/
 		int r = 0;
 		if (op != p)
-			setCurrentPage(p);
+			r = setCurrentPage(p);
 		if (r != 0)
 			return r;
 	}
@@ -166,11 +233,14 @@ int BKDocument::processEventsForView() {
 		vector<ZoomLevel> zooms;
 		getZoomLevels(zooms);
 		int z = getCurrentZoomLevel();
+		bool zoommed = false;
 		if (b[BKUser::controls.zoomIn] == 1) {
 			z++;
+			zoommed = true;
 		}
 		if (b[BKUser::controls.zoomOut] == 1) {
 			z--;
+			zoommed = true;
 		}
 		/*if (b[BKUser::controls.zoomFitWidth] == 1) {
 			z ?
@@ -179,16 +249,22 @@ int BKDocument::processEventsForView() {
 			z ?
 		}
 		*/
-		int r = setZoomLevel(z);
-		if (r != 0)
-			return r;
+		if(zoommed){
+		  int r = setZoomLevel(z);
+		  if (r != 0)
+		    return r;
+		}
 	}
 
 	// button handling - analog pad panning
+	if(b[FZ_REPS_HOLD] == 0)
 	{
 		int ax = 0, ay = 0;
 		FZScreen::getAnalogPad(ax, ay);
-		int r = pan(ax, ay);
+#ifndef PSP
+		//fprintf(stderr,"analog: %d,%d\n",ax,ay);
+#endif
+		int r = pan(BKUser::options.analogRateX * ax / 100, BKUser::options.analogRateY * ay / 100);
 		if (r != 0)
 			return r;
 	}
@@ -242,8 +318,28 @@ int BKDocument::processEventsForView() {
 
 void BKDocument::buildToolbarMenus() {
 	toolbarMenus[0].clear();
+
+	if (getOutlineType()){
+	  ToolbarItem i;
+	  i.circleLabel = "Select";
+	  i.label = "Outlines";
+	  i.iconX = 0;
+	  i.iconY = 106;
+	  i.iconW = 18;
+	  i.iconH = 22;
+	  toolbarMenus[0].push_back(i);
+	}
+
 	if (isBookmarkable()) {
 		ToolbarItem i;
+// 		i.label = "Prune bookmark";
+// 		i.iconX = 82;
+// 		i.iconY = 0;
+// 		i.iconW = 22;
+// 		i.iconH = 26;
+// 		i.circleLabel = "Select";
+// 		toolbarMenus[0].push_back(i);
+
 		i.label = "Add bookmark";
 		i.iconX = 19;
 		i.iconY = 0;
@@ -363,6 +459,14 @@ void BKDocument::buildToolbarMenus() {
 		i.iconW = 18;
 		i.iconH = 26;
 		toolbarMenus[2].push_back(i);
+
+		i.label = "Zoom in ...";
+		i.iconX = 76;
+		i.iconY = 80;
+		i.iconW = 18;
+		i.iconH = 22;
+		toolbarMenus[2].push_back(i);
+
 	} else {
 		ToolbarItem i;
 		i.label = "No zoom support";
@@ -399,6 +503,26 @@ void BKDocument::buildToolbarMenus() {
 		i.iconH = 26;
 		toolbarMenus[3].push_back(i);
 	}
+	if (isZoomable()){
+	  ToolbarItem i;
+	  i.circleLabel = "Switch";
+	  i.label = "Even-Odd mode";
+	  i.iconX = 96;
+	  i.iconY = 105;
+	  i.iconW = 18;
+	  i.iconH = 22;
+	  toolbarMenus[3].push_back(i);
+	}
+// 	if (getOutlineType()){
+// 	  ToolbarItem i;
+// 	  i.circleLabel = "Select";
+// 	  i.label = "Outlines";
+// 	  i.iconX = 0;
+// 	  i.iconY = 106;
+// 	  i.iconW = 18;
+// 	  i.iconH = 22;
+// 	  toolbarMenus[3].push_back(i);
+// 	}
 }
 
 int BKDocument::processEventsForToolbar() {
@@ -427,24 +551,45 @@ int BKDocument::processEventsForToolbar() {
 	if (toolbarSelMenuItem < 0)
 		toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
 
+	int itemNumOfFirstBookmark = 1;
+	if (getOutlineType()){
+	  itemNumOfFirstBookmark = 2;
+	}
 	if (b[BKUser::controls.alternate] == 1) {
 		// delete bookmark
-		if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
+		if (toolbarSelMenu == 0 && toolbarSelMenuItem >= itemNumOfFirstBookmark && isBookmarkable()) {
 			string fn;
 			getFileName(fn);
 			BKBookmarkListIt it(bookmarkList.begin());
-			int di =  toolbarSelMenuItem - 1;
-			for (int i = 0; i < di; i++, it++);
+			int di =  toolbarSelMenuItem - itemNumOfFirstBookmark;
+			for (int i = 0; i < di; i++, it++)
+			  ;
 			bookmarkList.erase(it);
 			BKBookmarksManager::setBookmarks(fn, bookmarkList);
 			buildToolbarMenus();
 			return BK_CMD_MARK_DIRTY;
 		}
 	}
-
+	if (b[BKUser::controls.details] == 1) {
+	  // change title type;
+	  title_type ++;
+	  if (title_type > 4)
+	    title_type = 0;
+	  string stitle;
+	  getTitle(stitle, title_type % 5);
+	  delete miTitle;
+	  title_skippix = 0;
+	  title_skippix_max = -1;
+	  miTitle = new BKMenuItem(stitle,"",0);
+	  return BK_CMD_MARK_DIRTY;
+	}
 	if (b[BKUser::controls.select] == 1) {
-		// add bookmark
-		if (toolbarSelMenu == 0 && toolbarSelMenuItem == 0 && isBookmarkable()) {
+
+		if (getOutlineType() && toolbarSelMenu == 0 && toolbarSelMenuItem == 0){
+			return BK_CMD_INVOKE_OUTLINES;
+		}
+
+		if (toolbarSelMenu == 0 && toolbarSelMenuItem == (itemNumOfFirstBookmark-1) && isBookmarkable()) {
 			string fn, t;
 			getFileName(fn);
 			getTitle(t);
@@ -452,15 +597,18 @@ int BKDocument::processEventsForToolbar() {
 			b.title = t;
 			b.page = isPaginated() ? getCurrentPage() : 0;
 			b.createdOn = "to do: creation date";
+			b.zoom = isZoomable()? getCurrentZoom(): 0.0f;
 			getBookmarkPosition(b.viewData);
 			BKBookmarksManager::addBookmark(fn, b);
 			buildToolbarMenus();
 			return BK_CMD_MARK_DIRTY;
 		}
 		// jump to bookmark
-		if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
-			int di =  toolbarSelMenuItem - 1;
-			return setBookmarkPosition(bookmarkList[di].viewData);
+		if (toolbarSelMenu == 0 && toolbarSelMenuItem >= itemNumOfFirstBookmark && isBookmarkable()) {
+			int di =  toolbarSelMenuItem - itemNumOfFirstBookmark;
+			int ret = setBookmarkPosition(bookmarkList[di].viewData);
+			setZoom(bookmarkList[di].zoom);
+			return ret;
 		}
 		// first page
 		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 0 && isPaginated()) {
@@ -495,6 +643,7 @@ int BKDocument::processEventsForToolbar() {
 		if (toolbarSelMenu == 1 && toolbarSelMenuItem == 4 && isPaginated()) {
 			return BK_CMD_INVOKE_PAGE_CHOOSER;
 		}
+		int szi = 4;
 		int zi = 3;
 		int zo = 2;
 		if (hasZoomToFit()) {
@@ -509,6 +658,7 @@ int BKDocument::processEventsForToolbar() {
 					return r;
 			}
 		} else {
+			szi = 2;
 			zi = 1;
 			zo = 0;
 		}
@@ -533,7 +683,13 @@ int BKDocument::processEventsForToolbar() {
 			if (r != 0)
 				return r;
 		}
-
+		// specified zoom in
+		if (toolbarSelMenu == 2 && toolbarSelMenuItem == szi && isZoomable()) {
+		  thumbnailFrames = 0;
+		  tipFrames = 0;
+		  bannerFrames = 0;
+		  return BK_CMD_INVOKE_ZOOM_IN;
+		}
 		// rotate cw
 		if (toolbarSelMenu == 3 && toolbarSelMenuItem == 0 && isRotable()) {
 			FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
@@ -554,6 +710,34 @@ int BKDocument::processEventsForToolbar() {
 			if (r != 0)
 				return r;
 		}
+		// even-odd mod
+		if (toolbarSelMenu == 3 && isZoomable() &&((toolbarSelMenuItem == 1 && !isRotable())||(toolbarSelMenuItem == 2 && isRotable()))){
+
+		  if(xpos_mode)
+		    xpos_mode = 0;
+		  else
+		    xpos_mode = 1;
+
+		  return 0;
+		}
+// 		// outlines
+// 		int outline_icon_index = -1;
+// 		if (isRotable()){
+// 		  if(isZoomable())
+// 		    outline_icon_index = 3;
+// 		  else
+// 		    outline_icon_index = 2;
+// 		}
+// 		else{
+// 		  if(isZoomable())
+// 		    outline_icon_index = 2;
+// 		  else
+// 		    outline_icon_index = 1;
+// 		}
+// 		if (toolbarSelMenu == 3 && getOutlineType() && toolbarSelMenuItem == outline_icon_index ){
+// 		  return BK_CMD_INVOKE_OUTLINES;
+// 		}
+
 	}
 
 	// main menu
@@ -567,12 +751,49 @@ int BKDocument::processEventsForToolbar() {
 		return BK_CMD_MARK_DIRTY;
 	}
 
+	if (b[BKUser::controls.menuLTrigger] == 1 || b[BKUser::controls.menuLTrigger] > 10) {
+	  title_skippix -= 10;
+	  if (title_skippix < 0)
+	    title_skippix = 0;
+	}
+	if (b[BKUser::controls.menuRTrigger] == 1 || b[BKUser::controls.menuRTrigger] > 10) {
+	  title_skippix += 10;
+	  if(title_skippix_max>=0&&title_skippix_max<title_skippix)
+	    title_skippix = title_skippix_max;
+	}
+
 	return 0;
 }
 
 void BKDocument::render() {
 	// content
 	renderContent();
+
+	// thumbnail for position in current page
+	if (thumbnailFrames > 0 && tn_pagew > 0 ) {
+	    int init_alpha = 0x80;
+		int alpha = init_alpha;
+		if (thumbnailFrames <= 32) {
+			alpha = (thumbnailFrames - 1) * init_alpha / 32;
+		}
+
+		if (alpha > 0){
+		    texUI->bindForDisplay();
+		    FZScreen::ambientColor(0x00FFFFFF & BKUser::options.thumbnailColorSchemes[BKUser::options.currentThumbnailScheme].txtBGColor | (alpha << 24));
+                    drawRect(480 - 5 - tn_pagew, 5, tn_pagew, tn_pageh, 6, 31, 1);
+
+		    FZScreen::ambientColor(0x00FFFFFF & BKUser::options.thumbnailColorSchemes[BKUser::options.currentThumbnailScheme].txtFGColor | (alpha << 24));
+//		    drawRect(480 - 5 - tn_pagew + tn_screenx, 5+tn_screeny, tn_screenw, tn_screenh, 6, 31, 1);
+		    
+		    int tn_border = 2;
+		    drawRect(480 - 5 - tn_pagew + tn_screenx, 5+tn_screeny, tn_screenw, tn_border, 6, 31, 1);
+		    drawRect(480 - 5 - tn_pagew + tn_screenx, 5+tn_screeny + tn_border, tn_border, tn_screenh-2 * tn_border, 6, 31, 1);
+		    drawRect(480 - 5 - tn_pagew + tn_screenx, 5+tn_screeny + tn_screenh - tn_border, tn_screenw, tn_border, 6, 31, 1);
+		    drawRect(480 - 5 - tn_pagew + tn_screenx+ tn_screenw - tn_border, 5+tn_screeny + tn_border, tn_border, tn_screenh-2 * tn_border, 6, 31, 1);
+	   
+		}
+	    
+	}
 
 	// flash tip for menu/toolbar on load
 	if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
@@ -684,11 +905,15 @@ void BKDocument::render() {
 	// button icons
 	FZScreen::ambientColor(0xffcccccc);
 	int tw = textW((char*)it.circleLabel.c_str(), fontBig);
+	//int tw1 = tw;
 	if (it.circleLabel.size() > 0) {
+	    if (BKUser::controls.select == FZ_REPS_CROSS)
 		drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+	    else 
+		drawImage(480 - tw - 65, 248, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
 	}
 	if (it.triangleLabel.size() > 0) {
-		drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+		drawImage(37, 248, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
 	}
 
 	// icon bar
@@ -739,9 +964,118 @@ void BKDocument::render() {
 	string t;
 	if (isPaginated()) {
 		char tp[256];
-		snprintf(tp, 256, "Page %d of %d", getCurrentPage(), getTotalPages());
+		snprintf(tp, 256, "P: %d of %d", getCurrentPage(), getTotalPages());
 		t = tp;
 	}
 	drawClockAndBattery(t);
+
+        //draw fast image status
+	int xfi = 480 - 30 - textW((char*)t.c_str(),fontSmall);
+	string tfi = "FI: ";
+	switch (getFastImageStatus()){
+	case 3:
+	  tfi += "full";
+	  break;
+	case 2:
+	  tfi += "4 scrns";
+	  break;
+	case 1:
+	  tfi += "1 scrn";
+	  break;
+	default:
+	  tfi += "disabled";
+	  break;
+	}
+	xfi -= 10+textW((char*)tfi.c_str(), fontSmall);
+	drawText((char*)tfi.c_str(), fontSmall, xfi, 205);
+
+	// draw zoom ratio
+	string tz = "Z: ";
+	if(isZoomable()){
+	  float f = getCurrentZoom();
+	  char zoom_value[7] = {'\0','\0','\0','\0','\0','\0','\0'};
+	  snprintf(zoom_value,7,"%2.3gx",f);
+	  tz += zoom_value;
+	}
+	else{
+	  tz+="N/A";
+	}
+	xfi -= 10+ textW((char*)tz.c_str(), fontSmall);
+	drawText((char*)tz.c_str(), fontSmall, xfi, 205);
+
+	int titleLeftPos = 130;
+	int titleYPos = 250;
+	int titleRightPos = 330;
+	int tooLong;
+
+	if(isZoomable()){
+	  titleLeftPos += 20;
+	  // draw xpos mode icon
+	  texUI2->bindForDisplay();
+	  FZScreen::ambientColor(0xffffffff);
+	  if (xpos_mode)
+	    drawImage(titleLeftPos-20 ,titleYPos,15,15,68,110);
+	  else
+	    drawImage(titleLeftPos-20 ,titleYPos,15,15,48,110);
+	}
+	// draw title
+	FZFont* titleFont = fontUTF;
+	if (!titleFont)
+	  titleFont = fontBig;
+	FZScreen::ambientColor(0xffffffff);
+	if (title_skippix){
+	  texUI->bindForDisplay();
+	  drawImage(titleLeftPos,titleYPos,12,12,7,112);
+	  tooLong = drawUTFMenuItem(miTitle, titleFont, titleLeftPos+14, titleYPos, title_skippix+14, titleRightPos - titleLeftPos - 14);
+	}
+	else{
+	  tooLong = drawUTFMenuItem(miTitle,titleFont,titleLeftPos,titleYPos,0,titleRightPos - titleLeftPos);
+	}
+	titleFont->doneUTFFont();
+	if (tooLong){
+	  texUI->bindForDisplay();
+	  drawImage(titleRightPos+2,titleYPos,12,12,7,112);
+	}
+	else{
+	  title_skippix_max = title_skippix;
+	}
+
 }
 
+void BKDocument::setMode(int m){
+  mode = m;
+}
+int BKDocument::getMode(){
+  return mode;
+}
+
+int BKDocument::getFastImageStatus(){
+  return false;
+}
+
+float BKDocument::getCurrentZoom(){
+  return 0.0f;
+}
+
+void BKDocument::setLongFileName(string s){
+  longFileName = s;
+}
+
+int BKDocument::getOutlineType(){
+  return OUTLINE_NONE;
+}
+
+void* BKDocument::getOutlines(){
+  return (void*)0;
+}
+void BKDocument::gotoOutline(void* o, bool ignoreZoom){
+
+}
+void BKDocument::getOutlineSelection(int& top, int& sel){
+  top = outline_topItem;
+  sel = outline_selItem;
+}
+void BKDocument::setOutlineSelection(int top, int sel){
+  outline_topItem = top;
+  outline_selItem = sel;
+}

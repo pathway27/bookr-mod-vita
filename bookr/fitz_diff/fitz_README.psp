@@ -1,0 +1,15 @@
+1. pull fitz lib code into fitz dir in src tree of bookr-mod, like this,
+	bookr-mod
+	+------- fitz
+	|	+--- fitz
+	|	+--- fitzdraw
+	|	+--- mupdf
+	|	+--- ......
+	+------- bkpdf.cpp
+	+------- ......
+2. touch .usefitz empty file in fitz dir.
+3. apply patch fitz_bookr-<date>.patch from fitz_diff dir.
+4. get/patch/build/install jasper library (see jasper_README.psp in fitz_diff dir)
+5. get/patch/build/install freetype library (see how_to_compile_latest_ft2.txt in freetype2 dir)
+6. build fitz library.
+

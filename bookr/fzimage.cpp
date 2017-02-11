@@ -105,12 +105,14 @@ FZImage* FZImage::createEmpty(unsigned int w, unsigned int h, unsigned int cs, F
 }
 
 void FZImage::swizzle(int sx, int sy) {
-	FZImage* from = createEmpty(width, height, 0, imageFormat);
-	char* fromData = from->getData();
-	char* toData = getData();
+  //FZImage* from = createEmpty(width, height, 0, imageFormat);
+  //char* fromData = from->getData();
 	int bpp = getBytesPerPixel();
+	char* fromData = (char*)memalign(16, width * height  * bpp);
+	char* toData = getData();
 	memcpy(fromData, toData, width * height * bpp);
 	int p = width * bpp;
+
 	for (unsigned int j = 0; j < height; j += sy) {
 		for (int i = 0; i < p; i += sx) {
 			char* base = &fromData[i + j*p];
@@ -121,7 +123,8 @@ void FZImage::swizzle(int sx, int sy) {
 			}
 		}
 	}
-	from->release();
+	//from->release();
+	free(fromData);
 }
 
 FZImage* FZImage::createRGB24FromRGB32(FZImage* from) {

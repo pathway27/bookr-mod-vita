@@ -25,50 +25,77 @@
 #include "bkuser.h"
 
 BKColorSchemeManager::BKColorSchemeManager(string& t) : title(t) {
+    selectedColorSchemes = & (BKUser::options.colorSchemes);
+    selectedCurrentScheme = & (BKUser::options.currentScheme);
+//    csmType = 0;
+    bk_cmd_invoke_color_chooser = BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG;
 }
+
+BKColorSchemeManager::BKColorSchemeManager(string& t, int type) : title(t) {
+//    csmType = type;
+    switch (type){
+
+	case BK_CMD_INVOKE_THUMBNAIL_COLOR_SCHEME_MANAGER:
+	    selectedColorSchemes = &(BKUser::options.thumbnailColorSchemes);
+	    selectedCurrentScheme = &(BKUser::options.currentThumbnailScheme);
+	    bk_cmd_invoke_color_chooser = BK_CMD_INVOKE_COLOR_CHOOSER_TNFG;
+	    break;
+
+	case BK_CMD_INVOKE_COLOR_SCHEME_MANAGER:
+	default:
+	    selectedColorSchemes = &(BKUser::options.colorSchemes);
+	    selectedCurrentScheme = &(BKUser::options.currentScheme);
+	    bk_cmd_invoke_color_chooser = BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG;
+	    break;
+    }
+
+
+
+}
+
 
 BKColorSchemeManager::~BKColorSchemeManager() {
 		BKUser::save();
 }
 
 int BKColorSchemeManager::update(unsigned int buttons) {
-	
-	menuCursorUpdate(buttons, BKUser::options.colorSchemes.size()+1);
+
+	menuCursorUpdate(buttons, selectedColorSchemes->size()+1);
 	
 	int* b = FZScreen::ctrlReps();
 	
 	if (b[BKUser::controls.select] == 1) {
-		if ((unsigned int) selItem == BKUser::options.colorSchemes.size() &&
+		if ((unsigned int) selItem == selectedColorSchemes->size() &&
 			selItem < 100) {
 			BKUser::ColorScheme newScheme;
 			newScheme.txtBGColor = 0xDDDDDD;
 			newScheme.txtFGColor = 0x333333;
-			BKUser::options.colorSchemes.push_back(newScheme);
+			selectedColorSchemes->push_back(newScheme);
 			BKUser::save();
 		} else if (selItem < 100) {
 			colorScheme = selItem;
-			return (BK_CMD_INVOKE_COLOR_CHOOSER_TXTFG);
+			return (bk_cmd_invoke_color_chooser);
 		}
 	}
 	if (b[BKUser::controls.alternate] == 1) {
 		
-		int numSchemes = BKUser::options.colorSchemes.size();
+		int numSchemes = selectedColorSchemes->size();
 		if (numSchemes > 1 &&			// Must have at least one scheme
 			selItem < numSchemes) {		// The last item in the menu is not a scheme
 				
 			// Locate and delete the scheme
-			vector<BKUser::ColorScheme>::iterator csIt = BKUser::options.colorSchemes.begin();
+			vector<BKUser::ColorScheme>::iterator csIt = selectedColorSchemes->begin();
 			for (int i = 0; i < selItem; i++) {
 				csIt++;
 			}
-			BKUser::options.colorSchemes.erase(csIt);
+			selectedColorSchemes->erase(csIt);
 				
 			// If the current scheme was the deleted scheme or above, 
 			// we adjust the current scheme.
-			if (BKUser::options.currentScheme >= selItem &&
+			if (*selectedCurrentScheme >= selItem &&
 				selItem > 0) {// but we do nothing in case we just deleted the first scheme
 				
-				BKUser::options.currentScheme--;
+			    *selectedCurrentScheme = *selectedCurrentScheme - 1;
 			}
 			
 			BKUser::save();
@@ -88,7 +115,8 @@ void BKColorSchemeManager::render() {
 	vector<BKMenuItem> items;
 	string cl("Modify");
 	string tl("");
-	int n = BKUser::options.colorSchemes.size();
+
+	int n = selectedColorSchemes->size();
 	for (int i = 0; i < n; i++) {
 		string itemName("Color Scheme");
 		char index[6] = "";
@@ -96,8 +124,8 @@ void BKColorSchemeManager::render() {
 		itemName += index;
 		
 		BKMenuItem menuItem = BKMenuItem(itemName, cl, BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_COLOR_RECT);
-		menuItem.bgcolor = BKUser::options.colorSchemes[i].txtBGColor;
-		menuItem.fgcolor = BKUser::options.colorSchemes[i].txtFGColor;
+		menuItem.bgcolor = (*selectedColorSchemes)[i].txtBGColor;
+		menuItem.fgcolor = (*selectedColorSchemes)[i].txtFGColor;
 		menuItem.triangleLabel = "Delete";
 		items.push_back(menuItem);
 	}
@@ -117,3 +145,8 @@ BKColorSchemeManager* BKColorSchemeManager::create(string& t) {
 	return f;
 }
 
+BKColorSchemeManager* BKColorSchemeManager::create(string& t, int type) {
+        BKColorSchemeManager* f = new BKColorSchemeManager(t,type);
+	FZScreen::resetReps();
+	return f;
+}

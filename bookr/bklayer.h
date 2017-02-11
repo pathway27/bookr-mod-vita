@@ -1,7 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +41,12 @@ using namespace std;
 #define BK_CMD_SET_TXTBG 23
 #define BK_CMD_SET_PDFBG 24
 #define BK_CMD_OPEN_PAGE 25
-#define BK_CMD_OPEN_CACHE 26
+#define BK_CMD_SET_TNFG 26
+#define BK_CMD_SET_TNBG 27
+#define BK_CMD_MARK_MENU_DIRTY 28
+#define BK_CMD_ZOOM_IN 29
+#define BK_CMD_OUTLINE_GOTO 30
+#define BK_CMD_OPEN_LAST_FILE 31
 
 #define BK_CMD_INVOKE_MENU 100
 #define BK_CMD_INVOKE_OPEN_FILE 101
@@ -51,10 +55,17 @@ using namespace std;
 #define BK_CMD_INVOKE_COLOR_CHOOSER_TXTBG 104
 #define BK_CMD_INVOKE_COLOR_SCHEME_MANAGER 105
 #define BK_CMD_INVOKE_PAGE_CHOOSER 106
-#define BK_CMD_INVOKE_BROWSE_CACHE 107
+
+#define BK_CMD_INVOKE_COLOR_CHOOSER_TNFG 107
+#define BK_CMD_INVOKE_COLOR_CHOOSER_TNBG 108
+#define BK_CMD_INVOKE_THUMBNAIL_COLOR_SCHEME_MANAGER 109
+#define BK_CMD_INVOKE_ZOOM_IN 110
+#define BK_CMD_INVOKE_OUTLINES 111
 
 #define BK_IMG_TRIANGLE_X 9
 #define BK_IMG_TRIANGLE_Y 53
+#define BK_IMG_SQUARE_X 9
+#define BK_IMG_SQUARE_Y 70
 #define BK_IMG_CIRCLE_X 31
 #define BK_IMG_CIRCLE_Y 70
 #define BK_IMG_CROSS_X 31
@@ -72,6 +83,8 @@ using namespace std;
 
 #define BK_IMG_TRIANGLE_XSIZE 20
 #define BK_IMG_TRIANGLE_YSIZE 18
+#define BK_IMG_SQUARE_XSIZE 18
+#define BK_IMG_SQUARE_YSIZE 19
 #define BK_IMG_CIRCLE_XSIZE 20
 #define BK_IMG_CIRCLE_YSIZE 20
 #define BK_IMG_CROSS_XSIZE 20
@@ -91,6 +104,7 @@ class BKLayer : public FZRefCounted {
 	protected:
 	static FZFont* fontBig;
 	static FZFont* fontSmall;
+	static FZFont* fontUTF;
 	static FZTexture* texUI;
 	static FZTexture* texUI2;
 	static FZTexture* texLogo;
@@ -101,11 +115,11 @@ class BKLayer : public FZRefCounted {
 	void drawPill(int x, int y, int w, int h, int r, int tx, int ty);
 	void drawTPill(int x, int y, int w, int h, int r, int tx, int ty);
 	int drawText(char* t, FZFont* font, int x, int y, int n = -1, bool useLF = true, bool usePS = false, float ps = 0.0f, bool use3D = false);
-
+	int drawUTFText(const char*, FZFont*, int, int, int, int);
 	void drawTextHC(char* t, FZFont* font, int y);
 	void drawImage(int x, int y, int w, int h, int tx, int ty);
 	void drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th);
-
+	void drawOutlinePrefix(string s, int x, int y, int w, int h, int ws);
 	BKLayer();
 	~BKLayer();
 
@@ -121,27 +135,49 @@ class BKLayer : public FZRefCounted {
 		int flags;
 		unsigned int fgcolor;
 		unsigned int bgcolor;
-		BKMenuItem() : flags(0) { }
-		BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }
-		BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f) { }
-		BKMenuItem(string& l, char* cl, int f) : label(l), circleLabel(cl), flags(f) { }
-		BKMenuItem(char* l, char* cl, int f) : label(l), circleLabel(cl), flags(f) { }
+		FZTexture* tex;
+		FZFont* currentTexFont;
+		int width;
+		BKMenuItem() : flags(0), tex(0) { }
+		BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f), tex(0) { }
+		BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+		BKMenuItem(string& l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+		BKMenuItem(char* l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+		~BKMenuItem(){if(tex) tex->release();}
 	};
+	#define BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL 16
+	struct BKOutlineItem : public BKMenuItem {
+	  void* outline;
+	  string prefix;
+	BKOutlineItem(char* l, string& cl, void* o, string& p, bool hasTriLabel): outline(o), prefix(p) {
+	    label = l;
+	    circleLabel = cl;
+	    flags = hasTriLabel?BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL:0;
+	    tex = 0;
+	  }
+	};
+
 	int topItem;
 	int selItem;
+	int skipChars;
+	int maxSkipChars;
 	void drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags);
 	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items);
+	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont);
+	void drawOutline(string& title, string& triangleLabel, vector<BKOutlineItem>& items, bool useUTFFont);
 	void menuCursorUpdate(unsigned int buttons, int max);
 
 	void drawPopup(string& text, string& title, int bg1, int bg2, int fg);
 
 	void drawClockAndBattery(string& extra);
+	int drawUTFMenuItem(BKMenuItem*, FZFont*, int, int, int, int);
 
 	public:
 	virtual int update(unsigned int buttons) = 0;
 	virtual void render() = 0;
 
 	static void load();
+	static void unload();
 };
 
 typedef vector<BKLayer*> bkLayers;

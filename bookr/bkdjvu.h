@@ -38,10 +38,12 @@ class BKDJVU : public BKDocument {
 	int panX;
 	int panY;
 	bool loadNewPage;
+	bool resetPanXY;
 	bool pageError;
+	int leftMargin;
 	void panBuffer(int nx, int ny);
 	void clipCoords(float& nx, float& ny);
-	void redrawBuffer();
+	void redrawBuffer(bool setSpeed = false);
 	int prePan(int x, int y);
 
 	string title;
@@ -56,7 +58,7 @@ class BKDJVU : public BKDocument {
 	virtual void renderContent();
 
 	virtual void getFileName(string&);
-	virtual void getTitle(string&);
+	virtual void getTitle(string&, int type = 0);
 	virtual void getType(string&);
 
 	virtual bool isPaginated();
@@ -67,10 +69,13 @@ class BKDJVU : public BKDocument {
 	virtual bool isZoomable();
 	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
 	virtual int getCurrentZoomLevel();
+	virtual int setZoomLevel2(int);
 	virtual int setZoomLevel(int);
 	virtual bool hasZoomToFit();
 	virtual int setZoomToFitWidth();
 	virtual int setZoomToFitHeight();
+	virtual int setZoomIn(int, int);
+	virtual void setZoom(float z);
 
 	virtual int pan(int, int);
 
@@ -81,13 +86,15 @@ class BKDJVU : public BKDocument {
 
 	virtual bool isRotable();
 	virtual int getRotation();
+	virtual int setRotation2(int, bool bForce=false);
 	virtual int setRotation(int, bool bForce=false);
 
 	virtual bool isBookmarkable();
 	virtual void getBookmarkPosition(map<string, int>&);
 	virtual int setBookmarkPosition(map<string, int>&);
+	virtual float getCurrentZoom();
 
-	static BKDJVU* create(string& file);
+	static BKDJVU* create(string& file,string& longfilename);
 	static bool isDJVU(string& file);
 };
 

@@ -346,7 +346,7 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 	list<BKRun> tempRuns;
 	int li = 0;
 	BKRun run;
-//	int lastbreak = 0;
+	int lastbreak = 0;
 	for (int i = 0; i < length; ++i) {
 		if (b[i] == 10) {
 			bool bBreak = true;
@@ -630,3 +630,10 @@ int BKFancyText::setZoomToFitHeight() {
 	return 0;
 }
 
+int BKFancyText::setZoomIn(int left, int right){
+	return 0;
+}
+
+void BKFancyText::setZoom(float z){
+
+}

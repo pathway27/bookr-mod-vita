@@ -1,0 +1,29 @@
+2009-7-8
+
+Use the latest PSP development package to compile and package.
+Fixed the first time you use the key to open the last file will cause the
+problem of crash.
+When Fast image is in a non-disabled state, the speed of page scaling and
+rotation is increased.
+Optimize memory usage so that some PDFs with large resolution JPEG2000 images
+can be read normally.
+
+2009-7-1
+
+Supports 5.50Gen system and PSP-3000.
+Fix some minor problems.
+
+2009-6-23
+
+Fixed some fonts showing errors. Mainly for traditional Chinese.
+Modify the sorting algorithm for file lists. Can be arranged according to the
+number from small to large, such as a1.pdf, a2.pdf, a10.pdf.
+Improve the speed of the file selector and the PDF chapter directory list.
+Modify the txt file to modify the text wrap affect the title of the problem
+displayed.
+Supports JBIG2 format images
+Weaken the image edge resampling error
+The context of the unified interface words.
+The R-Trigger + up / down keys can be moved quickly in the list of files and
+chapter directories.
+AES files that support AES encryption

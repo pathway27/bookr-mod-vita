@@ -1,0 +1,11 @@
+1. patch original jasper-1.900-1.zip 
+
+   cd jasper-1.900.1
+   patch -p1 < jasper-1.900.1.patch
+   patch -p1 < jasper-1.900.1-jpc_decode_lessmem.patch
+   patch -p1 < jasper-1.900.1-config.sub.patch
+2. configure jasper
+   
+   CFLAGS="-G3 -O2" LDFLAGS="-L$(psp-config --pspsdk-path)/lib -lc -lpspuser -lpspnet_inet" ./configure --host psp --prefix=$(psp-config --psp-prefix)
+
+3. make; make install

@@ -2,7 +2,6 @@
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,13 +57,15 @@ class BKUser {
 		int menuDown;
 		int menuLeft;
 		int menuRight;
+	        int menuLTrigger;
+	        int menuRTrigger;
 		int resume;		// Start
 	};
 	
 	static Controls controls;
 	
 	struct ColorScheme {
-		int	txtFGColor;
+		int txtFGColor;
 		int txtBGColor;
 	};
 	
@@ -92,13 +93,40 @@ class BKUser {
 		int txtHeightPct;
 		bool loadLastFile;
 		int txtWrapCR;
+		int hScroll;
+		int vScroll;
+	        int thumbnail;
+	        vector<ColorScheme> thumbnailColorSchemes;
+	        int currentThumbnailScheme;
+	  /*
+		pdfImageQuality:
+		max scale denom while scale num is 1.
+		0: 1, no scale
+		1: 1/2
+		2: 1/4
+		3: 1/8
+	   */
+		int pdfImageQuality;
+		int pdfImageBufferSizeM;
+	  bool pdfOptimizeForSmallImages;
+	  int analogRateX;
+	  int analogRateY;
+	  int maxTreeHeight;
+	  int screenBrightness;
+	  bool autoPruneBookmarks;
+	  int defaultTitleMode;
+	  bool evictGlyphCacheOnNewPage;
 
-		int browserTextSize;
-		int browserDisplayMode;
-		bool browserEnableFlash;
-		int browserInterfaceMode;
-		bool browserConfirmExit;
-		bool browserShowCursor;
+	  // 0 disabled 
+	  // 1 one screen
+	  // 2 four screen
+	  // 3 legacy full page buffer.
+	  int pageScrollCacheMode;
+	  
+	  bool ignoreXInOutlineOnSquare;
+	  bool t_ignore_x;
+	  
+	  bool jpeg2000Decoder;
 	};
 	static Options options;
 };

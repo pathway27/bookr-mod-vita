@@ -1,8 +1,9 @@
+PSP_FW_VERSION = 371
 PACKAGE_NAME = djvulibre
-PACKAGE_VERSION = 3.5.19
+PACKAGE_VERSION = 3.5.21
 
 DEFS = -DHAVE_CONFIG_H
-OPTS = -DNDEBUG -DNO_MMX=1 -O2 -G0 -Wall -Wno-non-virtual-dtor
+OPTS = -DNDEBUG -DNO_MMX=1 -Os -G0 -Wall -Wno-non-virtual-dtor
 CXXRPOFLAGS = 
 JPEG_LIBS=-ljpeg
 JPEG_CFLAGS=
@@ -35,7 +36,7 @@ OBJS = \
 	DjVmDir.o DjVmDoc.o DjVmDir0.o DjVmNav.o DjVuNavDir.o \
 	DjVuErrorList.o DjVuDocEditor.o DjVuToPS.o DjVuDumpHelper.o \
 	DjVuMessageLite.o DjVuMessage.o GUnicode.o UnicodeByteStream.o \
-	XMLParser.o XMLTags.o miniexp.o ddjvuapi.o debug.o
+	XMLParser.o XMLTags.o miniexp.o ddjvuapi.o debug.o atomic.o
 
 include $(PSPSDK)/lib/build.mak
 

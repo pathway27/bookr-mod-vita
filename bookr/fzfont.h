@@ -21,10 +21,12 @@
 #define FZFONT_H
 
 #include <ft2build.h>
+#include <string>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
 #include "fztexture.h"
+using namespace std;
 
 struct FZCharMetrics {
 	short x, y, width, height, xoffset, yoffset, xadvance;
@@ -37,13 +39,25 @@ class FZFont : public FZTexture {
 
 	FZCharMetrics* metrics;
 	int lineHeight;
+	int maxAscent;
+	bool isUTF;
+	string fileName;
+	int fontSize;
+	bool autohint;
+	unsigned char * buffer;
+	int bufferSize;
+	FT_Library ftlib;
+	FT_Face ftface;
+
 	static FZFont* createProto(FT_Library& library, FT_Face& face, int fontSize, bool autohint);
 
 protected:
 	FZFont();
-	~FZFont();
+
 
 public:
+	~FZFont();
+
 	/**
 	 * Get line height
 	 */
@@ -54,12 +68,24 @@ public:
 	 */
 	FZCharMetrics* getMetrics();
 
+	int getSingleMetrics(unsigned long idx, FZCharMetrics* metrics, FZTexture** tpp);
+	int initUTFFont();
+	void doneUTFFont();
+	static int get_next_utf8_char(unsigned long*, const char*, int);
+	FZTexture* getTextureFromString(const char* t,int char_gap);
+	
 	/**
 	 * Create a new font texture with Freetype.
 	 */
 	static FZFont* createFromFile(char* fileName, int fontSize, bool autohint);
 	static FZFont* createFromMemory(unsigned char* buffer, int bufferSize, int fontSize, bool autohint);
+
+	static FZFont* createUTFFromFile(char* fileName, int fontSize, bool autohint);
+	static FZFont* createUTFFromMemory(unsigned char* buffer, int bufferSize, int fontSize, bool autohint);
+	
 };
+
+#define IMAGE_MAX_WIDTH 512
 
 #endif
 

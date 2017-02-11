@@ -31,9 +31,10 @@ BKPalmDoc::~BKPalmDoc() {
 		free(buffer);
 }
 
-BKPalmDoc* BKPalmDoc::create(string& file) {
+BKPalmDoc* BKPalmDoc::create(string& file, string& longFileName) {
 	BKPalmDoc* r = new BKPalmDoc();
 	r->fileName = file;
+	r->longFileName = longFileName;
 	int length = 0;
 	int isMobi = 0;
 	char ctitle[dmDBNameLength];
@@ -61,8 +62,31 @@ void BKPalmDoc::getFileName(string& fn) {
 	fn = fileName;
 }
 
-void BKPalmDoc::getTitle(string& t) {
-	t = title;
+void BKPalmDoc::getTitle(string& s, int type) {
+  switch(type){
+  case 1:
+    s = title;
+    break;
+  case 2:
+    s = longFileName;
+    break;
+  case 3:
+    s = title; 
+    s += " ["; 
+    s += longFileName;
+    s += "]";
+    break;
+  case 4:
+    s = longFileName;
+    s += " [";
+    s += title;
+    s += "]";
+    break;
+  default:
+    s = title;
+    break;
+  }
+
 }
 
 void BKPalmDoc::getType(string& t) {

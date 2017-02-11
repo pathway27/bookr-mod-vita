@@ -60,10 +60,11 @@ class FZTexture : public FZRefCounted {
 
 protected:
 	FZTexture();
-	~FZTexture();
 	static bool initFromImage(FZTexture* texture, FZImage* image, bool buildMipmaps);
 
 public:
+
+	~FZTexture();
 
 	/**
 	 * Set texture op for combining with the current fragment color.

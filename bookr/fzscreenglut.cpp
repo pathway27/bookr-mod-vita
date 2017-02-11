@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <cstring>
 #include <time.h>
-#include <sys/malloc.h>
+#include <malloc.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -104,6 +104,7 @@ static void keyboard(unsigned char key, int x, int y) {
 		case 'b': keyState |= FZ_CTRL_START; break;
 		case 'x': keyState |= FZ_CTRL_LTRIGGER; break;
 		case 'c': keyState |= FZ_CTRL_RTRIGGER; break;
+		case 'h': keyState |= FZ_CTRL_HOLD;break;
 	}
 }
 
@@ -124,6 +125,7 @@ static void keyboardup(unsigned char key, int x, int y) {
 		case 'b': keyState &= ~FZ_CTRL_START; break;
 		case 'x': keyState &= ~FZ_CTRL_LTRIGGER; break;
 		case 'c': keyState &= ~FZ_CTRL_RTRIGGER; break;
+		case 'h': keyState &= ~FZ_CTRL_HOLD;break;
 
 		case '6': powerSerial++; break;
 	}
@@ -219,6 +221,12 @@ void FZScreen::startDirectList() {
 void FZScreen::endAndDisplayList() {
 }
 
+void FZScreen::commitAll(){
+}
+
+void FZScreen::commitRange(const void* p, unsigned int size){
+}
+
 #ifndef MAC
 #ifndef __CYGWIN__
 extern "C" {
@@ -235,9 +243,10 @@ void FZScreen::swapBuffers() {
 void FZScreen::waitVblankStart() {
 #ifndef MAC
 #ifndef __CYGWIN__
-	unsigned int c = 0;
+/*	unsigned int c = 0;
 	glXGetVideoSyncSGI(&c);
 	glXWaitVideoSyncSGI(1, 0, &c);
+*/
 #endif
 #endif
 }
@@ -525,7 +534,7 @@ struct CompareDirent {
 	}
 };
 
-int FZScreen::dirContents(char* path, vector<FZDirent>& a) {
+int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
 	DIR *dp;
 	struct dirent *ep;
 
@@ -553,7 +562,7 @@ int FZScreen::dirContents(char* path, vector<FZDirent>& a) {
 			ptf += "/";
 			ptf += ep->d_name;
 			int r = stat(ptf.c_str(), &st);
-			a.push_back(FZDirent(ep->d_name, s, st.st_size));
+			a.push_back(FZDirent(ep->d_name, ep->d_name, s, st.st_size));
 		}
 	}
 	closedir(dp);
@@ -568,7 +577,7 @@ void FZScreen::freeDirContents(char** a, int n) {
 	free(a);
 }
 */
-char* FZScreen::basePath() {
+string FZScreen::basePath() {
 	return psp_full_path;
 }
 
@@ -617,4 +626,6 @@ int FZScreen::getUsedMemory() {
 #endif
 }
 	
-
+void FZScreen::setBrightness(int){
+  return;
+}

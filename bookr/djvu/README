@@ -1,0 +1,4 @@
+1. check out djvu library code.
+2. copy libdjvu dir to this dir and rename it to libdjvupsp
+3. apply djvu-<date>.patch in libdjvupsp.
+

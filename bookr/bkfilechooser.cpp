@@ -1,7 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +24,14 @@
 #include "bkuser.h"
 
 BKFileChooser::BKFileChooser(string& t, int r) : title(t), ret(r) {
-	convertToVN = false;
-	if( r == BK_CMD_SET_FONT )
-		path = BKUser::options.lastFontFolder;
-	else
-		path = BKUser::options.lastFolder;
+  if( r == BK_CMD_SET_FONT ){
+    path = BKUser::options.lastFontFolder;
+    lpath = BKUser::options.lastFontFolder;
+  }
+  else{
+    path = BKUser::options.lastFolder;
+    lpath = BKUser::options.lastFolder;
+  }
 	updateDirFiles();
 }
 
@@ -42,30 +44,67 @@ void BKFileChooser::getCurrentDirent(FZDirent& de) {
 }
 
 void BKFileChooser::getFullPath(string& s) {
-	s = path + "/" + dirFiles[selItem].name;
+  if ( path.c_str()[(path.length()-1)] == '/' ){
+    s = path + dirFiles[selItem].sname;
+  }
+  else{
+    s = path + "/" + dirFiles[selItem].sname;
+  }
 }
 
-void BKFileChooser::getFileName(string& s) {
-	s = dirFiles[selItem].name;
-}
+void BKFileChooser::getLongFileName(string& s){
 
-bool BKFileChooser::isConvertToVN() {
-	return convertToVN;
+    s = dirFiles[selItem].name;
+
 }
 
 void BKFileChooser::updateDirFiles() {
+
 	dirFiles.clear();
-	int err = FZScreen::dirContents((char*)path.c_str(), dirFiles);
-	if (err < 0) {
-		path = FZScreen::basePath();
-		FZScreen::dirContents((char*)path.c_str(), dirFiles);
+	items.clear();
+	#define MAX_SHORT_PATH_LENGTH 512
+	char* spath = (char*) malloc(MAX_SHORT_PATH_LENGTH);
+	if(!spath){
+	  dirFiles.push_back(FZDirent("<Cannot open this folder>", 0, 0));
+	  return;
 	}
+	memset(spath,'\0',MAX_SHORT_PATH_LENGTH);
+	strncpy(spath,path.c_str(),MAX_SHORT_PATH_LENGTH - 1);
+
+	int err = FZScreen::dirContents(lpath.c_str(), spath, dirFiles);
+	if (err < 0) {
+	  //path = FZScreen::basePath();
+		lpath = FZScreen::basePath();
+		strncpy(spath, lpath.c_str(),MAX_SHORT_PATH_LENGTH -1 );
+		FZScreen::dirContents(lpath.c_str(), spath, dirFiles);
+	}
+	path = spath;
+
+	//	if(spath != bkup_spath)
+	free(spath);
+	
+#ifdef PSP
+	unsigned int rootPathLen = 5;
+#else
+	unsigned int rootPathLen = 1;
+#endif
+
+	while ( path.length() > rootPathLen && path.c_str()[(path.length()-1)] == '/' ){
+	  //remove trailing '/' added by dirContents.
+	  path.resize(path.length()-1);
+	}
+	while ( lpath.length() > rootPathLen && lpath.c_str()[(lpath.length()-1)] == '/' ){
+	  //remove trailing '/' added by dirContents.
+	  lpath.resize(lpath.length()-1);
+	}
+
 	if (dirFiles.size() == 0)
 		dirFiles.push_back(FZDirent("<Empty folder>", 0, 0));
 	if( ret == BK_CMD_SET_FONT )
 		BKUser::options.lastFontFolder = path;
 	else
 		BKUser::options.lastFolder = path;
+
 }
 
 int BKFileChooser::update(unsigned int buttons) {
@@ -74,39 +113,48 @@ int BKFileChooser::update(unsigned int buttons) {
 	if (b[BKUser::controls.select] == 1) {
 		//printf("selected %s\n", dirFiles[selItem].name.c_str());
 		if (dirFiles[selItem].stat & FZ_STAT_IFDIR ) {
-			path += "/" + dirFiles[selItem].name;
+		  if ( path.c_str()[(path.length()-1)] == '/' ){
+		    path += dirFiles[selItem].sname;
+		    lpath += dirFiles[selItem].name;
+		  }
+		  else{
+			path += "/" + dirFiles[selItem].sname;
+			lpath += "/" + dirFiles[selItem].name;
+		  }
 			selItem = 0;
 			topItem = 0;
+			skipChars = 0;
+			maxSkipChars = -1;
 			updateDirFiles();
 		} else if (dirFiles[selItem].stat & FZ_STAT_IFREG) {
-			convertToVN = false;
 			return ret;
 		}
 	}
-
-	if (b[BKUser::controls.details] == 1) {
-		if (!(dirFiles[selItem].stat & FZ_STAT_IFDIR)
-				&& (dirFiles[selItem].stat & FZ_STAT_IFREG)) {
-			convertToVN = true;
-			return ret;
-		}
-	}
-
 	if (b[BKUser::controls.alternate] == 1) {
 		// try to remove one dir
 		int lastSlash = path.rfind('/');
 		if (lastSlash != -1) {
 			path.resize(lastSlash);
 		}
+		int llastSlash = lpath.rfind('/');
+		if (llastSlash != -1) {
+			lpath.resize(llastSlash);
+		}
 #ifdef PSP
-		if (path == "")
+		if (path == "" || path == "ms0:"){
 			path = "ms0:/";
+			lpath = "ms0:/";
+		}
 #else
-		if (path == "")
+		if (path == ""){
 			path = "/";
+			lpath = "/";
+		}
 #endif
 		selItem = 0;
 		topItem = 0;
+		skipChars = 0;
+		maxSkipChars = -1;
 		updateDirFiles();
 	}
 	if (b[BKUser::controls.cancel] == 1) {
@@ -119,7 +167,7 @@ int BKFileChooser::update(unsigned int buttons) {
 }
 
 void BKFileChooser::render() {
-	vector<BKMenuItem> items;
+  if(items.empty()){
 	int n = dirFiles.size();
 	for (int i = 0; i < n; i++) {
 		string cl("Select file");
@@ -128,10 +176,14 @@ void BKFileChooser::render() {
 			cl = "Open folder";
 			f = BK_MENU_ITEM_FOLDER;
 		}
+		else if(dirFiles[i].stat == 0){
+		  cl = "";
+		}
 		items.push_back(BKMenuItem(dirFiles[i].name, cl, f)); 
 	}
+  }
 	string tl("Parent folder");
-	drawMenu(title, tl, items);
+	drawMenu(title, tl, items, true);
 }
 
 BKFileChooser* BKFileChooser::create(string& t, int r) {

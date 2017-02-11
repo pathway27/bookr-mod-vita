@@ -1,7 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +29,7 @@ using namespace std;
 class BKLogo : public BKLayer {
 	bool loading;
 	bool error;
-	string text;
+	int errType;
 
 	protected:
 	BKLogo();
@@ -42,10 +41,9 @@ class BKLogo : public BKLayer {
 	virtual void render();
 	void setLoading(bool v);
 	void setError(bool err);
+	void setErrorType(int type);
 
 	static BKLogo* create();
-	static void show(string text);
-	static void show(string text, int delaySeconds);
 };
 
 #endif

@@ -37,15 +37,22 @@ class BKPDF : public BKDocument {
 
 	int panX;
 	int panY;
+	int neg_panX;
+	int neg_panY;
 	bool loadNewPage;
+	bool resetPanXY;
 	bool pageError;
+	bool retryLoadPageWhenError;
+	int leftMargin;
 	void panBuffer(int nx, int ny);
 	void clipCoords(float& nx, float& ny);
-	void redrawBuffer();
+	bool redrawBuffer(bool setSpeed = false);
+	bool redrawBufferIncremental(int nx, int ny, bool setSpeed = false);
 	int prePan(int x, int y);
+	int pdfReopenFile();
 
 	string title;
-
+	char* ctitle;
 	protected:
 	BKPDF(string& f);
 	~BKPDF();
@@ -56,7 +63,7 @@ class BKPDF : public BKDocument {
 	virtual void renderContent();
 
 	virtual void getFileName(string&);
-	virtual void getTitle(string&);
+	virtual void getTitle(string&, int type = 0);
 	virtual void getType(string&);
 
 	virtual bool isPaginated();
@@ -67,11 +74,13 @@ class BKPDF : public BKDocument {
 	virtual bool isZoomable();
 	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
 	virtual int getCurrentZoomLevel();
+	virtual int setZoomLevel2(int);
 	virtual int setZoomLevel(int);
 	virtual bool hasZoomToFit();
 	virtual int setZoomToFitWidth();
 	virtual int setZoomToFitHeight();
-
+	virtual int setZoomIn(int,int);
+	virtual void setZoom(float z);
 	virtual int pan(int, int);
 
 	virtual int screenUp();
@@ -81,15 +90,21 @@ class BKPDF : public BKDocument {
 
 	virtual bool isRotable();
 	virtual int getRotation();
+	virtual int setRotation2(int, bool bForce=false);
 	virtual int setRotation(int, bool bForce=false);
 
 	virtual bool isBookmarkable();
 	virtual void getBookmarkPosition(map<string, int>&);
 	virtual int setBookmarkPosition(map<string, int>&);
-
-	static BKPDF* create(string& file);
+	virtual int getFastImageStatus();
+	virtual float getCurrentZoom();
+	virtual int getOutlineType();
+	virtual void* getOutlines();
+	virtual void gotoOutline(void *o, bool ignoreZoom = false);
+	static BKPDF* create(string& file,string& longFileName);
 	static bool isPDF(string& file);
 };
 
+#define GLYPHCACHE_SIZE 524288
+#define GLYPHCACHE_SLOTS (GLYPHCACHE_SIZE / 32)
 #endif
-

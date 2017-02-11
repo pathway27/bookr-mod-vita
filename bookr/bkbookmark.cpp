@@ -45,26 +45,32 @@
 
 static TiXmlDocument* doc = 0;
 
+static void freedoc(){
+  
+  delete doc;
+  doc = (TiXmlDocument*)0;
+} 
+
 static void clearXML() {
 	if (doc != 0)
-		delete doc;
+	  freedoc();
 	doc = new TiXmlDocument();
 	TiXmlElement e("bookmarks");
 	e.SetAttribute("version", "2");
 	doc->InsertEndChild(e);
 	
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
 
 	doc->SaveFile(xmlfilename);
 }
 
 static void loadXML() {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
 
 	if (doc != 0)
-		delete doc;
+	  freedoc();
 
 	doc = new TiXmlDocument();
 	doc->LoadFile(xmlfilename);
@@ -72,6 +78,7 @@ static void loadXML() {
 	if(doc->Error()) {
 		// probably file not found, create an empty one
 		clearXML();
+		return;
 	}
 
 	// check basic file structure
@@ -79,6 +86,7 @@ static void loadXML() {
 	if (root == 0) {
 		printf("WARNING: corrupted bookmarks file\n");
 		clearXML();
+	        return;
 	}
 	int v = 0;
 	root->QueryIntAttribute("version", &v);
@@ -90,7 +98,7 @@ static void loadXML() {
 
 static void saveXML() {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
 
 	if (doc != 0) {
 		doc->SaveFile(xmlfilename);
@@ -143,6 +151,9 @@ static void loadBookmark(TiXmlNode* _bn, BKBookmark& b) {
 	int p = 0;
 	bn->QueryIntAttribute("page", &p);
 	b.page = p;
+	float z = 0.0f;
+	bn->QueryFloatAttribute("zoomvalue",&z);
+	b.zoom = z;
 	b.createdOn = bn->Attribute("createdon");
 	//int *thumbnail;
 	map<string, int> viewData;
@@ -157,23 +168,31 @@ static void loadBookmark(TiXmlNode* _bn, BKBookmark& b) {
 }
 
 // find the last read bookmark for a given file
-string BKBookmarksManager::getLastFile() {
+void BKBookmarksManager::getLastFile(string& filename, string& longFileName) {
 	TiXmlElement* file = lastFileNode();
-	if (file == 0)
-		return string();
-	return file->Attribute("filename");
+	  if (file == 0){
+		longFileName = filename = string();
+	  }
+	filename =  file->Attribute("filename");
+	const char* lfn = file->Attribute("longfilename");
+	if (lfn)
+	  longFileName = lfn;
+	else
+	  longFileName = filename;
 }
 
 // save last use file
-void BKBookmarksManager::setLastFile(string& filename) {
+void BKBookmarksManager::setLastFile(string& filename, string& longFileName) {
 	TiXmlElement* file = lastFileNode();
 	if (file != 0)
 	{
 		file->SetAttribute("filename", filename.c_str());
+		file->SetAttribute("longfilename", longFileName.c_str());
 	} else {
 		TiXmlElement* root = doc->RootElement();
 		TiXmlElement efile("lastfile");
 		efile.SetAttribute("filename", filename.c_str());
+		efile.SetAttribute("longfilename", longFileName.c_str());
 		root->InsertEndChild(efile);
 	}
 	saveXML();
@@ -197,6 +216,7 @@ static void addBookmarkProto(string& filename, BKBookmark& b, TiXmlNode* file) {
 	bookmark.SetAttribute("title", b.title.c_str());
 	bookmark.SetAttribute("page", b.page);
 	bookmark.SetAttribute("createdon", b.createdOn.c_str());
+	bookmark.SetDoubleAttribute("zoomvalue", b.zoom);
 	//bookmark.SetAttribute("thumbnail", );
 	map<string, int>::iterator it(b.viewData.begin());
 	while (it != b.viewData.end()) {
@@ -253,5 +273,49 @@ void BKBookmarksManager::setBookmarks(string& filename, BKBookmarkList &bl) {
 
 void BKBookmarksManager::clear() {
 	clearXML();
+}
+
+void BKBookmarksManager::free(){
+  freedoc();
+}
+
+static bool fileExists(const char* filename){
+  if(!filename)
+    return false;
+#ifdef PSP
+  int fd = sceIoOpen(filename,PSP_O_RDONLY,0666);
+  if(fd <= 0){
+    return false;
+  }
+  sceIoClose(fd);
+  return true;
+#else
+  int fd = open(filename, 0, 0666);
+  if(fd <= 0){
+    return false;
+  }
+  close(fd);
+  return true;
+#endif
+}
+
+int BKBookmarksManager::prune(){
+	int count = 0;
+	if (doc == 0)
+		loadXML();
+	TiXmlElement* root = doc->RootElement();
+	TiXmlElement* file = root->FirstChildElement("file");
+	TiXmlElement* next;
+	while (file) {
+		next = file->NextSiblingElement("file");
+		const char* name = file->Attribute("filename");
+		if (!fileExists(name)) {
+		  root->RemoveChild(file);
+		  count++;
+		}
+		file = next;
+	}
+	saveXML();
+	return count;
 }
 

@@ -38,10 +38,10 @@ class BKPalmDoc : public BKFancyText {
 
 	public:
 	virtual void getFileName(string&);
-	virtual void getTitle(string&);
+	virtual void getTitle(string&,int type = 0);
 	virtual void getType(string&);
 
-	static BKPalmDoc* create(string& file);
+	static BKPalmDoc* create(string& file,string& longFileName);
 	static bool isPalmDoc(string& file);
 };
 

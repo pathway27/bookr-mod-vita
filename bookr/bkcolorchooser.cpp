@@ -125,6 +125,9 @@ void BKColorChooser::render() {
 	switch (ret) {
 		case BK_CMD_SET_TXTFG:	title="Select text color (plain text only)";	break;
 		case BK_CMD_SET_TXTBG:	title="Select background color (plain text and PDF)"; 	break;
+	        case BK_CMD_SET_TNFG:  title="Select screen border color (thumbnail)";    break;
+	        case BK_CMD_SET_TNBG:  title="Select page area color (thumbnail)";   break;
+
 	default:	break;
 	}
 	string cl("Select this color");
@@ -196,6 +199,10 @@ void BKColorChooser::render() {
 BKColorChooser* BKColorChooser::create(int cs, int re) {	
 	int c;
 	switch (re) {
+	case BK_CMD_SET_TNFG:  c = BKUser::options.thumbnailColorSchemes[cs].txtFGColor;
+	    break;
+	case BK_CMD_SET_TNBG:  c = BKUser::options.thumbnailColorSchemes[cs].txtBGColor;
+	    break;
 	case BK_CMD_SET_TXTFG:	c = BKUser::options.colorSchemes[cs].txtFGColor;	
 		break;
 	case BK_CMD_SET_TXTBG:	

@@ -19,6 +19,11 @@
 
 #include <pspkernel.h>
 #include <pspdisplay.h>
+
+#ifdef FW150
+#include <pspdisplay_kernel.h>
+#endif
+
 #include <pspdebug.h>
 #include <pspctrl.h>
 #include <pspgu.h>
@@ -27,11 +32,12 @@
 #include <psprtc.h>
 #include <malloc.h>
 
-#include <string.h>
-#include <algorithm>
-
 #include "fzscreen.h"
 #include "fztexture.h"
+
+#include "fat.h"
+#include "directory.h"
+
 
 FZScreen::FZScreen() {
 }
@@ -165,9 +171,11 @@ void FZScreen::open(int argc, char** argv) {
 
 	sceDisplayWaitVblankStart();
 	sceGuDisplay(GU_TRUE);
+	fat_init(sceKernelDevkitVersion());
 }
 
 void FZScreen::close() {
+	fat_free();
 	sceGuTerm();
 }
 
@@ -242,6 +250,14 @@ void FZScreen::endAndDisplayList() {
 	sceGuFinish();
 	sceKernelDcacheWritebackAll();	
 	sceGuSync(0,0);
+}
+
+void FZScreen::commitAll(){
+	sceKernelDcacheWritebackAll();	
+}
+
+void FZScreen::commitRange(const void* p, unsigned int size){
+	sceKernelDcacheWritebackRange(p,size);	
 }
 
 static void* lastFramebuffer = NULL;
@@ -369,7 +385,7 @@ void FZScreen::dcacheWritebackAll() {
 	sceKernelDcacheWritebackAll();	
 }
 
-char* FZScreen::basePath() {
+string FZScreen::basePath() {
 	return psp_full_path;
 }
 
@@ -383,25 +399,46 @@ struct CompareDirent {
 	}
 };
 
-int FZScreen::dirContents(char* path, vector<FZDirent>& a) {
-	SceUID fd;
-	SceIoDirent *findData;
-	findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent));	// dont ask me WHY...
-	memset((void*)findData, 0, sizeof(SceIoDirent));
-	//a.push_back(FZDirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
-	//a.push_back(FZDirent("books/1984.txt", FZ_STAT_IFREG, 587083));
-	fd = sceIoDopen(path);
-	if (fd < 0)
-		return -1;
-	while (sceIoDread(fd, findData) > 0) {
-		if (findData->d_name[0] != 0 && findData->d_name[0] != '.') {
-			a.push_back(FZDirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
-		}
+int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
+
+  if(1){ // new method to ls dir, support Chinese dir/file names.
+    int itemNum;
+    directory_item_struct* dirItems = NULL;
+    itemNum = open_ms0_directory(path, spath, &dirItems);
+    if (itemNum <= 0){
+      return -1;
+    }
+    int i;
+    
+    for(i=0; i<itemNum;i++){
+      if (dirItems[i].longname != 0 && dirItems[i].longname[0] != '.'){
+	a.push_back(FZDirent(dirItems[i].longname, dirItems[i].shortname, dirItems[i].filetype==FS_DIRECTORY?FZ_STAT_IFDIR:FZ_STAT_IFREG, (int)dirItems[i].filesize));
+      }
+    }
+    sort(a.begin(), a.end(), CompareDirent());
+    free(dirItems);
+    return 1;
+  }
+  else{ // old method to get ls dir.
+    SceUID fd;
+    SceIoDirent *findData;
+    findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent));	// dont ask me WHY...
+    memset((void*)findData, 0, sizeof(SceIoDirent));
+    //a.push_back(FZDirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
+    //a.push_back(FZDirent("books/1984.txt", FZ_STAT_IFREG, 587083));
+    fd = sceIoDopen(path);
+    if (fd < 0)
+      return -1;
+    while (sceIoDread(fd, findData) > 0) {
+      if (findData->d_name[0] != 0 && findData->d_name[0] != '.') {
+	a.push_back(FZDirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
+      }
 	}
-	sceIoDclose(fd);
-	free(findData);
-	sort(a.begin(), a.end(), CompareDirent());
-	return 1;
+    sceIoDclose(fd);
+    free(findData);
+    sort(a.begin(), a.end(), CompareDirent());
+    return 1;
+  }
 }
 
 int FZScreen::getSuspendSerial() {
@@ -411,8 +448,10 @@ int FZScreen::getSuspendSerial() {
 void FZScreen::setSpeed(int v) {
 	if (v <= 0 || v > 6)
 		return;
-	scePowerSetCpuClockFrequency(speedValues[v*2]);
+	scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
+/*	scePowerSetCpuClockFrequency(speedValues[v*2]);
 	scePowerSetBusClockFrequency(speedValues[v*2+1]);
+*/
 }
 
 int FZScreen::getSpeed() {
@@ -440,3 +479,12 @@ int FZScreen::getUsedMemory() {
 	//return mi.arena;
 }
 
+void FZScreen::setBrightness(int b){
+#ifdef FW150
+  if (b<10) b = 10;
+  if (b>100) b = 100;
+  sceDisplaySetBrightness(b,0);
+#endif
+  return;
+
+}

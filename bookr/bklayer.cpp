@@ -26,30 +26,48 @@
 
 FZFont* BKLayer::fontBig = 0;
 FZFont* BKLayer::fontSmall = 0;
+FZFont* BKLayer::fontUTF = 0;
 FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
 
 extern "C" {
-extern unsigned int size_res_logo;
-extern unsigned char res_logo[];
-extern unsigned int size_res_uitex;
-extern unsigned char res_uitex[];
-extern unsigned int size_res_uitex2;
-extern unsigned char res_uitex2[];
-extern unsigned int size_res_uifont;
-extern unsigned char res_uifont[];
+  extern unsigned int size_res_logo;
+  extern unsigned char res_logo[];
+  extern unsigned int size_res_uitex;
+  extern unsigned char res_uitex[];
+  extern unsigned int size_res_uitex2;
+  extern unsigned char res_uitex2[];
+  extern unsigned int size_res_uifont;
+  extern unsigned char res_uifont[];
+  extern unsigned char pdf_font_DroidSansFallback_ttf_buf[];
+  extern unsigned int  pdf_font_DroidSansFallback_ttf_len; 
 };
 
 void BKLayer::load() {
+  if (!fontBig){
 	fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
 	fontBig->texEnv(FZ_TEX_MODULATE);
 	fontBig->filter(FZ_NEAREST, FZ_NEAREST);
-
+  }
+  if (!fontUTF){
+    fontUTF = FZFont::createUTFFromFile("utf.font",14,false);
+    if(!fontUTF)
+      if(pdf_font_DroidSansFallback_ttf_len)
+	fontUTF = FZFont::createUTFFromMemory(pdf_font_DroidSansFallback_ttf_buf, pdf_font_DroidSansFallback_ttf_len, 14, false);
+      else
+	fontUTF = FZFont::createUTFFromFile("data.fnt",14,false);
+    if(fontUTF){
+      fontUTF->texEnv(FZ_TEX_MODULATE);
+      fontUTF->filter(FZ_NEAREST, FZ_NEAREST);
+    }
+  }
+  if (!fontSmall){
 	fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont, 11, false);
 	fontSmall->texEnv(FZ_TEX_MODULATE);
 	fontSmall->filter(FZ_NEAREST, FZ_NEAREST);
-
+  }
+  if (!texUI){
 	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex, size_res_uitex);
 	FZImage* image = FZImage::createFromPNG(ins);
 	ins->release();
@@ -58,24 +76,54 @@ void BKLayer::load() {
 	texUI->texEnv(FZ_TEX_MODULATE);
 	texUI->filter(FZ_NEAREST, FZ_NEAREST);
 	image->release();
-
-	ins = FZInputStreamMem::create((char*)res_uitex2, size_res_uitex2);
-	image = FZImage::createFromPNG(ins);
+  }
+  if (!texUI2){
+	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex2, size_res_uitex2);
+	FZImage* image = FZImage::createFromPNG(ins);
 	ins->release();
 	ins = 0;
 	texUI2 = FZTexture::createFromImage(image, false);
 	texUI2->texEnv(FZ_TEX_MODULATE);
 	texUI2->filter(FZ_NEAREST, FZ_NEAREST);
 	image->release();
-
-	ins = FZInputStreamMem::create((char*)res_logo, size_res_logo);
-	image = FZImage::createFromPNG(ins);
+  }
+  if (!texLogo){
+	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_logo, size_res_logo);
+	FZImage* image = FZImage::createFromPNG(ins);
 	ins->release();
 	ins = 0;
 	texLogo = FZTexture::createFromImage(image, false);
 	texLogo->texEnv(FZ_TEX_REPLACE);
 	texLogo->filter(FZ_NEAREST, FZ_NEAREST);
 	image->release();
+  }
+}
+
+void BKLayer::unload(){
+  if(fontBig){
+    fontBig->release();
+    fontBig = 0;
+  }
+  if(fontUTF){
+    fontUTF->release();
+    fontUTF = 0;
+  }
+  if(fontSmall){
+    fontSmall->release();
+    fontSmall = 0;
+  }
+  if(texUI){
+    texUI->release();
+    texUI = 0;
+  }
+  if(texUI2){
+    texUI2->release();
+    texUI2 = 0;
+  }
+  if(texLogo){
+    texLogo->release();
+    texLogo = 0;
+  }
 }
 
 struct T32FV32F2D {
@@ -219,6 +267,131 @@ void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
 	drawText(t, font, (480 - w) / 2, y);
 }
 
+
+int BKLayer::drawUTFText(const char* t, FZFont* font, int x, int y, int skipUTFChars, int maxWidth) {
+  if(maxWidth<=0 ||maxWidth>480){
+    maxWidth = 480;
+  }
+  if (skipUTFChars < 0){
+    skipUTFChars = 0;
+  }
+  int length = strlen(t);
+  int nextUTFIndex = 0;
+  int nextUTFLength = 0;
+  unsigned long utf = 0;
+
+  // skip first <skipUTFChars> UTF chars.
+  int skipc = skipUTFChars;
+  while (skipc > 0 && (nextUTFLength = FZFont::get_next_utf8_char(&utf, t+nextUTFIndex, length - nextUTFIndex)) > 0){
+    skipc--;
+    nextUTFIndex+=nextUTFLength;
+  }
+
+  // read at most 64 UTF chars
+  int vc = 0;
+  int textWidth = 0;
+  int baseX = x;
+  int baseY = y;
+  FZTexture* utf_texture = 0;
+  FZCharMetrics met;
+
+  while((nextUTFLength = FZFont::get_next_utf8_char(&utf, t+nextUTFIndex, length - nextUTFIndex)) > 0){
+    nextUTFIndex+=nextUTFLength;
+    
+    if(font->getSingleMetrics(utf,&met,&utf_texture)>0 && utf_texture){
+      textWidth+=met.xadvance;
+      if(textWidth < maxWidth){
+	vc++;
+
+	utf_texture->bindForDisplay();
+	T32FV32F2D* vertices = (T32FV32F2D*)FZScreen::getListMemory(2 * sizeof(struct T32FV32F2D));
+	vertices[0].u = met.x;
+	vertices[0].v = met.y;
+	vertices[0].x = baseX + met.xoffset;
+	vertices[0].y = baseY + met.yoffset;
+	vertices[0].z = 0;
+	
+	vertices[1].u = met.x + met.width;
+	vertices[1].v = met.y + met.height;
+	vertices[1].x = baseX + met.xoffset + met.width;
+	vertices[1].y = baseY + met.yoffset + met.height;
+	vertices[1].z = 0;
+
+// 	vertices[0].u = 0;
+// 	vertices[0].v = 0;
+// 	vertices[0].x = baseX + met.xoffset;
+// 	vertices[0].y = baseY + met.yoffset;
+// 	vertices[0].z = 0;
+	
+// 	vertices[1].u = utf_texture->getWidth();
+// 	vertices[1].v = utf_texture->getHeight();
+// 	vertices[1].x = baseX + met.xoffset + utf_texture->getWidth();
+// 	vertices[1].y = baseY + met.yoffset + utf_texture->getHeight();
+// 	vertices[1].z = 0;
+			
+	baseX += met.xadvance;
+
+	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,vertices);
+	utf_texture->release();
+      }
+      else{
+	utf_texture->release();
+	font->doneUTFFont();
+	return 1;
+      }
+    }
+  }
+  font->doneUTFFont();
+  return 0;
+}
+
+int BKLayer::drawUTFMenuItem(BKMenuItem* item, FZFont* font, int x, int y, int skipPixels, int maxWidth) {
+  if(item->tex && font == item->currentTexFont){
+    // texture is okay, draw it directly.
+  }
+  else{
+    if (item->tex){
+      item->tex->release();
+      item->tex = 0;
+    }
+    item->currentTexFont = font;
+    // create new texture for this menuitem.
+    item->tex = item->currentTexFont->getTextureFromString(item->label.c_str(),0);
+  }
+
+  if(item->tex && font == item->currentTexFont){
+    FZScreen::commitAll();
+    item->tex->bindForDisplay();
+    FZCharMetrics* met = ((FZFont*)(item->tex))->getMetrics();
+    int w = met->width - skipPixels;
+    int ret = 0;
+    if(w > maxWidth ){
+      w = maxWidth;
+      ret = 1;
+    }
+    //drawImage(x, y + met->yoffset, w, met->height, met->x+skipPixels, met->y);
+    int x_first = met->x+skipPixels;
+    int x_last = met->x+skipPixels+w-1;
+    int line_no_first = x_first / IMAGE_MAX_WIDTH;
+    int line_no_last = x_last / IMAGE_MAX_WIDTH;
+    int y_first = met->y + ((FZFont*)(item->tex))->getLineHeight() * line_no_first;
+    if (line_no_first == line_no_last){
+      drawImage(x, y + met->yoffset, w, met->height, x_first, y_first);
+    }
+    else{
+      int w_first = (line_no_first+1) * IMAGE_MAX_WIDTH - x_first;
+      drawImage(x, y + met->yoffset, w_first, met->height, x_first, y_first);
+      drawImage(x+w_first, y + met->yoffset, w-w_first, met->height, 0, y_first+((FZFont*)(item->tex))->getLineHeight());
+    }
+
+    return ret;
+  }
+  else{
+    drawText("<Invalid Item>",font,x,y);
+    return 0;
+  }
+}
+
 int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
 	if (n < 0) {
 		n = strlen(t);
@@ -241,6 +414,7 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bo
 	int iv = 0;
 	int baseX = x;
 	int baseY = y;
+
 	i = 0;
 	float fx = 0.0f;
 	for (unsigned char *p = (unsigned char*)t; i < n; i++, p++) {
@@ -353,6 +527,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	if (flags & BK_MENU_ITEM_USE_LR_ICON) {
 		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_LRARROWS_XSIZE, BK_IMG_LRARROWS_YSIZE, BK_IMG_LRARROWS_X, BK_IMG_LRARROWS_Y);
 	} else {
+	  if(circleLabel.size() > 0){
 		switch(BKUser::controls.select) {
 		case FZ_REPS_CROSS:
 			drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
@@ -363,6 +538,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 			break;
 		}
 //		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+	  }
 	}
 	if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
 		//drawImage(37, 248 + scrY, 20, 20, 107, 5);
@@ -380,24 +556,39 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	if (triangleLabel.size() > 0) {
 		drawText((char*)triangleLabel.c_str(), fontBig, 37 + 25, 248 + scrY);
 	}
-	drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
+	if (circleLabel.size() > 0)
+	  drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
 }
 
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items) {
+  drawMenu(title, triangleLabel, items, false);
+}
+void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont) {
+	int maxItemNum = 8;
 	int selPos = selItem - topItem;
 	int scrY = 0;
+	FZFont* itemFont;
+	if(useUTFFont&&fontUTF){
+	  itemFont = fontUTF;
+	  maxItemNum = 9;
+	}
+	else{
+	  itemFont = fontBig;
+	  maxItemNum = 8;
+	  useUTFFont = false;
+	}
 
 	if (selPos < 0) {
 		topItem += selPos;
 		selPos = 0;
 	}
 
-	if (selPos > 7) {
-		topItem += selPos - 7;
-		selPos = 7;
+	if (selPos > maxItemNum - 1) {
+		topItem += selPos - maxItemNum + 1;
+		selPos = maxItemNum - 1;
 	}
 
-	bool scrollbar = items.size() > 8;
+	bool scrollbar = items.size() > maxItemNum;
 
 	string tl(triangleLabel);
 	if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
@@ -407,31 +598,34 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 
 	texUI->bindForDisplay();
 	// folder icons
+	int ITEMHEIGHT = 60;
+	if(useUTFFont)
+	  ITEMHEIGHT = 62;
 	FZScreen::ambientColor(0xffffffff);
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < maxItemNum; ++i) {
 		if (i + topItem == selItem)
 			continue;
-		if ((60 + (i+1)*fontBig->getLineHeight()) > 250)
+		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
 			break;
 		if ((i + topItem) >= (int)(items.size()))
 			break;
 		if (items[i + topItem].flags & BK_MENU_ITEM_FOLDER) {
-			//drawImage(40, 60 + i*fontBig->getLineHeight() + scrY, 20, 20, 84, 52);
-			drawImage(40, 60 + i*fontBig->getLineHeight() + scrY, 20, 20, 58, 81);
+			//drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 84, 52);
+			drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 58, 81);
 		}
 	}
 	// selected item
 	int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
-	drawPill(25, 57 + scrY + selPos*fontBig->getLineHeight(), wSelBox, 19, 6, 31, 1);
+	drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
 	if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
 		FZScreen::ambientColor(0xff000000);
-		//drawImage(40, 60 + scrY + selPos*fontBig->getLineHeight(), 20, 20, 84, 52);
-		drawImage(40, 60 + scrY + selPos*fontBig->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
+		//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
+		drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
 	}
 
 	// scrollbar
 	if (scrollbar) {
-		float barh = 8.0f / float(items.size());
+		float barh = 1.0f * maxItemNum / float(items.size());
 		barh *= 173.0f;
 		if (barh < 15.0f)
 			barh = 15.0f;
@@ -444,35 +638,281 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	}
 
 	// color rects items
-	for (int i = 0; i < 8; ++i) {
-		if ((60 + (i+1)*fontBig->getLineHeight()) > 250)
+	for (int i = 0; i < maxItemNum; ++i) {
+		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
 			break;
 		if ((i + topItem) >= (int)(items.size()))
 			break;
 		if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
-			int tw = textW((char*)items[i + topItem].label.c_str(), fontBig);
+			int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
 			FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
-			drawRect(40 + 25 + tw + 10, 60 + i*fontBig->getLineHeight() + scrY, 30, 15, 6, 31, 1);
+			drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
 			FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
-			drawRect(40 + 25 + tw + 15, 60 + i*fontBig->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
+			drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
 		}
 	}
 
-	fontBig->bindForDisplay();
+	itemFont->bindForDisplay();
 
 	FZScreen::ambientColor(0xffffffff);
 	// contents
-	for (int i = 0; i < 8; ++i) {
+	int yoff = 3;
+	for (int i = 0; i < maxItemNum; ++i) {
 		if (i + topItem == selItem)
 			continue;
-		if ((60 + (i+1)*fontBig->getLineHeight()) > 250)
+		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
 			break;
 		if ((i + topItem) >= (int)(items.size()))
 			break;
-		drawText((char*)items[i + topItem].label.c_str(), fontBig, 40 + 25, 60 + i*fontBig->getLineHeight() + scrY);
+		if(useUTFFont){
+		  int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 350);
+		  if(tooLong){
+		    //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
+		    texUI->bindForDisplay();
+		    drawImage(415,ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
+		  }
+		}
+		else{
+		  drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
+		}
 	}
 	FZScreen::ambientColor(0xff000000);
-	drawText((char*)items[selItem].label.c_str(), fontBig, 40 + 25, 60 + scrY + selPos*fontBig->getLineHeight());
+	if(useUTFFont){
+	  int tooLong;
+	  if(skipChars==0)
+	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 350);
+	  else {
+	    //drawUTFText("...", itemFont, 40+25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 480);
+	    texUI->bindForDisplay();
+	    drawImage(40+25,ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff,12,12,7,112);
+	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25 + 14, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, skipChars*10+14, 336);
+	  }
+	  if(tooLong){
+	    texUI->bindForDisplay();
+	    drawImage(415, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 12,12,7,112);
+	  }
+	  else{
+	    maxSkipChars = skipChars;
+	  }
+	  itemFont->doneUTFFont();
+	}
+	else
+	  drawText((char*)items[selItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
+}
+
+void BKLayer::drawOutlinePrefix(string prefix, int x, int y, int w, int h, int ws){
+  for (int i = 0;i<prefix.length();i++){
+    texUI->bindForDisplay();
+    switch (prefix[i]){
+    case '0':
+      break;
+    case '1':
+      drawRect(x+i*w+(w-ws)/2, y+(h-ws)/2,ws,1,6,31,1);
+      drawRect(x+i*w+(w-ws)/2, y+(h+ws)/2-1,ws,1,6,31,1);
+
+      drawRect(x+i*w+(w-ws)/2,y+(h-ws)/2,1,ws,6,31,1);
+      drawRect(x+i*w+(w+ws)/2-1,y+(h-ws)/2,1,ws,6,31,1);
+
+      drawRect(x+i*w+(w-ws)/2+2, y+h/2,ws-4,1,6,31,1);
+      drawRect(x+i*w+w/2,y+(h-ws)/2+2,1,ws-4,6,31,1);
+      break;
+    case '2':
+      drawRect(x+i*w+(w-ws)/2, y+(h-ws)/2,ws,1,6,31,1);
+      drawRect(x+i*w+(w-ws)/2, y+(h+ws)/2-1,ws,1,6,31,1);
+
+      drawRect(x+i*w+(w-ws)/2,y+(h-ws)/2,1,ws,6,31,1);
+      drawRect(x+i*w+(w+ws)/2-1,y+(h-ws)/2,1,ws,6,31,1);
+
+      drawRect(x+i*w+(w-ws)/2+2, y+h/2,ws-4,1,6,31,1);
+      //drawRect(x+i*w+w/2,y+(h-ws)/2+2,1,ws-4,6,31,1);
+      break;
+    case '3':
+      drawRect(x+i*w+w/2,y,1,(h+1)/2,6,31,1);
+      drawRect(x+i*w+w/2,y+h/2,(w)/2, 1, 6,31,1);
+      break;
+    case '4':
+      drawRect(x+i*w+w/2,y,1,(h),6,31,1);
+      drawRect(x+i*w+w/2,y+h/2,(w)/2, 1, 6,31,1);
+      break;
+    case '5':
+      drawRect(x+i*w+w/2,y,1,(h),6,31,1);
+      break;
+    case '6':
+      drawRect(x+i*w+(w-ws)/2, y+(h-ws)/2,ws,1,6,31,1);
+      drawRect(x+i*w+(w-ws)/2, y+(h+ws)/2-1,ws,1,6,31,1);
+
+      drawRect(x+i*w+(w-ws)/2,y+(h-ws)/2,1,ws,6,31,1);
+      drawRect(x+i*w+(w+ws)/2-1,y+(h-ws)/2,1,ws,6,31,1);
+      break;
+    }
+  }
+}
+
+void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutlineItem>& items, bool useUTFFont) {
+	int maxItemNum = 8;
+	int selPos = selItem - topItem;
+	int scrY = 0;
+	FZFont* itemFont;
+	bool hasOutline = true;
+	//FZScreen::ambientColor(0xFF0000FF);
+	//drawOutlinePrefix("1",0,0,20,20);
+	if(useUTFFont&&fontUTF){
+	  itemFont = fontUTF;
+	  maxItemNum = 9;
+	}
+	else{
+	  itemFont = fontBig;
+	  maxItemNum = 8;
+	  useUTFFont = false;
+	}
+
+// 	if (items.size()==0){
+// 	  string cl = "";
+// 	  string prefix = "";
+
+// 	  items.push_back(BKOutlineItem("<No Outlines>", cl, (void*)0, prefix , false));
+// 	  hasOutline = false;
+// 	  selItem = 0;
+// 	  topItem = 0;
+// 	  selPos = 0;
+// 	}
+
+	if( items.size()== 1 && items[0].circleLabel == ""){
+	  hasOutline = false;
+	}
+
+	if (selPos < 0) {
+		topItem += selPos;
+		selPos = 0;
+	}
+
+	if (selPos > maxItemNum - 1) {
+		topItem += selPos - maxItemNum + 1;
+		selPos = maxItemNum - 1;
+	}
+
+	bool scrollbar = items.size() > maxItemNum;
+
+	string tl;
+	if (items[selItem].flags & BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL) {
+		tl = triangleLabel; 
+	}
+	drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
+	if (hasOutline){
+	  texUI->bindForDisplay();
+	  FZScreen::ambientColor(0xffcccccc);
+	  drawImage(190, 248, BK_IMG_SQUARE_XSIZE, BK_IMG_SQUARE_YSIZE, BK_IMG_SQUARE_X, BK_IMG_SQUARE_Y);
+	  fontBig->bindForDisplay();
+	  if (BKUser::options.t_ignore_x)
+	    drawText("Goto (ignore zoom&X)", fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
+	  else
+	    drawText("Goto (ignore zoom)", fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
+	}
+	texUI->bindForDisplay();
+	int ITEMHEIGHT = 60;
+	if(useUTFFont)
+	  ITEMHEIGHT = 62;
+	FZScreen::ambientColor(0xffffffff);
+	
+	// selected item
+	int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
+	drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
+	if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
+		FZScreen::ambientColor(0xff000000);
+		//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
+		drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
+	}
+
+	// scrollbar
+	if (scrollbar) {
+		float barh = 1.0f * maxItemNum / float(items.size());
+		barh *= 173.0f;
+		if (barh < 15.0f)
+			barh = 15.0f;
+		float trel = float(topItem) / float(items.size());
+		trel *= 173.0f;
+		FZScreen::ambientColor(0xff555555);
+		drawPill(436, 57, 12, 173, 6, 31, 1);
+		FZScreen::ambientColor(0xffaaaaaa);
+		drawPill(436, 57 + int(trel), 12, int(barh), 6, 31, 1);
+	}
+
+	// not support now
+	// color rects items
+// 	for (int i = 0; i < maxItemNum; ++i) {
+// 		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+// 			break;
+// 		if ((i + topItem) >= (int)(items.size()))
+// 			break;
+// 		if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
+// 			int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
+// 			FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
+// 			drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
+// 			FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
+// 			drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
+// 		}
+// 	}
+
+	itemFont->bindForDisplay();
+
+	FZScreen::ambientColor(0xffffffff);
+	// contents
+	int yoff = 3;
+	int x_left = 40;
+	int text_right = 415;
+	int mark_width = 11;
+	int text_left;
+	for (int i = 0; i < maxItemNum; ++i) {
+		if (i + topItem == selItem)
+			continue;
+		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+			break;
+		if ((i + topItem) >= (int)(items.size()))
+			break;
+
+		drawOutlinePrefix(items[i + topItem].prefix, x_left, ITEMHEIGHT + i * itemFont->getLineHeight() + scrY, mark_width, itemFont->getLineHeight(),9);
+
+		text_left = x_left +  mark_width * items[i + topItem].prefix.length();
+		if(useUTFFont){
+		  int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, text_left, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, text_right - text_left);
+		  if(tooLong){
+		    //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
+		    texUI->bindForDisplay();
+		    drawImage(text_right, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
+		  }
+		}
+		else{
+		  drawText((char*)items[i + topItem].label.c_str(), itemFont, text_left, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
+		}
+	}
+	FZScreen::ambientColor(0xff000000);
+	drawOutlinePrefix(items[selItem].prefix, x_left, ITEMHEIGHT + selPos * itemFont->getLineHeight() + scrY, mark_width, itemFont->getLineHeight(),9);
+	text_left = x_left +  mark_width * items[selItem].prefix.length();
+
+	if(useUTFFont){
+	  int tooLong;
+	  if(skipChars==0)
+	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, text_left, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, text_right-text_left);
+	  else {
+	    //drawUTFText("...", itemFont, 40+25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 480);
+	    texUI->bindForDisplay();
+	    drawImage(text_left,ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff,12,12,7,112);
+	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, text_left + 14, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, skipChars*10+14, text_right-text_left-14);
+	  }
+	  if(tooLong){
+	    texUI->bindForDisplay();
+	    drawImage(text_right, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 12,12,7,112);
+	  }
+	  else{
+	    maxSkipChars = skipChars;
+	  }
+	  itemFont->doneUTFFont();
+	}
+	else
+	  drawText((char*)items[selItem].label.c_str(), itemFont, text_left, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
+
+// 	if(!hasOutline)
+// 	  items.clear();
 }
 
 static int countLines(string& t) {
@@ -521,8 +961,7 @@ void BKLayer::drawClockAndBattery(string& extra) {
 	FZScreen::ambientColor(0xffbbbbbb);
 	drawImage(350, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
 	drawImage(405, 222, BK_IMG_CLOCK_XSIZE, BK_IMG_CLOCK_YSIZE, BK_IMG_CLOCK_X, BK_IMG_CLOCK_Y);
-//	drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
-	drawImage(287, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
+	drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
 	fontSmall->bindForDisplay();
 	FZScreen::ambientColor(0xffbbbbbb);
 	int ew = textW((char*)extra.c_str(), fontSmall);
@@ -537,34 +976,47 @@ void BKLayer::drawClockAndBattery(string& extra) {
 	char t2[20];
 	snprintf(t2, 20, "%d%%", b);
 	char t3[20];
-//	snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
-	snprintf(t3, 20, "%dK", mem / 1024);
+	snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
 	char t4[20];
 	snprintf(t4, 20, "%dMHz", speed);
 	drawText(t1, fontSmall, 425, 224);
 	drawText(t2, fontSmall, 370, 224);
 	drawText(t3, fontSmall, 310, 224);
-//	drawText(t4, fontSmall, 240, 224);
-	drawText(t4, fontSmall, 235, 224);
+	drawText(t4, fontSmall, 240, 224);
 }
 
 void BKLayer::menuCursorUpdate(unsigned int buttons, int max) {
 	int* b = FZScreen::ctrlReps();
-	if (b[BKUser::controls.menuUp] == 1 || b[BKUser::controls.menuUp] > 20) {
+	if (b[BKUser::controls.menuUp] == 1 || (b[BKUser::controls.menuUp] > 10 && b[BKUser::controls.menuUp] % 5 == 0)) {
 		selItem--;
 		if (selItem < 0) {
 			selItem = max - 1;
 		}
+		skipChars = 0;
+		maxSkipChars = -1;
 	}
-	if (b[BKUser::controls.menuDown] == 1 || b[BKUser::controls.menuDown] > 20) {
+	if (b[BKUser::controls.menuDown] == 1 || (b[BKUser::controls.menuDown] > 10 && b[BKUser::controls.menuDown] % 5 == 0)) {
 		selItem++;
 		if (selItem >= max) {
 			selItem = 0;
 		}
+		skipChars = 0;
+		maxSkipChars = -1;
+	}
+	if (b[BKUser::controls.menuLeft] == 1 || (b[BKUser::controls.menuLeft] > 10 && b[BKUser::controls.menuLeft] % 5 == 0)) {
+		skipChars--;
+		if (skipChars < 0) {
+			skipChars = 0;
+		}
+	}
+	if (b[BKUser::controls.menuRight] == 1 || (b[BKUser::controls.menuRight] > 10 && b[BKUser::controls.menuRight] % 5 == 0)) {
+		skipChars++;
+		if (maxSkipChars >= 0 && skipChars>maxSkipChars)
+		  skipChars = maxSkipChars;
 	}
 }
 
-BKLayer::BKLayer() : topItem(0), selItem(0) {
+BKLayer::BKLayer() : topItem(0), selItem(0),skipChars(0),maxSkipChars(-1) {
 }
 
 BKLayer::~BKLayer() {

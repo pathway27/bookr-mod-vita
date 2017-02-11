@@ -7,7 +7,7 @@
 # Licenced under Academic Free License version 2.0
 # Review ps2sdk README & LICENSE files for further details.
 #
-# $Id: memcpy.S 577 2004-09-14 14:41:46Z pixel $
+# $Id: bkmemcpy.S,v 1.1.1.1 2009/01/16 03:31:52 papaya Exp $
 */
 
 /* Assembler version of memcpy using quadword instructions.

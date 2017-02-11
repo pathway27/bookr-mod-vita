@@ -1,7 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +21,9 @@
 #define FZSCREEN_H
 
 #include <vector>
+#include <algorithm>
 #include <string>
+#include <cstring>
 #include <map>
 
 using namespace std;
@@ -177,10 +178,12 @@ class FZTexture;
 #define FZ_STAT_IFREG 0x2000
 struct FZDirent {
 	string name;
+	string sname;
 	int stat;
 	int size;
-	FZDirent(char *n, int st, int s) : name(n), stat(st), size(s) { }
-	FZDirent() : name(""), stat(0), size(0) { }
+	FZDirent(string n, int st, int s) : name(n), stat(st), size(s) { }
+	FZDirent() : name(""), sname(""), stat(0), size(0) { }
+	FZDirent(string n, string sn, int st, int s) : name(n), sname(sn), stat(st), size(s) { }
 };
 
 class FZScreen {
@@ -204,7 +207,7 @@ public:
 	static void exit();
 
 	/**
-	 * Start list for immediate display.
+	 * Start list for inmediate display.
 	 */
 	static void startDirectList();
 
@@ -212,6 +215,14 @@ public:
 	 * End list and display it.
 	 */
 	static void endAndDisplayList();
+
+	/**
+	 * Commit dirty cache.
+	 */
+	
+	static void commitAll();
+
+	static void commitRange(const void* p, unsigned int size);
 
 	/**
 	 * Swap frame and draw buffer.
@@ -259,8 +270,8 @@ public:
 
 	static void setBoundTexture(FZTexture *);
 
-	static char* basePath();
-	static int dirContents(char* path, vector<FZDirent>& a);
+	static string basePath();
+	static int dirContents(const char* path, char* spath, vector<FZDirent>& a);
 
 	static int getSuspendSerial();
 
@@ -272,10 +283,7 @@ public:
 	static void getTime(int &h, int &m);
 	static int getBattery();
 	static int getUsedMemory();
-
-	static char* browserTextSizes[];
-	static char* browserDisplayModes[];
-	static char* browserInterfaceModes[];
+	static void setBrightness(int);
 };
 
 #endif

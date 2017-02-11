@@ -129,7 +129,7 @@ static DJVUContext* djvuOpen(char *filename) {
 		delete ctx;
 		return NULL;
 	}
-	ctx->page = ddjvu_page_create_by_pageno(ctx->document, ctx->djvupageno);	 
+	//ctx->page = ddjvu_page_create_by_pageno(ctx->document, ctx->djvupageno);	 
 	//djvuHandle(ctx->context, TRUE);
 
 	return ctx;
@@ -154,6 +154,7 @@ static void djvuFree() {
 }
 
 BKDJVU::BKDJVU(string& f) : ctx(0), fileName(f), panX(0), panY(0), loadNewPage(false), pageError(false) {
+  resetPanXY = false;
 }
 
 static BKDJVU* singleton = 0;
@@ -169,7 +170,7 @@ BKDJVU::~BKDJVU() {
 	singleton = 0;
 }
 
-BKDJVU* BKDJVU::create(string& file) {
+BKDJVU* BKDJVU::create(string& file, string& longFileName) {
 	if (singleton != 0) {
 		printf("cannot open more than 1 pdf at the same time\n");
 		return singleton;
@@ -177,7 +178,8 @@ BKDJVU* BKDJVU::create(string& file) {
 	
 	BKDJVU* b = new BKDJVU(file);
 	singleton = b;
-
+	b->longFileName = longFileName;
+	b->xpos_mode = 0;
 	if (!djvuInit())
 		return 0;
 
@@ -187,15 +189,29 @@ BKDJVU* BKDJVU::create(string& file) {
 		return 0;
 	}
 	b->ctx = ctx;
-	int lastSlash = 0;
-	int n = file.size();
+	int lastSlash = -1;
+	int n = b->longFileName.size();
 	for (int i = 0; i < n; ++i) {
-		if (file[i] == '\\')
-			lastSlash == i++;
-		else if (file[i] == '/')
-			lastSlash == i++;
+		if (b->longFileName[i] == '\\')
+			lastSlash = i;
+		else if (b->longFileName[i] == '/')
+			lastSlash = i;
 	}
-	b->title.assign(file, lastSlash, n - lastSlash);
+	b->title.assign(b->longFileName, lastSlash+1, n - 1 - lastSlash);
+	
+	//load bookmark info if it is available
+	if (b->isBookmarkable()){
+	  BKBookmark bm;
+	  string fn;
+	  b->getFileName(fn); 
+	  if (BKBookmarksManager::getLastView(fn, bm)) {
+	    b->setBookmarkPosition(bm.viewData);
+	    b->setZoom(bm.zoom);
+	  }
+	}
+	ctx->page = ddjvu_page_create_by_pageno(ctx->document, ctx->djvupageno);
+	//djvuHandle(ctx->context, TRUE);
+	
  	b->redrawBuffer();
 	return b;
 }
@@ -209,15 +225,15 @@ void BKDJVU::clipCoords(float& nx, float& ny) {
 		if (h <= 272.0f) {
 			ny = 0.0f;
 		} else if (ny >= h - 272.0f) {
-			ny = h - 273.0f;
+			ny = h - 272.0f;
 		}
 		if (nx < 0.0f) {
 			nx = 0.0f;
 		}
-		if (w <= 489.0f) {
+		if (w <= 480.0f) {
 			nx = 0.0f;
 		} else if (nx >= w - 480.0f) {
-			nx = w - 481.0f;
+			nx = w - 480.0f;
 		}
 }
 
@@ -232,12 +248,34 @@ void BKDJVU::getZoomLevels(vector<BKDocument::ZoomLevel>& v) {
 }
 
 int BKDJVU::getCurrentZoomLevel() {
+	int zl = ctx->zoomLevel;
+// 	if(zoomLevels[zl] != ctx->zoom){
+// 	  zl = 0;
+// 	  while (zoomLevels[zl]<ctx->zoom){
+// 	    zl++;
+// 	  }
+// 	}
+	return zl;
+}
+int BKDJVU::setZoomLevel2(int z) {
+
+	int n = sizeof(zoomLevels)/sizeof(float);
+	ctx->zoomLevel = z;
+
+	if (ctx->zoomLevel < 0)
+		ctx->zoomLevel = 0;
+	if (ctx->zoomLevel >= n)
+		ctx->zoomLevel = n - 1;
+  	ctx->zoom = zoomLevels[ctx->zoomLevel];
 	return ctx->zoomLevel;
 }
-
 int BKDJVU::setZoomLevel(int z) {
 	if (z == ctx->zoomLevel)
 		return 0;
+
+	if (z == ctx->zoomLevel+1 && zoomLevels[ctx->zoomLevel] > ctx->zoom)
+	  z -= 1;
+
 	int n = sizeof(zoomLevels)/sizeof(float);
 	ctx->zoomLevel = z;
 
@@ -246,16 +284,50 @@ int BKDJVU::setZoomLevel(int z) {
 	if (ctx->zoomLevel >= n)
 		ctx->zoomLevel = n - 1;
 
+
+	if (ctx->zoom == zoomLevels[ctx->zoomLevel]){
+	  char t[256];
+	  snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
+	  setBanner(t);
+	  //	  redrawBuffer();
+	  return 0;
+	}
+
+        panX = int(float( panX + 240 ) * zoomLevels[ctx->zoomLevel] / ctx->zoom - 240);
+        panY = int(float( panY + 136 ) * zoomLevels[ctx->zoomLevel] / ctx->zoom - 136);
+
+	if(xpos_mode || alwaysSetXPos){
+	  int* currentPage;
+	  int* adjPage;
+	  if (ctx->pageno%2){ // current page is odd page
+	    currentPage = &xpos_odd;
+	    adjPage = &xpos_even;
+	  }
+	  else{ // current page is even page.
+	    currentPage = &xpos_even;
+	    adjPage = &xpos_odd;
+	  }
+	
+	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
+	    *currentPage = panY;
+	    *adjPage = int(float( *adjPage + 136 ) * zoomLevels[ctx->zoomLevel] / ctx->zoom - 136);
+	  }
+	  else{ // normal or upsidedown mode, take panX value
+	    *currentPage = panX;
+	    *adjPage = int(float( *adjPage + 240 ) * zoomLevels[ctx->zoomLevel] / ctx->zoom - 240);
+	  }
+	}
+
 	ctx->zoom = zoomLevels[ctx->zoomLevel];
-	float nx = float(panX)*ctx->zoom;
-	float ny = float(panY)*ctx->zoom;
-	clipCoords(nx, ny);
-	panX = int(nx);
-	panY = int(ny);
+// 	float nx = float(panX)*ctx->zoom;
+// 	float ny = float(panY)*ctx->zoom;
+// 	clipCoords(nx, ny);
+// 	panX = int(nx);
+// 	panY = int(ny);
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
-	redrawBuffer();
+	redrawBuffer(true);
 	return BK_CMD_MARK_DIRTY;
 }
 
@@ -267,16 +339,26 @@ bool BKDJVU::hasZoomToFit() {
 int BKDJVU::setZoomToFitWidth() {
 	if (ctx->page) {
 		ctx->zoom = 480.0f/ddjvu_page_get_width(ctx->page);
+		int newzl = ctx->zoomLevel;
+		if(zoomLevels[newzl] != ctx->zoom){
+		  newzl = 0;
+		  while (zoomLevels[newzl]<ctx->zoom){
+		    newzl++;
+		  }
+		  ctx->zoomLevel = newzl;
+		}
 	}
-	float nx = float(panX)*ctx->zoom;
-	float ny = float(panY)*ctx->zoom;
-	clipCoords(nx, ny);
-	panX = int(nx);
-	panY = int(ny);
+	
+
+// 	float nx = float(panX)*ctx->zoom;
+// 	float ny = float(panY)*ctx->zoom;
+// 	clipCoords(nx, ny);
+// 	panX = int(nx);
+// 	panY = int(ny);
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
-	redrawBuffer();
+	redrawBuffer(true);
 	return BK_CMD_MARK_DIRTY;
 }
 
@@ -284,16 +366,74 @@ int BKDJVU::setZoomToFitHeight() {
 
 	if (ctx->page) {
 		ctx->zoom = 272.0f/ddjvu_page_get_height(ctx->page);
+		int newzl = ctx->zoomLevel;
+		if(zoomLevels[newzl] != ctx->zoom){
+		  newzl = 0;
+		  while (zoomLevels[newzl]<ctx->zoom){
+		    newzl++;
+		  }
+		  ctx->zoomLevel = newzl;
+		}
 	}
-	float nx = float(panX)*ctx->zoom;
-	float ny = float(panY)*ctx->zoom;
-	clipCoords(nx, ny);
-	panX = int(nx);
-	panY = int(ny);
+// 	float nx = float(panX)*ctx->zoom;
+// 	float ny = float(panY)*ctx->zoom;
+// 	clipCoords(nx, ny);
+// 	panX = int(nx);
+// 	panY = int(ny);
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
-	redrawBuffer();
+	redrawBuffer(true);
+	return BK_CMD_MARK_DIRTY;
+}
+int BKDJVU::setZoomIn(int left, int right) {
+
+	float oldZoom = ctx->zoom;
+	ctx->zoom = oldZoom * 480.0f / (right - left);
+	if (ctx->zoom > 16.0f)
+	  ctx->zoom = 16.0f;
+	int newzl = ctx->zoomLevel;
+	if(zoomLevels[newzl] != ctx->zoom){
+	  newzl = 0;
+	  while (zoomLevels[newzl]<ctx->zoom){
+	    newzl++;
+	  }
+	  ctx->zoomLevel = newzl;
+	}
+	
+	float nx,ny;
+	nx = ((float)panX  + left - leftMargin ) * ctx->zoom/oldZoom;
+	ny = float( panY ) * ctx->zoom / oldZoom;
+	panX = int(nx);
+	panY = int(ny);
+
+	if(xpos_mode || alwaysSetXPos){
+	  int* currentPage;
+	  int* adjPage;
+	  if (ctx->pageno%2){ // current page is odd page
+	    currentPage = &xpos_odd;
+	    adjPage = &xpos_even;
+	  }
+	  else{ // current page is even page.
+	    currentPage = &xpos_even;
+	    adjPage = &xpos_odd;
+	  }
+	
+	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
+	    *currentPage = panY;
+	    *adjPage = int(float( *adjPage ) * ctx->zoom / oldZoom);
+	  }
+	  else{ // normal or upsidedown mode, take panX value
+	    *currentPage = panX;
+	    *adjPage = int(((float)(*adjPage)  + left - leftMargin ) * ctx->zoom/oldZoom);
+	  }
+	}
+
+	resetPanXY = false;
+	char t[256];
+	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
+	setBanner(t);
+	redrawBuffer(true);
 	return BK_CMD_MARK_DIRTY;
 }
 
@@ -307,14 +447,23 @@ void BKDJVU::getBookmarkPosition(map<string, int>& m) {
 	m["panX"] = panX;
 	m["panY"] = panY;
 	m["rotation"] = ctx->rotateLevel;
+	m["xpos_mode"] = xpos_mode;
+	m["xpos_even"] = xpos_even;
+	m["xpos_odd"] = xpos_odd;
+
 }
 
 int BKDJVU::setBookmarkPosition(map<string, int>& m) {
 	setCurrentPage(m["page"]);
-	setZoomLevel(m["zoom"]);
-	setRotation(m["rotation"]);
+	setZoomLevel2(m["zoom"]);
+	setRotation2(m["rotation"]);
 	panX = m["panX"];
 	panY = m["panY"];
+	xpos_mode = m["xpos_mode"];
+	xpos_even = m["xpos_even"];
+	xpos_odd = m["xpos_odd"];
+	loadNewPage = true;
+	resetPanXY = false;
 	return BK_CMD_MARK_DIRTY;
 }
 
@@ -339,11 +488,12 @@ int BKDJVU::setCurrentPage(int position) {
 		ctx->pageno = getTotalPages();
 	if (ctx->pageno-1 != ctx->djvupageno) {
 		loadNewPage = true;
+		resetPanXY = true;
 		char t[256];
 		snprintf(t, 256, "Loading page %d", ctx->pageno);
 		setBanner(t);
-		panX = 0;
-		panY = 0;
+		//panX = 0;
+		//panY = 0;
 		return BK_CMD_MARK_DIRTY;
 	}
 	return 0;
@@ -357,10 +507,7 @@ int BKDJVU::getRotation() {
 	return ctx->rotateLevel;
 }
 
-int BKDJVU::setRotation(int z, bool bForce) {
-
-	if (z == ctx->rotateLevel)
-		return 0;
+int BKDJVU::setRotation2(int z, bool bForce) {
 	int n = 4;
 	ctx->rotateLevel = z;
 
@@ -370,21 +517,121 @@ int BKDJVU::setRotation(int z, bool bForce) {
 		ctx->rotateLevel = 0;
 
 	ctx->rotate = rotateLevels[ctx->rotateLevel];
-	float nx = float(panX);
-	float ny = float(panY);
-	clipCoords(nx, ny);
-	panX = int(nx);
-	panY = int(ny);
+	return ctx->rotate;
+}
+
+int BKDJVU::setRotation(int z, bool bForce) {
+
+	if (z == ctx->rotateLevel)
+		return 0;
+
+	int panYc = panY + 136;
+	int panXc = panX + 240;
+
+	switch (z - ctx->rotateLevel) {
+	    case 1:  // clockwise
+		panY = panXc - 136;
+		panX = (int)((float)ddjvu_page_get_height(ctx->page) * ctx->zoom) - panYc - 240;
+
+		if(xpos_mode || alwaysSetXPos){
+		  int* currentPage;
+		  int* adjPage;
+		  if (ctx->pageno%2){ // current page is odd page
+		    currentPage = &xpos_odd;
+		    adjPage = &xpos_even;
+		  }
+		  else{ // current page is even page.
+		    currentPage = &xpos_even;
+		    adjPage = &xpos_odd;
+		  }
+		  
+		  if(z%2){ //vetical mode, take panY value
+		    *currentPage = panY;
+		    *adjPage = *adjPage+240-136;
+		  }
+		  else{ // normal or upsidedown mode, take panX value
+		    *currentPage = panX;
+		    *adjPage = (int)((float)ddjvu_page_get_height(ctx->page) * ctx->zoom) - (*adjPage + 136) - 240;
+		  }
+		}
+
+		break;
+	    case -1:  // counter clockwise
+		panX = panYc - 240;
+		panY = (int)((float)ddjvu_page_get_width(ctx->page) * ctx->zoom) - panXc - 136;
+
+		if(xpos_mode || alwaysSetXPos){
+		  int* currentPage;
+		  int* adjPage;
+		  if (ctx->pageno%2){ // current page is odd page
+		    currentPage = &xpos_odd;
+		    adjPage = &xpos_even;
+		  }
+		  else{ // current page is even page.
+		    currentPage = &xpos_even;
+		    adjPage = &xpos_odd;
+		  }
+		  
+		  if(z%2){ //vetical mode, take panY value
+		    *currentPage = panY;
+		    *adjPage = (int)((float)ddjvu_page_get_width(ctx->page) * ctx->zoom) - (*adjPage+240) - 136;
+		  }
+		  else{ // normal or upsidedown mode, take panX value
+		    *currentPage = panX;
+		    *adjPage = (*adjPage + 136) - 240;
+		  }
+		}
+
+		break;
+	    default: //error, shouldn't be here.
+		;
+	}
+
+	int n = 4;
+	ctx->rotateLevel = z;
+
+	if (ctx->rotateLevel < 0)
+		ctx->rotateLevel = 3;
+	if (ctx->rotateLevel >= n)
+		ctx->rotateLevel = 0;
+
+	ctx->rotate = rotateLevels[ctx->rotateLevel];
+
+
+// 	float nx = float(panX);
+// 	float ny = float(panY);
+// 	clipCoords(nx, ny);
+// 	panX = int(nx);
+// 	panY = int(ny);
 	char t[256];
-	snprintf(t, 256, "Rotate to %3.3gÂ°", (float)ctx->rotate);
-	setBanner(t);
+	snprintf(t, 256, "Rotate to %3.3g°", 90.0f * ctx->rotateLevel );
+  setBanner(t);
 
 	redrawBuffer();
 	return BK_CMD_MARK_DIRTY;
 }
 
-void BKDJVU::getTitle(string& s) {
-	s = title;
+void BKDJVU::getTitle(string& s, int type) {
+  switch(type){
+  case 1:
+    s = "<No Title Info>";
+    break;
+  case 2:
+    s = longFileName;
+    break;
+  case 3:
+    s = "<No Title Info> [";
+    s += longFileName;
+    s += "]";
+    break;
+  case 4:
+    s = longFileName;
+    s += " [<No Title Info>]";
+    break;
+  default:
+    s = title;
+    break;
+  }
 }
 
 void BKDJVU::getType(string& s) {
@@ -396,19 +643,24 @@ void BKDJVU::getFileName(string& s) {
 }
 
 int BKDJVU::prePan(int x, int y) {
-	float nx = float(panX + x);
-	float ny = float(panY + y);
-	clipCoords(nx, ny);
-	if (panX == int(nx) && panY == int(ny))
-		return 0;
-	panBuffer(int(nx), int(ny));
+ 	float nx = float(panX + x);
+ 	float ny = float(panY + y);
+ 	clipCoords(nx, ny);
+ 	if (panX == int(nx) && panY == int(ny))
+ 		return 0;
+ 	panBuffer(int(nx), int(ny));
+//        panBuffer(panX+x, panY+y);
 	return BK_CMD_MARK_DIRTY;
 }
 
 int BKDJVU::pan(int x, int y) {
-	if (x > -32 && x < 32)
+
+  int minValueX = 32 * BKUser::options.analogRateX / 100;
+  int minValueY = 32 * BKUser::options.analogRateY / 100;
+
+	if (x > -1 * minValueX && x < minValueX)
 		x = 0;
-	if (y > -32 && y < 32)
+	if (y > -1 * minValueY && y < minValueY)
 		y = 0;
 	if (x == 0 && y == 0)
 		return 0;
@@ -418,19 +670,19 @@ int BKDJVU::pan(int x, int y) {
 }
 
 int BKDJVU::screenUp() {
-	return prePan(0, -150);
+    return prePan(0, -1 * BKUser::options.vScroll);
 }
 
 int BKDJVU::screenDown() {
-	return prePan(0, 150);
+    return prePan(0, BKUser::options.vScroll);
 }
 
 int BKDJVU::screenLeft() {
-	return prePan(-250, 0);
+    return prePan(-1 * BKUser::options.hScroll, 0);
 }
 
 int BKDJVU::screenRight() {
-	return prePan(250, 0);
+    return prePan(BKUser::options.hScroll, 0);
 }
 
 void BKDJVU::renderContent() {
@@ -449,7 +701,10 @@ void BKDJVU::renderContent() {
 #endif
 }
 
-void BKDJVU::redrawBuffer() {
+void BKDJVU::redrawBuffer(bool setSpeed) {
+	if(setSpeed)
+	  FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
+
 	if (ctx->pageno-1 != ctx->djvupageno) {
 		if (ctx->page)
 			ddjvu_page_release(ctx->page);
@@ -457,34 +712,100 @@ void BKDJVU::redrawBuffer() {
 		ctx->page = ddjvu_page_create_by_pageno(ctx->document, ctx->djvupageno);	
 		//djvuHandle(ctx->context, TRUE);
 	}
-	if(ctx->page == NULL)
+	if(ctx->page == NULL){
+		if(setSpeed)
+		  FZScreen::setSpeed(BKUser::options.pspSpeed);
 		return;
+	}
 	ddjvu_page_set_rotation(ctx->page, ctx->rotate);
-	
+
 	char* bufferStart = bounceBuffer;
-	
+
 	ddjvu_rect_t zoomrect;
 	zoomrect.x = zoomrect.y = 0;
 	zoomrect.w = (unsigned int)((float)ddjvu_page_get_width(ctx->page) * ctx->zoom);
 	zoomrect.h = (unsigned int)((float)ddjvu_page_get_height(ctx->page) * ctx->zoom);
+	
+	if (loadNewPage && resetPanXY) {
+
+		if(xpos_mode){
+		  int* currentPage;
+		  if (ctx->pageno%2){ // current page is odd page
+		    currentPage = &xpos_odd;
+		  }
+		  else{ // current page is even page.
+		    currentPage = &xpos_even;
+		  }
+		  
+		  if(ctx->rotateLevel%2){ //vetical mode, set panY value
+		    panY = *currentPage;
+		  }
+		  else{ // normal or upsidedown mode, set panX value
+		    panX = *currentPage;
+		  }
+		}
+
+		// set panX or panY according to rotation
+		switch (ctx->rotateLevel){
+		    case 0: //up
+			panY = 0;
+			break;
+		    case 1: //right
+			panX =  zoomrect.w - 480;
+			break;
+		    case 2: //down
+			panY =  zoomrect.h - 272;
+			break;
+		    case 3: //left
+			panX = 0;
+			break;
+		}
+	}
+	
+ 	float nx = float(panX);
+ 	float ny = float(panY);
+ 	clipCoords(nx, ny);
+ 	panX = int(nx);
+ 	panY = int(ny);
+
+	if(xpos_mode || alwaysSetXPos){
+	  int* currentPage;
+	  if (ctx->pageno%2){ // current page is odd page
+	    currentPage = &xpos_odd;
+	  }
+	  else{ // current page is even page.
+	    currentPage = &xpos_even;
+	  }
+	  
+	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
+	    *currentPage = panY;
+	  }
+	  else{ // normal or upsidedown mode, take panX value
+	    *currentPage = panX;
+	  }
+	}
+
 	
 	ddjvu_rect_t screenrect;
 	screenrect.x = panX;
 	screenrect.y = panY;
 	screenrect.w = 480;
 	screenrect.h = 272;
-	
+	leftMargin = 0;
 	/* while zoomrect is smaller than screenrect */
 	if(screenrect.w > zoomrect.w) {
 		bufferStart += (screenrect.w - zoomrect.w) / 2 * 4;
+		leftMargin = (screenrect.w - zoomrect.w) / 2;
 		screenrect.w = zoomrect.w;
-		screenrect.x = panX = 0;
-	}
+		
+	} 
+
 	if(screenrect.h > zoomrect.h) {
 		bufferStart += (screenrect.h - zoomrect.h) / 2 * 480 * 4;
 		screenrect.h = zoomrect.h;
-		screenrect.y = panY = 0;
-	}
+		
+	} 
+
 	if(bufferStart != bounceBuffer) {
 		unsigned int *d = (unsigned int*)bounceBuffer;
 		//const unsigned int c = BKUser::options.pdfBGColor;
@@ -504,24 +825,47 @@ void BKDJVU::redrawBuffer() {
 			480*4,
 			bufferStart);
 	ddjvu_format_release(format);
+	setThumbnail(zoomrect.w, zoomrect.h, screenrect.w, screenrect.h, screenrect.x, screenrect.y);
+	if(setSpeed)
+	  FZScreen::setSpeed(BKUser::options.pspSpeed);
+
 }
 
 void BKDJVU::panBuffer(int nx, int ny) {
+
+	if(xpos_mode || alwaysSetXPos){
+	  int* currentPage;
+	  if (ctx->pageno%2){ // current page is odd page
+	    currentPage = &xpos_odd;
+	  }
+	  else{ // current page is even page.
+	    currentPage = &xpos_even;
+	  }
+	  
+	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
+	    *currentPage = ny;
+	  }
+	  else{ // normal or upsidedown mode, take panX value
+	    *currentPage = nx;
+	  }
+	}
+
 	panX = nx;
 	panY = ny;
-	redrawBuffer();
+	redrawBuffer(true);
 }
 
 int BKDJVU::resume() {
 	// mupdf leaves open file descriptors around. they don't survive a suspend.
-	return BK_CMD_RELOAD;
+	return 0;
 }
 
 int BKDJVU::updateContent() {
 	if (loadNewPage) {
 		//pageError = pdfLoadPage(ctx) != 0;
-		redrawBuffer();
+		redrawBuffer(true);
 		loadNewPage = false;
+		resetPanXY = false;
 		char t[256];
 		snprintf(t, 256, "Page %d of %d", ctx->pageno, getTotalPages());
 		setBanner(t);
@@ -535,8 +879,28 @@ bool BKDJVU::isDJVU(string& file) {
 	char header[4];
 	memset((void*)header, 0, 4);
 	FILE* f = fopen(file.c_str(), "r");
+	if (!f)
+	  return false;
 	fread(header, 4, 1, f);
 	fclose(f);
 	return header[0] == 0x41 && header[1] == 0x54 && header[2] == 0x26 && header[3] == 0x54;
 }
 
+float BKDJVU::getCurrentZoom(){
+  if(ctx)
+    return ctx->zoom;
+  return 0.0f;
+}
+void BKDJVU::setZoom(float z){
+  if(ctx && z>0.0f){
+    ctx->zoom = z;
+    int newzl = ctx->zoomLevel;
+    if(zoomLevels[newzl] != ctx->zoom){
+      newzl = 0;
+      while (zoomLevels[newzl]<ctx->zoom){
+	newzl++;
+      }
+      ctx->zoomLevel = newzl;
+    }
+  }
+}

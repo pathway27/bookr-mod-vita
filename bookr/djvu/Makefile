@@ -1,7 +1,11 @@
 all:
-	@(cd libdjvupsp; make; cp libdjvulibre.a ../libs)
+	@(rm -rf libs; mkdir libs; cd libdjvupsp; make; cp libdjvulibre.a ../libs)
 
 
 clean:
 	@(cd libdjvupsp; make clean)
-	@(cd libs; rm *.a)
+#	@(rm -rf libs)
+
+cleanlibs:
+	@(rm -rf libs)
+

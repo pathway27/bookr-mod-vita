@@ -1,0 +1,74 @@
+? cscope.files
+? cscope.out
+? builds/unix/a.out
+Index: builds/unix/configure.raw
+===================================================================
+RCS file: /sources/freetype/freetype2/builds/unix/configure.raw,v
+retrieving revision 1.39
+diff -r1.39 configure.raw
+84a85,87
+>   *-psp-*)
+>     XX_CFLAGS="-G0"
+>     ;;
+638d640
+< LT_INIT(win32-dll)
+Index: builds/unix/unix-cc.in
+===================================================================
+RCS file: /sources/freetype/freetype2/builds/unix/unix-cc.in,v
+retrieving revision 1.17
+diff -r1.17 unix-cc.in
+91c91
+< CC    := $(LIBTOOL) --mode=compile $(CCraw)
+---
+> CC    := $(LIBTOOL) --tag=CXX --mode=compile $(CCraw)
+108c108
+< LINK_LIBRARY = $(LIBTOOL) --mode=link $(CCraw) -o $@ $(OBJECTS_LIST) \
+---
+> LINK_LIBRARY = $(LIBTOOL) --tag=CXX --mode=link $(CCraw) -o $@ $(OBJECTS_LIST) \
+Index: include/freetype/config/ftoption.h
+===================================================================
+RCS file: /sources/freetype/freetype2/include/freetype/config/ftoption.h,v
+retrieving revision 1.130
+diff -r1.130 ftoption.h
+95c95
+< /* #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING */
+---
+> #define FT_CONFIG_OPTION_SUBPIXEL_RENDERING 
+483c483
+< /* #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
+---
+> #define TT_CONFIG_OPTION_BYTECODE_INTERPRETER 
+Index: src/base/ftsystem.c
+===================================================================
+RCS file: /sources/freetype/freetype2/src/base/ftsystem.c,v
+retrieving revision 1.38
+diff -r1.38 ftsystem.c
+204c204
+< 
+---
+>     size_t ret;
+208c208,215
+<     ft_fseek( file, offset, SEEK_SET );
+---
+>     ret = ft_fseek( file, offset, SEEK_SET );
+>     if (ret){
+>       FT_Stream_Open(stream, stream->pathname.pointer);
+>       file = STREAM_FILE( stream );
+>       ft_fseek( file, offset, SEEK_SET );
+>     }
+> 
+>     ret = ft_fread( buffer, 1, count, file );
+210c217,227
+<     return (unsigned long)ft_fread( buffer, 1, count, file );
+---
+>     if (ferror(file)||feof(file)){
+>       clearerr(file);
+>       stream->close(stream);
+>       FT_Stream_Open(stream, stream->pathname.pointer);
+>       file = STREAM_FILE( stream );
+>       ft_fseek( file, offset, SEEK_SET );
+>       ret = ft_fread( buffer, 1, count, file );
+>     }
+>     
+>     return (unsigned long)ret;
+>     

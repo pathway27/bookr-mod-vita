@@ -1,7 +1,6 @@
 /*
  * Bookr: document reader for the Sony PSP 
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +19,11 @@
 
 #include <string.h>
 #include "fzscreen.h"
-#include <pspthreadman.h>
+
 #include "bklogo.h"
 
-BKLogo::BKLogo() : loading(false), error(false), text("") {
+BKLogo::BKLogo() : loading(false), error(false) {
+  errType = 0;
 }
 
 BKLogo::~BKLogo() {
@@ -57,16 +57,13 @@ void BKLogo::render() {
 	FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
 	texUI->bindForDisplay();
 	FZScreen::ambientColor(0xf0222222);
-//	drawPill(150, 240, 180, 20, 6, 31, 1);
-	drawPill(20, 240, 430, 20, 6, 31, 1);
+	drawPill(150, 240, 180, 20, 6, 31, 1);
 	fontBig->bindForDisplay();
 	FZScreen::ambientColor(0xff000000);
-	drawTextHC("PDF - TXT - PalmDoc - DJVU - CHM - HTML", fontBig, 180);
+	drawTextHC("Version 0.7.1 FG-PSM-DJVU", fontBig, 180);
 	FZScreen::ambientColor(0xffffffff);
 	if (loading)
 		drawTextHC("Loading...", fontBig, 244);
-	else if (text.length() > 0)
-		drawTextHC((char*) text.c_str(), fontBig, 244);
 	else {
 		if (error) {
 			texUI->bindForDisplay();
@@ -74,35 +71,33 @@ void BKLogo::render() {
 			drawRect(0, 126, 480, 26, 6, 31, 1);
 			fontBig->bindForDisplay();
 			FZScreen::ambientColor(0xff222222);
-			drawTextHC("Error: invalid or corrupted file", fontBig, 130);
+			switch (errType){
+			case 0:
+			  drawTextHC("Error: invalid or corrupted file", fontBig, 130);
+			  break;
+			case 1:
+			  drawTextHC("Error: unsupported encrypted PDF", fontBig, 130);
+			  break;
+			case 2:
+			  drawTextHC("Error: last opened file does not exist or is invalid", fontBig, 130);
+			  break;
+			default:
+			  drawTextHC("Error: unknown error", fontBig, 130);
+			}
 		}
 		FZScreen::ambientColor(0xffffffff);
 		drawTextHC("Press Start", fontBig, 244);
 	}
 }
 
+
+void BKLogo::setErrorType(int type){
+  errType = type;
+}
+
 BKLogo* BKLogo::create() {
 	BKLogo* f = new BKLogo();
 	FZScreen::resetReps();
 	return f;
-}
-
-void BKLogo::show(string text) {
-	show(text, 0);
-}
-
-void BKLogo::show(string text, int delaySeconds) {
-	BKLogo* l = BKLogo::create();
-	l->text = text;
-	FZScreen::startDirectList();
-	l->render();
-	FZScreen::endAndDisplayList();
-	FZScreen::waitVblankStart();
-	FZScreen::swapBuffers();
-	FZScreen::checkEvents();
-	l->release();
-	if (delaySeconds > 0) {
-		sceKernelDelayThread(delaySeconds * 1000000);
-	}
 }
 
