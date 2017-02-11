@@ -1,3 +1,4 @@
+PSP_FW_VERSION = 600
 TARGET_LIB=libfonts.a
 OBJS:=Dingbats.o             NimbusMonL-ReguObli.o     NimbusRomNo9L-ReguItal.o  NimbusSanL-ReguItal.o
 OBJS+=NimbusMonL-Bold.o      NimbusRomNo9L-Medi.o      NimbusSanL-Bold.o         StandardSymL.o

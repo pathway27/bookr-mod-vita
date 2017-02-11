@@ -1,11 +1,11 @@
 all:
-	@(cd base; make; cp libbase.a ../libs)
-	@(cd fonts; make; cp libfonts.a ../libs)
-	@(cd mupdf; make; cp libmupdf.a ../libs)
-	@(cd raster; make; cp libraster.a ../libs)
-	@(cd stream; make; cp libstream.a ../libs)
-	@(cd world; make; cp libworld.a ../libs)
-#	@(cd apps; make; cp libapps.a ../libs)
+	@(cd base; make; copy libbase.a ../libs)
+	@(cd fonts; make; copy libfonts.a ../libs)
+	@(cd mupdf; make; copy libmupdf.a ../libs)
+	@(cd raster; make; copy libraster.a ../libs)
+	@(cd stream; make; copy libstream.a ../libs)
+	@(cd world; make; copy libworld.a ../libs)
+#	@(cd apps; make; copy libapps.a ../libs)
 
 clean:
 	@(cd base; make clean)

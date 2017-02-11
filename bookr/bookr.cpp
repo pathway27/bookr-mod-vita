@@ -33,7 +33,7 @@
 #ifdef PSP
 #include <pspkernel.h>
 PSP_MODULE_INFO("Bookr", 0, 1, 1);
-PSP_HEAP_SIZE_KB(-7*1024);
+PSP_HEAP_SIZE_KB(20148);
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER);
 #endif
 

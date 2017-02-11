@@ -5,15 +5,25 @@ Bookr - a document reader for the Sony PSP - http://bookr.sf.net
 About Bookr
 ===========
 Bookr is a document reader for the Sony PSP licensed under the GNU General
-Public License v2. At the moment it supports plain text and PDF files.
+Public License v2. At the moment it supports plain text, PDF, CHM, HTML, 
+DJVU, PalmDoc documents.
 
+Notes on usage of CHM:
+- When you choose to open an CHM file, Bookr will try to extract the CHM content
+to the cache folder (no need to extract later). The extracting job will be executing
+in background if the CHM contains valid HHC file (table of content); otherwise
+Bookr will try to extract all htm files first and open the index.htm file as
+start page. In worst case, it will list all the htm files extracted. Then the
+extracting thread will continue to extract all other files such as images, css...
+So you may see pages with all images missing at first; but after the Memory Stick
+LED light stop blinking (indicate 'extracting complete'), please refresh the page
+to see the full content page.
+- Bookr opens a Browser with 2 tabs: TOC and Content; please use SQUARE+L/RTRIGGER
+to switch between them.
 
 Install
 =======
-You need a Sony PSP with firmware version 1.5. Other firmware versions are not
-supported. To install simply copy the __SCE__bookr and %__SCE__bookr folders
-to your Memory Stick \PSP\GAME folder.
-
+To install simply copy the Bookr folder to your Memory Stick \PSP\GAME folder. 
 
 Optional CJK PDF Support
 ========================
@@ -26,68 +36,64 @@ http://sourceforge.net/project/showfiles.php?group_id=149290&package_id=200753
 
 2) Create the following folder in your Memory Stick, where X: is the drive unit
 where your PSP is mounted:
-X:\PSP\GAME\__SCE__bookr\fonts
+X:\PSP\GAME\Bookr\fonts
 
 3) Extract the contents of the cjk-fonts-1.zip file into the folder. The final
 file structure must look like this:
-X:\PSP\GAME\__SCE__bookr\fonts\Adobe-CNS1-UCS2
-X:\PSP\GAME\__SCE__bookr\fonts\Adobe-GB1-UCS2
-X:\PSP\GAME\__SCE__bookr\fonts\Adobe-Japan1-UCS2
-X:\PSP\GAME\__SCE__bookr\fonts\Adobe-Korea1-UCS2
-X:\PSP\GAME\__SCE__bookr\fonts\batang.ttf
-X:\PSP\GAME\__SCE__bookr\fonts\bkai00mp.ttf
-X:\PSP\GAME\__SCE__bookr\fonts\bsmi00lp.ttf
-X:\PSP\GAME\__SCE__bookr\fonts\dotum.ttf
-X:\PSP\GAME\__SCE__bookr\fonts\gbsn00lp.ttf
-X:\PSP\GAME\__SCE__bookr\fonts\gkai00mp.ttf
-X:\PSP\GAME\__SCE__bookr\fonts\kochi-gothic.ttf
-X:\PSP\GAME\__SCE__bookr\fonts\kochi-mincho.ttf
-
+X:\PSP\GAME\Bookr\fonts\Adobe-CNS1-UCS2
+X:\PSP\GAME\Bookr\fonts\Adobe-GB1-UCS2
+X:\PSP\GAME\Bookr\fonts\Adobe-Japan1-UCS2
+X:\PSP\GAME\Bookr\fonts\Adobe-Korea1-UCS2
+X:\PSP\GAME\Bookr\fonts\batang.ttf
+X:\PSP\GAME\Bookr\fonts\bkai00mp.ttf
+X:\PSP\GAME\Bookr\fonts\bsmi00lp.ttf
+X:\PSP\GAME\Bookr\fonts\dotum.ttf
+X:\PSP\GAME\Bookr\fonts\gbsn00lp.ttf
+X:\PSP\GAME\Bookr\fonts\gkai00mp.ttf
+X:\PSP\GAME\Bookr\fonts\kochi-gothic.ttf
+X:\PSP\GAME\Bookr\fonts\kochi-mincho.ttf 
 
 Acknowledgments
 ===============
-Programmers - Carlos Carrasco Martinez and Edward Choh
+Programmers - Carlos Carrasco Martinez and Edward Choh (Original)
+			- Christian Payeur (Control/GUI enhancements)
+			- Yang.Hu (DJVU support)
+			- Nguyen Chi Tam (CHM, HTML support)
 
 MuPDF library - By Artifex Software, Inc. licensed under the AFPL license.
 Visit: http://ghostpdf.com/new.html
 
-ps2dev.org PSPSDK - http://ps2dev.org/psp/Projects
+ps2dev.org PSPSDK - http://ps2dev.org/psp/Projects 
 
+chmlib 0.39 by Jed Wing <jedwin@ugcs.caltech.edu>
 
-Found a bug?
-============
-Then please use the following link to report it:
+VnConv by Pham Kim Long <longp@cslab.felk.cvut.cz>
 
-http://sourceforge.net/tracker/?func=add&group_id=149290&atid=774195
+DjVuLibre 3.5 by Leon Bottou and Yann Le Cun
 
-If you found a file that crashes Bookr then it is of utmost importance that you
-try to find a the same file online and paste a link to it in your bug report. We
-cannot fix crashers without the offending files.
-
-
-Want to request a new feature?
-==============================
-Then please use the following link to request it:
-
-http://sourceforge.net/tracker/?func=add&group_id=149290&atid=774198
-
-Please write a clear summary an description for your feature request. If you
-have more than one feature to request please use more than one report. Bullet
-lists inside a single feature request make it hard to track what we have
-implemented.
-
-You can also browse the existing feature requests to make sure you are not
-filling a duplicate:
-
-http://sourceforge.net/tracker/?group_id=149290&atid=774198
 
 
 =========
 Changelog
-=========
+========= 
 
+Bookr V8.1 by Nguyen Chi Tam (nguyenchitam@gmail.com)
+=====================================================
+- Fixed crash when opening PDF file which has many pages.
+- Enhance MuPDF, uses less memory.
+- Merged with latest source code from CVS with following enhancements:
+   + DJVU support by Yang.Hu (findreams at gmail dot com)
+   + Control/GUI enhancements by Christian Payeur (christian dot payeur at gmail dot com)
+
+Bookr V8.0 by Nguyen Chi Tam (nguyenchitam@gmail.com)
+=====================================================
+- Uses internal Internet Browser to display CHM/HTML files.
+- Can convert Vietnamese HTML content to display on Internet Browser (which
+at the moment does not support Vietnamese Codepage)
+- Uses swap button correctly
+ 
 Bookr 0.7.1 - August 16th 2006
-============================
+==============================
 - Added support for PDF files with Chinese, Japanese and Korean text.
 - Added a memory usage counter.
 - Added single line scroll for the analog pad in the text viewer.
@@ -144,5 +150,4 @@ psppdf 0.2
 psppdf 0.1
 ==========
 - Proof-of-concept PDF viewer based on MuPDF. Privately released to a few
-people.
-
+people. 

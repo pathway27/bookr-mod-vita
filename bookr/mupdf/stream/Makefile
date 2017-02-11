@@ -1,3 +1,4 @@
+PSP_FW_VERSION = 600
 TARGET_LIB=libstream.a
 OBJS:=crypt_arc4.o crypt_crc32.o crypt_md5.o obj_array.o obj_dict.o obj_parse.o obj_print.o obj_simple.o
 OBJS+=stm_buffer.o stm_filter.o stm_open.o stm_read.o stm_write.o stm_misc.o  filt_pipeline.o filt_arc4.o filt_null.o

@@ -13,9 +13,11 @@ OBJS+=bkcachechooser.o vnconv\webviqrconv.o
 OBJS+=pspchm.o
 
 INCDIR =
-CFLAGS = -Imupdf/include -Idjvu/libdjvupsp -G0 -Wall -O2 -Ic:/pspsdk/psp/include/freetype2
+CFLAGS = -Imupdf/include -Idjvu/libdjvupsp -G0 -Wall -O2 -IJ:\pspsdk\psp\include\freetype2
 #CFLAGS += -g
-#BUILD_PRX=1
+PSP_FW_VERSION = 600
+BUILD_PRX=1
+
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
@@ -25,7 +27,7 @@ LIBS=-Lmupdf/libs -Ldjvu/libs -ldjvulibre -lmupdf -lraster -lworld -lfonts -lstr
 
 
 EXTRA_TARGETS = EBOOT.PBP
-PSP_EBOOT_TITLE = Book Reader V8.1
+PSP_EBOOT_TITLE = Bookr 8.1 HBS
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 #USE_PSPSDK_LIBC=1

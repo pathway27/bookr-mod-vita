@@ -1,3 +1,4 @@
+PSP_FW_VERSION = 600
 TARGET_LIB=libraster.a
 OBJS:=glyphcache.o pixmap.o porterduff.o meshdraw.o imagedraw.o imageunpack.o imagescale.o pathscan.o pathfill.o pathstroke.o render.o
 
