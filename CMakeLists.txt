@@ -60,19 +60,20 @@ link_directories(
 ## Build and link
 # Add all the files needed to compile here
 add_executable(bookr-mod-vita
-  src/main.cpp
-  src/bkdocument.cpp
-  src/bklayer.cpp
-  src/graphics/fzinstreammem.cpp
-  src/graphics/fzfont.cpp
-  src/graphics/fztexture.cpp
-  src/graphics/fzimage.cpp
-  src/graphics/fzrefcount.cpp
-  src/graphics/fzinputstream.h
+  src/bookr.cpp
+  src/graphics/fzscreenpsp.cpp
+  # src/bkdocument.cpp
+  # src/bklayer.cpp
+  # src/graphics/fzinstreammem.cpp
+  # src/graphics/fzfont.cpp
+  # src/graphics/fztexture.cpp
+  # src/graphics/fzimage.cpp
+  # src/graphics/fzrefcount.cpp
+  # src/graphics/fzinputstream.h
 
-  src/bkbookmark.cpp
-  src/graphics/fzscreen.h
-  src/bkuser.cpp
+  # src/bkbookmark.cpp
+  # src/graphics/fzscreen.h
+  # src/bkuser.cpp
   # src/bkdjvu.cpp
   # src/bkpalmdoc.cpp
   # src/bkplaintext.cpp

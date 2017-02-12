@@ -2,7 +2,11 @@
     "configurations": [
         {
             "name": "Mac",
-            "includePath": ["/usr/include", "/usr/local/vitasdk/arm-vita-eabi/include"],
+            "includePath": [
+                "/usr/local/include",
+                "/usr/include",
+                "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include",
+                "/usr/local/vitasdk/arm-vita-eabi/include"],
             "browse" : {
                 "limitSymbolsToIncludedHeaders" : true,
                 "databaseFilename" : ""

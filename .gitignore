@@ -1,6 +1,7 @@
 .DS_Store
 build
 
+*.*o
 *.*lf
 *.bin
 *.sfo

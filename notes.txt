@@ -4,9 +4,23 @@ Learning C++
 Programming the Vita
 Porting experience
 
-Notes
+# Random Notes
+
+## Macro definitions
+
+```C
+#ifdef __vita__
+```
 
 Checking for preprocessor macro variables on your tool chain
 arm-vita-eabi-gcc -dM -E - < /dev/null | grep -i VITA
 
 that's how i found __vita__
+
+## versioning based on git tags
+
+Read the cmake tutorial which goes through setting up
+variables like version through an internal environment variables
+I then found a stackoverflow for the exact thing, see CMakeLists.txt:32:38
+
+## link macos specific libs from /Frameworks.../ to /usr/local/include for intellisense.
