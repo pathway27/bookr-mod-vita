@@ -31,15 +31,20 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+#include <iostream>
+
 #ifdef MAC
-  #include <OpenGL/gl.h>
-  #include <GLUT/glut.h>
-//  #include <Cocoa/Cocoa.h>
+  // GLEW
+  #define GLEW_STATIC
+  #include <GL/glew.h>
+  // GLFW
+  #include <GLFW/glfw3.h>
 #elif defined (__CYGWIN__)
  #include "cygwin/freeglut.h"
 #else
  #include <GL/freeglut.h>
 #endif
+
 
 //#include fzscreencommon.
 #include "fzscreen.h"
@@ -48,68 +53,45 @@
 using namespace std;
 
 FZScreen::FZScreen() {
+    std::cout << 'FZScreen()' << endl;
 }
 
 FZScreen::~FZScreen() {
+    std::cout << '~FZScreen()' << endl;
 }
-
-// default display list
-static unsigned char __attribute__((aligned(16))) list[262144*4];
-static unsigned int topList = 0;
-
-static FZTexture* boundTexture = 0;
-
-static void display(void) {
-	//clear white, draw with black
-    glClearColor(0, 0, 0, 0);
-    glColor3d(255, 0, 255);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    //this draws a square using vertices
-    glBegin(GL_QUADS);
-    glVertex2i(0, 0);
-    glVertex2i(0, 128);
-    glVertex2i(128, 128);
-    glVertex2i(128, 0);
-    glEnd();
-
-    //a more useful helper
-    glRecti(200, 200, 250, 250);
-
-    glutSwapBuffers();
-}
-
 
 static int keyState = 0;
 static bool stickyKeys = false;
 static int powerSerial = 0;
-
 static int breps[16];
+//unsigned char key, int x, int y
+static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
+	std::cout << key << endl;
 
-// update reps
-
-static void keyboard(unsigned char key, int x, int y) {
-	switch (key) {
-		case 27:
-			exit(0);
-		break;
-		case 'w': keyState |= FZ_CTRL_UP; break;
-		case 's': keyState |= FZ_CTRL_DOWN; break;
-		case 'a': keyState |= FZ_CTRL_LEFT; break;
-		case 'd': keyState |= FZ_CTRL_RIGHT; break;
-		case 'k': keyState |= FZ_CTRL_SQUARE; break;
-		case 'l': keyState |= FZ_CTRL_CROSS; break;
-		case 'o': keyState |= FZ_CTRL_TRIANGLE; break;
-		case 'p': keyState |= FZ_CTRL_CIRCLE; break;
-		case 'v': keyState |= FZ_CTRL_SELECT; break;
-		case 'b': keyState |= FZ_CTRL_START; break;
-		case 'x': keyState |= FZ_CTRL_LTRIGGER; break;
-		case 'c': keyState |= FZ_CTRL_RTRIGGER; break;
-		case 'h': keyState |= FZ_CTRL_HOLD;break;
-	}
+	// swap this to some mapping?
+    if (action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+            case 'w': keyState |= FZ_CTRL_UP; break;
+            case 's': keyState |= FZ_CTRL_DOWN; break;
+            case 'a': keyState |= FZ_CTRL_LEFT; break;
+            case 'd': keyState |= FZ_CTRL_RIGHT; break;
+            case 'k': keyState |= FZ_CTRL_SQUARE; break;
+            case 'l': keyState |= FZ_CTRL_CROSS; break;
+            case 'o': keyState |= FZ_CTRL_TRIANGLE; break;
+            case 'p': keyState |= FZ_CTRL_CIRCLE; break;
+            case 'v': keyState |= FZ_CTRL_SELECT; break;
+            case 'b': keyState |= FZ_CTRL_START; break;
+            case 'x': keyState |= FZ_CTRL_LTRIGGER; break;
+            case 'c': keyState |= FZ_CTRL_RTRIGGER; break;
+            case 'h': keyState |= FZ_CTRL_HOLD;break;
+        }
+    }
 }
 
+/*
 static void keyboardup(unsigned char key, int x, int y) {
 	printf("Pressed: %i", key);
 	switch (key) {
@@ -134,53 +116,52 @@ static void keyboardup(unsigned char key, int x, int y) {
 		case '6': powerSerial++; break;
 	}
 }
-
-static bool mouseDrag = false;
-static int originAnalogX = 0;
-static int originAnalogY = 0;
-static int lastAnalogX = 0;
-static int lastAnalogY = 0;
-static void mousepress(int button, int state, int x, int y) {
-	if (state == GLUT_DOWN) {
-		mouseDrag = true;
-		originAnalogX = x;
-		originAnalogY = y;
-	} else {
-		mouseDrag = false;
-	}	
-}
-
-static void mousemotion(int x, int y) {
-	lastAnalogX = x - originAnalogX;
-	lastAnalogY = y - originAnalogY;
-}
-
-static char psp_full_path[1024 + 1];
-
-void idle(void) {
-    glutPostRedisplay();
-}
+*/
 
 void FZScreen::open(int argc, char** argv) {
 	//getcwd(psp_full_path, 1024);
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(480, 272);
-	
-	glutCreateWindow("Bookr");
-	glutDisplayFunc(display);
-	glutIdleFunc(idle);
+	glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+#ifdef MAC
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
-	glutKeyboardFunc(keyboard);
-	glutKeyboardUpFunc(keyboardup);
-	glutMouseFunc(mousepress);
-	glutMotionFunc(mousemotion);
-	
-	glClearColor(0.0, 0.0, 0.2, 0.0);
-	glViewport(0, 0, 480, 272);
+	GLFWwindow* window = glfwCreateWindow(800, 600, "Bookr GLFW", nullptr, nullptr);
+	if (window == nullptr)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+	}
+	glfwMakeContextCurrent(window);
 
-	glutMainLoop();
+
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+	{
+		std::cout << "Failed to initialize GLEW" << std::endl;
+	}
+
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+	glViewport(0, 0, width, height);
+
+	glfwSetKeyCallback(window, keyboard);  
+
+	while(!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glfwSwapBuffers(window);
+	}
+
+	glfwTerminate();
 	//string path(psp_full_path);
 	//path += "/fonts";
 	//setenv("BOOKRFONTDIR", path.c_str(), 1);

@@ -18,7 +18,9 @@ cd build && make send
 ## For Mac
 
 ```sh
+# This is just for devel.
 # Currently on OSX El Capitan 10.11.5
+brew install glfw GLEW
 make -f Makefile.macglut
 ./bookr.glut
 ```
@@ -26,15 +28,8 @@ make -f Makefile.macglut
 ## For PSP
 
 ```
-# Setup VITA development evironment: https://henkaku.xyz/developer/
-$ ./build.sh # Creates a build folder with vpk
-
-# For devs - replace with your VITA ftp ip
-$ export PSVITAIP=192.168.1.5
-$ cd build && make send
-```
-
 TODO
+```
 
 # Installation
 

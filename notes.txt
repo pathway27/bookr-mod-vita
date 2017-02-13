@@ -23,4 +23,23 @@ Read the cmake tutorial which goes through setting up
 variables like version through an internal environment variables
 I then found a stackoverflow for the exact thing, see CMakeLists.txt:32:38
 
-## link macos specific libs from /Frameworks.../ to /usr/local/include for intellisense.
+## Using Visual Studio Code
+
+http://stackoverflow.com/questions/37522462/visual-studio-code-includepath
+link macos specific libs from /Frameworks.../ to /usr/local/include for intellisense.
+```sh
+ln -s /System/Library/Frameworks/OpenGL.framework/Headers/ /usr/local/include/OpenGL
+```
+
+## Going from GLUT to GLFW
+
+On macOS 10.9+ i get deprecation warnings for the system's GLUT, so swapping to GLFW (newest and more supported)
+```sh
+... 17 other warnings
+src/graphics/fzscreenglut.cpp:183:2: warning: 'glutMainLoop' is deprecated: first deprecated in macOS 10.9
+      [-Wdeprecated-declarations]
+        glutMainLoop();
+        ^
+/usr/local/include/GLUT/glut.h:438:22: note: 'glutMainLoop' has been explicitly marked deprecated here
+extern void APIENTRY glutMainLoop(void) OPENGL_DEPRECATED(10_0, 10_9);
+```
