@@ -146,6 +146,8 @@ int exit_callback(int arg1, int arg2, void *common) {
 #endif
 
 static char psp_full_path[1024 + 1];
+static vita2d_pgf *pgf;
+static vita2d_pvf *pvf;
 void FZScreen::open(int argc, char** argv) {
 #ifdef PSP
     /* Get the full path to EBOOT.PBP. */
@@ -190,9 +192,6 @@ void FZScreen::open(int argc, char** argv) {
     sceGuDisplay(GU_TRUE);
     fat_init(sceKernelDevkitVersion());
 #elif defined(__vita__)
-    vita2d_pgf *pgf;
-    vita2d_pvf *pvf;
-
     vita2d_init();
     vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
 
@@ -200,25 +199,22 @@ void FZScreen::open(int argc, char** argv) {
     pvf = vita2d_load_default_pvf();
 
     // needs to be in own function?
-    while (1) {
-      vita2d_start_drawing();
-      vita2d_clear_screen();
+    
+    vita2d_start_drawing();
+    vita2d_clear_screen();
 
-      vita2d_pgf_draw_text(pgf, 700, 30, RGBA8(255,255,255,255), 1.0f, "Hello in PGF");
-      #ifdef __vita__
-        vita2d_pgf_draw_text(pgf, 700, 207, RGBA8(255,255,255,255), 1.0f, "UTF-8 しません");
-        vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
-      #endif
+    vita2d_pgf_draw_text(pgf, 700, 30, RGBA8(255,255,255,255), 1.0f, "Hello in PGF");
+    #ifdef __vita__
+      vita2d_pgf_draw_text(pgf, 700, 207, RGBA8(255,255,255,255), 1.0f, "UTF-8 しません");
+      vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
+    #endif
 
-      vita2d_end_drawing();
-      vita2d_swap_buffers();
-    }
-
-    vita2d_fini();
-    vita2d_free_pgf(pgf);
-    vita2d_free_pvf(pvf);
+    vita2d_end_drawing();
+    vita2d_swap_buffers();
 #endif
 }
+
+
 
 void FZScreen::close() {
 #ifdef PSP
@@ -226,7 +222,8 @@ void FZScreen::close() {
   sceGuTerm();
 #elif defined(__vita__)
   vita2d_fini();
-  //fonts
+  vita2d_free_pgf(pgf);
+  vita2d_free_pvf(pvf);
 #endif
 }
 
@@ -238,50 +235,70 @@ void FZScreen::exit() {
 #endif
 }
 
+static bool stickyKeys = false;
+
+static int breps[16];
+static void updateReps(int keyState) {
+	if (stickyKeys && keyState == 0) {
+		stickyKeys = false;
+	}
+	if (stickyKeys) {
+		memset((void*)breps, 0, sizeof(int)*16);
+		return;
+	}
+	if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
+	if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+	if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
+	if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
+	if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
+	if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
+	if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
+	if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
+	if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
+	if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
+	if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
+	if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
+	if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
+	if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
+	if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
+}
+
+
+void FZScreen::resetReps() {
+	stickyKeys = true;
+}
+		
+int* FZScreen::ctrlReps() {
+	return breps;
+}
+
+void FZScreen::setupCtrl() {
+#ifdef PSP
+	sceCtrlSetSamplingCycle(0);
+	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+	resetReps();
+#elif defined(__vita__)
+  sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
+#endif
+}
+
+static int lastAnalogX = 0;
+static int lastAnalogY = 0;
+int FZScreen::readCtrl() {
+	SceCtrlData pad;
+#ifdef PSP
+	sceCtrlPeekBufferPositive(&pad, 1);
+#elif defined(__vita__)
+  sceCtrlPeekBufferPositive(0, &pad, 1);
+#endif
+	updateReps(pad.Buttons);
+	lastAnalogX = pad.Lx;
+	lastAnalogY = pad.Ly;
+	return pad.Buttons;
+}
+
 /*
-  static bool stickyKeys = false;
-
-  static int breps[16];
-
-  static void updateReps(int keyState) {
-    if (stickyKeys && keyState == 0) {
-      stickyKeys = false;
-    }
-    if (stickyKeys) {
-      memset((void*)breps, 0, sizeof(int)*16);
-      return;
-    }
-    if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
-    if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
-    if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
-    if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
-    if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
-    if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
-    if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
-    if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
-    if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
-    if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
-    if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
-    if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
-    if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
-    if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
-    if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
-  }
-      
-  void FZScreen::resetReps() {
-    stickyKeys = true;
-  }
-      
-  int* FZScreen::ctrlReps() {
-    return breps;
-  }
-
-  void FZScreen::setupCtrl() {
-    sceCtrlSetSamplingCycle(0);
-    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-    resetReps();
-  }
-
+  
   static int lastAnalogX = 0;
   static int lastAnalogY = 0;
   int FZScreen::readCtrl() {

@@ -167,3 +167,8 @@ void FZScreen::open(int argc, char** argv) {
 	//setenv("BOOKRFONTDIR", path.c_str(), 1);
 	//setenv("BOOKRCMAPDIR", path.c_str(), 1);
 }
+
+int FZScreen::readCtrl() {
+	updateReps();
+	return keyState;
+}
