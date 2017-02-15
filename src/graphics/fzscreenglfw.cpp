@@ -64,29 +64,54 @@ static int keyState = 0;
 static bool stickyKeys = false;
 static int powerSerial = 0;
 static int breps[16];
+static void updateReps() {
+	if (stickyKeys && keyState == 0) {
+		stickyKeys = false;
+	}
+	if (stickyKeys) {
+		memset((void*)breps, 0, sizeof(int)*16);
+		return;
+	}
+	if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
+	if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+	if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
+	if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
+	if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
+	if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
+	if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
+	if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
+	if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
+	if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
+	if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
+	if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
+	if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
+	if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
+	if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
+}
+
 //unsigned char key, int x, int y
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	std::cout << key << endl;
-
+    
 	// swap this to some mapping?
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
-            case 'w': keyState |= FZ_CTRL_UP; break;
-            case 's': keyState |= FZ_CTRL_DOWN; break;
-            case 'a': keyState |= FZ_CTRL_LEFT; break;
-            case 'd': keyState |= FZ_CTRL_RIGHT; break;
-            case 'k': keyState |= FZ_CTRL_SQUARE; break;
-            case 'l': keyState |= FZ_CTRL_CROSS; break;
-            case 'o': keyState |= FZ_CTRL_TRIANGLE; break;
-            case 'p': keyState |= FZ_CTRL_CIRCLE; break;
-            case 'v': keyState |= FZ_CTRL_SELECT; break;
-            case 'b': keyState |= FZ_CTRL_START; break;
-            case 'x': keyState |= FZ_CTRL_LTRIGGER; break;
-            case 'c': keyState |= FZ_CTRL_RTRIGGER; break;
-            case 'h': keyState |= FZ_CTRL_HOLD;break;
+            case GLFW_KEY_W: keyState |= FZ_CTRL_UP; break;
+            case GLFW_KEY_S: keyState |= FZ_CTRL_DOWN; break;
+            case GLFW_KEY_A: keyState |= FZ_CTRL_LEFT; break;
+            case GLFW_KEY_D: keyState |= FZ_CTRL_RIGHT; break;
+            case GLFW_KEY_K: keyState |= FZ_CTRL_SQUARE; break;
+            case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
+            case GLFW_KEY_O: keyState |= FZ_CTRL_TRIANGLE; break;
+            case GLFW_KEY_P: keyState |= FZ_CTRL_CIRCLE; break;
+            case GLFW_KEY_V: keyState |= FZ_CTRL_SELECT; break;
+            case GLFW_KEY_B: keyState |= FZ_CTRL_START; break;
+            case GLFW_KEY_X: keyState |= FZ_CTRL_LTRIGGER; break;
+            case GLFW_KEY_C: keyState |= FZ_CTRL_RTRIGGER; break;
+            case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
         }
     }
 }
@@ -118,6 +143,7 @@ static void keyboardup(unsigned char key, int x, int y) {
 }
 */
 
+static GLFWwindow* window;
 void FZScreen::open(int argc, char** argv) {
 	//getcwd(psp_full_path, 1024);
 
@@ -130,7 +156,7 @@ void FZScreen::open(int argc, char** argv) {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "Bookr GLFW", nullptr, nullptr);
+	window = glfwCreateWindow(800, 600, "Bookr GLFW", nullptr, nullptr);
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -149,26 +175,37 @@ void FZScreen::open(int argc, char** argv) {
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	glfwSetKeyCallback(window, keyboard);  
+	glfwSetKeyCallback(window, keyboard);
 
-	while(!glfwWindowShouldClose(window))
-	{
-		glfwPollEvents();
+	//while(!glfwWindowShouldClose(window))
+	//{
+	//glfwPollEvents();
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
 
-		glfwSwapBuffers(window);
-	}
+void FZScreen::close() {
+}
 
+void FZScreen::exit() {
 	glfwTerminate();
-	//string path(psp_full_path);
-	//path += "/fonts";
-	//setenv("BOOKRFONTDIR", path.c_str(), 1);
-	//setenv("BOOKRCMAPDIR", path.c_str(), 1);
+}
+
+bool FZScreen::isClosing() {
+    return glfwWindowShouldClose(window);
 }
 
 int FZScreen::readCtrl() {
-	updateReps();
+	//updateReps();
+    //std::cout << keyState << std::endl;
 	return keyState;
+}
+
+void FZScreen::swapBuffers() {
+	glfwSwapBuffers(window);
+}
+
+void FZScreen::checkEvents() {
+    glfwPollEvents();
 }

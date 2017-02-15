@@ -43,3 +43,9 @@ src/graphics/fzscreenglut.cpp:183:2: warning: 'glutMainLoop' is deprecated: firs
 /usr/local/include/GLUT/glut.h:438:22: note: 'glutMainLoop' has been explicitly marked deprecated here
 extern void APIENTRY glutMainLoop(void) OPENGL_DEPRECATED(10_0, 10_9);
 ```
+
+## Style
+
+1. Use spaces instead of tabs
+2. 4 Spaces for normal indentation
+3. 2 Spaces for preprocessor indentation when required.

@@ -51,6 +51,8 @@
 
 #include "bookrconfig.h"
 
+static bool closing = false;
+
 FZScreen::FZScreen() {
 }
 
@@ -62,9 +64,12 @@ FZScreen::~FZScreen() {
 //static unsigned int __attribute__((aligned(16))) list[262144];
 static unsigned int* list;
 
-#define BUF_WIDTH (512)
-#define SCR_WIDTH (480)
-#define SCR_HEIGHT (272)
+#ifdef PSP
+  #define BUF_WIDTH (512)
+  #define SCR_WIDTH (480)
+  #define SCR_HEIGHT (272)
+#endif
+
 #define PIXEL_SIZE (4) /* change this if you change to another screenmode */
 #define FRAME_SIZE (BUF_WIDTH * SCR_HEIGHT * PIXEL_SIZE)
 #define ZBUF_SIZE (BUF_WIDTH SCR_HEIGHT * 2) /* zbuffer seems to be 16-bit? */
@@ -209,29 +214,28 @@ void FZScreen::open(int argc, char** argv) {
       vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
     #endif
 
+    vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
+
     vita2d_end_drawing();
-    vita2d_swap_buffers();
 #endif
 }
-
-
 
 void FZScreen::close() {
 #ifdef PSP
   fat_free();
   sceGuTerm();
 #elif defined(__vita__)
-  vita2d_fini();
-  vita2d_free_pgf(pgf);
-  vita2d_free_pvf(pvf);
+    vita2d_fini();
+    vita2d_free_pgf(pgf);
+    vita2d_free_pvf(pvf);
 #endif
 }
 
 void FZScreen::exit() {
 #ifdef PSP
-  sceKernelExitGame();
+    sceKernelExitGame();
 #elif defined(__vita__)
-  sceKernelExitProcess(0);
+    sceKernelExitProcess(0);
 #endif
 }
 
@@ -276,40 +280,43 @@ void FZScreen::setupCtrl() {
 #ifdef PSP
 	sceCtrlSetSamplingCycle(0);
 	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-	resetReps();
 #elif defined(__vita__)
-  sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
+    sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
 #endif
+    resetReps();
 }
 
 static int lastAnalogX = 0;
 static int lastAnalogY = 0;
 int FZScreen::readCtrl() {
-	SceCtrlData pad;
-#ifdef PSP
-	sceCtrlPeekBufferPositive(&pad, 1);
-#elif defined(__vita__)
-  sceCtrlPeekBufferPositive(0, &pad, 1);
-#endif
-	updateReps(pad.Buttons);
-	lastAnalogX = pad.Lx;
-	lastAnalogY = pad.Ly;
-	return pad.Buttons;
-}
-
-/*
-  
-  static int lastAnalogX = 0;
-  static int lastAnalogY = 0;
-  int FZScreen::readCtrl() {
     SceCtrlData pad;
-    sceCtrlPeekBufferPositive(&pad, 1);
+#ifdef PSP
+	  sceCtrlPeekBufferPositive(&pad, 1);
     updateReps(pad.Buttons);
     lastAnalogX = pad.Lx;
     lastAnalogY = pad.Ly;
     return pad.Buttons;
-  }
+#elif defined(__vita__)
+    sceCtrlPeekBufferPositive(0, &pad, 1);
+    updateReps(pad.buttons);
+	  lastAnalogX = pad.lx;
+	  lastAnalogY = pad.ly;
+    return pad.buttons;
+#endif
+}
 
+void FZScreen::swapBuffers() {
+    vita2d_swap_buffers();
+}
+
+void FZScreen::checkEvents() {
+}
+
+bool FZScreen::isClosing() {
+    return closing;
+}
+
+/*
   void FZScreen::getAnalogPad(int& x, int& y) {
     x = lastAnalogX - 128;
     y = lastAnalogY - 128;
@@ -367,9 +374,6 @@ int FZScreen::readCtrl() {
     if (b & FZ_DEPTH_BUFFER)
       m |= GU_DEPTH_BUFFER_BIT;
     sceGuClear(m);
-  }
-
-  void FZScreen::checkEvents() {
   }
 
   void FZScreen::matricesFor2D(int rotation) {

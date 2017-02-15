@@ -76,21 +76,38 @@ using namespace std;
 #define FZ_PATCH_FACE           20
 #define FZ_FRAGMENT_2X          21
 
-#define FZ_CTRL_SELECT     0x000001
-#define FZ_CTRL_START      0x000008
-#define FZ_CTRL_UP         0x000010
-#define FZ_CTRL_RIGHT      0x000020
-#define FZ_CTRL_DOWN       0x000040
-#define FZ_CTRL_LEFT       0x000080
-#define FZ_CTRL_LTRIGGER   0x000100
-#define FZ_CTRL_RTRIGGER   0x000200
-#define FZ_CTRL_TRIANGLE   0x001000
-#define FZ_CTRL_CIRCLE     0x002000
-#define FZ_CTRL_CROSS      0x004000
-#define FZ_CTRL_SQUARE     0x008000
-#define FZ_CTRL_HOME       0x010000
-#define FZ_CTRL_HOLD       0x020000
-#define FZ_CTRL_NOTE       0x800000
+#define FZ_CTRL_SELECT          0x000001
+#define FZ_CTRL_START           0x000008
+#define FZ_CTRL_UP              0x000010
+#define FZ_CTRL_RIGHT           0x000020
+#define FZ_CTRL_DOWN            0x000040
+#define FZ_CTRL_LEFT            0x000080
+#define FZ_CTRL_LTRIGGER        0x000100
+#define FZ_CTRL_RTRIGGER        0x000200
+#define FZ_CTRL_TRIANGLE        0x001000
+#define FZ_CTRL_CIRCLE          0x002000
+#define FZ_CTRL_CROSS           0x004000
+#define FZ_CTRL_SQUARE          0x008000
+#define FZ_CTRL_HOME            0x010000
+#define FZ_CTRL_HOLD            0x020000
+#define FZ_CTRL_NOTE            0x800000
+
+#ifdef __vita__
+  #define SCE_CTRL_L3          0x000002
+  #define SCE_CTRL_L3          0x000002
+  #define SCE_CTRL_R3          0x000004
+  #define SCE_CTRL_INTERCEPTED 0x010000
+  #define SCE_CTRL_VOLUP       0x100000
+  #define SCE_CTRL_VOLDOWN     0x200000
+#elif defined(PSP)
+  #define SCE_CTRL_L3
+  #define SCE_CTRL_L3
+  #define SCE_CTRL_R3
+  #define SCE_CTRL_INTERCEPTED
+  #define SCE_CTRL_VOLUP
+  #define SCE_CTRL_VOLDOWN
+#endif
+
 
 #define FZ_REPS_SELECT     1
 #define FZ_REPS_START      2
@@ -259,6 +276,9 @@ public:
 	static void setupCtrl();
 
 	static int readCtrl();
+
+	static bool isClosing();
+
 	static void getAnalogPad(int& x, int& y);
 	static void resetReps();
 	static int* ctrlReps();

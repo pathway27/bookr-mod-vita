@@ -30,21 +30,35 @@
 
 #include "graphics/fzscreen.h"
 
-//#include "bookrconfig.h"
-
-// start with screen!
-//#include "graphics/fzscreen.h"
-
-
-//#include "bkdocument.h"
-
-// res 960 × 544
-
 int main(int argc, char* argv[]) {
     //BKDocument *documentLayer = 0;
 
     std::cout << "Hi" << std::endl;
     FZScreen::open(argc, argv);
+
+    // Swapping buffers based on dirty variable feels dirty.
+    bool dirty = true;
+    bool exitApp = false;
+    while (!exitApp) {
+        //std::cout << "while" << std::endl;
+        //FZScreen::waitVblankStart();
+
+        if (dirty) {
+            FZScreen::swapBuffers();
+            dirty = false;
+        }
+
+        FZScreen::checkEvents();
+        //FZ_DEBUG_SCREEN_SET00
+        int buttons = FZScreen::readCtrl();
+        //dirty = buttons != 0;
+
+        if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
+            exitApp = true;
+    }
     
+    FZScreen::close();
+    FZScreen::exit();
+
     return 0;
 }
