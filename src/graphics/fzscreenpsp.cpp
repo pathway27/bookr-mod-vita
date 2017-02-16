@@ -1,11 +1,11 @@
 /*
- * Bookr % VITA: document reader for the Sony PS Vita
- *   A fork of Bookr for PSP
- *
+ * Original Bookr and bookr-mod for PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
- *               2017 Sreekara C. (pathway27 at gmail dot com)
+ *                  
+ * Bookr % VITA: document reader for the Sony PS Vita
+ * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+/*   ----------     Consider splitting VITA to own file    ------------   */
+
 #ifdef PSP
   #ifdef FW150
     #include <pspdisplay_kernel.h>
@@ -76,7 +79,7 @@ static unsigned int* list;
 
 /* Exit callback */
 int exit_callback(int arg1, int arg2, void *common) {
-#ifdef PSP	
+#ifdef PSP  
     sceKernelExitGame();
 #elif defined(__vita__)
     sceKernelExitProcess(0);
@@ -190,7 +193,7 @@ void FZScreen::open(int argc, char** argv) {
     //sceGuEnable(GU_TEXTURE_2D);
     sceGuClear(GU_COLOR_BUFFER_BIT|GU_DEPTH_BUFFER_BIT);
     sceGuFinish();
-    sceKernelDcacheWritebackAll();	
+    sceKernelDcacheWritebackAll();  
     sceGuSync(0,0);
 
     sceDisplayWaitVblankStart();
@@ -243,43 +246,43 @@ static bool stickyKeys = false;
 
 static int breps[16];
 static void updateReps(int keyState) {
-	if (stickyKeys && keyState == 0) {
-		stickyKeys = false;
-	}
-	if (stickyKeys) {
-		memset((void*)breps, 0, sizeof(int)*16);
-		return;
-	}
-	if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
-	if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
-	if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
-	if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
-	if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
-	if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
-	if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
-	if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
-	if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
-	if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
-	if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
-	if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
-	if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
-	if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
-	if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
+  if (stickyKeys && keyState == 0) {
+    stickyKeys = false;
+  }
+  if (stickyKeys) {
+    memset((void*)breps, 0, sizeof(int)*16);
+    return;
+  }
+  if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
+  if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+  if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
+  if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
+  if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
+  if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
+  if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
+  if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
+  if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
+  if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
+  if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
+  if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
+  if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
+  if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
+  if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
 }
 
 
 void FZScreen::resetReps() {
-	stickyKeys = true;
+  stickyKeys = true;
 }
-		
+    
 int* FZScreen::ctrlReps() {
-	return breps;
+  return breps;
 }
 
 void FZScreen::setupCtrl() {
 #ifdef PSP
-	sceCtrlSetSamplingCycle(0);
-	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+  sceCtrlSetSamplingCycle(0);
+  sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 #elif defined(__vita__)
     sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
 #endif
@@ -291,7 +294,7 @@ static int lastAnalogY = 0;
 int FZScreen::readCtrl() {
     SceCtrlData pad;
 #ifdef PSP
-	  sceCtrlPeekBufferPositive(&pad, 1);
+    sceCtrlPeekBufferPositive(&pad, 1);
     updateReps(pad.Buttons);
     lastAnalogX = pad.Lx;
     lastAnalogY = pad.Ly;
@@ -299,8 +302,8 @@ int FZScreen::readCtrl() {
 #elif defined(__vita__)
     sceCtrlPeekBufferPositive(0, &pad, 1);
     updateReps(pad.buttons);
-	  lastAnalogX = pad.lx;
-	  lastAnalogY = pad.ly;
+    lastAnalogX = pad.lx;
+    lastAnalogY = pad.ly;
     return pad.buttons;
 #endif
 }
@@ -328,21 +331,21 @@ bool FZScreen::isClosing() {
 
   void FZScreen::endAndDisplayList() {
     sceGuFinish();
-    sceKernelDcacheWritebackAll();	
+    sceKernelDcacheWritebackAll();  
     sceGuSync(0,0);
   }
 
   void FZScreen::commitAll(){
-    sceKernelDcacheWritebackAll();	
+    sceKernelDcacheWritebackAll();  
   }
 
   void FZScreen::commitRange(const void* p, unsigned int size){
-    sceKernelDcacheWritebackRange(p,size);	
+    sceKernelDcacheWritebackRange(p,size);  
   }
 
   static void* lastFramebuffer = NULL;
   void FZScreen::swapBuffers() {
-  //	sceDisplayWaitVblankStart();
+  //  sceDisplayWaitVblankStart();
     lastFramebuffer = sceGuSwapBuffers();
   }
 
@@ -459,7 +462,7 @@ bool FZScreen::isClosing() {
   }
 
   void FZScreen::dcacheWritebackAll() {
-    sceKernelDcacheWritebackAll();	
+    sceKernelDcacheWritebackAll();  
   }
 
   string FZScreen::basePath() {
@@ -499,7 +502,7 @@ bool FZScreen::isClosing() {
     else{ // old method to get ls dir.
       SceUID fd;
       SceIoDirent *findData;
-      findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent));	// dont ask me WHY...
+      findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent)); // dont ask me WHY...
       memset((void*)findData, 0, sizeof(SceIoDirent));
       //a.push_back(FZDirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
       //a.push_back(FZDirent("books/1984.txt", FZ_STAT_IFREG, 587083));
@@ -526,7 +529,7 @@ bool FZScreen::isClosing() {
     if (v <= 0 || v > 6)
       return;
     scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
-  /*	scePowerSetCpuClockFrequency(speedValues[v*2]);
+  /*  scePowerSetCpuClockFrequency(speedValues[v*2]);
     scePowerSetBusClockFrequency(speedValues[v*2+1]);
   // -- END HERE
   }

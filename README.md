@@ -4,13 +4,14 @@ A document reader for the PSVita ported from the amalgamation of the PSP applica
 
 # Building
 
-## For VITA
+## For VITA (on *nix)
 
 ```sh
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 $ ./build.sh # Creates a build folder with vpk
+# Install .vpk
 
-# For devs - replace with your VITA ftp ip
+# For devs - replace with your VITA ftp ip (assumes vpk was installed once)
 export PSVITAIP=192.168.1.5
 cd build && make send
 ```
@@ -21,7 +22,7 @@ cd build && make send
 # This is just for devel.
 # Currently on OSX El Capitan 10.11.5
 brew install glfw GLEW
-make -f Makefile.macglut
+make -f Makefile.macglfw
 ./bookr.glut
 ```
 
@@ -39,38 +40,38 @@ Use the .vpk to install.
 
 # CJK PDF Support
 
+Considering Noto fonts.
+
 # Credits
 
-## bookr
+**Original bookr**
 
-Carlos Carrasco Martinez and Edward Choh
+Carlos Carrasco Martinez (carloscm at gmail dot com),  
+Christian Payeur (christian dot payeur at gmail dot com),  
+Nguyen Chi Tam (nguyenchitam at gmail dot com)  
 
-MuPDF library - By Artifex Software, Inc. licensed under the AFPL license.
-Visit: http://ghostpdf.com/new.html
-
-## bookr-mod
+**bookr-mod - 2525275 @ gmail**
 
 https://code.google.com/archive/p/bookr-mod/
 
-## bookr-hbs
-
-
-
-## ozbookr
-
-
-## gtzampanaskis/bookr
+**bookr-hbs - HomebrewStore Development Team**  
+**ozbookr - by Oleg Zhuk (zhukoo@gmail.com)**  
+**gtzampanaskis/bookr**
 
 ## book-mod-vita
 
 All the VITA hacking/dev scene
-    - Team Molecule (yifan, xyzz, DaveeFTW, xerpi)... need a library or a standardized list of devs....
-    - TheFlow
-    -
+
+- Team Molecule (yifan, xyzz, DaveeFTW, xerpi)
+- TheFlow
+
+Software Used
+
+- libvita2d - xerpi
 
 pathway27 (Sree) - ME! - This port to VITA
 
 ## License
 
-Uses the same license as bookr, GNU GPLv2+, see LICENSE.
+Uses the same license as bookr, GNU GPLv2+, see LICENSE.  
 Original sources at respective orphan branches of this repository.
