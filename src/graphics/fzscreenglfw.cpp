@@ -167,6 +167,8 @@ void FZScreen::open(int argc, char** argv) {
 
     glfwSetKeyCallback(window, keyboard);
 
+    glfwSwapInterval(0);
+
     //while(!glfwWindowShouldClose(window))
     //{
     //glfwPollEvents();
@@ -197,5 +199,6 @@ void FZScreen::swapBuffers() {
 }
 
 void FZScreen::checkEvents() {
-    glfwPollEvents();
+    //glfwPollEvents();
+    glfwWaitEvents();
 }
