@@ -149,7 +149,7 @@ void FZScreen::open(int argc, char** argv) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    window = glfwCreateWindow(800, 600, "Bookr GLFW", nullptr, nullptr);
+    window = glfwCreateWindow(940, 544, "Bookr GLFW", nullptr, nullptr);
     if (window == nullptr) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
