@@ -44,12 +44,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
+add_subdirectory(ext/tinyxml2)
+
 # Add any additional include paths here
 include_directories(
   ${CMAKE_BINARY_DIR}
-  /usr/local/vitasdk/arm-vita-eabi/include/freetype2
 )
 
+
+	
 # Add any additional library paths here
 # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
 link_directories(
@@ -63,6 +66,8 @@ add_executable(bookr-mod-vita
   src/bookr.cpp
   src/graphics/fzscreenvita.cpp
   src/graphics/fzscreencommon.cpp
+
+  src/bkuser.cpp
   # src/bkdocument.cpp
   # src/bklayer.cpp
   # src/graphics/fzinstreammem.cpp
@@ -93,11 +98,12 @@ target_link_libraries(bookr-mod-vita
   ScePgf_stub
   ScePvf_stub
   SceCommonDialog_stub
-  #png
-  #jpeg
-  #z
-  #m
-  #c
+  png
+  jpeg
+  z
+  m
+  c
+  tinyxml2
 )
 
 ## Create Vita files

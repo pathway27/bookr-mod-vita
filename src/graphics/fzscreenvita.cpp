@@ -1,5 +1,10 @@
 /*
- * Bookr % VITA: document reader for the Sony PS Vita
+ * Original Bookr and bookr-mod for PSP
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com),
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
+ * 
+ * Modified Bookr % VITA: document reader for the Sony PS Vita
  * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,6 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#include <string.h>
 
 #include <psp2/ctrl.h>
 #include <psp2/kernel/processmgr.h>
@@ -138,6 +145,7 @@ static void initalDraw() {
     vita2d_end_drawing();
 }
 
+// Move this to constructor?
 void FZScreen::open(int argc, char** argv) {
     vita2d_init();
     vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
@@ -240,6 +248,10 @@ bool FZScreen::isClosing() {
 
 void FZScreen::waitVblankStart() {
     vita2d_set_vblank_wait(1);
+}
+
+string FZScreen::basePath() {
+    return psp_full_path;
 }
 
 /*
@@ -382,10 +394,6 @@ void FZScreen::waitVblankStart() {
 
   void FZScreen::dcacheWritebackAll() {
     sceKernelDcacheWritebackAll();  
-  }
-
-  string FZScreen::basePath() {
-    return psp_full_path;
   }
 
   struct CompareDirent {

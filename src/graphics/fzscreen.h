@@ -93,19 +93,17 @@ using namespace std;
 #define FZ_CTRL_NOTE            0x800000
 
 #ifdef __vita__
-  #define SCE_CTRL_L3          0x000002
-  #define SCE_CTRL_L3          0x000002
-  #define SCE_CTRL_R3          0x000004
-  #define SCE_CTRL_INTERCEPTED 0x010000
-  #define SCE_CTRL_VOLUP       0x100000
-  #define SCE_CTRL_VOLDOWN     0x200000
+  #define FZ_CTRL_L3          0x000002
+  #define FZ_CTRL_R3          0x000004
+  #define FZ_CTRL_INTERCEPTED 0x010000
+  #define FZ_CTRL_VOLUP       0x100000
+  #define FZ_CTRL_VOLDOWN     0x200000
 #elif defined(PSP)
-  #define SCE_CTRL_L3
-  #define SCE_CTRL_L3
-  #define SCE_CTRL_R3
-  #define SCE_CTRL_INTERCEPTED
-  #define SCE_CTRL_VOLUP
-  #define SCE_CTRL_VOLDOWN
+  #define FZ_CTRL_L3
+  #define FZ_CTRL_R3
+  #define FZ_CTRL_INTERCEPTED
+  #define FZ_CTRL_VOLUP
+  #define FZ_CTRL_VOLDOWN
 #endif
 
 

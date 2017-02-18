@@ -3,8 +3,8 @@
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
- *                  
- * Bookr % VITA: document reader for the Sony PS Vita
+ * 
+ * Modified Bookr % VITA: document reader for the Sony PS Vita
  * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,9 +29,11 @@
 #include <iostream>
 
 #include "graphics/fzscreen.h"
+#include "bkuser.h"
 
 int main(int argc, char* argv[]) {
     //BKDocument *documentLayer = 0;
+    BKUser::init();
 
     std::cout << "Hi" << std::endl;
     FZScreen::open(argc, argv);

@@ -1,6 +1,11 @@
 /*
- * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ * Original Bookr and bookr-mod for PSP
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com),
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
+ *                  
+ * Bookr % VITA: document reader for the Sony PS Vita
+ * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +40,13 @@ const char* FZScreen::nameForButton(int mask) {
 	if (mask & FZ_CTRL_HOME    ) return "Home";
 	if (mask & FZ_CTRL_HOLD    ) return "Hold";
 	if (mask & FZ_CTRL_NOTE    ) return "Note";
+#ifdef __vita__
+	if (mask & FZ_CTRL_L3	      ) return "L3";
+	if (mask & FZ_CTRL_R3	      ) return "R3";
+	if (mask & FZ_CTRL_VOLUP      ) return "Vol UP";
+	if (mask & FZ_CTRL_VOLDOWN    ) return "Vol Down";
+	if (mask & FZ_CTRL_INTERCEPTED) return "Intercepted";
+#endif
 	return "Unknow button";
 }
 

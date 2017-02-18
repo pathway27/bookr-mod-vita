@@ -16,6 +16,22 @@ DISP: 960x544 (16:9) OLED multi-touch @ 220ppi
 
 Compass?
 
+## Licensing and Copyright
+
+Porting an open source project is hard to know all the legal terms.  
+So bookr uses the GNU GPLv2+ which requires 
+
+- Include Original (all in this repo)
+- Disclose Source (this repo)
+- Include Copyright (Included to original files, modified files also have my copyright; is this correct?)
+- State Changes (commits on this repo)
+- Include License (LICENSE in this repo)
+
+So for the things i change i'm adding my copright and a notice of modification before the GPL notice.  
+[Some](http://stackoverflow.com/questions/11670368/gpl-copyright-notice-when-contributing-new-file)
+[links](http://softwareengineering.stackexchange.com/questions/157968/how-to-manage-a-copyright-notice-in-an-open-source-project
+
+
 ## Macro definitions
 
 ```C
@@ -56,7 +72,7 @@ extern void APIENTRY glutMainLoop(void) OPENGL_DEPRECATED(10_0, 10_9);
 
 ## C++11
 
-The codebase is using more of the C subset than C++, maybe i can make it cleaner and learn the C++11 features too.
+The codebase is using more of the C subset than C++, maybe i can make it cleaner and learn the C++11 features too.  
 e.g. FZScreen is only using static functions to do everything, and look so many static global variables!
 
 
