@@ -41,20 +41,27 @@ int main(int argc, char* argv[]) {
     bool exitApp = false;
     while (!exitApp) {
         //std::cout << "while" << std::endl;
-        //FZScreen::waitVblankStart();
+        FZScreen::waitVblankStart();
 
         if (dirty) {
+            //std::cout << "dirty" << std::endl;
             FZScreen::swapBuffers();
             dirty = false;
+
         }
 
-        FZScreen::checkEvents();
+        //FZScreen::checkEvents();
         //FZ_DEBUG_SCREEN_SET00
         int buttons = FZScreen::readCtrl();
+        
+        //std::cout << buttons << std::endl;
         //dirty = buttons != 0;
 
         if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
             exitApp = true;
+        else {
+            FZScreen::checkEvents(buttons);
+        }
     }
     
     FZScreen::close();

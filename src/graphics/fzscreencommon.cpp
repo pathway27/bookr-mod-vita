@@ -76,7 +76,7 @@ int FZScreen::repsForButtonMask(int mask) {
 	return 0;
 }
 
-char* FZScreen::speedLabels[7] = {
+char const *FZScreen::speedLabels[7] = {
 	"Default",
 	"10Mhz/5Mhz",
 	"25Mhz/12Mhz",

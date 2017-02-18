@@ -68,6 +68,12 @@ int val(5);  //direct init
 int val{5};  //uniform init <--- C++11
 ```
 
+## Double buffering
+
+Two variables in ram; front and back buffer.  
+Front is the one shown to you on the screen; back is the only one you can draw to.  
+Swap them to show the new drawn one, but while loops seems to go so fast it read buttons twice.
+
 
 ## Style
 

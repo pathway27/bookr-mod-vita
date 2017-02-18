@@ -253,7 +253,7 @@ public:
 
 	static void disable(int m);
 
-	static void checkEvents();
+	static void checkEvents(int buttons);
 
 	static void color(unsigned int c);
 
@@ -295,7 +295,7 @@ public:
 
 	static int getSuspendSerial();
 
-	static char* speedLabels[];
+	static const char* speedLabels[];
 	static int speedValues[];
 	static void setSpeed(int v);
 	static int getSpeed();

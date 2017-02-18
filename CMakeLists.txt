@@ -61,7 +61,8 @@ link_directories(
 # Add all the files needed to compile here
 add_executable(bookr-mod-vita
   src/bookr.cpp
-  src/graphics/fzscreenpsp.cpp
+  src/graphics/fzscreenvita.cpp
+  src/graphics/fzscreencommon.cpp
   # src/bkdocument.cpp
   # src/bklayer.cpp
   # src/graphics/fzinstreammem.cpp
