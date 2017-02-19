@@ -44,11 +44,11 @@
 using namespace std;
 
 FZScreen::FZScreen() {
-    std::cout << 'FZScreen()' << endl;
+    std::cout << "FZScreen()" << endl;
 }
 
 FZScreen::~FZScreen() {
-    std::cout << '~FZScreen()' << endl;
+    std::cout << "~FZScreen()" << endl;
 }
 
 static int keyState = 0;
@@ -84,7 +84,7 @@ static void updateReps() {
 
 //unsigned char key, int x, int y
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    std::cout << key << endl;
+    //std::cout << key << endl;
     
     // swap this to some mapping?
     if (action == GLFW_PRESS) {
@@ -92,8 +92,16 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
-            case GLFW_KEY_W: keyState |= FZ_CTRL_UP; break;
-            case GLFW_KEY_S: keyState |= FZ_CTRL_DOWN; break;
+            case GLFW_KEY_W:
+                keyState |= FZ_CTRL_UP;
+                glClearColor(0.2f, 0.0f, 0.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                break;
+            case GLFW_KEY_S:
+                keyState |= FZ_CTRL_DOWN; 
+                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+                break;
             case GLFW_KEY_A: keyState |= FZ_CTRL_LEFT; break;
             case GLFW_KEY_D: keyState |= FZ_CTRL_RIGHT; break;
             case GLFW_KEY_K: keyState |= FZ_CTRL_SQUARE; break;
@@ -106,6 +114,7 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
             case GLFW_KEY_C: keyState |= FZ_CTRL_RTRIGGER; break;
             case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
         }
+        FZScreen::swapBuffers();
     }
 }
 
@@ -137,6 +146,7 @@ static void keyboardup(unsigned char key, int x, int y) {
 */
 
 static GLFWwindow* window;
+static char psp_full_path[1024 + 1];
 void FZScreen::open(int argc, char** argv) {
   //getcwd(psp_full_path, 1024);
 
@@ -191,14 +201,24 @@ bool FZScreen::isClosing() {
 int FZScreen::readCtrl() {
     //updateReps();
     //std::cout << keyState << std::endl;
-    return keyState;
+    glfwWaitEvents();
+    int lastKeyState = keyState;
+    keyState = 0;
+    return lastKeyState;
 }
 
 void FZScreen::swapBuffers() {
     glfwSwapBuffers(window);
 }
 
-void FZScreen::checkEvents() {
+void FZScreen::checkEvents(int buttons) {
     //glfwPollEvents();
-    glfwWaitEvents();
+    
+}
+
+void FZScreen::waitVblankStart() {
+}
+
+string FZScreen::basePath() {
+    return psp_full_path;
 }

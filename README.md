@@ -8,7 +8,8 @@ A document reader for the PSVita ported from the amalgamation of the PSP applica
 
 ```sh
 # Setup VITA development evironment: https://henkaku.xyz/developer/
-$ ./build.sh # Creates a build folder with vpk
+git clone --recursive https://github.com/pathway27/bookr-mod-vita
+./build.sh # Creates a build folder with vpk
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
