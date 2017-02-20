@@ -22,15 +22,19 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <string.h>
-
-#include <psp2/ctrl.h>
 #include <psp2/kernel/processmgr.h>
+#include <psp2/ctrl.h>
+#include <psp2/power.h>
+#include <psp2/rtc.h>
+
+#include <psp2kern/kernel/cpu.h>
+
 #include <vita2d.h>
+
+#include <string.h>
 
 #include "fzscreen.h"
 #include "fztexture.h"
-
 #include "bookrconfig.h"
 
 static bool closing = false;
@@ -93,21 +97,19 @@ int exit_callback(int arg1, int arg2, void *common) {
 
   /* Callback thread */
   int CallbackThread(SceSize args, void *argp) {
+int CallbackThread(SceSize args, void *argp) {
     int cbid;
 
-    cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-    sceKernelRegisterExitCallback(cbid);
-    cbid = sceKernelCreateCallback("Power Callback", power_callback, NULL);
-    scePowerRegisterCallback(0, cbid);
+    //cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+    //sceKernelRegisterExitCallback(cbid); 
 
-    sceKernelSleepThreadCB();
+    cbid = sceKernelCreateCallback("Power Callback", power_callback, NULL);
+    scePowerRegisterCallback(cbid);
+
+    //sceKernelSleepThreadCB();
 
     return 0;
-  }
-
-  /* Sets up the callback thread and returns its thread id */
-  int FZScreen::setupCallbacks(void) {
-    int thid = 0;
+}
 
     thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
     if(thid >= 0)
@@ -220,9 +222,53 @@ int FZScreen::readCtrl() {
     return pad.buttons;
 }
 
-void FZScreen::swapBuffers() {
-    vita2d_swap_buffers();
+void FZScreen::getAnalogPad(int& x, int& y) {
+    x = lastAnalogX - 128;
+    y = lastAnalogY - 128;
+  }
 
+void FZScreen::startDirectList() {
+}
+
+void FZScreen::endAndDisplayList() {
+}
+
+static void* lastFramebuffer = NULL;
+void FZScreen::swapBuffers() {
+    // lastFramebuffer = 
+    vita2d_swap_buffers();
+}  
+
+void FZScreen::waitVblankStart() {
+    vita2d_set_vblank_wait(1);
+}
+
+void* FZScreen::getListMemory(int s) {
+    //return sceGuGetMemory(s);
+}
+
+void FZScreen::shadeModel(int mode) {
+    //sceGuShadeModel(mode);
+}
+
+void FZScreen::color(unsigned int c) {
+    //sceGuColor(c);
+}
+
+void FZScreen::ambientColor(unsigned int c) {
+    //sceGuAmbientColor(c);
+}
+
+void FZScreen::clear(unsigned int color, int b) {
+    //vita2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
+
+    // sceGuClearColor(color);
+    // int m = 0;
+    // if (b & FZ_COLOR_BUFFER)
+    //   m |= GU_COLOR_BUFFER_BIT;
+    // if (b & FZ_DEPTH_BUFFER)
+    //   m |= GU_DEPTH_BUFFER_BIT;
+    // sceGuClear(m);
 }
 
 void FZScreen::checkEvents(int buttons) {
@@ -395,6 +441,14 @@ string FZScreen::basePath() {
   void FZScreen::dcacheWritebackAll() {
     sceKernelDcacheWritebackAll();  
   }
+void FZScreen::dcacheWritebackAll() {
+    ksceKernelCpuDcacheWritebackAll();
+    //sceKernelDcacheWritebackAll();
+}
+
+string FZScreen::basePath() {
+    return psp_full_path;
+}
 
   struct CompareDirent {
     bool operator()(const FZDirent& a, const FZDirent& b) {
@@ -452,26 +506,30 @@ string FZScreen::basePath() {
     return powerResumed;
   }
 
-  void FZScreen::setSpeed(int v) {
+void FZScreen::setSpeed(int v) {
     if (v <= 0 || v > 6)
-      return;
-    scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
-  /*  scePowerSetCpuClockFrequency(speedValues[v*2]);
+        return;
+    
+    //scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
+    
+    scePowerSetArmClockFrequency(speedValues[v*2]);
+    //scePowerSetCpuClockFrequency(speedValues[v*2]);
+    
     scePowerSetBusClockFrequency(speedValues[v*2+1]);
-  // -- END HERE
-  }
+}
 
-  int FZScreen::getSpeed() {
-    return scePowerGetCpuClockFrequency();
-  }
+int FZScreen::getSpeed() {
+    return scePowerGetArmClockFrequency();
+}
 
-  void FZScreen::getTime(int &h, int &m) {
-    pspTime time;
+void FZScreen::getTime(int &h, int &m) {
+    SceDateTime time;
+    // same
     if (sceRtcGetCurrentClockLocalTime(&time) >= 0) {
-      h = time.hour;
-      m = time.minutes;
+        h = time.hour;
+        m = time.minutes;
     }
-  }
+}
 
   int FZScreen::getBattery() {
     if (scePowerIsBatteryExist()) {
@@ -479,12 +537,15 @@ string FZScreen::basePath() {
     }
     return 0;
   }
+int FZScreen::getBattery() {
+    return scePowerGetBatteryLifePercent();
+}
 
-  int FZScreen::getUsedMemory() {
+int FZScreen::getUsedMemory() {
     struct mallinfo mi = mallinfo();
     return mi.uordblks;
     //return mi.arena;
-  }
+}
 
   void FZScreen::setBrightness(int b){
   #ifdef FW150
@@ -495,4 +556,6 @@ string FZScreen::basePath() {
     return;
 
   }
-*/
+bool FZScreen::isClosing() {
+    return closing;
+}
