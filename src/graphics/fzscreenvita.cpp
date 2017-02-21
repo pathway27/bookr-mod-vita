@@ -31,6 +31,7 @@
 
 #include <vita2d.h>
 
+#include <malloc.h>
 #include <string.h>
 
 #include "fzscreen.h"
@@ -65,69 +66,29 @@ int exit_callback(int arg1, int arg2, void *common) {
     sceKernelExitProcess(0);
 }
 
-#ifdef PSP
-  // yeah yeah yeah no mutex whatever whatever whatever
-  static volatile int powerResumed = 0;
 
-  /* Power Callback */ 
-  int power_callback(int unknown, int pwrflags, void *common) {
-    /* check for power switch and suspending as one is manual and the other automatic */
-    if (pwrflags & PSP_POWER_CB_POWER_SWITCH || pwrflags & PSP_POWER_CB_SUSPENDING) {
-      /*sprintf(powerCBMessage,
-          "first arg: 0x%08X, flags: 0x%08X: suspending\n", unknown, pwrflags);*/
-    } else if (pwrflags & PSP_POWER_CB_RESUMING) {
-      /*sprintf(powerCBMessage,
-          "first arg: 0x%08X, flags: 0x%08X: resuming from suspend mode\n",
-          unknown, pwrflags);*/
-      powerResumed++;
-    } else if (pwrflags & PSP_POWER_CB_RESUME_COMPLETE) {
-      /*sprintf(powerCBMessage,
-          "first arg: 0x%08X, flags: 0x%08X: resume complete\n", unknown, pwrflags);*/
-      powerResumed++;
-    } else if (pwrflags & PSP_POWER_CB_STANDBY) {
-      /*sprintf(powerCBMessage,
-          "first arg: 0x%08X, flags: 0x%08X: entering standby mode\n", unknown, pwrflags);*/
-    } else {
-      /*sprintf(powerCBMessage, "first arg: 0x%08X, flags: 0x%08X: Unhandled power event\n", unknown);*/
-    }
-    sceDisplayWaitVblankStart();
+// yeah yeah yeah no mutex whatever whatever whatever
+static volatile int powerResumed = 0;
 
-    return 0;
-  }
-
-  /* Callback thread */
-  int CallbackThread(SceSize args, void *argp) {
-int CallbackThread(SceSize args, void *argp) {
-    int cbid;
-
-    //cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-    //sceKernelRegisterExitCallback(cbid); 
-
-    cbid = sceKernelCreateCallback("Power Callback", power_callback, NULL);
-    scePowerRegisterCallback(cbid);
-
-    //sceKernelSleepThreadCB();
-
-    return 0;
+/* Power Callback */ 
+int power_callback(int unknown, int pwrflags, void *common) {
 }
 
-    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-    if(thid >= 0)
-    {
-      sceKernelStartThread(thid, 0, 0);
-    }
+int CallbackThread(SceSize args, void *argp) {
+}
 
-    return thid;
-  }
+/* Sets up the callback thread and returns its thread id */
+int FZScreen::setupCallbacks(void) {
+}
 
-  // from pspgl
-  static void * ptr_align64_uncached(unsigned long ptr) {
-    // uncached access suck. better to use cached access and
-    // flush dcache just before dlist issue
-    //return (void *) (((ptr + 0x0f) & ~0x0f) | 0x40000000);
-    return (void *) ((ptr + 0x3f) & ~0x3f);
-  }
-#endif
+// from pspgl
+static void * ptr_align64_uncached(unsigned long ptr) {
+  // uncached access suck. better to use cached access and
+  // flush dcache just before dlist issue
+  //return (void *) (((ptr + 0x0f) & ~0x0f) | 0x40000000);
+  return (void *) ((ptr + 0x3f) & ~0x3f);
+}
+
 
 static char psp_full_path[1024 + 1];
 static vita2d_pgf *pgf;
@@ -282,165 +243,46 @@ void FZScreen::checkEvents(int buttons) {
 
       //vita2d_draw_texture(image, 940/2, 544/2);
       
-
       vita2d_end_drawing();
       FZScreen::swapBuffers();
     }
 }
 
-bool FZScreen::isClosing() {
-    return closing;
+
+void FZScreen::matricesFor2D(int rotation) {
 }
 
-void FZScreen::waitVblankStart() {
-    vita2d_set_vblank_wait(1);
-}
-
-string FZScreen::basePath() {
-    return psp_full_path;
-}
-
-/*
-  void FZScreen::getAnalogPad(int& x, int& y) {
-    x = lastAnalogX - 128;
-    y = lastAnalogY - 128;
-  }
-
-  void FZScreen::startDirectList() {
-    sceGuStart(GU_DIRECT, list);
-  }
-
-  void FZScreen::endAndDisplayList() {
-    sceGuFinish();
-    sceKernelDcacheWritebackAll();  
-    sceGuSync(0,0);
-  }
-
-  void FZScreen::commitAll(){
-    sceKernelDcacheWritebackAll();  
-  }
-
-  void FZScreen::commitRange(const void* p, unsigned int size){
-    sceKernelDcacheWritebackRange(p,size);  
-  }
-
-  static void* lastFramebuffer = NULL;
-  void FZScreen::swapBuffers() {
-  //  sceDisplayWaitVblankStart();
-    lastFramebuffer = sceGuSwapBuffers();
-  }
-
-  void* FZScreen::getListMemory(int s) {
-    return sceGuGetMemory(s);
-  }
-
-  void FZScreen::shadeModel(int mode) {
-    sceGuShadeModel(mode);
-  }
-
-  void FZScreen::color(unsigned int c) {
-    sceGuColor(c);
-  }
-
-  void FZScreen::ambientColor(unsigned int c) {
-    sceGuAmbientColor(c);
-  }
-
-  void FZScreen::clear(unsigned int color, int b) {
-    sceGuClearColor(color);
-    int m = 0;
-    if (b & FZ_COLOR_BUFFER)
-      m |= GU_COLOR_BUFFER_BIT;
-    if (b & FZ_DEPTH_BUFFER)
-      m |= GU_DEPTH_BUFFER_BIT;
-    sceGuClear(m);
-  }
-
-  void FZScreen::matricesFor2D(int rotation) {
-    sceGumMatrixMode(GU_PROJECTION);
-    sceGumLoadIdentity();
-    sceGumOrtho(0.0f, 480.0f, 272.0f, 0.0f, 0.0f, 1.0f);
-
-    sceGumMatrixMode(GU_VIEW);
-    sceGumLoadIdentity();
-
-    sceGumMatrixMode(GU_MODEL);
-    sceGumLoadIdentity();
-
-    switch (rotation) {
-      case 1: {
-        ScePspFVector3 pos = { 480.0f, 0.0f, 0.0f };
-        sceGumTranslate(&pos);
-        sceGumRotateZ(90.0f * (GU_PI/180.0f));
-      } break;
-      case 2: {
-        ScePspFVector3 pos = { 480.0f, 272.0f, 0.0f };
-        sceGumTranslate(&pos);
-        sceGumRotateZ(180.0f * (GU_PI/180.0f));
-      } break;
-      case 3: {
-        ScePspFVector3 pos = { 0.0f, 272.0f, 0.0f };
-        sceGumTranslate(&pos);
-        sceGumRotateZ(270.0f * (GU_PI/180.0f));
-      } break;
-    }
-  }
-
-  struct T32FV32F2D {
+struct T32FV32F2D {
     float u,v;
     float x,y,z;
-  };
+};
 
-  static FZTexture* boundTexture = 0;
-  void FZScreen::setBoundTexture(FZTexture *t) {
+static FZTexture* boundTexture = 0;
+void FZScreen::setBoundTexture(FZTexture *t) {
     boundTexture = t;
-  }
+}
 
-  void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
-    if ((vtype & GU_TRANSFORM_2D) == 0) {
-      // hack...
-      struct T32FV32F2D* verts = (struct T32FV32F2D*)vertices;
-      float w = 256.0f;
-      float h = 256.0f;
-      if (boundTexture != 0) {
-        w = boundTexture->getWidth();
-        h = boundTexture->getHeight();
-      }
-      for (int i = 0; i < count; i++) {
-        verts[i].u /= w;
-        verts[i].v /= h;
-      }
-      sceGumDrawArray(prim, vtype, count, indices, vertices);
-    }
-    else {
-      sceGuDrawArray(prim, vtype, count, indices, vertices);
-    }
-  }
+void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
 
-  void FZScreen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
-    int dx, int dy, int destw, void *dest) {
-    sceGuCopyImage(psm, sx, sy, width, height, srcw, src, dx, dy, destw, dest);
-  }
+}
 
-  void* FZScreen::framebuffer() {
-    return lastFramebuffer;
-  }
+void FZScreen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
+  int dx, int dy, int destw, void *dest) {
+    //sceGuCopyImage(psm, sx, sy, width, height, srcw, src, dx, dy, destw, dest);
+}
 
-  void FZScreen::blendFunc(int op, int src, int dst) {
-    sceGuBlendFunc(op, src, dst, 0, 0);
-  }
+void FZScreen::blendFunc(int op, int src, int dst) {
+    //sceGuBlendFunc(op, src, dst, 0, 0);
+}
 
-  void FZScreen::enable(int m) {
-    sceGuEnable(m);
-  }
+void FZScreen::enable(int m) {
+    //sceGuEnable(m);
+}
 
-  void FZScreen::disable(int m) {
-    sceGuDisable(m);
-  }
+void FZScreen::disable(int m) {
+    //sceGuDisable(m);
+}
 
-  void FZScreen::dcacheWritebackAll() {
-    sceKernelDcacheWritebackAll();  
-  }
 void FZScreen::dcacheWritebackAll() {
     ksceKernelCpuDcacheWritebackAll();
     //sceKernelDcacheWritebackAll();
@@ -450,61 +292,22 @@ string FZScreen::basePath() {
     return psp_full_path;
 }
 
-  struct CompareDirent {
+struct CompareDirent {
     bool operator()(const FZDirent& a, const FZDirent& b) {
-      if ((a.stat & FZ_STAT_IFDIR) == (b.stat & FZ_STAT_IFDIR))
-        return a.name < b.name;
-      if (b.stat & FZ_STAT_IFDIR)
-        return false;
-      return true;
+        if ((a.stat & FZ_STAT_IFDIR) == (b.stat & FZ_STAT_IFDIR))
+            return a.name < b.name;
+        if (b.stat & FZ_STAT_IFDIR)
+            return false;
+        return true;
     }
-  };
+};
 
-  int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
+int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
+}
 
-    if(1){ // new method to ls dir, support Chinese dir/file names.
-      int itemNum;
-      directory_item_struct* dirItems = NULL;
-      itemNum = open_ms0_directory(path, spath, &dirItems);
-      if (itemNum <= 0){
-        return -1;
-      }
-      int i;
-      
-      for(i=0; i<itemNum;i++){
-        if (dirItems[i].longname != 0 && dirItems[i].longname[0] != '.'){
-    a.push_back(FZDirent(dirItems[i].longname, dirItems[i].shortname, dirItems[i].filetype==FS_DIRECTORY?FZ_STAT_IFDIR:FZ_STAT_IFREG, (int)dirItems[i].filesize));
-        }
-      }
-      sort(a.begin(), a.end(), CompareDirent());
-      free(dirItems);
-      return 1;
-    }
-    else{ // old method to get ls dir.
-      SceUID fd;
-      SceIoDirent *findData;
-      findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent)); // dont ask me WHY...
-      memset((void*)findData, 0, sizeof(SceIoDirent));
-      //a.push_back(FZDirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
-      //a.push_back(FZDirent("books/1984.txt", FZ_STAT_IFREG, 587083));
-      fd = sceIoDopen(path);
-      if (fd < 0)
-        return -1;
-      while (sceIoDread(fd, findData) > 0) {
-        if (findData->d_name[0] != 0 && findData->d_name[0] != '.') {
-    a.push_back(FZDirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
-        }
-    }
-      sceIoDclose(fd);
-      free(findData);
-      sort(a.begin(), a.end(), CompareDirent());
-      return 1;
-    }
-  }
-
-  int FZScreen::getSuspendSerial() {
+int FZScreen::getSuspendSerial() {
     return powerResumed;
-  }
+}
 
 void FZScreen::setSpeed(int v) {
     if (v <= 0 || v > 6)
@@ -527,16 +330,10 @@ void FZScreen::getTime(int &h, int &m) {
     // same
     if (sceRtcGetCurrentClockLocalTime(&time) >= 0) {
         h = time.hour;
-        m = time.minutes;
+        m = time.minute;
     }
 }
 
-  int FZScreen::getBattery() {
-    if (scePowerIsBatteryExist()) {
-      return scePowerGetBatteryLifePercent();
-    }
-    return 0;
-  }
 int FZScreen::getBattery() {
     return scePowerGetBatteryLifePercent();
 }
@@ -547,15 +344,15 @@ int FZScreen::getUsedMemory() {
     //return mi.arena;
 }
 
-  void FZScreen::setBrightness(int b){
-  #ifdef FW150
+void FZScreen::setBrightness(int b){
+#ifdef FW150
     if (b<10) b = 10;
     if (b>100) b = 100;
     sceDisplaySetBrightness(b,0);
-  #endif
+#endif
     return;
+}
 
-  }
 bool FZScreen::isClosing() {
     return closing;
 }

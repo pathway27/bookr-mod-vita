@@ -98,6 +98,8 @@ target_link_libraries(bookr-mod-vita
   ScePgf_stub
   ScePvf_stub
   SceCommonDialog_stub
+  ScePower_stub
+  SceCpuForKernel_stub
   png
   jpeg
   z
