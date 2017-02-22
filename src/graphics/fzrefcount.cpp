@@ -22,8 +22,12 @@
 //#define DEBUG_REFCOUNT
 
 #ifdef DEBUG_REFCOUNT
-#include <pspdebug.h>
-#define printf pspDebugScreenPrintf
+  #ifdef PSP
+    #include <pspdebug.h>
+    #define printf pspDebugScreenPrintf
+  #elif defined(__vita__)
+  	#include <stdio.h>
+  #endif
 #endif
 
 void FZRefCounted::tidy() {

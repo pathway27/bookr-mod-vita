@@ -38,6 +38,8 @@
 #include "fztexture.h"
 #include "bookrconfig.h"
 
+extern unsigned char _binary_image_png_start;
+
 static bool closing = false;
 
 FZScreen::FZScreen() {
@@ -119,9 +121,11 @@ void FZScreen::open(int argc, char** argv) {
     initalDraw();
 }
 
+static vita2d_texture *image;
 void FZScreen::close() {
     //fat_free();
     vita2d_fini();
+    vita2d_free_texture(image);
     vita2d_free_pgf(pgf);
     vita2d_free_pvf(pvf);
 }
@@ -242,6 +246,15 @@ void FZScreen::checkEvents(int buttons) {
       vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, nameForButton(buttons));
 
       //vita2d_draw_texture(image, 940/2, 544/2);
+      
+      vita2d_end_drawing();
+      FZScreen::swapBuffers();
+    } else {
+      image = vita2d_load_PNG_buffer(&_binary_image_png_start);
+      vita2d_start_drawing();
+      vita2d_clear_screen();
+
+      vita2d_draw_texture(image, 940/2, 544/2);
       
       vita2d_end_drawing();
       FZScreen::swapBuffers();

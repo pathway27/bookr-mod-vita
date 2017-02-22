@@ -49,7 +49,16 @@ add_subdirectory(ext/tinyxml2)
 # Add any additional include paths here
 include_directories(
   ${CMAKE_BINARY_DIR}
+  "${CMAKE_SOURCE_DIR}/src"
+  "$ENV{VITASDK}/arm-vita-eabi/include/freetype2"
 )
+
+# Debug CMAKE variables
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
+execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 
 
 	
@@ -68,14 +77,18 @@ add_executable(bookr-mod-vita
   src/graphics/fzscreencommon.cpp
 
   src/bkuser.cpp
+
+  #texture image refcounted
+  src/graphics/fzrefcount.cpp
+  src/graphics/fzimage.cpp
+  #src/graphics/fztexture.cpp
+
+  image.o
+
+  #src/graphics/fzfont.cpp
   # src/bkdocument.cpp
   # src/bklayer.cpp
   # src/graphics/fzinstreammem.cpp
-  # src/graphics/fzfont.cpp
-  # src/graphics/fztexture.cpp
-  # src/graphics/fzimage.cpp
-  # src/graphics/fzrefcount.cpp
-  # src/graphics/fzinputstream.h
 
   # src/bkbookmark.cpp
   # src/graphics/fzscreen.h
