@@ -22,13 +22,14 @@ LDFLAGS= ${OPTS} -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Ver
 
 LIBS:=${LIBDIRS} -framework OpenGL -framework AGL -framework Cocoa -framework Foundation
 LIBS+=-lglew -lglfw -ldl -lobjc -lstdc++ -L/usr/local/lib -lz -lpng -lfreetype -ltinyxml2
-#-lmupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm 
+LIBS+=-lSOIL#-lmupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm 
 
 EXE=bookr.glfw
 
 all: $(EXE)
 
 OBJS:=src/bookr.o src/graphics/fzscreenglfw.o src/bkuser.o
+OBJS+=src/graphics/fzrefcount.o src/graphics/fzimage.o# src/graphics/fztexture.o
 #OBJS:= bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 #OBJS+= fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
 #OBJS+= tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o

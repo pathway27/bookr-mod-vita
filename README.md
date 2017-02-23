@@ -22,6 +22,8 @@ cd build && make send
 ```sh
 # This is just for devel.
 # Currently on OSX El Capitan 10.11.5
+git clone --recursive https://github.com/pathway27/bookr-mod-vita
+# install ext/SOIL (there's a readme)
 brew install glfw GLEW
 make -f Makefile.macglfw
 ./bookr.glut

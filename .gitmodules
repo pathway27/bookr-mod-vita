@@ -2,3 +2,6 @@
 	path = ext/tinyxml2
 	url = https://github.com/pathway27/tinyxml2/
 	branch = cmake-bookr-fix
+[submodule "ext/SOIL"]
+	path = ext/SOIL
+	url = https://github.com/pathway27/SOIL/
