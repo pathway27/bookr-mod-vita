@@ -31,8 +31,9 @@
 #ifdef MAC
   #define GLEW_STATIC
   #include <GL/glew.h>
+  #include <SOIL.h>
 #elif define (__WIN32__)
- #include <glad/glad.h>
+  #include <glad/glad.h>
 #endif
 
 #include <GLFW/glfw3.h>
@@ -83,6 +84,8 @@ static void updateReps() {
 }
 
 //unsigned char key, int x, int y
+int width, height;
+unsigned char* image = SOIL_load_image("image.jpg", &width, &height, 0, SOIL_LOAD_RGB); 
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
     //std::cout << key << endl;
     
@@ -102,7 +105,18 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 break;
-            case GLFW_KEY_A: keyState |= FZ_CTRL_LEFT; break;
+            case GLFW_KEY_A: 
+                keyState |= FZ_CTRL_LEFT;
+                GLuint texture;
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                    GL_UNSIGNED_BYTE, image);
+                glGenerateMipmap(GL_TEXTURE_2D);
+                SOIL_free_image_data(image);
+                glBindTexture(GL_TEXTURE_2D, 0);
+                
+                break;
             case GLFW_KEY_D: keyState |= FZ_CTRL_RIGHT; break;
             case GLFW_KEY_K: keyState |= FZ_CTRL_SQUARE; break;
             case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
