@@ -117,7 +117,12 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 glBindTexture(GL_TEXTURE_2D, 0);
                 
                 break;
-            case GLFW_KEY_D: keyState |= FZ_CTRL_RIGHT; break;
+            case GLFW_KEY_D: 
+                keyState |= FZ_CTRL_RIGHT;
+                GLuint vertexBuffer;
+                glGenBuffers(1, &vertexBuffer);
+                printf("%u\n", vertexBuffer);
+                break;
             case GLFW_KEY_K: keyState |= FZ_CTRL_SQUARE; break;
             case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
             case GLFW_KEY_O: keyState |= FZ_CTRL_TRIANGLE; break;
@@ -162,8 +167,7 @@ static void keyboardup(unsigned char key, int x, int y) {
 static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
 void FZScreen::open(int argc, char** argv) {
-  //getcwd(psp_full_path, 1024);
-
+    //getcwd(psp_full_path, 1024);
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -192,10 +196,6 @@ void FZScreen::open(int argc, char** argv) {
     glfwSetKeyCallback(window, keyboard);
 
     glfwSwapInterval(0);
-
-    //while(!glfwWindowShouldClose(window))
-    //{
-    //glfwPollEvents();
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);

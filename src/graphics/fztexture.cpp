@@ -1,6 +1,11 @@
 /*
- * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ * Original Bookr and bookr-mod for PSP
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com),
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
+ * 
+ * Modified Bookr % VITA: document reader for the Sony PS Vita
+ * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,51 +20,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
+
+#ifdef PSP
+  #include <pspkernel.h>
+  #include <pspdisplay.h>
+  #include <pspdebug.h>
+  #include <pspgu.h>
+  #define printf  pspDebugScreenPrintf
+#elif __vita__
+  #include <psp2/display.h>
+  #include <vita2d.h>
+#else
+  #include <stdio.h>
+  #ifdef MAC
+    #define GLEW_STATIC
+    #include <GL/glew.h>
+    #include <GLFW/glfw3.h>
+  #else
+    #include <glad/glad.h>
+  #endif
+#endif
 
 #include <stddef.h>
 
 #include "fztexture.h"
 #include "fzscreen.h"
-
-#ifdef PSP
-
-	#include <pspkernel.h>
-	#include <pspdisplay.h>
-	#include <pspdebug.h>
-	#include <pspgu.h>
-	#define printf	pspDebugScreenPrintf
-#elif __vita__
-
-  #include <psp2/display.h>
-	
-	#include <psp2/gxm.h>
-	#include <vita2d.h>
-#else
-
-	#include <stdio.h>
-
-	#ifdef MAC
-		#include <GLUT/glut.h>
-	#elif defined (__CYGWIN__)
-		#include "cygwin/freeglut.h"
-	
-	#else
-		#include <GL/freeglut.h>
-	#endif
-
-#endif
-
-#if defined(__vita__) || defined(PSP)
-
-	FZTexture::FZTexture() : texImage(0) {
-	}
-
-	FZTexture::~FZTexture() {
-		if (texImage)
-			texImage->release();
-		texImage = NULL;
-	}
 
 	void FZTexture::bind() {
 		FZScreen::setBoundTexture((FZTexture*)this);
