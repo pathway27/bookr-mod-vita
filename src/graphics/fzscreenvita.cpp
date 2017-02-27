@@ -111,17 +111,18 @@ static void initalDraw() {
 }
 
 // Move this to constructor?
+static vita2d_texture *image;
 void FZScreen::open(int argc, char** argv) {
     vita2d_init();
     vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
 
     pgf = vita2d_load_default_pgf();
     pvf = vita2d_load_default_pvf();
+    image = vita2d_load_PNG_buffer(&_binary_image_png_start);
 
     initalDraw();
 }
 
-static vita2d_texture *image;
 void FZScreen::close() {
     //fat_free();
     vita2d_fini();
@@ -250,11 +251,10 @@ void FZScreen::checkEvents(int buttons) {
       vita2d_end_drawing();
       FZScreen::swapBuffers();
     } else {
-      image = vita2d_load_PNG_buffer(&_binary_image_png_start);
       vita2d_start_drawing();
       vita2d_clear_screen();
 
-      vita2d_draw_texture(image, 940/2, 544/2);
+      vita2d_draw_texture(image, 0, 0);
       
       vita2d_end_drawing();
       FZScreen::swapBuffers();
