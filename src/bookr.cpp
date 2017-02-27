@@ -29,14 +29,18 @@
 #include <iostream>
 
 #include "graphics/fzscreen.h"
+#include <psp2/kernel/threadmgr.h>
 #include "bkuser.h"
 
 int main(int argc, char* argv[]) {
     //BKDocument *documentLayer = 0;
     BKUser::init();
+    psp2shell_init(3333, 0);
+    sceKernelDelayThread(2*1000000);
 
-    std::cout << "Hi" << std::endl;
+    psp2shell_print_color(COL_GREEN, "main\n");
     FZScreen::open(argc, argv);
+    
 
     // Swapping buffers based on dirty variable feels dirty.
     bool dirty = true;
@@ -66,6 +70,7 @@ int main(int argc, char* argv[]) {
         }
     }
     
+    psp2shell_exit();
     FZScreen::close();
     FZScreen::exit();
 

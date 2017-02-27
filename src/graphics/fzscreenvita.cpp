@@ -43,6 +43,7 @@ extern unsigned char _binary_image_png_start;
 static bool closing = false;
 
 FZScreen::FZScreen() {
+    //psp2shell_print_color(COL_GREEN, "FZScreen\n");
 }
 
 FZScreen::~FZScreen() {
@@ -124,6 +125,8 @@ void FZScreen::open(int argc, char** argv) {
 static vita2d_texture *image;
 void FZScreen::close() {
     //fat_free();
+    //#ifdef DEBUG
+    //#endif
     vita2d_fini();
     vita2d_free_texture(image);
     vita2d_free_pgf(pgf);
@@ -225,7 +228,7 @@ void FZScreen::ambientColor(unsigned int c) {
 }
 
 void FZScreen::clear(unsigned int color, int b) {
-    //vita2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
+    vita2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
     // sceGuClearColor(color);
     // int m = 0;
@@ -238,6 +241,7 @@ void FZScreen::clear(unsigned int color, int b) {
 
 void FZScreen::checkEvents(int buttons) {
     if (strcmp(nameForButton(buttons), "Unknow button") != 0) {
+      //psp2shell_print_color(COL_GREEN, "check: %s\n", nameForButton(buttons));
       vita2d_start_drawing();
       vita2d_clear_screen();
       
@@ -249,20 +253,22 @@ void FZScreen::checkEvents(int buttons) {
       
       vita2d_end_drawing();
       FZScreen::swapBuffers();
-    } else {
-      image = vita2d_load_PNG_buffer(&_binary_image_png_start);
-      vita2d_start_drawing();
-      vita2d_clear_screen();
+    } 
+    // else {
+    //   image = vita2d_load_PNG_buffer(&_binary_image_png_start);
+    //   vita2d_start_drawing();
+    //   vita2d_clear_screen();
 
-      vita2d_draw_texture(image, 940/2, 544/2);
+    //   vita2d_draw_texture(image, 940/2, 544/2);
       
-      vita2d_end_drawing();
-      FZScreen::swapBuffers();
-    }
+    //   vita2d_end_drawing();
+    //   FZScreen::swapBuffers();
+    // }
 }
 
 
 void FZScreen::matricesFor2D(int rotation) {
+    
 }
 
 struct T32FV32F2D {
