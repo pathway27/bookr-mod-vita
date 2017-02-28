@@ -214,15 +214,15 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
             case GLFW_KEY_S: keyState &= ~FZ_CTRL_DOWN; break;
             case GLFW_KEY_A: keyState &= ~FZ_CTRL_LEFT; break;
             case GLFW_KEY_D: keyState &= ~FZ_CTRL_RIGHT; break;
-            case GLFW_KEY_K: keyState |= FZ_CTRL_SQUARE; break;
-            case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
-            case GLFW_KEY_O: keyState |= FZ_CTRL_TRIANGLE; break;
-            case GLFW_KEY_P: keyState |= FZ_CTRL_CIRCLE; break;
-            case GLFW_KEY_V: keyState |= FZ_CTRL_SELECT; break;
-            case GLFW_KEY_B: keyState |= FZ_CTRL_START; break;
-            case GLFW_KEY_X: keyState |= FZ_CTRL_LTRIGGER; break;
-            case GLFW_KEY_C: keyState |= FZ_CTRL_RTRIGGER; break;
-            case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD; break;
+            case GLFW_KEY_K: keyState &= ~FZ_CTRL_SQUARE; break;
+            case GLFW_KEY_L: keyState &= ~FZ_CTRL_CROSS; break;
+            case GLFW_KEY_O: keyState &= ~FZ_CTRL_TRIANGLE; break;
+            case GLFW_KEY_P: keyState &= ~FZ_CTRL_CIRCLE; break;
+            case GLFW_KEY_V: keyState &= ~FZ_CTRL_SELECT; break;
+            case GLFW_KEY_B: keyState &= ~FZ_CTRL_START; break;
+            case GLFW_KEY_X: keyState &= ~FZ_CTRL_LTRIGGER; break;
+            case GLFW_KEY_C: keyState &= ~FZ_CTRL_RTRIGGER; break;
+            case GLFW_KEY_H: keyState &= ~FZ_CTRL_HOLD; break;
             //case '6': powerSerial++; break;
 	    }
     }
