@@ -42,9 +42,17 @@ int main(int argc, char* argv[]) {
     bool dirty = true;
     bool exitApp = false;
     while (!exitApp) {
+        // draw state to back buffer
+        // if (dirty) {
+        //     FZScreen::startDirectList();
+        //     // render state via layers
+        //     FZScreen::endAndDisplayList();
+        // }
+        
         //std::cout << "while" << std::endl;
         FZScreen::waitVblankStart();
 
+        // draw it
         if (dirty) {
             //std::cout << "dirty" << std::endl;
             FZScreen::swapBuffers();
@@ -57,7 +65,7 @@ int main(int argc, char* argv[]) {
         int buttons = FZScreen::readCtrl();
         
         //std::cout << buttons << std::endl;
-        //dirty = buttons != 0;
+        dirty = buttons != 0;
 
         if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
             exitApp = true;
@@ -70,4 +78,19 @@ int main(int argc, char* argv[]) {
     FZScreen::exit();
 
     return 0;
+}
+
+void bkInit() {}
+
+void loadLastFile() {}
+
+void clearLayers() {
+    // bkLayersIt it(layers.begin());
+	// bkLayersIt end(layers.end());
+	// while (it != end) {
+	// 	(*it)->release();
+	// 	++it;
+	// }
+	// layers.clear();
+
 }

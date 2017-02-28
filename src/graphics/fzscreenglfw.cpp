@@ -89,10 +89,9 @@ int width, height;
 GLuint texture;
 
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    //cout << key << endl;
-    
     // swap this to some mapping?
     if (action == GLFW_PRESS) {
+        cout << keyState << endl;
         switch (key) {
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -111,7 +110,7 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 keyState |= FZ_CTRL_LEFT;
                 break;
             case GLFW_KEY_D: {
-                Shader ourShader("src/graphics/shaders/textures.vs", 
+                Shader ourShader("src/graphics/shaders/textures.vert", 
                     "src/graphics/shaders/textures.frag");
                 keyState |= FZ_CTRL_RIGHT;
                 #ifdef MAC
@@ -205,35 +204,29 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
             case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
         }
         FZScreen::swapBuffers();
+    } else if (action == GLFW_RELEASE ) {
+        cout << keyState << endl;
+        switch (key) {
+            case 27:
+                exit(0);
+            break;
+            case GLFW_KEY_W: keyState &= ~FZ_CTRL_UP; break;
+            case GLFW_KEY_S: keyState &= ~FZ_CTRL_DOWN; break;
+            case GLFW_KEY_A: keyState &= ~FZ_CTRL_LEFT; break;
+            case GLFW_KEY_D: keyState &= ~FZ_CTRL_RIGHT; break;
+            case GLFW_KEY_K: keyState |= FZ_CTRL_SQUARE; break;
+            case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
+            case GLFW_KEY_O: keyState |= FZ_CTRL_TRIANGLE; break;
+            case GLFW_KEY_P: keyState |= FZ_CTRL_CIRCLE; break;
+            case GLFW_KEY_V: keyState |= FZ_CTRL_SELECT; break;
+            case GLFW_KEY_B: keyState |= FZ_CTRL_START; break;
+            case GLFW_KEY_X: keyState |= FZ_CTRL_LTRIGGER; break;
+            case GLFW_KEY_C: keyState |= FZ_CTRL_RTRIGGER; break;
+            case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD; break;
+            //case '6': powerSerial++; break;
+	    }
     }
 }
-
-/*
-static void keyboardup(unsigned char key, int x, int y) {
-  printf("Pressed: %i", key);
-  switch (key) {
-    
-    case 27:
-      exit(0);
-      break;
-    case 'w': keyState &= ~FZ_CTRL_UP; break;
-    case 's': keyState &= ~FZ_CTRL_DOWN; break;
-    case 'a': keyState &= ~FZ_CTRL_LEFT; break;
-    case 'd': keyState &= ~FZ_CTRL_RIGHT; break;
-    case 'k': keyState &= ~FZ_CTRL_SQUARE; break;
-    case 'l': keyState &= ~FZ_CTRL_CROSS; break;
-    case 'o': keyState &= ~FZ_CTRL_TRIANGLE; break;
-    case 'p': keyState &= ~FZ_CTRL_CIRCLE; break;
-    case 'v': keyState &= ~FZ_CTRL_SELECT; break;
-    case 'b': keyState &= ~FZ_CTRL_START; break;
-    case 'x': keyState &= ~FZ_CTRL_LTRIGGER; break;
-    case 'c': keyState &= ~FZ_CTRL_RTRIGGER; break;
-    case 'h': keyState &= ~FZ_CTRL_HOLD;break;
-
-    case '6': powerSerial++; break;
-  }
-}
-*/
 
 static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
@@ -283,12 +276,9 @@ bool FZScreen::isClosing() {
 }
 
 int FZScreen::readCtrl() {
-    //updateReps();
-    //cout << keyState << endl;
     glfwWaitEvents();
-    int lastKeyState = keyState;
-    keyState = 0;
-    return lastKeyState;
+    updateReps();
+    return keyState;
 }
 
 void FZScreen::swapBuffers() {

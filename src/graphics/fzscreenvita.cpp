@@ -191,12 +191,14 @@ int FZScreen::readCtrl() {
 void FZScreen::getAnalogPad(int& x, int& y) {
     x = lastAnalogX - 128;
     y = lastAnalogY - 128;
-  }
+}
 
 void FZScreen::startDirectList() {
+    vita2d_start_drawing();
 }
 
 void FZScreen::endAndDisplayList() {
+    vita2d_end_drawing();
 }
 
 static void* lastFramebuffer = NULL;

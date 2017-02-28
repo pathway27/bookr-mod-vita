@@ -84,11 +84,29 @@ int val(5);  //direct init
 int val{5};  //uniform init <--- C++11
 ```
 
-## Double buffering
+### Double buffering
 
 Two variables in ram; front and back buffer.  
 Front is the one shown to you on the screen; back is the only one you can draw to.  
 Swap them to show the new drawn one, but while loops seems to go so fast it read buttons twice.
+
+
+### General GUI/Game loops
+
+So it seems like most applications share the same paradigm of
+
+- initalize display
+- while (not exiting app)
+  - render/draw the "state" of the app (start draw, swap buffers, stop draw)
+  - check user input
+
+- deinitalize display
+
+
+### Bitwise Operations
+
+- "|=" - OR a |= b is a = a | b
+- "&=" - AND a &= b is a = a & b
 
 
 ## Style
