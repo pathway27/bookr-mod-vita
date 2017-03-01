@@ -277,6 +277,9 @@ void FZScreen::setBoundTexture(FZTexture *t) {
     boundTexture = t;
 }
 
+/*  Active Shader
+    bind correct vertex array
+  */
 void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
 
 }

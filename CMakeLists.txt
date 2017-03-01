@@ -81,7 +81,7 @@ add_executable(bookr-mod-vita
   #texture image refcounted
   src/graphics/fzrefcount.cpp
   src/graphics/fzimage.cpp
-  #src/graphics/fztexture.cpp
+  src/graphics/fztexture.cpp
 
   image.o
 

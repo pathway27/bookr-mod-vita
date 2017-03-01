@@ -117,10 +117,10 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                     // Set up vertex data (and buffer(s)) and attribute pointers
                     GLfloat vertices[] = {
                         // Positions          // Colors           // Texture Coords
-                        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-                        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-                        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-                        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
+                        1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
+                        1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+                        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+                        -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
                     };
                     GLuint indices[] = {  // Note that we start from 0!
                         0, 1, 3, // First Triangle
@@ -155,9 +155,9 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
 
                 glGenTextures(1, &texture);
                 glBindTexture(GL_TEXTURE_2D, texture);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 
@@ -237,9 +237,9 @@ void FZScreen::open(int argc, char** argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-#ifdef MAC
+  #ifdef MAC
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
+  #endif
 
     window = glfwCreateWindow(940, 544, "Bookr GLFW", nullptr, nullptr);
     if (window == nullptr) {
@@ -290,9 +290,21 @@ void FZScreen::checkEvents(int buttons) {
     
 }
 
+static FZTexture* boundTexture = 0;
+void FZScreen::setBoundTexture(FZTexture *t) {
+    boundTexture = t;
+}
+
 void FZScreen::waitVblankStart() {
 }
 
 string FZScreen::basePath() {
     return psp_full_path;
+}
+
+void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
+    //glUseProgram
+    //glBindVertextArray(verticies)
+    //glDrawArrays(prim, 0, count);
+    //glBindVertexArray(0);
 }

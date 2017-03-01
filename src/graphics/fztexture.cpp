@@ -87,7 +87,6 @@
   }
 
 #else
-
     FZTexture::FZTexture() : texImage(0) {
         glGenTextures(1, &textureObject);
     }
@@ -107,7 +106,6 @@
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texMag);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texMin);
     }
-
 #endif
 
 static bool validatePow2(unsigned int x, unsigned int maxPow) {
@@ -124,7 +122,6 @@ static bool validatePow2(unsigned int x, unsigned int maxPow) {
 }
 
 #ifdef PSP
-
     bool FZTexture::validateFormat(FZImage* image) {
         FZImage::Format imageFormat = image->getFormat();
         pixelFormat = GU_PSM_T8;
@@ -155,12 +152,10 @@ static bool validatePow2(unsigned int x, unsigned int maxPow) {
         return true;
     }
 #elif __vita__
-
     bool FZTexture::validateFormat(FZImage* image) {
         FZImage::Format imageFormat = image->getFormat();
         return true;
     }
-
 #else
     bool FZTexture::validateFormat(FZImage* image) {
         FZImage::Format imageFormat = image->getFormat();
@@ -304,4 +299,3 @@ void FZTexture::filter(int min, int mag) {
     texMag = mag == FZ_LINEAR ? GL_LINEAR : GL_NEAREST;
   #endif
 }
-
