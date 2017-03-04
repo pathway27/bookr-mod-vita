@@ -29,35 +29,53 @@
 #include <iostream>
 
 #include "graphics/fzscreen.h"
+#include <psp2/kernel/threadmgr.h>
 #include "bkuser.h"
+#include "bklayer.h"
+#include "bklogo.h"
 
 int main(int argc, char* argv[]) {
     //BKDocument *documentLayer = 0;
+    FZScreen::open(argc, argv);
+    FZScreen::setupCtrl();
+
     BKUser::init();
 
-    std::cout << "Hi" << std::endl;
-    FZScreen::open(argc, argv);
+  #ifdef DEBUG    
+    psp2shell_init(3333, 0);
+    sceKernelDelayThread(2*1000000);
+    psp2shell_print_color(COL_GREEN, "Debug Started: in main\n");
+  #endif
+
+    BKLayer::load();
+    bkLayers layers;
+    layers.push_back(BKLogo::create());
+    std::cout << "Hi" << std::endl;  
 
     // Swapping buffers based on dirty variable feels dirty.
     bool dirty = true;
-    bool exitApp = false;
-    while (!exitApp) {
+    while (true) {
+        // psp2shell_print("while entered");
         // draw state to back buffer
-        // if (dirty) {
-        //     FZScreen::startDirectList();
-        //     // render state via layers
-        //     FZScreen::endAndDisplayList();
-        // }
+        if (dirty) {
+            FZScreen::startDirectList();
+            // vita2d_draw_rectangle(20, 20, 400, 250, RGBA8(255, 0, 0, 255));
+            //sceKernelDelayThread(2*1000000);
+            bkLayersIt it(layers.begin());
+            bkLayersIt end(layers.end());
+            while (it != end) {
+                (*it)->render();
+                ++it;
+            }
+            FZScreen::endAndDisplayList();
+        }
         
-        //std::cout << "while" << std::endl;
         FZScreen::waitVblankStart();
 
         // draw it
         if (dirty) {
-            //std::cout << "dirty" << std::endl;
             FZScreen::swapBuffers();
-            dirty = false;
-
+            //dirty = false;
         }
 
         //FZScreen::checkEvents();
@@ -68,12 +86,25 @@ int main(int argc, char* argv[]) {
         dirty = buttons != 0;
 
         if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
-            exitApp = true;
+            break;
         else {
             FZScreen::checkEvents(buttons);
         }
     }
-    
+
+  #ifdef DEBUG  
+    psp2shell_exit();
+  #endif
+
+    bkLayersIt it(layers.begin());
+    bkLayersIt end(layers.end());
+    while (it != end) {
+    	(*it)->release();
+    	++it;
+    }
+    layers.clear();
+
+    BKLayer::unload();
     FZScreen::close();
     FZScreen::exit();
 
@@ -85,7 +116,7 @@ void bkInit() {}
 void loadLastFile() {}
 
 void clearLayers() {
-    // bkLayersIt it(layers.begin());
+  // bkLayersIt it(layers.begin());
 	// bkLayersIt end(layers.end());
 	// while (it != end) {
 	// 	(*it)->release();

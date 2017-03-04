@@ -290,6 +290,120 @@ void FZScreen::checkEvents(int buttons) {
     
 }
 
+void FZScreen::matricesFor2D(int rotation) {
+}
+
+struct T32FV32F2D {
+    float u,v;
+    float x,y,z;
+};
+
+static FZTexture* boundTexture = 0;
+void FZScreen::setBoundTexture(FZTexture *t) {
+    boundTexture = t;
+}
+
+/*  Active Shader
+    bind correct vertex array
+*/
+void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
+    //glUseProgram
+    //glBindVertextArray(verticies)
+    //glDrawArrays(prim, 0, count);
+    //glBindVertexArray(0);
+}
+
+void FZScreen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
+  int dx, int dy, int destw, void *dest) {
+    //sceGuCopyImage(psm, sx, sy, width, height, srcw, src, dx, dy, destw, dest);
+}
+
+void FZScreen::blendFunc(int op, int src, int dst) {
+    //sceGuBlendFunc(op, src, dst, 0, 0);
+}
+
+void FZScreen::enable(int m) {
+    //sceGuEnable(m);
+}
+
+void FZScreen::disable(int m) {
+    //sceGuDisable(m);
+}
+
+void FZScreen::dcacheWritebackAll() {
+    ksceKernelCpuDcacheWritebackAll();
+    //sceKernelDcacheWritebackAll();
+}
+
+string FZScreen::basePath() {
+    return psp_full_path;
+}
+
+struct CompareDirent {
+    bool operator()(const FZDirent& a, const FZDirent& b) {
+        if ((a.stat & FZ_STAT_IFDIR) == (b.stat & FZ_STAT_IFDIR))
+            return a.name < b.name;
+        if (b.stat & FZ_STAT_IFDIR)
+            return false;
+        return true;
+    }
+};
+
+int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
+}
+
+int FZScreen::getSuspendSerial() {
+    return powerResumed;
+}
+
+void FZScreen::setSpeed(int v) {
+    if (v <= 0 || v > 6)
+        return;
+    
+    //scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
+    
+    scePowerSetArmClockFrequency(speedValues[v*2]);
+    //scePowerSetCpuClockFrequency(speedValues[v*2]);
+    
+    scePowerSetBusClockFrequency(speedValues[v*2+1]);
+}
+
+int FZScreen::getSpeed() {
+    return scePowerGetArmClockFrequency();
+}
+
+void FZScreen::getTime(int &h, int &m) {
+    SceDateTime time;
+    // same
+    if (sceRtcGetCurrentClockLocalTime(&time) >= 0) {
+        h = time.hour;
+        m = time.minute;
+    }
+}
+
+int FZScreen::getBattery() {
+    return scePowerGetBatteryLifePercent();
+}
+
+int FZScreen::getUsedMemory() {
+    struct mallinfo mi = mallinfo();
+    return mi.uordblks;
+    //return mi.arena;
+}
+
+void FZScreen::setBrightness(int b){
+#ifdef FW150
+    if (b<10) b = 10;
+    if (b>100) b = 100;
+    sceDisplaySetBrightness(b,0);
+#endif
+    return;
+}
+
+bool FZScreen::isClosing() {
+    return closing;
+}
+
 static FZTexture* boundTexture = 0;
 void FZScreen::setBoundTexture(FZTexture *t) {
     boundTexture = t;
@@ -300,11 +414,4 @@ void FZScreen::waitVblankStart() {
 
 string FZScreen::basePath() {
     return psp_full_path;
-}
-
-void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
-    //glUseProgram
-    //glBindVertextArray(verticies)
-    //glDrawArrays(prim, 0, count);
-    //glBindVertexArray(0);
 }

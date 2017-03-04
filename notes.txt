@@ -114,3 +114,14 @@ So it seems like most applications share the same paradigm of
 1. Use spaces instead of tabs
 2. 4 Spaces for normal indentation
 3. 2 Spaces for preprocessor indentation when required.
+
+### Cmake Special Flags
+
+```
+mkdir Release
+cd Release
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+
+same for Debug
+```

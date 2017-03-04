@@ -53,13 +53,14 @@ include_directories(
   "$ENV{VITASDK}/arm-vita-eabi/include/freetype2"
 )
 
-# Debug CMAKE variables
-#get_cmake_property(_variableNames VARIABLES)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
+# Debug CMAKE/ENV variables
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+   message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
 execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
-
+add_definitions(-DDEBUG)
+#add_definitions(-DGENKIHEN)
 
 	
 # Add any additional library paths here
@@ -72,6 +73,9 @@ link_directories(
 ## Build and link
 # Add all the files needed to compile here
 add_executable(bookr-mod-vita
+  image.o
+  sce_sys/icon0.o
+
   src/bookr.cpp
   src/graphics/fzscreenvita.cpp
   src/graphics/fzscreencommon.cpp
@@ -83,13 +87,14 @@ add_executable(bookr-mod-vita
   src/graphics/fzimage.cpp
   src/graphics/fztexture.cpp
 
-  image.o
+  src/graphics/fzfont.cpp
+  src/graphics/fzinstreammem.cpp
+  src/bklayer.cpp
+  src/bklogo.cpp
 
-  #src/graphics/fzfont.cpp
-  # src/bkdocument.cpp
-  # src/bklayer.cpp
-  # src/graphics/fzinstreammem.cpp
+  # 
 
+  #src/bkdocument.cpp
   # src/bkbookmark.cpp
   # src/graphics/fzscreen.h
   # src/bkuser.cpp
@@ -101,9 +106,11 @@ add_executable(bookr-mod-vita
 )
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
+#-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \ -lSceNetCtl_stub -lSceKernel_stub -lScePower_stub -lSceAppMgr_stub
 target_link_libraries(bookr-mod-vita
   vita2d
   freetype
+  psp2shell
   SceDisplay_stub
   SceGxm_stub
   SceSysmodule_stub
@@ -113,6 +120,10 @@ target_link_libraries(bookr-mod-vita
   SceCommonDialog_stub
   ScePower_stub
   SceCpuForKernel_stub
+  SceNet_stub # these four and psp2shell for debug
+  SceNetCtl_stub
+  SceAppMgr_stub
+  SceLibKernel_stub
   png
   jpeg
   z
@@ -122,7 +133,9 @@ target_link_libraries(bookr-mod-vita
 )
 
 ## Create Vita files
-vita_create_self(eboot.bin bookr-mod-vita)
+vita_create_self(eboot.bin bookr-mod-vita
+#  UNSAFE
+)
 # The FILE directive lets you add additional files to the VPK, the syntax is
 # FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
 vita_create_vpk(bookr-mod-vita.vpk ${VITA_TITLEID} eboot.bin

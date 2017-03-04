@@ -107,8 +107,8 @@ FZImage* FZImage::createEmpty(unsigned int w, unsigned int h, unsigned int cs, F
 }
 
 void FZImage::swizzle(int sx, int sy) {
-  //FZImage* from = createEmpty(width, height, 0, imageFormat);
-  //char* fromData = from->getData();
+  	//FZImage* from = createEmpty(width, height, 0, imageFormat);
+  	//char* fromData = from->getData();
 	int bpp = getBytesPerPixel();
 	char* fromData = (char*)memalign(16, width * height  * bpp);
 	char* toData = getData();

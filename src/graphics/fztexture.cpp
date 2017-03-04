@@ -55,6 +55,10 @@
       if (texImage)
           texImage->release();
       texImage = NULL;
+
+      if (vita_texture)
+          vita2d_free_texture(vita_texture);
+      vita_texture = NULL;
   }
 
   void FZTexture::bind() {
@@ -81,7 +85,8 @@
       sceGuTexOffset(0.0f, 0.0f);
       sceGuTexFilter(texMin, texMag);
     #elif __vita__
-      vita2d_load_PNG_buffer(texImage->getData());
+      //vita2d_load_PNG_buffer(texImage->getData());
+      //sceGxmSetFragmentTexture(_vita2d_context, 0, &vita_texture->gxm_tex);
     #endif
       FZScreen::setBoundTexture((FZTexture*)this);
   }
@@ -201,6 +206,14 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
         texture->release();
         texture = 0;
     }
+    return texture;
+}
+
+FZTexture* FZTexture::createFromVitaTexture(vita2d_texture* v_texture) {
+    psp2shell_print("create from vita");
+    FZTexture* texture = new FZTexture();
+    texture->vita_texture = v_texture;
+    //psp2shell_print("%p\n", (void *) &(texture->vita_texture));
     return texture;
 }
     

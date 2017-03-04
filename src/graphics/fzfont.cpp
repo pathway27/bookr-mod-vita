@@ -30,7 +30,7 @@ static void* memalign(int t, int s) {
 #endif
 
 #include "fzfont.h"
-#include "../bkuser.h"
+#include "bkuser.h"
 
 FZFont::FZFont() : metrics(0),isUTF(false),ftlib(0),ftface(0) {
 }

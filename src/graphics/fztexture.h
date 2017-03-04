@@ -20,6 +20,8 @@
 #ifndef FZTEXTURE_H
 #define FZTEXTURE_H
 
+#include <vita2d.h>
+
 #include "fzimage.h"
 
 #define FZ_TEX_MODULATE  0
@@ -63,6 +65,8 @@ protected:
 	static bool initFromImage(FZTexture* texture, FZImage* image, bool buildMipmaps);
 
 public:
+	// vita
+	vita2d_texture* vita_texture;
 
 	~FZTexture();
 
@@ -90,6 +94,11 @@ public:
 	 * Create a new 2D texture object from an image.
 	 */
 	static FZTexture* createFromImage(FZImage* image, bool buildMipmaps);
+
+	/**
+	 * Create a new 2D texture object from an image.
+	 */
+	static FZTexture* createFromVitaTexture(vita2d_texture * texture);
 
 	unsigned int getWidth() const { return width; }
 	unsigned int getHeight() const { return height; }

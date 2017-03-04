@@ -22,6 +22,9 @@
 
 #include "bklayer.h"
 
+#include <vita2d.h>
+#include <psp2/kernel/threadmgr.h>
+
 #include <cmath>
 
 FZFont* BKLayer::fontBig = 0;
@@ -30,6 +33,7 @@ FZFont* BKLayer::fontUTF = 0;
 FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
+FZTexture* BKLayer::genLogo = 0;
 
 extern "C" {
   extern unsigned int size_res_logo;
@@ -41,89 +45,66 @@ extern "C" {
   extern unsigned int size_res_uifont;
   extern unsigned char res_uifont[];
   extern unsigned char pdf_font_DroidSansFallback_ttf_buf[];
-  extern unsigned int  pdf_font_DroidSansFallback_ttf_len; 
+  extern unsigned int  pdf_font_DroidSansFallback_ttf_len;
+	extern unsigned char _binary_image_png_start;
+	extern unsigned char _binary_icon0_t_png_start;
 };
 
 void BKLayer::load() {
-  if (!fontBig){
-	fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
-	fontBig->texEnv(FZ_TEX_MODULATE);
-	fontBig->filter(FZ_NEAREST, FZ_NEAREST);
-  }
-  if (!fontUTF){
-    fontUTF = FZFont::createUTFFromFile("utf.font",14,false);
-    if(!fontUTF)
-      if(pdf_font_DroidSansFallback_ttf_len)
-	fontUTF = FZFont::createUTFFromMemory(pdf_font_DroidSansFallback_ttf_buf, pdf_font_DroidSansFallback_ttf_len, 14, false);
-      else
-	fontUTF = FZFont::createUTFFromFile("data.fnt",14,false);
-    if(fontUTF){
-      fontUTF->texEnv(FZ_TEX_MODULATE);
-      fontUTF->filter(FZ_NEAREST, FZ_NEAREST);
-    }
-  }
-  if (!fontSmall){
-	fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont, 11, false);
-	fontSmall->texEnv(FZ_TEX_MODULATE);
-	fontSmall->filter(FZ_NEAREST, FZ_NEAREST);
-  }
-  if (!texUI){
-	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex, size_res_uitex);
-	FZImage* image = FZImage::createFromPNG(ins);
-	ins->release();
-	ins = 0;
-	texUI = FZTexture::createFromImage(image, false);
-	texUI->texEnv(FZ_TEX_MODULATE);
-	texUI->filter(FZ_NEAREST, FZ_NEAREST);
-	image->release();
-  }
-  if (!texUI2){
-	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex2, size_res_uitex2);
-	FZImage* image = FZImage::createFromPNG(ins);
-	ins->release();
-	ins = 0;
-	texUI2 = FZTexture::createFromImage(image, false);
-	texUI2->texEnv(FZ_TEX_MODULATE);
-	texUI2->filter(FZ_NEAREST, FZ_NEAREST);
-	image->release();
-  }
-  if (!texLogo){
-	FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_logo, size_res_logo);
-	FZImage* image = FZImage::createFromPNG(ins);
-	ins->release();
-	ins = 0;
-	texLogo = FZTexture::createFromImage(image, false);
-	texLogo->texEnv(FZ_TEX_REPLACE);
-	texLogo->filter(FZ_NEAREST, FZ_NEAREST);
-	image->release();
-  }
+	#ifdef __vita__
+		#ifdef DEBUG
+			psp2shell_print("bklayer load");
+		#endif
+		genLogo = FZTexture::createFromVitaTexture( vita2d_load_PNG_buffer(&_binary_image_png_start)   );
+		texLogo = FZTexture::createFromVitaTexture( vita2d_load_PNG_buffer(&_binary_icon0_t_png_start) );
+	#elif defined(PSP)
+		// if (!fontBig){
+		// fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
+		// fontBig->texEnv(FZ_TEX_MODULATE);
+		// fontBig->filter(FZ_NEAREST, FZ_NEAREST);
+		// }
+		// if (!fontUTF){
+		//   fontUTF = FZFont::createUTFFromFile("utf.font",14,false);
+		//   if(!fontUTF)
+		//     if(pdf_font_DroidSansFallback_ttf_len)
+		// fontUTF = FZFont::createUTFFromMemory(pdf_font_DroidSansFallback_ttf_buf, pdf_font_DroidSansFallback_ttf_len, 14, false);
+		//     else
+		// fontUTF = FZFont::createUTFFromFile("data.fnt",14,false);
+		//   if(fontUTF){
+		//     fontUTF->texEnv(FZ_TEX_MODULATE);
+		//     fontUTF->filter(FZ_NEAREST, FZ_NEAREST);
+		//   }
+		// }
+		// if (!fontSmall){
+		// fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont, 11, false);
+		// fontSmall->texEnv(FZ_TEX_MODULATE);
+		// fontSmall->filter(FZ_NEAREST, FZ_NEAREST);
+		// }
+		// if (!texUI){
+		// FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex, size_res_uitex);
+		// FZImage* image = FZImage::createFromPNG(ins);
+		// ins->release();
+		// ins = 0;
+		// texUI = FZTexture::createFromImage(image, false);
+		// texUI->texEnv(FZ_TEX_MODULATE);
+		// texUI->filter(FZ_NEAREST, FZ_NEAREST);
+		// image->release();
+		// }
+		// if (!texUI2){
+		// FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex2, size_res_uitex2);
+		// FZImage* image = FZImage::createFromPNG(ins);
+		// ins->release();
+		// ins = 0;
+		// texUI2 = FZTexture::createFromImage(image, false);
+		// texUI2->texEnv(FZ_TEX_MODULATE);
+		// texUI2->filter(FZ_NEAREST, FZ_NEAREST);
+		// image->release();
+		// }
+	#endif
+	
 }
 
 void BKLayer::unload(){
-  if(fontBig){
-    fontBig->release();
-    fontBig = 0;
-  }
-  if(fontUTF){
-    fontUTF->release();
-    fontUTF = 0;
-  }
-  if(fontSmall){
-    fontSmall->release();
-    fontSmall = 0;
-  }
-  if(texUI){
-    texUI->release();
-    texUI = 0;
-  }
-  if(texUI2){
-    texUI2->release();
-    texUI2 = 0;
-  }
-  if(texLogo){
-    texLogo->release();
-    texLogo = 0;
-  }
 }
 
 struct T32FV32F2D {
@@ -133,6 +114,7 @@ struct T32FV32F2D {
 
 void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
 	struct T32FV32F2D vertices[2] = {
+
 		{ tx, ty, x, y, 0 },
 		{ tx + w, ty + h, x + w, y + h, 0 }
 	};
@@ -317,17 +299,17 @@ int BKLayer::drawUTFText(const char* t, FZFont* font, int x, int y, int skipUTFC
 	vertices[1].y = baseY + met.yoffset + met.height;
 	vertices[1].z = 0;
 
-// 	vertices[0].u = 0;
-// 	vertices[0].v = 0;
-// 	vertices[0].x = baseX + met.xoffset;
-// 	vertices[0].y = baseY + met.yoffset;
-// 	vertices[0].z = 0;
+	// vertices[0].u = 0;
+	// vertices[0].v = 0;
+	// vertices[0].x = baseX + met.xoffset;
+	// vertices[0].y = baseY + met.yoffset;
+	// vertices[0].z = 0;
 	
-// 	vertices[1].u = utf_texture->getWidth();
-// 	vertices[1].v = utf_texture->getHeight();
-// 	vertices[1].x = baseX + met.xoffset + utf_texture->getWidth();
-// 	vertices[1].y = baseY + met.yoffset + utf_texture->getHeight();
-// 	vertices[1].z = 0;
+	// vertices[1].u = utf_texture->getWidth();
+	// vertices[1].v = utf_texture->getHeight();
+	// vertices[1].x = baseX + met.xoffset + utf_texture->getWidth();
+	// vertices[1].y = baseY + met.yoffset + utf_texture->getHeight();
+	// vertices[1].z = 0;
 			
 	baseX += met.xadvance;
 
@@ -360,7 +342,7 @@ int BKLayer::drawUTFMenuItem(BKMenuItem* item, FZFont* font, int x, int y, int s
   }
 
   if(item->tex && font == item->currentTexFont){
-    FZScreen::commitAll();
+    /*FZScreen::commitAll();*/
     item->tex->bindForDisplay();
     FZCharMetrics* met = ((FZFont*)(item->tex))->getMetrics();
     int w = met->width - skipPixels;
@@ -510,8 +492,8 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	drawTPill(25, 272 - 30 + scrY, 480 - 46 - 11, 30, 6, 31, 1);
 	// icons
 	FZScreen::ambientColor(0xff000000);
-//drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
-//	drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
+	// drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
+	// drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
 	switch (BKUser::controls.select) {
 	case FZ_REPS_CROSS:	
 		drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); 
@@ -537,12 +519,12 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 			drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
 			break;
 		}
-//		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+		// drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
 	  }
 	}
 	if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
 		//drawImage(37, 248 + scrY, 20, 20, 107, 5);
-//		drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+		// drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
 		drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
 	}
 
@@ -766,16 +748,16 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 	  useUTFFont = false;
 	}
 
-// 	if (items.size()==0){
-// 	  string cl = "";
-// 	  string prefix = "";
+	// if (items.size()==0){
+	//   string cl = "";
+	//   string prefix = "";
 
-// 	  items.push_back(BKOutlineItem("<No Outlines>", cl, (void*)0, prefix , false));
-// 	  hasOutline = false;
-// 	  selItem = 0;
-// 	  topItem = 0;
-// 	  selPos = 0;
-// 	}
+	//   items.push_back(BKOutlineItem("<No Outlines>", cl, (void*)0, prefix , false));
+	//   hasOutline = false;
+	//   selItem = 0;
+	//   topItem = 0;
+	//   selPos = 0;
+	// }
 
 	if( items.size()== 1 && items[0].circleLabel == ""){
 	  hasOutline = false;
@@ -839,19 +821,19 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 
 	// not support now
 	// color rects items
-// 	for (int i = 0; i < maxItemNum; ++i) {
-// 		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-// 			break;
-// 		if ((i + topItem) >= (int)(items.size()))
-// 			break;
-// 		if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
-// 			int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
-// 			FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
-// 			drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
-// 			FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
-// 			drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
-// 		}
-// 	}
+	// for (int i = 0; i < maxItemNum; ++i) {
+	// 	if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+	// 		break;
+	// 	if ((i + topItem) >= (int)(items.size()))
+	// 		break;
+	// 	if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
+	// 		int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
+	// 		FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
+	// 		drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
+	// 		FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
+	// 		drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
+	// 	}
+	// }
 
 	itemFont->bindForDisplay();
 
@@ -911,8 +893,8 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 	else
 	  drawText((char*)items[selItem].label.c_str(), itemFont, text_left, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
 
-// 	if(!hasOutline)
-// 	  items.clear();
+	// if(!hasOutline)
+	//   items.clear();
 }
 
 static int countLines(string& t) {
@@ -938,7 +920,7 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 	drawPill(45, 5 + y, 480 - 86 - 10, 20, 6, 31, 1);
 	// icons
 	FZScreen::ambientColor(bg1|0xff000000);
-//	drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+	// drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
 	switch (BKUser::controls.select) {
 	case FZ_REPS_CIRCLE:
 		drawImage(410, 9 + y, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
@@ -1021,4 +1003,3 @@ BKLayer::BKLayer() : topItem(0), selItem(0),skipChars(0),maxSkipChars(-1) {
 
 BKLayer::~BKLayer() {
 }
-

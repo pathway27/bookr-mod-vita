@@ -178,13 +178,18 @@ using namespace std;
 #define FZ_PSM_T8               (5) /* Texture */
 
 #ifdef PSP
-#include <pspdebug.h>
-#define FZ_DEBUG_SCREEN_INIT pspDebugScreenInit();
-#define FZ_DEBUG_SCREEN_SET00 pspDebugScreenSetXY(0,0);
-#define printf pspDebugScreenPrintf
+  #include <pspdebug.h>
+  #define FZ_DEBUG_SCREEN_INIT pspDebugScreenInit();
+  #define FZ_DEBUG_SCREEN_SET00 pspDebugScreenSetXY(0,0);
+  #define printf pspDebugScreenPrintf
+#elif defined(__vita__) && defined(DEBUG)
+  #include <psp2shell.h>
+  #define FZ_DEBUG_SCREEN_INIT psp2shell_init(3333, 0);
+  #define FZ_DEBUG_SCREEN_SET00
+  #define printf psp2shell_print
 #else
-#define FZ_DEBUG_SCREEN_INIT
-#define FZ_DEBUG_SCREEN_SET00
+  #define FZ_DEBUG_SCREEN_INIT
+  #define FZ_DEBUG_SCREEN_SET00
 #endif
 
 class FZTexture;

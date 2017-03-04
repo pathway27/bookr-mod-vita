@@ -39,10 +39,12 @@
 #include "bookrconfig.h"
 
 extern unsigned char _binary_image_png_start;
+extern unsigned char _binary_icon0_t_png_start;
 
 static bool closing = false;
 
 FZScreen::FZScreen() {
+    //psp2shell_print_color(COL_GREEN, "FZScreen\n");
 }
 
 FZScreen::~FZScreen() {
@@ -111,22 +113,23 @@ static void initalDraw() {
 }
 
 // Move this to constructor?
-static vita2d_texture *image;
 void FZScreen::open(int argc, char** argv) {
     vita2d_init();
     vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
 
     pgf = vita2d_load_default_pgf();
     pvf = vita2d_load_default_pvf();
-    image = vita2d_load_PNG_buffer(&_binary_image_png_start);
 
     initalDraw();
 }
 
 void FZScreen::close() {
     //fat_free();
+    //#ifdef DEBUG
+    //#endif
     vita2d_fini();
-    vita2d_free_texture(image);
+    // vita2d_free_texture(image);
+    // vita2d_free_texture(image2);
     vita2d_free_pgf(pgf);
     vita2d_free_pvf(pvf);
 }
@@ -194,21 +197,24 @@ void FZScreen::getAnalogPad(int& x, int& y) {
 }
 
 void FZScreen::startDirectList() {
+    psp2shell_print("start drawing");
     vita2d_start_drawing();
 }
 
 void FZScreen::endAndDisplayList() {
+    psp2shell_print("end drawing");
     vita2d_end_drawing();
 }
 
 static void* lastFramebuffer = NULL;
 void FZScreen::swapBuffers() {
-    // lastFramebuffer = 
+    lastFramebuffer = vita2d_get_current_fb();
     vita2d_swap_buffers();
 }  
 
 void FZScreen::waitVblankStart() {
-    vita2d_set_vblank_wait(1);
+    // this is the default value in vita2d? 
+    //vita2d_set_vblank_wait(1);
 }
 
 void* FZScreen::getListMemory(int s) {
@@ -228,43 +234,16 @@ void FZScreen::ambientColor(unsigned int c) {
 }
 
 void FZScreen::clear(unsigned int color, int b) {
-    //vita2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
+    // vita2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
-    // sceGuClearColor(color);
-    // int m = 0;
-    // if (b & FZ_COLOR_BUFFER)
-    //   m |= GU_COLOR_BUFFER_BIT;
-    // if (b & FZ_DEPTH_BUFFER)
-    //   m |= GU_DEPTH_BUFFER_BIT;
-    // sceGuClear(m);
+    vita2d_set_clear_color(color);
+    vita2d_clear_screen();
 }
 
 void FZScreen::checkEvents(int buttons) {
-    if (strcmp(nameForButton(buttons), "Unknow button") != 0) {
-      vita2d_start_drawing();
-      vita2d_clear_screen();
-      
-      vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, "blah");
-
-      vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, nameForButton(buttons));
-
-      //vita2d_draw_texture(image, 940/2, 544/2);
-      
-      vita2d_end_drawing();
-      FZScreen::swapBuffers();
-    } else {
-      vita2d_start_drawing();
-      vita2d_clear_screen();
-
-      vita2d_draw_texture(image, 0, 0);
-      
-      vita2d_end_drawing();
-      FZScreen::swapBuffers();
-    }
 }
 
-
-void FZScreen::matricesFor2D(int rotation) {
+void FZScreen::matricesFor2D(int rotation) {    
 }
 
 struct T32FV32F2D {
@@ -281,7 +260,38 @@ void FZScreen::setBoundTexture(FZTexture *t) {
     bind correct vertex array
   */
 void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
+    // vita2d_color_vertex *vertices = (vita2d_color_vertex *)vita2d_pool_memalign(
+	// 	2 * sizeof(vita2d_color_vertex), // 2 vertices
+	// 	sizeof(vita2d_color_vertex));
 
+	// uint16_t *indices = (uint16_t *)vita2d_pool_memalign(
+	// 	2 * sizeof(uint16_t), // 2 indices
+	// 	sizeof(uint16_t));
+
+	// vertices[0].x = x0;
+	// vertices[0].y = y0;
+	// vertices[0].z = +0.5f;
+	// vertices[0].color = color;
+
+	// vertices[1].x = x1;
+	// vertices[1].y = y1;
+	// vertices[1].z = +0.5f;
+	// vertices[1].color = color;
+
+	// indices[0] = 0;
+	// indices[1] = 1;
+
+	// sceGxmSetVertexProgram(_vita2d_context, _vita2d_colorVertexProgram);
+	// sceGxmSetFragmentProgram(_vita2d_context, _vita2d_colorFragmentProgram);
+
+	// void *vertexDefaultBuffer;
+	// sceGxmReserveVertexDefaultUniformBuffer(_vita2d_context, &vertexDefaultBuffer);
+	// sceGxmSetUniformDataF(vertexDefaultBuffer, _vita2d_colorWvpParam, 0, 16, _vita2d_ortho_matrix);
+
+	// sceGxmSetVertexStream(_vita2d_context, 0, vertices);
+	// sceGxmSetFrontPolygonMode(_vita2d_context, SCE_GXM_POLYGON_MODE_LINE);
+	// sceGxmDraw(_vita2d_context, SCE_GXM_PRIMITIVE_LINES, SCE_GXM_INDEX_FORMAT_U16, indices, 2);
+	// sceGxmSetFrontPolygonMode(_vita2d_context, SCE_GXM_POLYGON_MODE_TRIANGLE_FILL);
 }
 
 void FZScreen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
