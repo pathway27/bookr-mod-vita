@@ -102,6 +102,11 @@ So it seems like most applications share the same paradigm of
 
 - deinitalize display
 
+### OpenGL
+
+Looks like bookr used the old fixed-pipeline version of OpenGL which has been depricated.  
+Replacing it with a good programmable-pipeline abstraction feels hard.  
+Got a cool shader class so far. 
 
 ### Bitwise Operations
 

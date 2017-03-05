@@ -1,10 +1,10 @@
-# bookr-mod-vita
+## bookr-mod-vita
 
-A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various forks.
+A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#forks).
 
-# Building
+## Building
 
-## For VITA (on *nix)
+### For VITA (on *nix)
 
 ```sh
 # Setup VITA development evironment: https://henkaku.xyz/developer/
@@ -17,7 +17,7 @@ export PSVITAIP=192.168.1.5
 cd build && make send
 ```
 
-## For Mac
+### For Mac
 
 ```sh
 # This is just for devel.
@@ -29,52 +29,52 @@ make -f Makefile.macglfw
 ./bookr.glut
 ```
 
-## For PSP
+### For PSP
 
 ```
 TODO
 ```
 
-# Installation
+## Installation
 
-## PSVITA
+### PSVITA
 
 Use the .vpk to install.
 
-# CJK PDF Support
+## CJK PDF Support
 
 Considering Noto fonts.
 
-# Credits
+## Forks
 
-**Original bookr**
-
+**[Original bookr.](https://sourceforge.net/projects/bookr/)**  
 Carlos Carrasco Martinez (carloscm at gmail dot com),  
 Christian Payeur (christian dot payeur at gmail dot com),  
 Nguyen Chi Tam (nguyenchitam at gmail dot com)  
 
-**bookr-mod - 2525275 @ gmail**
-
-https://code.google.com/archive/p/bookr-mod/
+**[bookr-mod](https://code.google.com/archive/p/bookr-mod/)**  
+2525275 @ gmail
 
 **bookr-hbs - HomebrewStore Development Team**  
-**ozbookr - by Oleg Zhuk (zhukoo@gmail.com)**  
+**ozbookr - by Oleg Zhuk (zhukoo @ gmail)**  
 **gtzampanaskis/bookr**
 
-## book-mod-vita
+## Credits
 
+The forks above.
 All the VITA hacking/dev scene
 
 - Team Molecule (yifan, xyzz, DaveeFTW, xerpi)
 - TheFlow
-
-Software Used
-
 - libvita2d - xerpi
+
+- [learnopengl.com](learnopengl.com)
+- peeps on #vitasdk on freenode
+- people that read
 
 pathway27 (Sree) - ME! - This port to VITA
 
 ## License
 
-Uses the same license as bookr, GNU GPLv2+, see LICENSE.  
-Original sources at respective orphan branches of this repository.
+Uses the same license as bookr, GNU GPLv2+, see [LICENSE](https://github.com/pathway27/bookr-mod-vita/blob/master/LICENSE).  
+Original sources at respective tags of this repository.
