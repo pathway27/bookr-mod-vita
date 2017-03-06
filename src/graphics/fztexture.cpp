@@ -43,6 +43,7 @@
     #define GLEW_STATIC
     #include <GL/glew.h>
     #include <GLFW/glfw3.h>
+    #include <SOIL.h>
   #else
     #include <glad/glad.h>
   #endif
@@ -215,13 +216,30 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
     return texture;
 }
 
-FZTexture* FZTexture::createFromVitaTexture(vita2d_texture* v_texture) {
-    psp2shell_print("create from vita");
-    FZTexture* texture = new FZTexture();
-    texture->vita_texture = v_texture;
-    //psp2shell_print("%p\n", (void *) &(texture->vita_texture));
-    return texture;
-}
+#ifdef __vita__
+  FZTexture* FZTexture::createFromVitaTexture(vita2d_texture* v_texture) {
+      psp2shell_print("create from vita");
+      FZTexture* texture = new FZTexture();
+      texture->vita_texture = v_texture;
+      //psp2shell_print("%p\n", (void *) &(texture->vita_texture));
+      return texture;
+  }
+#endif
+
+#ifdef MAC
+  FZTexture* FZTexture::createFromSOIL(char* filename) {
+      int width, height;
+      soil_image = SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGB);
+
+      FZImage* image = new FZImage(width, height, NULL);
+      image->data = (char *) soil_image;
+
+      FZTexture* texture = new FZTexture();
+      texture->texImage = image;
+
+      return texture;
+  }
+#endif
     
 bool FZTexture::initFromImage(FZTexture* texture, FZImage* image, bool buildMipmaps) {
 

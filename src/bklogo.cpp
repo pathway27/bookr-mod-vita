@@ -61,7 +61,9 @@ int BKLogo::update(unsigned int buttons) {
 }
 
 void BKLogo::render() {
+  #ifdef DEBUG
     psp2shell_print("bklogo render");
+  #endif
     FZScreen::clear(0xffffff, FZ_COLOR_BUFFER);
     FZScreen::color(0xffffffff);
 
@@ -74,9 +76,11 @@ void BKLogo::render() {
     //vita2d_draw_texture(vita2d_load_PNG_buffer(&_binary_image_png_start), 0, 0);
     vita2d_draw_texture(genLogo->vita_texture, 0, 0);
     vita2d_draw_texture(texLogo->vita_texture, 76, 360);
-  #else    
+  #else
+    genLogo->bindForDisplay();
+    drawImage(0, 0, FZ_SCREEN_WIDTH, FZ_SCREEN_HEIGHT, 0, 0);
     texLogo->bindForDisplay();
-    drawImage(480/2 - 64, 50, 128, 128, 0, 0);
+    drawImage(76, 360, 128, 128, 0, 0);
   #endif
 
     // FZScreen::enable(FZ_BLEND);

@@ -188,6 +188,9 @@ using namespace std;
 #define FZ_PSM_T4               (4) /* Texture */
 #define FZ_PSM_T8               (5) /* Texture */
 
+#define FZ_SCREEN_WIDTH					940
+#define FZ_SCREEN_HEIGHT				544
+
 #ifdef PSP
   #include <pspdebug.h>
   #define FZ_DEBUG_SCREEN_INIT pspDebugScreenInit();

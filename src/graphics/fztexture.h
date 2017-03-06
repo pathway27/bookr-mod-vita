@@ -31,7 +31,11 @@
 #ifndef FZTEXTURE_H
 #define FZTEXTURE_H
 
-#include <vita2d.h>
+#ifdef MAC
+	#include <SOIL.h>
+#elif __vita__
+	#include <vita2d.h>
+#endif
 
 #include "fzimage.h"
 
@@ -78,6 +82,7 @@ protected:
 public:
 	// vita
 	vita2d_texture* vita_texture;
+	unsigned char*  soil_data;
 
 	~FZTexture();
 
@@ -107,9 +112,11 @@ public:
 	static FZTexture* createFromImage(FZImage* image, bool buildMipmaps);
 
 	/**
-	 * Create a new 2D texture object from an image.
+	 * Create a new 2D texture object from an image for vita.
 	 */
 	static FZTexture* createFromVitaTexture(vita2d_texture * texture);
+
+	static FZImage* createFromSOIL(char* imagePath);
 
 	unsigned int getWidth() const { return width; }
 	unsigned int getHeight() const { return height; }

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <map>
 
 #include <GL/glew.h>
 
@@ -98,5 +99,7 @@ public:
         glUseProgram(this->Program); 
     }
 };
+
+extern static map<string, Shader> shaders;
 
 #endif

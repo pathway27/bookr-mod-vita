@@ -32,8 +32,13 @@
 
 #include "bklayer.h"
 
-#include <vita2d.h>
-#include <psp2/kernel/threadmgr.h>
+#ifdef __vita__
+	#include <vita2d.h>
+	#include <psp2/kernel/threadmgr.h>
+#elif MAC
+	#include <SOIL.h>
+	#include "graphics/shaders/shader.h"
+#endif
 
 #include <cmath>
 
@@ -57,7 +62,9 @@ extern "C" {
   extern unsigned char pdf_font_DroidSansFallback_ttf_buf[];
   extern unsigned int  pdf_font_DroidSansFallback_ttf_len;
 	extern unsigned char _binary_image_png_start;
+	extern unsigned int _binary_image_png_size;
 	extern unsigned char _binary_icon0_t_png_start;
+	extern unsigned int _binary_icon0_t_png_size;
 };
 
 void BKLayer::load() {
@@ -65,8 +72,11 @@ void BKLayer::load() {
 		#ifdef DEBUG
 			psp2shell_print("bklayer load");
 		#endif
-		genLogo = FZTexture::createFromVitaTexture( vita2d_load_PNG_buffer(&_binary_image_png_start)   );
-		texLogo = FZTexture::createFromVitaTexture( vita2d_load_PNG_buffer(&_binary_icon0_t_png_start) );
+		genLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_image_png_start)  );
+		texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
+	#elif defined(MAC)
+		genLogo = FZTexture::createFromSOIL("image.png");
+		texLogo = FZTexture::createFromSOIL("sce_sys/icon0_t.png");
 	#elif defined(PSP)
 		// if (!fontBig){
 		// fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont, 14, false);
@@ -123,14 +133,27 @@ struct T32FV32F2D {
 };
 
 void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-	struct T32FV32F2D vertices[2] = {
+	#ifdef MAC
+		// vertex
+		// indicies
+		
+		// glBindTexture(GL_TEXTURE_2D, texture); <-- go to fztexture
+		
+		shaders["texture"].Use();
+    
+		glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+	#else
+		struct T32FV32F2D vertices[2] = {
 
-		{ tx, ty, x, y, 0 },
-		{ tx + w, ty + h, x + w, y + h, 0 }
-	};
-	T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2*sizeof(struct T32FV32F2D));
-	memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
-	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
+			{ tx, ty, x, y, 0 },
+			{ tx + w, ty + h, x + w, y + h, 0 }
+		};
+		T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2*sizeof(struct T32FV32F2D));
+		memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
+		FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
+	#endif
 }
 
 void BKLayer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
