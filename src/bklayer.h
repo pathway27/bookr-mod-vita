@@ -120,6 +120,7 @@ class BKLayer : public FZRefCounted {
 	int drawUTFText(const char*, FZFont*, int, int, int, int);
 	void drawTextHC(char* t, FZFont* font, int y);
 	void drawImage(int x, int y, int w, int h, int tx, int ty);
+	void drawImage(int x, int y);
 	void drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th);
 	void drawOutlinePrefix(string s, int x, int y, int w, int h, int ws);
 	BKLayer();

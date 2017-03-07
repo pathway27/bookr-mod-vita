@@ -30,11 +30,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 #include <iostream>
+#ifdef __vita__
+  #include <psp2/kernel/threadmgr.h>
+#endif
 
 #include "graphics/fzscreen.h"
-#include <psp2/kernel/threadmgr.h>
 #include "bkuser.h"
 #include "bklayer.h"
 #include "bklogo.h"

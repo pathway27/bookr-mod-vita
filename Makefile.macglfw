@@ -9,7 +9,8 @@ AR=ar
 ARFLAGS=r
 
 DEFS = -DMAC
-INCS = -Iext/tinyxml2 #-Imupdf/include -Idjvu/libdjvupsp `freetype-config --cflags`
+INCS:= -Iext/tinyxml2 -Isrc/graphics/shaders#-Imupdf/include -Idjvu/libdjvupsp  `freetype-config --cflags`
+INCS+= -I/usr/local/Cellar/glm/0.9.8.3/include/glm -I/usr/local/Cellar/freetype/2.7/include/freetype2
 OPTS = -g3 -Wall -W -Wno-unused -O0 -pipe
 
 #-Lmupdf/libs -Ldjvu/libs -L/sw/lib
@@ -21,7 +22,7 @@ CXXFLAGS = ${FLAGS}
 LDFLAGS= ${OPTS} -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
 
 LIBS:=${LIBDIRS} -framework OpenGL -framework AGL -framework Cocoa -framework Foundation
-LIBS+=-lglew -lglfw -ldl -lobjc -lstdc++ -L/usr/local/lib -lz -lpng -lfreetype -ltinyxml2
+LIBS+=-lglew -lglfw -ldl -lobjc -lstdc++ -L/usr/local/lib -lz -lpng -lfreetype2 -ltinyxml2
 LIBS+=-lSOIL#-lmupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm 
 
 EXE=bookr.glfw
@@ -30,8 +31,8 @@ all: $(EXE)
 
 OBJS:=src/bookr.o src/graphics/fzscreenglfw.o src/bkuser.o
 OBJS+=src/graphics/fzrefcount.o src/graphics/fzimage.o src/graphics/fztexture.o
-#OBJS:= bkpdf.o bklayer.o bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
-#OBJS+= fzrefcount.o fzinstreammem.o fzinstreamstd.o fzimage.o fzimagepng.o fztexture.o fzfont.o fzscreenglut.o fzscreencommon.o
+OBJS+=src/grpahics/fzinstreammem.o src/graphics/fzfont.o src/graphics/fzscreencommon.o src/bklayer.o
+#OBJS:= bkpdf.o  bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o bklogo.o bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 #OBJS+= tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
 #OBJS+= res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o 
 

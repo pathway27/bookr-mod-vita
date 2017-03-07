@@ -132,19 +132,23 @@ struct T32FV32F2D {
 	float x,y,z;
 };
 
-void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-	#ifdef MAC
-		// vertex
-		// indicies
-		
-		// glBindTexture(GL_TEXTURE_2D, texture); <-- go to fztexture
-		
+#ifdef MAC
+void BKLayer::drawImage(int x, int y) {
 		shaders["texture"].Use();
-    
-		glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		// vertex
+		glm::mat4 model;
+    model = glm::translate(model, glm::vec3(x, y, 0.0f));
+  
+    this->shader.SetMatrix4("model", model);
+		glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, GL_FALSE, glm::value_ptr(model));
+
+		glBindVertexArray(VAOs["texture"]);
+    	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-	#else
+}
+#else
+void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
+	
 		struct T32FV32F2D vertices[2] = {
 
 			{ tx, ty, x, y, 0 },
@@ -153,8 +157,9 @@ void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
 		T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2*sizeof(struct T32FV32F2D));
 		memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
 		FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
-	#endif
+	
 }
+#endif
 
 void BKLayer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
 	struct T32FV32F2D vertices[2] = {

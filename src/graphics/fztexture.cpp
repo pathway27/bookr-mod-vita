@@ -114,9 +114,9 @@
 
     void FZTexture::bindForDisplay() {
         bind();
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, texenv);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texMag);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texMin);
+        //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, texenv);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texMag);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texMin);
     }
 #endif
 
@@ -229,14 +229,24 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
 #ifdef MAC
   FZTexture* FZTexture::createFromSOIL(char* filename) {
       int width, height;
-      soil_image = SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGB);
+      unsigned char* soil_image = SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGB);
 
-      FZImage* image = new FZImage(width, height, NULL);
+      FZImage* image = new FZImage(width, height, FZImage::Format::rgba32);
       image->data = (char *) soil_image;
 
       FZTexture* texture = new FZTexture();
       texture->texImage = image;
 
+    
+      glBindTexture(GL_TEXTURE_2D, texture->textureObject);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
+        GL_RGB, GL_UNSIGNED_BYTE, soil_image);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        SOIL_free_image_data(image);
+      glBindTexture(GL_TEXTURE_2D, 0);
       return texture;
   }
 #endif

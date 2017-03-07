@@ -100,6 +100,6 @@ public:
     }
 };
 
-extern static map<string, Shader> shaders;
+extern std::map<std::string, Shader> shaders;
 
 #endif

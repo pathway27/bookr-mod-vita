@@ -81,7 +81,10 @@ protected:
 
 public:
 	// vita
-	vita2d_texture* vita_texture;
+	// refactor to fzimage with void*
+#ifdef __vita__
+		vita2d_texture* vita_texture;
+#endif
 	unsigned char*  soil_data;
 
 	~FZTexture();
@@ -111,12 +114,12 @@ public:
 	 */
 	static FZTexture* createFromImage(FZImage* image, bool buildMipmaps);
 
-	/**
-	 * Create a new 2D texture object from an image for vita.
-	 */
-	static FZTexture* createFromVitaTexture(vita2d_texture * texture);
+	//refactor
+	#ifdef __vita__
+		static FZTexture* createFromVitaTexture(vita2d_texture * texture);
+	#endif
 
-	static FZImage* createFromSOIL(char* imagePath);
+	static FZTexture* createFromSOIL(char* imagePath);
 
 	unsigned int getWidth() const { return width; }
 	unsigned int getHeight() const { return height; }

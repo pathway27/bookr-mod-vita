@@ -38,16 +38,6 @@
 
 #include <iostream>
 
-#ifdef MAC
-  #define GLEW_STATIC
-  #include <GL/glew.h>
-  #include <SOIL.h>
-#elif define (__WIN32__)
-  #include <glad/glad.h>
-#endif
-
-#include <GLFW/glfw3.h>
-
 //#include fzscreencommon.
 #include "fzscreen.h"
 #include "fztexture.h"
@@ -158,85 +148,39 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
     }
 }
 
+static Shader texture_shader("src/graphics/shaders/textures.vert", 
+                             "src/graphics/shaders/textures.frag");
 static void loadShaders() {
     // For textures
     // load shaders
-    shaders["texture"] = Shader ourShader("src/graphics/shaders/textures.vert", 
-                                          "src/graphics/shaders/textures.frag");
+    
+    //shaders["texture"] = (*)texture_shader;
     // bind vertex buffers' and get id
     // Set up vertex data (and buffer(s)) and attribute pointers
-    GLfloat vertices[] = {
-        // Positions          // Colors           // Texture Coords
-        -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
-         1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-         1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+    GLuint VAO, VBO;
+    GLfloat vertices[] = { 
+        // Pos      // Tex
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 
+    
+        0.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f
     };
-    GLuint indices[] = {  // Note that we start from 0!
-        0, 1, 3, // First Triangle
-        1, 2, 3  // Second Triangle
-    };
-    GLuint VBO, VAO, EBO, texture_id;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
     VBOs["texture"] = VBO;
     VAOs["texture"] = VAO;
-    EBOs["texture"] = EBO;
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindVertexArray(VAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-        // Position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-        glEnableVertexAttribArray(0);
-        // Color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-        glEnableVertexAttribArray(1);
-        // TexCoord attribute
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-        glEnableVertexAttribArray(2);
-
-    glBindVertexArray(0); // Unbind VAO
-
-    // bind textures and get id
-    glGenTextures(1, &texture_id);
-    textures["splash"] = texture_id;
-
-
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-        unsigned char* image = SOIL_load_image("image.png", &width, &height, 0, SOIL_LOAD_RGB);
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        cout << SOIL_last_result() << endl; 
-        cout << "null: " << !image << endl;
-        cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
-        cout << "Width: " <<  width << endl;
-        cout << "Height: " << height << endl;
-        cout << "Obj: " << texture << endl;
-
-        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
-        GL_RGB, GL_UNSIGNED_BYTE, genLogo);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 static GLFWwindow* window;
@@ -317,7 +261,7 @@ void FZScreen::setBoundTexture(FZTexture *t) {
 /*  Active Shader
     bind correct vertex array
 */
-void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
+void drawArray(int prim, int count, void* indices, void* vertices) {
     //glUseProgram
     //glBindVertextArray(verticies)
     //glDrawArrays(prim, 0, count);
@@ -342,7 +286,6 @@ void FZScreen::disable(int m) {
 }
 
 void FZScreen::dcacheWritebackAll() {
-    ksceKernelCpuDcacheWritebackAll();
     //sceKernelDcacheWritebackAll();
 }
 
@@ -364,7 +307,7 @@ int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
 }
 
 int FZScreen::getSuspendSerial() {
-    return powerResumed;
+    //return powerResumed;
 }
 
 void FZScreen::setSpeed(int v) {
@@ -373,10 +316,10 @@ void FZScreen::setSpeed(int v) {
     
     //scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
     
-    scePowerSetArmClockFrequency(speedValues[v*2]);
+    //scePowerSetArmClockFrequency(speedValues[v*2]);
     //scePowerSetCpuClockFrequency(speedValues[v*2]);
     
-    scePowerSetBusClockFrequency(speedValues[v*2+1]);
+    //scePowerSetBusClockFrequency(speedValues[v*2+1]);
 }
 
 int FZScreen::getSpeed() {
@@ -389,26 +332,13 @@ int FZScreen::getBattery() {
 }
 
 int FZScreen::getUsedMemory() {
-    struct mallinfo mi = mallinfo();
-    return mi.uordblks;
+    //struct mallinfo mi = mallinfo();
+    //return mi.uordblks;
     //return mi.arena;
 }
 
 void FZScreen::setBrightness(int b){
 }
 
-bool FZScreen::isClosing() {
-    return closing;
-}
-
-static FZTexture* boundTexture = 0;
-void FZScreen::setBoundTexture(FZTexture *t) {
-    boundTexture = t;
-}
-
 void FZScreen::waitVblankStart() {
-}
-
-string FZScreen::basePath() {
-    return psp_full_path;
 }

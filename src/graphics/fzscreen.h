@@ -37,6 +37,18 @@
 #include <cstring>
 #include <map>
 
+#ifdef MAC
+  #define GLEW_STATIC
+  #include <GL/glew.h>
+  #include <SOIL.h>
+  #include <glm/glm.hpp>
+	#include <glm/gtc/matrix_transform.hpp>
+	#include <glm/gtc/type_ptr.hpp>
+  #include <GLFW/glfw3.h>
+#elif defined(__WIN32__)
+  #include <glad/glad.h>
+#endif
+
 using namespace std;
 
 /**
@@ -211,117 +223,123 @@ class FZTexture;
 #define FZ_STAT_IFDIR 0x1000
 #define FZ_STAT_IFREG 0x2000
 struct FZDirent {
-	string name;
-	string sname;
-	int stat;
-	int size;
-	FZDirent(string n, int st, int s) : name(n), stat(st), size(s) { }
-	FZDirent() : name(""), sname(""), stat(0), size(0) { }
-	FZDirent(string n, string sn, int st, int s) : name(n), sname(sn), stat(st), size(s) { }
+  string name;
+  string sname;
+  int stat;
+  int size;
+  FZDirent(string n, int st, int s) : name(n), stat(st), size(s) { }
+  FZDirent() : name(""), sname(""), stat(0), size(0) { }
+  FZDirent(string n, string sn, int st, int s) : name(n), sname(sn), stat(st), size(s) { }
 };
 
 class FZScreen {
 protected:
-	FZScreen();
-	~FZScreen();
+  FZScreen();
+  ~FZScreen();
 
 public:
-	static int setupCallbacks();
+  static int setupCallbacks();
 
-	/**
-	 * Open the screen for rendering.
-	 */
-	static void open(int argc, char** argv);
+  /**
+   * Open the screen for rendering.
+   */
+  static void open(int argc, char** argv);
 
-	/**
-	 * Close the screen for rendering.
-	 */
-	static void close();
+  /**
+   * Close the screen for rendering.
+   */
+  static void close();
 
-	static void exit();
+  static void exit();
 
-	/**
-	 * Start list for inmediate display.
-	 */
-	static void startDirectList();
+  /**
+   * Start list for inmediate display.
+   */
+  static void startDirectList();
 
-	/**
-	 * End list and display it.
-	 */
-	static void endAndDisplayList();
+  /**
+   * End list and display it.
+   */
+  static void endAndDisplayList();
 
-	/**
-	 * Commit dirty cache.
-	 */
-	
-	static void commitAll();
+  /**
+   * Commit dirty cache.
+   */
+  
+  static void commitAll();
 
-	static void commitRange(const void* p, unsigned int size);
+  static void commitRange(const void* p, unsigned int size);
 
-	/**
-	 * Swap frame and draw buffer.
-	 */
-	static void swapBuffers();
-	static void waitVblankStart();
+  /**
+   * Swap frame and draw buffer.
+   */
+  static void swapBuffers();
+  static void waitVblankStart();
 
-	static void* getListMemory(int s);
+  static void* getListMemory(int s);
 
-	static void enable(int m);
+  static void enable(int m);
 
-	static void disable(int m);
+  static void disable(int m);
 
-	static void checkEvents(int buttons);
+  static void checkEvents(int buttons);
 
-	static void color(unsigned int c);
+  static void color(unsigned int c);
 
-	static void ambientColor(unsigned int c);
+  static void ambientColor(unsigned int c);
 
-	static void clear(unsigned int c, int b);
+  static void clear(unsigned int c, int b);
 
-	static void matricesFor2D(int rotation = 0);
+  static void matricesFor2D(int rotation = 0);
 
-	static void drawArray(int prim, int vtype, int count, void* indices, void* vertices);
+  static void drawArray(int prim, int vtype, int count, void* indices, void* vertices);
 
-	static void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
-		int dx, int dy, int destw, void *dest);
+  static void drawArray(int prim, int count, void* indices, void* vertices);
 
-	static void* framebuffer();
+  static void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
+    int dx, int dy, int destw, void *dest);
 
-	static void blendFunc(int op, int src, int dst);
-	static void shadeModel(int mode);
+  static void* framebuffer();
 
-	static void setupCtrl();
+  static void blendFunc(int op, int src, int dst);
+  static void shadeModel(int mode);
 
-	static int readCtrl();
+  static void setupCtrl();
 
-	static bool isClosing();
+  static int readCtrl();
 
-	static void getAnalogPad(int& x, int& y);
-	static void resetReps();
-	static int* ctrlReps();
-	static const char* nameForButton(int mask);
-	static const char* nameForButtonReps(int button);
-	static int repsForButtonMask(int mask);
+  static bool isClosing();
 
-	static void dcacheWritebackAll();
+  static void getAnalogPad(int& x, int& y);
+  static void resetReps();
+  static int* ctrlReps();
+  static const char* nameForButton(int mask);
+  static const char* nameForButtonReps(int button);
+  static int repsForButtonMask(int mask);
 
-	static void setBoundTexture(FZTexture *);
+  static void dcacheWritebackAll();
 
-	static string basePath();
-	static int dirContents(const char* path, char* spath, vector<FZDirent>& a);
+  static void setBoundTexture(FZTexture *);
 
-	static int getSuspendSerial();
+  static string basePath();
+  static int dirContents(const char* path, char* spath, vector<FZDirent>& a);
 
-	static const char* speedLabels[];
-	static int speedValues[];
-	static void setSpeed(int v);
-	static int getSpeed();
+  static int getSuspendSerial();
 
-	static void getTime(int &h, int &m);
-	static int getBattery();
-	static int getUsedMemory();
-	static void setBrightness(int);
+  static const char* speedLabels[];
+  static int speedValues[];
+  static void setSpeed(int v);
+  static int getSpeed();
+
+  static void getTime(int &h, int &m);
+  static int getBattery();
+  static int getUsedMemory();
+  static void setBrightness(int);
 };
+
+#ifdef MAC
+  static map<string, GLuint> VBOs, VAOs, EBOs, textures;
+#endif
 
 #endif
 

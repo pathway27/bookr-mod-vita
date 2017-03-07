@@ -6,7 +6,8 @@
                 "/usr/local/include",
                 "/usr/include",
                 "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include",
-                "/usr/local/vitasdk/arm-vita-eabi/include"],
+                "/usr/local/vitasdk/arm-vita-eabi/include",
+                "/usr/local/Cellar/glm/0.9.8.3/include/glm"],
             "browse" : {
                 "limitSymbolsToIncludedHeaders" : true,
                 "databaseFilename" : ""
