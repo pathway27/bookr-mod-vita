@@ -148,12 +148,13 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
     }
 }
 
-static Shader texture_shader("src/graphics/shaders/textures.vert", 
-                             "src/graphics/shaders/textures.frag");
+static Shader* texture_shader;
 static void loadShaders() {
     // For textures
     // load shaders
-    
+    texture_shader = new Shader("src/graphics/shaders/textures.vert", 
+                                "src/graphics/shaders/textures.frag");
+
     //shaders["texture"] = (*)texture_shader;
     // bind vertex buffers' and get id
     // Set up vertex data (and buffer(s)) and attribute pointers
@@ -217,6 +218,8 @@ void FZScreen::open(int argc, char** argv) {
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    loadShaders();
 }
 
 void FZScreen::close() {
@@ -261,17 +264,54 @@ void FZScreen::setBoundTexture(FZTexture *t) {
 /*  Active Shader
     bind correct vertex array
 */
-void drawArray(int prim, int count, void* indices, void* vertices) {
+void FZScreen::drawArray() {
+    cout << "fzscreen drawArray" << endl;
+    texture_shader->Use();
+    glm::mat4 model;
+    model = glm::translate(model, glm::vec3(glm::vec2(200, 200), 0.0f));
+    glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
+  
+    glUniformMatrix4fv(glGetUniformLocation(texture_shader->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+    //glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 1, GL_FALSE, glm::value_ptr(color)); 
+    glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 0.0f, 1.0f, 0.0f);
+
+    cout << "vao texture id" + VAOs["texture"] << endl;
+
+    glBindVertexArray(VAOs["texture"]);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+
+void FZScreen::drawArray(int prim, int count, void* indices, void* vertices) {
     //glUseProgram
     //glBindVertextArray(verticies)
     //glDrawArrays(prim, 0, count);
     //glBindVertexArray(0);
 }
 
+void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
+    // blah
+}
+
 void FZScreen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
   int dx, int dy, int destw, void *dest) {
     //sceGuCopyImage(psm, sx, sy, width, height, srcw, src, dx, dy, destw, dest);
 }
+
+void FZScreen::resetReps() {
+    stickyKeys = true;
+}
+
+int* FZScreen::ctrlReps() {
+    return breps;
+}
+
+void FZScreen::setupCtrl() {
+    // sceCtrlSetSamplingCycle(0);
+    // sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+    // resetReps();
+}
+
 
 void FZScreen::blendFunc(int op, int src, int dst) {
     //sceGuBlendFunc(op, src, dst, 0, 0);
@@ -337,8 +377,43 @@ int FZScreen::getUsedMemory() {
     //return mi.arena;
 }
 
+void* FZScreen::getListMemory(int s) {
+    //return sceGuGetMemory(s);
+}
+
+
 void FZScreen::setBrightness(int b){
 }
 
 void FZScreen::waitVblankStart() {
+}
+
+void FZScreen::color(unsigned int c) {
+    // sceGuColor(c);
+}
+
+void FZScreen::ambientColor(unsigned int c) {
+    // sceGuAmbientColor(c);
+}
+
+void FZScreen::clear(unsigned int color, int b) {
+    glClearColor(0.0f, 0.0f, 0.9f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    // sceGuClearColor(color);
+    // int m = 0;
+    // if (b & FZ_COLOR_BUFFER)
+    //     m |= GU_COLOR_BUFFER_BIT;
+    // if (b & FZ_DEPTH_BUFFER)
+    //     m |= GU_DEPTH_BUFFER_BIT;
+    // sceGuClear(m);
+}
+
+void FZScreen::startDirectList() {
+    // sceGuStart(GU_DIRECT, list);
+}
+
+void FZScreen::endAndDisplayList() {
+    // sceGuFinish();
+    // sceKernelDcacheWritebackAll();  
+    // sceGuSync(0,0);
 }

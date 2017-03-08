@@ -50,6 +50,7 @@
 #endif
 
 #include <stddef.h>
+#include <iostream>
 
 #include "fztexture.h"
 #include "fzscreen.h"
@@ -228,11 +229,11 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
 
 #ifdef MAC
   FZTexture* FZTexture::createFromSOIL(char* filename) {
+      std::cout <<"create from SOIL" << std::endl;
       int width, height;
-      unsigned char* soil_image = SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGB);
+      char* soil_image = (char *) SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGB);
 
-      FZImage* image = new FZImage(width, height, FZImage::Format::rgba32);
-      image->data = (char *) soil_image;
+      FZImage* image = FZImage::createWithData(width, height, soil_image);
 
       FZTexture* texture = new FZTexture();
       texture->texImage = image;
@@ -245,8 +246,9 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
         GL_RGB, GL_UNSIGNED_BYTE, soil_image);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        SOIL_free_image_data(image);
+        SOIL_free_image_data((unsigned char*) soil_image);
       glBindTexture(GL_TEXTURE_2D, 0);
+      std::cout << texture->textureObject << std::endl;
       return texture;
   }
 #endif

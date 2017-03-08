@@ -88,6 +88,9 @@ class FZImage : public FZRefCounted {
 	 * initialized to 0
 	 */
 	static FZImage* createEmpty(unsigned int w, unsigned int h, unsigned int cl, Format f);
+
+	static FZImage* createWithData(unsigned int w, unsigned int h, char* data);
+
 	/**
 	 * Create a rgb24 format image from a rgb32 format image.
 	 */

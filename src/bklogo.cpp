@@ -135,7 +135,9 @@ void BKLogo::show(string text, int delaySeconds) {
     //FZScreen::checkEvents();
     l->release();
     if (delaySeconds > 0) {
-        sceKernelDelayThread(delaySeconds * 1000000);
+        #if defined(PSP) || defined(__vita__)
+          sceKernelDelayThread(delaySeconds * 1000000);
+        #endif
     }
 }
 

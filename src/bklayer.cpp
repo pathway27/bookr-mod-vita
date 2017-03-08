@@ -132,34 +132,32 @@ struct T32FV32F2D {
 	float x,y,z;
 };
 
-#ifdef MAC
 void BKLayer::drawImage(int x, int y) {
-		shaders["texture"].Use();
-		// vertex
-		glm::mat4 model;
-    model = glm::translate(model, glm::vec3(x, y, 0.0f));
+		// shaders["texture"].Use();
+		// // vertex
+		// glm::mat4 model;
+  //   model = glm::translate(model, glm::vec3(x, y, 0.0f));
   
-    this->shader.SetMatrix4("model", model);
-		glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, GL_FALSE, glm::value_ptr(model));
+  //   this->shader.SetMatrix4("model", model);
+		// glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, GL_FALSE, glm::value_ptr(model));
 
-		glBindVertexArray(VAOs["texture"]);
-    	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+		// glBindVertexArray(VAOs["texture"]);
+  //   	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  //   glBindVertexArray(0);
 }
-#else
+
 void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-	
-		struct T32FV32F2D vertices[2] = {
+	FZScreen::drawArray();
+	// struct T32FV32F2D vertices[2] = {
 
-			{ tx, ty, x, y, 0 },
-			{ tx + w, ty + h, x + w, y + h, 0 }
-		};
-		T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2*sizeof(struct T32FV32F2D));
-		memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
-		FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
+	// 	{ tx, ty, x, y, 0 },
+	// 	{ tx + w, ty + h, x + w, y + h, 0 }
+	// };
+	// T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2*sizeof(struct T32FV32F2D));
+	// memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
+	// FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
 	
 }
-#endif
 
 void BKLayer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
 	struct T32FV32F2D vertices[2] = {

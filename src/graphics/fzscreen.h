@@ -296,6 +296,8 @@ public:
 
   static void drawArray(int prim, int count, void* indices, void* vertices);
 
+  static void drawArray();
+
   static void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
     int dx, int dy, int destw, void *dest);
 
