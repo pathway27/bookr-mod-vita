@@ -111,9 +111,168 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 break;
             case GLFW_KEY_D: {
                 keyState |= FZ_CTRL_RIGHT;
+                Shader ourShader("src/graphics/shaders/textures.vert", 
+                                 "src/graphics/shaders/textures.frag");
+                
+                GLfloat vertices[] = {
+                    // Positions          // Colors           // Texture Coords
+                    1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
+                    1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+                    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+                    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
+                };
+                GLuint indices[] = {  // Note that we start from 0!
+                    0, 1, 3, // First Triangle
+                    1, 2, 3  // Second Triangle
+                };
+                GLuint VBO, VAO, EBO;
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                glGenBuffers(1, &EBO);
+
+                glBindVertexArray(VAO);
+
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+                // Position attribute
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+                glEnableVertexAttribArray(0);
+                // Color attribute
+                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+                glEnableVertexAttribArray(1);
+                // TexCoord attribute
+                glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+                glEnableVertexAttribArray(2);
+
+                glBindVertexArray(0); // Unbind VAO
+
+
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+
+                unsigned char* image = SOIL_load_image("image.png", &width, &height, 0, SOIL_LOAD_RGB);
+                glClearColor(0.0, 0.0, 0.0, 0.0);
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                cout << SOIL_last_result() << endl; 
+                cout << "null: " << !image << endl;
+                cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
+                cout << "Width: " <<  width << endl;
+                cout << "Height: " << height << endl;
+                cout << "Obj: " << texture << endl;
+
+
+                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
+                GL_RGB, GL_UNSIGNED_BYTE, image);
+                glGenerateMipmap(GL_TEXTURE_2D);
+
+                SOIL_free_image_data(image);
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                glBindTexture(GL_TEXTURE_2D, texture);
+                ourShader.Use();
+
+                glBindVertexArray(VAO);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                glBindVertexArray(0);
+
                 break;
             }
-            case GLFW_KEY_K: keyState |= FZ_CTRL_SQUARE; break;
+            case GLFW_KEY_K: {
+                keyState |= FZ_CTRL_SQUARE; 
+                
+                // Configure VAO/VBO
+                GLuint VAO, VBO;
+                GLfloat vertices[] = { 
+                    // Pos      // Tex
+                    0.0f, 1.0f, 0.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f, 0.0f,
+                    0.0f, 0.0f, 0.0f, 0.0f, 
+                
+                    0.0f, 1.0f, 0.0f, 1.0f,
+                    1.0f, 1.0f, 1.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f, 0.0f
+                };
+
+                glGenVertexArrays(1, &VAO);
+                glGenBuffers(1, &VBO);
+                
+                
+                glBindVertexArray(VAO);
+                  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                  glEnableVertexAttribArray(0);
+                  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+                glBindVertexArray(0);
+                
+                Shader ourShader("src/graphics/shaders/textures.vert.orig", 
+                                 "src/graphics/shaders/textures.frag.orig");
+                glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(940), 
+                    static_cast<GLfloat>(544), 0.0f, -1.0f, 1.0f);
+
+                glUniform1i(glGetUniformLocation(ourShader.Program, "image"), 0);
+                glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+                // Load textures
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+                  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+                  unsigned char* image = SOIL_load_image("sce_sys/icon0_t.png", &width, &height, 0, SOIL_LOAD_RGB);
+                  glClearColor(0.0, 0.0, 0.0, 0.0);
+                  glClear(GL_COLOR_BUFFER_BIT);
+                  
+                  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+                  glGenerateMipmap(GL_TEXTURE_2D);
+
+                  SOIL_free_image_data(image);
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                //glBindTexture(GL_TEXTURE_2D, texture);
+                // Texture2D &texture,                                       glm::vec2 position, glm::vec2 size, GLfloat rotate, glm::vec3 color
+                // Renderer->DrawSprite(ResourceManager::GetTexture("face"), glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+                glBindTexture(GL_TEXTURE_2D, texture);
+                ourShader.Use();
+                // glm::mat4 model;
+                
+                // model = glm::translate(model, glm::vec3(glm::vec2(0, 0), 0.0f));  
+
+                // glm::vec2 size = glm::vec2(300, 400);
+                // model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); 
+                // model = glm::rotate(model, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f)); 
+                // model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+
+                // model = glm::scale(model, glm::vec3(size, 1.0f)); 
+              
+                // this->shader.SetMatrix4("model", model);
+                // glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+                // this->shader.SetVector3f("spriteColor", color);
+                // glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
+                // glUniform3f(glGetUniformLocation(ourShader.Program, "spriteColor"), color.x, color.y, color.z);
+              
+                //glActiveTexture(GL_TEXTURE0);
+                
+
+                glBindVertexArray(VAO);
+                  glDrawArrays(GL_TRIANGLES, 0, 6);
+                glBindVertexArray(0);
+                
+                break;
+            }
             case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
             case GLFW_KEY_O: keyState |= FZ_CTRL_TRIANGLE; break;
             case GLFW_KEY_P: keyState |= FZ_CTRL_CIRCLE; break;

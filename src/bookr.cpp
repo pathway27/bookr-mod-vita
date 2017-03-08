@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Hi" << std::endl;  
 
     // Swapping buffers based on dirty variable feels dirty.
-    bool dirty = true;
+    bool dirty = false;
     while (true) {
         // psp2shell_print("while entered");
         // draw state to back buffer
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
         int buttons = FZScreen::readCtrl();
         
         //std::cout << buttons << std::endl;
-        dirty = buttons != 0;
+        //dirty = buttons != 0;
 
         if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
             break;
