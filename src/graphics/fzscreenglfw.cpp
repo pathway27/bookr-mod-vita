@@ -131,62 +131,58 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 glGenBuffers(1, &EBO);
 
                 glBindVertexArray(VAO);
+                  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-                glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+                  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+                  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-                // Position attribute
-                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-                glEnableVertexAttribArray(0);
-                // Color attribute
-                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-                glEnableVertexAttribArray(1);
-                // TexCoord attribute
-                glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-                glEnableVertexAttribArray(2);
-
+                  // Position attribute
+                  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+                  glEnableVertexAttribArray(0);
+                  // Color attribute
+                  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+                  glEnableVertexAttribArray(1);
+                  // TexCoord attribute
+                  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+                  glEnableVertexAttribArray(2);
                 glBindVertexArray(0); // Unbind VAO
 
 
                 glGenTextures(1, &texture);
                 glBindTexture(GL_TEXTURE_2D, texture);
-                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-                //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+                  unsigned char* image = SOIL_load_image("image.png", &width, &height, 0, SOIL_LOAD_RGB);
+                  glClearColor(0.0, 0.0, 0.0, 0.0);
+                  glClear(GL_COLOR_BUFFER_BIT);
 
-                unsigned char* image = SOIL_load_image("image.png", &width, &height, 0, SOIL_LOAD_RGB);
-                glClearColor(0.0, 0.0, 0.0, 0.0);
-                glClear(GL_COLOR_BUFFER_BIT);
+                  cout << SOIL_last_result() << endl; 
+                  cout << "null: " << !image << endl;
+                  cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
+                  cout << "Width: " <<  width << endl;
+                  cout << "Height: " << height << endl;
+                  cout << "Obj: " << texture << endl;
 
-                cout << SOIL_last_result() << endl; 
-                cout << "null: " << !image << endl;
-                cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
-                cout << "Width: " <<  width << endl;
-                cout << "Height: " << height << endl;
-                cout << "Obj: " << texture << endl;
+                  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
+                  GL_RGB, GL_UNSIGNED_BYTE, image);
+                  glGenerateMipmap(GL_TEXTURE_2D);
 
-
-                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
-                GL_RGB, GL_UNSIGNED_BYTE, image);
-                glGenerateMipmap(GL_TEXTURE_2D);
-
-                SOIL_free_image_data(image);
+                  SOIL_free_image_data(image);
                 glBindTexture(GL_TEXTURE_2D, 0);
 
                 glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
 
-                glBindTexture(GL_TEXTURE_2D, texture);
                 ourShader.Use();
-
+                glBindTexture(GL_TEXTURE_2D, texture);
+                
                 glBindVertexArray(VAO);
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                 glBindVertexArray(0);
 
                 break;
@@ -241,6 +237,9 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
 
                   SOIL_free_image_data(image);
                 glBindTexture(GL_TEXTURE_2D, 0);
+
+                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
 
                 //glBindTexture(GL_TEXTURE_2D, texture);
                 // Texture2D &texture,                                       glm::vec2 position, glm::vec2 size, GLfloat rotate, glm::vec3 color
