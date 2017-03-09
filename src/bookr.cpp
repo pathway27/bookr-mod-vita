@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Hi" << std::endl;  
 
     // Swapping buffers based on dirty variable feels dirty.
-    bool dirty = false;
+    bool dirty = true;
     while (true) {
         // psp2shell_print("while entered");
         // draw state to back buffer

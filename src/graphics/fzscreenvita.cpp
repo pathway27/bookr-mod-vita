@@ -144,6 +144,10 @@ void FZScreen::exit() {
     sceKernelExitProcess(0);
 }
 
+void FZScreen::drawText(int x, int y, unsigned int color, float scale, const char *text) {
+    vita2d_pgf_draw_text(pgf, x, y, color, scale, text);
+}
+
 static bool stickyKeys = false;
 
 static int breps[16];

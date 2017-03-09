@@ -147,7 +147,7 @@ void BKLayer::drawImage(int x, int y) {
 }
 
 void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-	FZScreen::drawArray();
+	// FZScreen::drawArray();
 	// struct T32FV32F2D vertices[2] = {
 
 	// 	{ tx, ty, x, y, 0 },

@@ -76,6 +76,16 @@ void BKLogo::render() {
     //vita2d_draw_texture(vita2d_load_PNG_buffer(&_binary_image_png_start), 0, 0);
     vita2d_draw_texture(genLogo->vita_texture, 0, 0);
     vita2d_draw_texture(texLogo->vita_texture, 76, 360);
+
+    FZScreen::drawText(700, 380, RGBA8(0,0,0,255), 1.0f, "Doesn't Do any files yet :(.");
+    // 960
+    // 096
+    // 864
+    
+    // 504
+    // 544
+    vita2d_draw_rectangle(96, 504, 768, 40, RGBA8(105,105,105,255)); // my cheapo drawPill
+    FZScreen::drawText(255, 525, RGBA8(255,255,255,255), 1.0f, "Press Start");
   #else
     genLogo->bindForDisplay();
     drawImage(0, 0, FZ_SCREEN_WIDTH, FZ_SCREEN_HEIGHT, 0, 0);
@@ -109,8 +119,8 @@ void BKLogo::render() {
     //         FZScreen::ambientColor(0xff222222);
     //         drawTextHC("Error: invalid or corrupted file", fontBig, 130);
     //     }
-    //     FZScreen::ambientColor(0xffffffff);
-    //     drawTextHC("Press Start", fontBig, 244);
+        // FZScreen::ambientColor(0xffffffff);
+        // drawTextHC("Press Start", fontBig, 244);
     // }
 }
 
