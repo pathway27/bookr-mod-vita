@@ -339,6 +339,10 @@ public:
   static int getBattery();
   static int getUsedMemory();
   static void setBrightness(int);
+
+	static char* browserTextSizes[];
+	static char* browserDisplayModes[];
+	static char* browserInterfaceModes[];
 };
 
 #ifdef MAC

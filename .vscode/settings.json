@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+      "Makefile.*": "makefile",
+      "vector": "cpp",
+      "map": "cpp",
+      "*.frag.*": "glsl",
+      "*.vert.*": "glsl",
+    }
+  }

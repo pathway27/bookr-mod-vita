@@ -514,68 +514,99 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bo
 void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
 	int scrY = 0;
 	char *t =(char*)circleLabel.c_str(); 
-	int tw = textW(t, fontBig);
-	
-	texUI->bindForDisplay();
-	FZScreen::ambientColor(0xf0222222);
-	// back
-	drawTPill(20, 20 + scrY, 480 - 46, 272, 6, 31, 1);
-	// title
-	FZScreen::ambientColor(0xffaaaaaa);
-	drawPill(25, 25 + scrY, 480 - 46 - 10, 20, 6, 31, 1);
-	// context label
-	FZScreen::ambientColor(0xff555555);
-	drawTPill(25, 272 - 30 + scrY, 480 - 46 - 11, 30, 6, 31, 1);
-	// icons
-	FZScreen::ambientColor(0xff000000);
-	// drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
-	// drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
-	switch (BKUser::controls.select) {
-	case FZ_REPS_CROSS:	
-		drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); 
-		break;
-	case FZ_REPS_CIRCLE:
-	default:
-		drawImage(430, 29 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-		break;
-	}
-	
-	FZScreen::ambientColor(0xffcccccc);
-	// circle or other context icon
-	if (flags & BK_MENU_ITEM_USE_LR_ICON) {
-		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_LRARROWS_XSIZE, BK_IMG_LRARROWS_YSIZE, BK_IMG_LRARROWS_X, BK_IMG_LRARROWS_Y);
-	} else {
-	  if(circleLabel.size() > 0){
-		switch(BKUser::controls.select) {
-		case FZ_REPS_CROSS:
-			drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-			break;
-		case FZ_REPS_CIRCLE:
-		default:
-			drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
-			break;
-		}
-		// drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-	  }
-	}
-	if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
-		//drawImage(37, 248 + scrY, 20, 20, 107, 5);
-		// drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
-		drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
-	}
+	// int tw = textW(t, fontBig);
+	psp2shell_print("draw dialog frame\n");
 
-	fontBig->bindForDisplay();
+	#ifdef __vita__
+		// 960
+		// 920
+    // 544
+		// backs
+		vita2d_draw_rectangle(96, 40, 768, 504, RGBA8(34, 34, 34, 240)); // my cheapo drawTPill
 
-	// title
-	FZScreen::ambientColor(0xffffffff);
-	drawText((char*)title.c_str(), fontBig, 31, 28 + scrY);
-	// labels
-	FZScreen::ambientColor(0xffcccccc);
-	if (triangleLabel.size() > 0) {
-		drawText((char*)triangleLabel.c_str(), fontBig, 37 + 25, 248 + scrY);
-	}
-	if (circleLabel.size() > 0)
-	  drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
+		//title
+		vita2d_draw_rectangle(106, 50, 768, 50, RGBA8(170, 170, 170, 255));
+
+		//context label
+		vita2d_draw_rectangle(106, 272 - 30, 768 - 11, 50, RGBA8(85, 85, 85, 255));
+		
+		//icons
+		//(0, 0, 0, 255)
+		//vita2d_draw_texture(genLogo->vita_texture, 0, 0);
+
+		//circle or other context
+		// (204, 204, 204, 255)
+
+
+		//title
+		// (255, 255, 255, 255)
+
+		//drawtext
+		
+		//labels
+		// if triangle/circle
+	#endif
+	
+	// texUI->bindForDisplay();
+	// // back
+	// FZScreen::ambientColor(0xf0222222);
+	// drawTPill(20, 20 + scrY, 480 - 46, 272, 6, 31, 1);
+	// // title
+	// FZScreen::ambientColor(0xffaaaaaa);
+	// drawPill(25, 25 + scrY, 480 - 46 - 10, 20, 6, 31, 1);
+	// // context label
+	// FZScreen::ambientColor(0xff555555);
+	// drawTPill(25, 272 - 30 + scrY, 480 - 46 - 11, 30, 6, 31, 1);
+	// // icons
+	// FZScreen::ambientColor(0xff000000);
+	// // drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
+	// // drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
+	// switch (BKUser::controls.select) {
+	// case FZ_REPS_CROSS:	
+	// 	drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); 
+	// 	break;
+	// case FZ_REPS_CIRCLE:
+	// default:
+	// 	drawImage(430, 29 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+	// 	break;
+	// }
+	
+	// FZScreen::ambientColor(0xffcccccc);
+	// // circle or other context icon
+	// if (flags & BK_MENU_ITEM_USE_LR_ICON) {
+	// 	drawImage(480 - tw - 65, 248 + scrY, BK_IMG_LRARROWS_XSIZE, BK_IMG_LRARROWS_YSIZE, BK_IMG_LRARROWS_X, BK_IMG_LRARROWS_Y);
+	// } else {
+	//   if(circleLabel.size() > 0){
+	// 	switch(BKUser::controls.select) {
+	// 	case FZ_REPS_CROSS:
+	// 		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+	// 		break;
+	// 	case FZ_REPS_CIRCLE:
+	// 	default:
+	// 		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+	// 		break;
+	// 	}
+	// 	// drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+	//   }
+	// }
+	// if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
+	// 	//drawImage(37, 248 + scrY, 20, 20, 107, 5);
+	// 	// drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+	// 	drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+	// }
+
+	// fontBig->bindForDisplay();
+
+	// // title
+	// FZScreen::ambientColor(0xffffffff);
+	// drawText((char*)title.c_str(), fontBig, 31, 28 + scrY);
+	// // labels
+	// FZScreen::ambientColor(0xffcccccc);
+	// if (triangleLabel.size() > 0) {
+	// 	drawText((char*)triangleLabel.c_str(), fontBig, 37 + 25, 248 + scrY);
+	// }
+	// if (circleLabel.size() > 0)
+	//   drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
 }
 
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items) {
@@ -612,110 +643,113 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
 		tl = items[selItem].triangleLabel; 
 	}
+	#ifdef DEBUG
+    psp2shell_print("drawmenu\n");
+  #endif
 	drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
-	texUI->bindForDisplay();
-	// folder icons
-	int ITEMHEIGHT = 60;
-	if(useUTFFont)
-	  ITEMHEIGHT = 62;
-	FZScreen::ambientColor(0xffffffff);
-	for (int i = 0; i < maxItemNum; ++i) {
-		if (i + topItem == selItem)
-			continue;
-		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-			break;
-		if ((i + topItem) >= (int)(items.size()))
-			break;
-		if (items[i + topItem].flags & BK_MENU_ITEM_FOLDER) {
-			//drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 84, 52);
-			drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 58, 81);
-		}
-	}
-	// selected item
-	int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
-	drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
-	if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
-		FZScreen::ambientColor(0xff000000);
-		//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
-		drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
-	}
+	// texUI->bindForDisplay();
+	// // folder icons
+	// int ITEMHEIGHT = 60;
+	// if(useUTFFont)
+	//   ITEMHEIGHT = 62;
+	// FZScreen::ambientColor(0xffffffff);
+	// for (int i = 0; i < maxItemNum; ++i) {
+	// 	if (i + topItem == selItem)
+	// 		continue;
+	// 	if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+	// 		break;
+	// 	if ((i + topItem) >= (int)(items.size()))
+	// 		break;
+	// 	if (items[i + topItem].flags & BK_MENU_ITEM_FOLDER) {
+	// 		//drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 84, 52);
+	// 		drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 58, 81);
+	// 	}
+	// }
+	// // selected item
+	// int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
+	// drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
+	// if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
+	// 	FZScreen::ambientColor(0xff000000);
+	// 	//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
+	// 	drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
+	// }
 
-	// scrollbar
-	if (scrollbar) {
-		float barh = 1.0f * maxItemNum / float(items.size());
-		barh *= 173.0f;
-		if (barh < 15.0f)
-			barh = 15.0f;
-		float trel = float(topItem) / float(items.size());
-		trel *= 173.0f;
-		FZScreen::ambientColor(0xff555555);
-		drawPill(436, 57, 12, 173, 6, 31, 1);
-		FZScreen::ambientColor(0xffaaaaaa);
-		drawPill(436, 57 + int(trel), 12, int(barh), 6, 31, 1);
-	}
+	// // scrollbar
+	// if (scrollbar) {
+	// 	float barh = 1.0f * maxItemNum / float(items.size());
+	// 	barh *= 173.0f;
+	// 	if (barh < 15.0f)
+	// 		barh = 15.0f;
+	// 	float trel = float(topItem) / float(items.size());
+	// 	trel *= 173.0f;
+	// 	FZScreen::ambientColor(0xff555555);
+	// 	drawPill(436, 57, 12, 173, 6, 31, 1);
+	// 	FZScreen::ambientColor(0xffaaaaaa);
+	// 	drawPill(436, 57 + int(trel), 12, int(barh), 6, 31, 1);
+	// }
 
-	// color rects items
-	for (int i = 0; i < maxItemNum; ++i) {
-		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-			break;
-		if ((i + topItem) >= (int)(items.size()))
-			break;
-		if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
-			int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
-			FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
-			drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
-			FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
-			drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
-		}
-	}
+	// // color rects items
+	// for (int i = 0; i < maxItemNum; ++i) {
+	// 	if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+	// 		break;
+	// 	if ((i + topItem) >= (int)(items.size()))
+	// 		break;
+	// 	if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
+	// 		int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
+	// 		FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
+	// 		drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
+	// 		FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
+	// 		drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
+	// 	}
+	// }
 
-	itemFont->bindForDisplay();
+	// itemFont->bindForDisplay();
 
-	FZScreen::ambientColor(0xffffffff);
-	// contents
-	int yoff = 3;
-	for (int i = 0; i < maxItemNum; ++i) {
-		if (i + topItem == selItem)
-			continue;
-		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-			break;
-		if ((i + topItem) >= (int)(items.size()))
-			break;
-		if(useUTFFont){
-		  int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 350);
-		  if(tooLong){
-		    //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
-		    texUI->bindForDisplay();
-		    drawImage(415,ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
-		  }
-		}
-		else{
-		  drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
-		}
-	}
-	FZScreen::ambientColor(0xff000000);
-	if(useUTFFont){
-	  int tooLong;
-	  if(skipChars==0)
-	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 350);
-	  else {
-	    //drawUTFText("...", itemFont, 40+25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 480);
-	    texUI->bindForDisplay();
-	    drawImage(40+25,ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff,12,12,7,112);
-	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25 + 14, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, skipChars*10+14, 336);
-	  }
-	  if(tooLong){
-	    texUI->bindForDisplay();
-	    drawImage(415, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 12,12,7,112);
-	  }
-	  else{
-	    maxSkipChars = skipChars;
-	  }
-	  itemFont->doneUTFFont();
-	}
-	else
-	  drawText((char*)items[selItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
+	// FZScreen::ambientColor(0xffffffff);
+	// // contents
+	// int yoff = 3;
+	// for (int i = 0; i < maxItemNum; ++i) {
+	// 	if (i + topItem == selItem)
+	// 		continue;
+	// 	if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+	// 		break;
+	// 	if ((i + topItem) >= (int)(items.size()))
+	// 		break;
+	// 	if(useUTFFont){
+	// 	  int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 350);
+	// 	  if(tooLong){
+	// 	    //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
+	// 	    texUI->bindForDisplay();
+	// 	    drawImage(415,ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
+	// 	  }
+	// 	}
+	// 	else{
+	// 	  drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
+	// 	}
+	// }
+	// FZScreen::ambientColor(0xff000000);
+	// if(useUTFFont){
+	//   int tooLong;
+	//   if(skipChars==0)
+	//     tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 350);
+	//   else {
+	//     //drawUTFText("...", itemFont, 40+25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 480);
+	//     texUI->bindForDisplay();
+	//     drawImage(40+25,ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff,12,12,7,112);
+	//     tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25 + 14, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, skipChars*10+14, 336);
+	//   }
+	//   if(tooLong){
+	//     texUI->bindForDisplay();
+	//     drawImage(415, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 12,12,7,112);
+	//   }
+	//   else{
+	//     maxSkipChars = skipChars;
+	//   }
+	//   itemFont->doneUTFFont();
+	// }
+	// else
+	//   drawText((char*)items[selItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
 }
 
 void BKLayer::drawOutlinePrefix(string prefix, int x, int y, int w, int h, int ws){

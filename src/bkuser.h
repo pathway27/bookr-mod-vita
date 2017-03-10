@@ -93,6 +93,14 @@ class BKUser {
 		int txtHeightPct;
 		bool loadLastFile;
 		int txtWrapCR;
+
+		int browserTextSize;
+		int browserDisplayMode;
+		bool browserEnableFlash;
+		int browserInterfaceMode;
+		bool browserConfirmExit;
+		bool browserShowCursor;
+
 		int hScroll;
 		int vScroll;
 	        int thumbnail;
@@ -127,6 +135,8 @@ class BKUser {
 	  bool t_ignore_x;
 	  
 	  bool jpeg2000Decoder;
+
+
 	};
 	static Options options;
 };

@@ -114,3 +114,17 @@ int FZScreen::speedValues[14] = {
 	333, 166
 };
 
+char* FZScreen::browserTextSizes[3] =
+{
+	"Large", "Normal", "Small"
+};
+
+char* FZScreen::browserDisplayModes[3] =
+{
+	"Normal", "Fit", "Smart-Fit"
+};
+
+char* FZScreen::browserInterfaceModes[3] =
+{
+	"Full", "Limited", "None"
+};

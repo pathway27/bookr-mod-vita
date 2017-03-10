@@ -91,7 +91,7 @@ add_executable(bookr-mod-vita
   src/graphics/fzinstreammem.cpp
   src/bklayer.cpp
   src/bklogo.cpp
-
+  src/bkmainmenu.cpp
   # 
 
   #src/bkdocument.cpp

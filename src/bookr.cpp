@@ -39,6 +39,7 @@
 #include "bkuser.h"
 #include "bklayer.h"
 #include "bklogo.h"
+#include "bkmainmenu.h"
 
 int main(int argc, char* argv[]) {
     //BKDocument *documentLayer = 0;
@@ -55,7 +56,10 @@ int main(int argc, char* argv[]) {
 
     BKLayer::load();
     bkLayers layers;
-    layers.push_back(BKLogo::create());
+    BKMainMenu* mm = BKMainMenu::create();
+	layers.push_back(BKLogo::create());
+	layers.push_back(mm);
+
     std::cout << "Hi" << std::endl;  
 
     // Swapping buffers based on dirty variable feels dirty.
@@ -89,7 +93,7 @@ int main(int argc, char* argv[]) {
         int buttons = FZScreen::readCtrl();
         
         //std::cout << buttons << std::endl;
-        //dirty = buttons != 0;
+        dirty = buttons != 0;
 
         if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
             break;
