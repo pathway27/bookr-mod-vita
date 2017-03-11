@@ -18,8 +18,8 @@
  */
 
 #include <string.h>
-#include "fzscreen.h"
 
+#include "graphics/fzscreen.h"
 #include "bkpopup.h"
 
 BKPopup::BKPopup(int m, string t) : mode(m), text(t) {

@@ -92,6 +92,7 @@ add_executable(bookr-mod-vita
   src/bklayer.cpp
   src/bklogo.cpp
   src/bkmainmenu.cpp
+  src/bkpopup.cpp
   # 
 
   #src/bkdocument.cpp

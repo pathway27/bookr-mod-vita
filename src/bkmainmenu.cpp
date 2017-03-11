@@ -294,12 +294,29 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == MAIN_MENU_ITEM_ABOUT) {
-			popupText = "Bookr - a document viewer for the Sony PSP.\nOriginal version by Carlos and Edward.\nV8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\nModified for Official Firmware by the\nHomebrewStore Development Team.\nThis program is licensed under the terms of the GPL v2.\nThis program uses the following libraries/projects:\n MuPDF library under the terms of the AFPL.\n chmlib 0.39 by Jed Wing <jedwin@ugcs.caltech.edu>\n VnConv by Pham Kim Long <longp@cslab.felk.cvut.cz>\n DjVuLibre 3.5 by Leon Bottou and Yann Le Cun";
+			popupText = "\
+			Bookr Mod Vita - by pathway27 (Sreekara C.)\n\
+			IS A MODIFICATION OF THE ORIGINAL\n\n\
+			Bookr and bookr-mod - a document viewer for the Sony PSP\n\
+			  by Carlos and Edward.\n\
+			  V8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\n\
+			Modified for Official Firmware by the HomebrewStore Development Team.\n\n\
+			This program is licensed under the terms of the GPL v2.\n\n\
+			This program uses the following libraries/projects:\n\
+			  vita2d by xerpi under MIT.\n\
+			  MuPDF library under the terms of the AFPL.\n\
+			  chmlib 0.39 by Jed Wing <jedwin@ugcs.caltech.edu>\n\
+			  VnConv by Pham Kim Long <longp@cslab.felk.cvut.cz>\n\
+			  DjVuLibre 3.5 by Leon Bottou and Yann Le Cun\n\n\
+			Thanks to:\n\
+			  Team Molecule for Henkaku\n\
+			  vitasdk Contibutors\n\
+			  people on freenode #vitasdk";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
 		if (selItem == MAIN_MENU_ITEM_EXIT) {
-		#if 0
+			#if 0
 			if (reader != NULL) {
 				// Set bookmark now
 				printf("FIX1\n");
@@ -309,7 +326,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 					((BKBook*)reader)->setBookmark(true);
 				*/
 			}
-		#endif
+			#endif
 			return BK_CMD_EXIT;
 		}
 	}

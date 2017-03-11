@@ -298,6 +298,7 @@ public:
 
   static void drawArray();
 
+  static void setTextSize(float x, float y);
   static void drawText(int x, int y, unsigned int color, float scale, const char *text);
 
   static void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,

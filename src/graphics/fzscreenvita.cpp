@@ -34,6 +34,7 @@
 #include <psp2/rtc.h>
 
 #include <psp2kern/kernel/cpu.h>
+#include <psp2/pvf.h>
 
 #include <vita2d.h>
 
@@ -145,7 +146,13 @@ void FZScreen::exit() {
 }
 
 void FZScreen::drawText(int x, int y, unsigned int color, float scale, const char *text) {
+    //vita2d_pvf_draw_text(pvf, x, y, color, scale, text);
     vita2d_pgf_draw_text(pgf, x, y, color, scale, text);
+}
+
+void FZScreen::setTextSize(float x, float y) {
+    //vita2d_pvf_set_char_size(pvf, x, y);
+    vita2d_pgf_set_resolution(pgf, x, y);
 }
 
 static bool stickyKeys = false;

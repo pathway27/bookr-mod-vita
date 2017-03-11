@@ -522,13 +522,13 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 		// 920
     // 544
 		// backs
-		vita2d_draw_rectangle(96, 40, 768, 504, RGBA8(34, 34, 34, 240)); // my cheapo drawTPill
+		vita2d_draw_rectangle(96, 40, 768, 504, RGBA8(34, 34, 34, 200)); // my cheapo drawTPill
 
 		//title
-		vita2d_draw_rectangle(106, 50, 768, 50, RGBA8(170, 170, 170, 255));
+		vita2d_draw_rectangle(106, 50, 748, 50, RGBA8(170, 170, 170, 255));
 
 		//context label
-		vita2d_draw_rectangle(106, 272 - 30, 768 - 11, 50, RGBA8(85, 85, 85, 255));
+		vita2d_draw_rectangle(106, 494, 748, 50, RGBA8(85, 85, 85, 255));
 		
 		//icons
 		//(0, 0, 0, 255)
@@ -537,11 +537,10 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 		//circle or other context
 		// (204, 204, 204, 255)
 
-
 		//title
 		// (255, 255, 255, 255)
-
-		//drawtext
+		FZScreen::setTextSize(20.0f, 20.0f);
+		FZScreen::drawText(116, 88, RGBA8(255, 255, 255, 255), 1.0f, title.c_str());
 		
 		//labels
 		// if triangle/circle
@@ -648,9 +647,15 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
   #endif
 	drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
+
+
 	// texUI->bindForDisplay();
 	// // folder icons
-	// int ITEMHEIGHT = 60;
+	#ifdef __vita__
+		int ITEMHEIGHT = 128;
+	#else
+		int ITEMHEIGHT = 60;
+	#endif
 	// if(useUTFFont)
 	//   ITEMHEIGHT = 62;
 	// FZScreen::ambientColor(0xffffffff);
@@ -666,9 +671,14 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	// 		drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 58, 81);
 	// 	}
 	// }
-	// // selected item
-	// int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
-	// drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
+	// selected item
+	#ifdef __vita__
+		//FZScreen::drawText(116,    (ITEMHEIGHT + (i*15)) + scrY, RGBA8(255, 255, 255, 255), 1.0f, items[i + topItem].label.c_str());
+		vita2d_draw_rectangle(106, (ITEMHEIGHT + ((selPos-1)*15) + scrY), 748, 15, RGBA8(170, 170, 170, 255));
+	#elif defined(PSP)
+		int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
+		drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
+	#endif
 	// if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
 	// 	FZScreen::ambientColor(0xff000000);
 	// 	//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
@@ -707,27 +717,31 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	// itemFont->bindForDisplay();
 
 	// FZScreen::ambientColor(0xffffffff);
-	// // contents
-	// int yoff = 3;
-	// for (int i = 0; i < maxItemNum; ++i) {
-	// 	if (i + topItem == selItem)
-	// 		continue;
-	// 	if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-	// 		break;
-	// 	if ((i + topItem) >= (int)(items.size()))
-	// 		break;
-	// 	if(useUTFFont){
-	// 	  int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 350);
-	// 	  if(tooLong){
-	// 	    //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
-	// 	    texUI->bindForDisplay();
-	// 	    drawImage(415,ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
-	// 	  }
-	// 	}
-	// 	else{
-	// 	  drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
-	// 	}
-	// }
+	// contents
+	int yoff = 3;
+	for (int i = 0; i < maxItemNum; ++i) {
+		// if (i + topItem == selItem)
+		// 	continue;
+		// if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+		// 	break;
+		if ((i + topItem) >= (int)(items.size()))
+			break;
+		if(useUTFFont){
+		  // int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 350);
+		  // if(tooLong){
+		  //   //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
+		  //   texUI->bindForDisplay();
+		  //   drawImage(415,ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
+		  // }
+		}
+		else {
+			#ifdef __vita__
+				FZScreen::drawText(116, (ITEMHEIGHT + (i*15)) + scrY, RGBA8(255, 255, 255, 255), 1.0f, items[i + topItem].label.c_str());
+			#else
+				drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
+			#endif
+		}
+	}
 	// FZScreen::ambientColor(0xff000000);
 	// if(useUTFFont){
 	//   int tooLong;
@@ -978,34 +992,60 @@ static int countLines(string& t) {
 }
 
 void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
-	texUI->bindForDisplay();
+	//texUI->bindForDisplay();
 	int l = countLines(text);
-	int h = 25 + 25*l;
-	int y = (272 - h) /2;
+	#ifdef __vita__
+		int h = 22 + (22*l);
+		int y;
+		if (h >= 544)
+			y = 0;
+		else
+			y = (544 - h) / 2;
+	#elif defined(PSP)
+		int h = 25 + (25*l);
+		int y = (272 - h) /2;
+	#endif
+	
 	// back
-	FZScreen::ambientColor(bg1);
-	drawPill(40, y, 480 - 86, h, 6, 31, 1);
+	#ifdef __vita__
+		vita2d_draw_rectangle(80, y, 960 - 146, h, bg1);
+	#elif defined(PSP)
+		FZScreen::ambientColor(bg1);
+		drawPill(40, y, 480 - 86, h, 6, 31, 1);
+	#endif
+
 	// title
-	FZScreen::ambientColor(bg2);
-	drawPill(45, 5 + y, 480 - 86 - 10, 20, 6, 31, 1);
-	// icons
-	FZScreen::ambientColor(bg1|0xff000000);
-	// drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
-	switch (BKUser::controls.select) {
-	case FZ_REPS_CIRCLE:
-		drawImage(410, 9 + y, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-		break;
-	case FZ_REPS_CROSS:
-	default:
-		drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
-		break;
-	}
+	#ifdef __vita__
+		vita2d_draw_rectangle(90, 10 + y, 960 - 176, 30, bg2);
+	#elif defined(PSP)
+		FZScreen::ambientColor(bg2);
+		drawPill(45, 5 + y, 480 - 96, 20, 6, 31, 1);
+	#endif
+	
+	
+	// // icons
+	// FZScreen::ambientColor(bg1|0xff000000);
+	// // drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+	// switch (BKUser::controls.select) {
+	// case FZ_REPS_CIRCLE:
+	// 	drawImage(410, 9 + y, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+	// 	break;
+	// case FZ_REPS_CROSS:
+	// default:
+	// 	drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
+	// 	break;
+	// }
 
-	fontBig->bindForDisplay();
+	//fontBig->bindForDisplay();
 
-	FZScreen::ambientColor(fg);
-	drawText((char*)title.c_str(), fontBig, 51, y + 9);
-	drawText((char*)text.c_str(), fontBig, 51, y + 35);
+	#ifdef __vita__
+		FZScreen::drawText(102, y + 30, fg, 1.0f, title.c_str());
+		FZScreen::drawText(102, y + 65, fg, 1.0f, text.c_str());
+	#elif defined(PSP)
+		FZScreen::ambientColor(fg);
+		drawText((char*)title.c_str(), fontBig, 51, y + 9);
+		drawText((char*)text.c_str(), fontBig, 51, y + 35);
+	#endif
 }
 
 void BKLayer::drawClockAndBattery(string& extra) {

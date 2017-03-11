@@ -40,6 +40,7 @@
 #include "bklayer.h"
 #include "bklogo.h"
 #include "bkmainmenu.h"
+#include "bkpopup.h"
 
 int main(int argc, char* argv[]) {
     //BKDocument *documentLayer = 0;
@@ -64,6 +65,7 @@ int main(int argc, char* argv[]) {
 
     // Swapping buffers based on dirty variable feels dirty.
     bool dirty = true;
+    int reloadTimer = 0;
     while (true) {
         // psp2shell_print("while entered");
         // draw state to back buffer
@@ -94,6 +96,45 @@ int main(int argc, char* argv[]) {
         
         //std::cout << buttons << std::endl;
         dirty = buttons != 0;
+
+        // // the last layer always owns the input focus
+		bkLayersIt it(layers.end());
+		--it;
+        int command = 0;
+        // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs		
+        command = (*it)->update(buttons);
+
+		// dont proc events while in the reload timer
+        std::cout << command << std::endl;
+        
+        switch (command) {
+            case BK_CMD_MARK_DIRTY:
+                dirty = true;
+				// mm->rebuildMenu();
+			    break;
+            case BK_CMD_CLOSE_TOP_LAYER: {
+				bkLayersIt it(layers.end());
+				--it;
+				(*it)->release();
+				layers.erase(it);
+
+				if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD) {
+					// repaint
+					dirty = true;
+				}
+			} break;
+            case BK_CMD_INVOKE_MENU: {
+                mm = BKMainMenu::create();
+				layers.push_back(mm);
+            } break;
+            case BK_CMD_MAINMENU_POPUP: {
+                layers.push_back(BKPopup::create(
+				    mm->getPopupMode(),
+                    mm->getPopupText())
+				);
+            } break;
+
+        }
 
         if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
             break;
