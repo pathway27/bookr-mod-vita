@@ -22,14 +22,6 @@
 
 #include "graphics/fzscreen.h"
 
-#ifdef PSP
-	#include <pspiofilemgr.h>
-#elif __vita__
-	#include <psp2/io/fcntl.h> 
-#else
-	#include <fcntl.h>
-#endif
-
 using namespace std;
 
 struct BKBookmark {
@@ -38,12 +30,11 @@ struct BKBookmark {
 	string title;
 	int page;
 	string createdOn;
-	int *bm_thumbnail;
+	int *thumbnail;
 	bool lastView;
-	float zoom;
 	// the view-specific data. this is a black box for the bookmarks manager
 	map<string, int> viewData;
-	BKBookmark() : page(0), bm_thumbnail(0), lastView(false) { }
+	BKBookmark() : page(0), thumbnail(0), lastView(false) { }
 };
 
 typedef vector<BKBookmark> BKBookmarkList;
@@ -58,8 +49,8 @@ class BKBookmarksManager {
 	public:
 	
 	// find the last file used
-	  static void getLastFile(string& f,string& lfn);
-	    static void	setLastFile( string& filename, string& lfn );
+	static string getLastFile();
+	static void	setLastFile( string& filename );
 
 	// find the last read bookmark for a given file
 	static bool getLastView(string& filename, BKBookmark&);
@@ -71,8 +62,6 @@ class BKBookmarksManager {
 	static void addBookmark(string& filename, BKBookmark& b);
 	// clears everything
 	static void clear();
-	static void free();
-	static int prune();
 };
 
 #endif
