@@ -41,6 +41,7 @@
 #include "bklogo.h"
 #include "bkmainmenu.h"
 #include "bkpopup.h"
+#include "bkfilechooser.h"
 
 int main(int argc, char* argv[]) {
     //BKDocument *documentLayer = 0;
@@ -57,16 +58,18 @@ int main(int argc, char* argv[]) {
 
     BKLayer::load();
     bkLayers layers;
+    BKFileChooser* fs = 0;
     BKMainMenu* mm = BKMainMenu::create();
-	layers.push_back(BKLogo::create());
-	layers.push_back(mm);
+    layers.push_back(BKLogo::create());
+    layers.push_back(mm);
 
     std::cout << "Hi" << std::endl;  
 
     // Swapping buffers based on dirty variable feels dirty.
     bool dirty = true;
+    bool exitApp = false;
     int reloadTimer = 0;
-    while (true) {
+    while (!exitApp) {
         // psp2shell_print("while entered");
         // draw state to back buffer
         if (dirty) {
@@ -98,41 +101,50 @@ int main(int argc, char* argv[]) {
         dirty = buttons != 0;
 
         // // the last layer always owns the input focus
-		bkLayersIt it(layers.end());
-		--it;
+        bkLayersIt it(layers.end());
+        --it;
         int command = 0;
         // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs		
         command = (*it)->update(buttons);
 
-		// dont proc events while in the reload timer
+        // dont proc events while in the reload timer
         std::cout << command << std::endl;
         
         switch (command) {
             case BK_CMD_MARK_DIRTY:
                 dirty = true;
-				// mm->rebuildMenu();
-			    break;
+                // mm->rebuildMenu();
+            break;
             case BK_CMD_CLOSE_TOP_LAYER: {
-				bkLayersIt it(layers.end());
-				--it;
-				(*it)->release();
-				layers.erase(it);
+                bkLayersIt it(layers.end());
+                --it;
+                (*it)->release();
+                layers.erase(it);
 
-				if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD) {
-					// repaint
-					dirty = true;
-				}
-			} break;
+                if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD) {
+                  // repaint
+                  dirty = true;
+                }
+            } break;
             case BK_CMD_INVOKE_MENU: {
                 mm = BKMainMenu::create();
-				layers.push_back(mm);
+                layers.push_back(mm);
             } break;
             case BK_CMD_MAINMENU_POPUP: {
                 layers.push_back(BKPopup::create(
-				    mm->getPopupMode(),
-                    mm->getPopupText())
-				);
+                  mm->getPopupMode(),
+                  mm->getPopupText())
+                );
             } break;
+            case BK_CMD_EXIT: {
+                exitApp = true;
+            }
+            case BK_CMD_INVOKE_OPEN_FILE: {
+                // add a file chooser layer
+				        string title("Open (use SQUARE to open Vietnamese chm/html)");
+				        fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
+				        layers.push_back(fs);
+            }
 
         }
 

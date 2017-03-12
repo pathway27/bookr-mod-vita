@@ -9,10 +9,12 @@ Graphics Programming
 
 ## VITA Hardware
 
- CPU: ARM Cortex-A9 MPCore (32-bit armv7-a, 4 cores) 2GHz (NEON SIMD)
- RAM: PowerVR SGX543MP4+ (512MB)
- GPU: 128MB (4 cores)
+ CPU: ARM Cortex-A9 MPCore (32-bit armv7-a, 4 cores) 2GHz (NEON SIMD)  
+ RAM: PowerVR SGX543MP4+ (512MB)  
+ GPU: 128MB (4 cores)  
 DISP: 960x544 (16:9) OLED multi-touch @ 220ppi
+
+PSP   480x272 (16:9)
 
 Compass?
 

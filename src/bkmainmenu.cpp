@@ -26,6 +26,7 @@
 #include "bkdocument.h"
 #include "bkbookmark.h"
 #include "bkpopup.h"
+#include "bookrconfig.h"
 
 // Main menu layout
 #define MAIN_MENU_ITEM_OPEN_FILE				0
@@ -295,7 +296,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 		}
 		if (selItem == MAIN_MENU_ITEM_ABOUT) {
 			popupText = "\
-			Bookr Mod Vita - by pathway27 (Sreekara C.)\n\
+			Bookr Mod Vita (" + std::string(GIT_VERSION) + ") - by pathway27 (Sreekara C.)\n\
 			IS A MODIFICATION OF THE ORIGINAL\n\n\
 			Bookr and bookr-mod - a document viewer for the Sony PSP\n\
 			  by Carlos and Edward.\n\
@@ -311,7 +312,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			Thanks to:\n\
 			  Team Molecule for Henkaku\n\
 			  vitasdk Contibutors\n\
-			  people on freenode #vitasdk";
+			  people on freenode #vitasdk\n";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}

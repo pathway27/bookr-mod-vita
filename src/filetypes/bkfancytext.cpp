@@ -18,8 +18,10 @@
  */
 
 #include <list>
-using namespace std;
+
 #include "bkfancytext.h"
+
+using namespace std;
 
 BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0), holdScroll(false) {
 	lastFontSize = BKUser::options.txtSize;
@@ -27,6 +29,7 @@ BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), 
 	lastHeightPct = BKUser::options.txtHeightPct;
 	lastWrapCR = BKUser::options.txtWrapCR;
 }
+
 BKFancyText::~BKFancyText() {
 	if (runs)
 		delete[] runs;
@@ -346,18 +349,18 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 	list<BKRun> tempRuns;
 	int li = 0;
 	BKRun run;
-	int lastbreak = 0;
+	// int lastbreak = 0;
 	for (int i = 0; i < length; ++i) {
 		if (b[i] == 10) {
 			bool bBreak = true;
 			if( BKUser::options.txtWrapCR > 0 )
 			{
-//				if( i-lastbreak < 100 )
-//				{
-//					b[i] = 'X';
-//					bBreak = false;
-//				} else
-//					lastbreak = i;
+				// if( i-lastbreak < 100 )
+				// {
+				// 	b[i] = 'X';
+				// 	bBreak = false;
+				// } else
+				// 	lastbreak = i;
 				bBreak = true;
 				for( int j = 1 ; j <= BKUser::options.txtWrapCR+1 ; j++ )
 				{
@@ -404,10 +407,10 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 	return b;
 }
 
-extern "C" {
-extern unsigned int size_res_txtfont;
-extern unsigned char res_txtfont[];
-};
+// extern "C" {
+// extern unsigned int size_res_txtfont;
+// extern unsigned char res_txtfont[];
+// };
 
 void BKFancyText::resetFonts() {
 	if (font)
@@ -419,7 +422,7 @@ void BKFancyText::resetFonts() {
 		useBuiltin = font == 0;
 	}
 	if (useBuiltin) {
-		font = FZFont::createFromMemory(res_txtfont, size_res_txtfont, BKUser::options.txtSize, false);
+		//font = FZFont::createFromMemory(res_txtfont, size_res_txtfont, BKUser::options.txtSize, false);
 	}
 	font->texEnv(FZ_TEX_MODULATE);
 	font->filter(FZ_NEAREST, FZ_NEAREST);
@@ -441,16 +444,18 @@ int BKFancyText::resume() {
 void BKFancyText::renderContent() {
 	FZScreen::clear(BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
+
 	FZScreen::matricesFor2D(rotation);
 	FZScreen::enable(FZ_TEXTURE_2D);
 	FZScreen::enable(FZ_BLEND);
 	FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
 
-	font->bindForDisplay();
+	#ifdef PSP
+		font->bindForDisplay();
+		//bool txtJustify; ??
+		FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
+	#endif
 
-	//bool txtJustify; ??
-
-	FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
 	int y = 10;
 	int bn = topLine + linesPerPage;
 	if (bn >= nLines) bn = nLines;
@@ -462,7 +467,11 @@ void BKFancyText::renderContent() {
 		do {
 			int pn = n < run->n ? n : run->n;
 			if (pn > 0) {
-				x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
+				#ifdef PSP
+					x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
+				#elif defined(__vita__)
+					FZScreen::drawText(x, y, 0xffffff, 1.0f, &run->text[offset]);
+				#endif
 			}
 			n -= pn;
 			offset = 0;
@@ -630,10 +639,3 @@ int BKFancyText::setZoomToFitHeight() {
 	return 0;
 }
 
-int BKFancyText::setZoomIn(int left, int right){
-	return 0;
-}
-
-void BKFancyText::setZoom(float z){
-
-}

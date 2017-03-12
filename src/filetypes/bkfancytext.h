@@ -105,7 +105,7 @@ class BKFancyText : public BKDocument {
 	virtual void renderContent();
 
 	virtual void getFileName(string&) = 0;
-	virtual void getTitle(string&, int type = 0) = 0;
+	virtual void getTitle(string&) = 0;
 	virtual void getType(string&) = 0;
 
 	virtual bool isPaginated();
@@ -120,8 +120,6 @@ class BKFancyText : public BKDocument {
 	virtual bool hasZoomToFit();
 	virtual int setZoomToFitWidth();
 	virtual int setZoomToFitHeight();
-	virtual int setZoomIn(int, int);
-	virtual void setZoom(float z);
 
 	virtual int pan(int, int);
 

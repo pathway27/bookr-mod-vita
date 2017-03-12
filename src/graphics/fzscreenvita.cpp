@@ -35,6 +35,8 @@
 
 #include <psp2kern/kernel/cpu.h>
 #include <psp2/pvf.h>
+#include <psp2/io/dirent.h>
+#include <psp2/io/fcntl.h>
 
 #include <vita2d.h>
 
@@ -43,7 +45,6 @@
 
 #include "fzscreen.h"
 #include "fztexture.h"
-#include "bookrconfig.h"
 
 extern unsigned char _binary_image_png_start;
 extern unsigned char _binary_icon0_t_png_start;
@@ -101,7 +102,7 @@ static void * ptr_align64_uncached(unsigned long ptr) {
 }
 
 
-static char psp_full_path[1024 + 1];
+static string psp_full_path;
 static vita2d_pgf *pgf;
 static vita2d_pvf *pvf;
 static void initalDraw() {
@@ -111,7 +112,7 @@ static void initalDraw() {
     vita2d_pgf_draw_text(pgf, 700, 30, RGBA8(255,255,255,255), 1.0f, "Hello in PGF");
     #ifdef __vita__
       vita2d_pgf_draw_text(pgf, 700, 207, RGBA8(255,255,255,255), 1.0f, "UTF-8 しません");
-      vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
+      //vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
     #endif
 
     vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
@@ -126,6 +127,7 @@ void FZScreen::open(int argc, char** argv) {
 
     pgf = vita2d_load_default_pgf();
     pvf = vita2d_load_default_pvf();
+    psp_full_path = "ux0:";
 
     initalDraw();
 }
@@ -347,7 +349,25 @@ struct CompareDirent {
     }
 };
 
-int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
+int FZScreen::dirContents(const char* path, vector<FZDirent>& a) {
+    SceUID fd;
+	SceIoDirent *findData;
+	findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent));	// dont ask me WHY...
+	memset((void*)findData, 0, sizeof(SceIoDirent));
+	//a.push_back(FZDirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
+	//a.push_back(FZDirent("books/1984.txt", FZ_STAT_IFREG, 587083));
+	fd = sceIoDopen(path);
+	if (fd < 0)
+		return -1;
+	while (sceIoDread(fd, findData) > 0) {
+		if (findData->d_name[0] != 0 && findData->d_name[0] != '.') {
+			a.push_back(FZDirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
+		}
+	}
+	sceIoDclose(fd);
+	free(findData);
+	sort(a.begin(), a.end(), CompareDirent());
+	return 1;
 }
 
 int FZScreen::getSuspendSerial() {

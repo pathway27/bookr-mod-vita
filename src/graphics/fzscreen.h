@@ -327,7 +327,7 @@ public:
   static void setBoundTexture(FZTexture *);
 
   static string basePath();
-  static int dirContents(const char* path, char* spath, vector<FZDirent>& a);
+  static int dirContents(const char* path, vector<FZDirent>& a);
 
   static int getSuspendSerial();
 
