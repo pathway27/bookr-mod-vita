@@ -42,9 +42,10 @@
 #include "bkmainmenu.h"
 #include "bkpopup.h"
 #include "bkfilechooser.h"
+#include "bkdocument.h"
 
 int main(int argc, char* argv[]) {
-    //BKDocument *documentLayer = 0;
+    BKDocument *documentLayer = 0;
     FZScreen::open(argc, argv);
     FZScreen::setupCtrl();
 
@@ -106,6 +107,9 @@ int main(int argc, char* argv[]) {
         int command = 0;
         // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs		
         command = (*it)->update(buttons);
+        if (command == BK_CMD_OPEN_FILE) {
+            psp2shell_print("Got BK_CMD_OPEN_FILE");
+        }
 
         // dont proc events while in the reload timer
         std::cout << command << std::endl;
@@ -138,21 +142,87 @@ int main(int argc, char* argv[]) {
             } break;
             case BK_CMD_EXIT: {
                 exitApp = true;
+                break;
             }
             case BK_CMD_INVOKE_OPEN_FILE: {
                 // add a file chooser layer
 				        string title("Open (use SQUARE to open Vietnamese chm/html)");
 				        fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
 				        layers.push_back(fs);
+                break;
             }
+            case BK_CMD_OPEN_FILE: {
+                // open a file as a document
+                psp2shell_print("BK_CMD_OPEN_FILE?");
+                string s;
 
+                bool convertToVN = false;
+
+                if (command == BK_CMD_RELOAD) {
+                  documentLayer->getFileName(s);
+                  documentLayer = 0;
+                }
+                if (command == BK_CMD_OPEN_FILE) {
+                  // open selected file
+                  fs->getFullPath(s);
+                  //convertToVN = fs->isConvertToVN();
+                  fs = 0;
+                  psp2shell_print("getFullPath %s\n", s.c_str());
+                }
+                // if (command == BK_CMD_OPEN_CACHE) {
+                //   // open selected cache
+                //   ccs->getFullPath(s);
+                //   ccs = 0;
+                // }
+                // clear layers
+                bkLayersIt it(layers.begin());
+                bkLayersIt end(layers.end());
+                while (it != end) {
+                  (*it)->release();
+                  ++it;
+                }
+                layers.clear();
+                // little hack to display a loading screen
+                BKLogo* l = BKLogo::create();
+                l->setLoading(true);
+                FZScreen::startDirectList();
+                l->render();
+                FZScreen::endAndDisplayList();
+                FZScreen::waitVblankStart();
+                FZScreen::swapBuffers();
+                // FZScreen::checkEvents();
+                l->release();
+                psp2shell_print("BKLogo Created\n");
+
+                // detect file type and add a new display layer
+                
+                psp2shell_print("Pre Document::create\n");
+                documentLayer = BKDocument::create(s);
+                psp2shell_print("Post Document::create\n");
+                if (documentLayer == 0) {
+                  // error, back to logo screen
+                  BKLogo* l = BKLogo::create();
+                  l->setError(true);
+                  layers.push_back(l);
+                } else {
+                  // file loads ok, add the layer
+                  layers.push_back(documentLayer);
+                }
+
+                // FZScreen::setSpeed(BKUser::options.pspSpeed);
+
+                dirty = true;
+                break;
+            }
         }
 
-        if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
-            break;
-        else {
-            FZScreen::checkEvents(buttons);
-        }
+        #ifdef DEBUG
+          if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
+              break;
+          else {
+              FZScreen::checkEvents(buttons);
+          }
+        #endif
     }
 
   #ifdef DEBUG  
@@ -162,8 +232,8 @@ int main(int argc, char* argv[]) {
     bkLayersIt it(layers.begin());
     bkLayersIt end(layers.end());
     while (it != end) {
-    	(*it)->release();
-    	++it;
+      (*it)->release();
+      ++it;
     }
     layers.clear();
 
@@ -180,11 +250,11 @@ void loadLastFile() {}
 
 void clearLayers() {
   // bkLayersIt it(layers.begin());
-	// bkLayersIt end(layers.end());
-	// while (it != end) {
-	// 	(*it)->release();
-	// 	++it;
-	// }
-	// layers.clear();
+  // bkLayersIt end(layers.end());
+  // while (it != end) {
+  // 	(*it)->release();
+  // 	++it;
+  // }
+  // layers.clear();
 
 }

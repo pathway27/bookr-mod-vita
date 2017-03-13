@@ -20,11 +20,11 @@
 #ifndef BKPLAINTEXT_H
 #define BKPLAINTEXT_H
 
-#include "../graphics/fzscreen.h"
+#include "graphics/fzscreen.h"
 
 using namespace std;
 
-#include "../bkfancytext.h"
+#include "bkfancytext.h"
 
 class BKPlainText : public BKFancyText {
 	private:
@@ -37,10 +37,10 @@ class BKPlainText : public BKFancyText {
 
 	public:
 	virtual void getFileName(string&);
-	virtual void getTitle(string&, int type = 0);
+	virtual void getTitle(string&);
 	virtual void getType(string&);
 
-	static BKPlainText* create(string& file,string& longFileName);
+	static BKPlainText* create(string& file);
 };
 
 #endif

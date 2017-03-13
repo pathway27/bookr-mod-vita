@@ -345,6 +345,7 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 }
 
 char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
+	psp2shell_print("pre parseText\n");
 	// tokenize text file
 	list<BKRun> tempRuns;
 	int li = 0;
@@ -404,6 +405,7 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 		++it;
 	}
 
+	psp2shell_print("post parseText: %s\n", b);
 	return b;
 }
 
@@ -442,6 +444,7 @@ int BKFancyText::resume() {
 }
 
 void BKFancyText::renderContent() {
+	psp2shell_print("BKFancyText::renderContent");
 	FZScreen::clear(BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
 
@@ -456,32 +459,40 @@ void BKFancyText::renderContent() {
 		FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
 	#endif
 
-	int y = 10;
-	int bn = topLine + linesPerPage;
-	if (bn >= nLines) bn = nLines;
-	for (int i = topLine; i < bn; i++) {
-		BKRun* run = &runs[lines[i].firstRun];
-		int offset = lines[i].firstRunOffset;
-		int x = 10;
-		int n = lines[i].totalChars;
-		do {
-			int pn = n < run->n ? n : run->n;
-			if (pn > 0) {
-				#ifdef PSP
-					x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
-				#elif defined(__vita__)
-					FZScreen::drawText(x, y, 0xffffff, 1.0f, &run->text[offset]);
-				#endif
-			}
-			n -= pn;
-			offset = 0;
-			++run;
-		} while (n > 0);
-		//y += lines[i].vSpace;
-		y += font->getLineHeight()*(BKUser::options.txtHeightPct/100.0);
-		//if (y > maxY)
-		//	break;
-	}
+	#ifdef __vita__
+		BKRun r = runs[0];
+		string s = string(r.text);
+		psp2shell_print("runs[0] - %s\n", s.substr(0, 250).c_str());
+		FZScreen::drawText(20, 40, RGBA8(0, 0, 0, 255), 1.0f, s.substr(0, 250).c_str());
+	#endif
+
+	// int y = 10;
+	// int bn = topLine + linesPerPage;
+	// if (bn >= nLines) bn = nLines;
+	// for (int i = topLine; i < bn; i++) {
+	// 	BKRun* run = &runs[lines[i].firstRun];
+	// 	int offset = lines[i].firstRunOffset;
+	// 	int x = 10;
+	// 	int n = lines[i].totalChars;
+	// 	do {
+	// 		int pn = n < run->n ? n : run->n;
+	// 		if (pn > 0) {
+	// 			#ifdef PSP
+	// 				x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
+	// 			#elif defined(__vita__)
+	// 				psp2shell_print("rendering - %s\n", &run->text[offset]);
+	// 				FZScreen::drawText(x, y, RGBA8(0, 0, 0, 255), 1.0f, &run->text[offset]);
+	// 			#endif
+	// 		}
+	// 		n -= pn;
+	// 		offset = 0;
+	// 		++run;
+	// 	} while (n > 0);
+	// 	//y += lines[i].vSpace;
+	// 	y += font->getLineHeight()*(BKUser::options.txtHeightPct/100.0);
+	// 	//if (y > maxY)
+	// 	//	break;
+	// }
 
 	FZScreen::matricesFor2D();
 }

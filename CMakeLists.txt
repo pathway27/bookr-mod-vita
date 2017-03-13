@@ -97,14 +97,12 @@ add_executable(bookr-mod-vita
   
   # 
 
-  #src/bkdocument.cpp
-  # src/bkbookmark.cpp
-  # src/graphics/fzscreen.h
-  # src/bkuser.cpp
-  # src/bkdjvu.cpp
-  # src/bkpalmdoc.cpp
-  # src/bkplaintext.cpp
-  # src/bkbookmark.cpp
+  src/bkdocument.cpp
+  src/bkbookmark.cpp
+  src/filetypes/bkfancytext.cpp
+  # src/filetypes/bkdjvu.cpp
+  # src/filetypes/bkpalmdoc.cpp
+  src/filetypes/bkplaintext.cpp
   # src/
 )
 

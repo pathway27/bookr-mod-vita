@@ -19,27 +19,33 @@
 
 #include <stdio.h>
 #include <list>
-using namespace std;
+
 #include "bkplaintext.h"
+
+using namespace std;
 
 BKPlainText::BKPlainText() : buffer(0) { }
 BKPlainText::~BKPlainText() {
-  if (buffer){
-    saveLastView();
-    free(buffer);
-  }
+	saveLastView();
+	if (buffer)
+		free(buffer);
 }
 
-BKPlainText* BKPlainText::create(string& file, string& longFileName) {
+BKPlainText* BKPlainText::create(string& file) {
+	psp2shell_print("BKPlainText::create\n");
 	BKPlainText* r = new BKPlainText();
 	r->fileName = file;
-	r->longFileName = longFileName;
+
 	// read file to memory
+	psp2shell_print("pre fopen\n");
 	FILE* f = fopen(file.c_str(), "r");
 	if (f == NULL) {
+		psp2shell_print("fopen null\n");
 		delete r;
 		return NULL;
 	}
+	psp2shell_print("post fopen\n");
+
 	long length = 0;
 	fseek(f, 0, SEEK_END);
 	length = ftell(f);
@@ -76,8 +82,10 @@ BKPlainText* BKPlainText::create(string& file, string& longFileName) {
 		r->buffer = BKFancyText::parseText(r, b, length);
 	}
 
-	r->resetFonts();
-	r->resizeView(480, 272);
+	psp2shell_print("post parse\n");
+	//r->resetFonts();
+	//r->resizeView(480, 272);
+	//r->resizeView(960, 544);
 	return r;
 }
 
@@ -85,40 +93,8 @@ void BKPlainText::getFileName(string& fn) {
 	fn = fileName;
 }
 
-void BKPlainText::getTitle(string& s, int type) {
-  switch(type){
-    
-  case 1:
-    s = "<No Title Info>";
-    break;
-  case 2:
-    s = longFileName;
-    break;
-  case 3:
-    s = "No Title Info"; 
-    s += " ["; 
-    s += longFileName;
-    s += "]";
-    break;
-  case 4:
-    s = longFileName;
-    s += " [";
-    s += "No Title Info";
-    s += "]";
-    break;
-  default:
-    int n = longFileName.size();
-    int lastSlash = -1;
-    for (int i = 0; i < n; ++i) {
-      if (longFileName[i] == '\\')
-	lastSlash = i;
-      else if (longFileName[i] == '/')
-	lastSlash = i;
-    }
-    s.assign(longFileName, lastSlash+1, n - 1 - lastSlash);
-    break;
-  }
-
+void BKPlainText::getTitle(string& t) {
+	t = "FIX PLAIN TEXT TITLES";
 }
 
 void BKPlainText::getType(string& t) {
