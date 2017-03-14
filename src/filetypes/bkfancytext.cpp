@@ -18,10 +18,8 @@
  */
 
 #include <list>
-
-#include "bkfancytext.h"
-
 using namespace std;
+#include "bkfancytext.h"
 
 BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0), holdScroll(false) {
 	lastFontSize = BKUser::options.txtSize;
@@ -29,7 +27,6 @@ BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), 
 	lastHeightPct = BKUser::options.txtHeightPct;
 	lastWrapCR = BKUser::options.txtWrapCR;
 }
-
 BKFancyText::~BKFancyText() {
 	if (runs)
 		delete[] runs;
@@ -345,7 +342,6 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 }
 
 char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
-	psp2shell_print("pre parseText\n");
 	// tokenize text file
 	list<BKRun> tempRuns;
 	int li = 0;
@@ -401,11 +397,11 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 	while (it != tempRuns.end()) {
 		const BKRun& l = *it;
 		r->runs[i] = l;
+		//psp2shell_print("run[%i] - %s\n", i, (*it).text);
 		++i;
 		++it;
 	}
 
-	psp2shell_print("post parseText: %s\n", b);
 	return b;
 }
 
@@ -418,16 +414,16 @@ void BKFancyText::resetFonts() {
 	if (font)
 		font->release();
 	// load font
-	bool useBuiltin = BKUser::options.txtFont == "bookr:builtin";
-	if (!useBuiltin) {
-		font = FZFont::createFromFile((char*)BKUser::options.txtFont.c_str(), BKUser::options.txtSize, false);
-		useBuiltin = font == 0;
-	}
-	if (useBuiltin) {
-		//font = FZFont::createFromMemory(res_txtfont, size_res_txtfont, BKUser::options.txtSize, false);
-	}
-	font->texEnv(FZ_TEX_MODULATE);
-	font->filter(FZ_NEAREST, FZ_NEAREST);
+	// bool useBuiltin = BKUser::options.txtFont == "bookr:builtin";
+	// if (!useBuiltin) {
+	// 	font = FZFont::createFromFile((char*)BKUser::options.txtFont.c_str(), BKUser::options.txtSize, false);
+	// 	useBuiltin = font == 0;
+	// }
+	// if (useBuiltin) {
+	// 	font = FZFont::createFromMemory(res_txtfont, size_res_txtfont, BKUser::options.txtSize, false);
+	// }
+	// font->texEnv(FZ_TEX_MODULATE);
+	// font->filter(FZ_NEAREST, FZ_NEAREST);
 }
 
 int BKFancyText::updateContent() {
@@ -444,10 +440,8 @@ int BKFancyText::resume() {
 }
 
 void BKFancyText::renderContent() {
-	psp2shell_print("BKFancyText::renderContent");
 	FZScreen::clear(BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
-
 	FZScreen::matricesFor2D(rotation);
 	FZScreen::enable(FZ_TEXTURE_2D);
 	FZScreen::enable(FZ_BLEND);
@@ -459,40 +453,51 @@ void BKFancyText::renderContent() {
 		FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
 	#endif
 
-	#ifdef __vita__
-		BKRun r = runs[0];
-		string s = string(r.text);
-		psp2shell_print("runs[0] - %s\n", s.substr(0, 250).c_str());
-		FZScreen::drawText(20, 40, RGBA8(0, 0, 0, 255), 1.0f, s.substr(0, 250).c_str());
-	#endif
+	// #ifdef __vita__
+	// 	BKRun r = runs[0];
+	// 	string s = string(r.text);
+	// 	// psp2shell_print("runs[0] - %s\n", s.substr(0, 250).c_str());
+	// 	// psp2shell_print("nruns - %i\n", nRuns);
+	// 	FZScreen::drawText(20, 40, RGBA8(0, 0, 0, 255), 1.0f, s.substr(0, 250).c_str());
+	// #endif
 
-	// int y = 10;
-	// int bn = topLine + linesPerPage;
-	// if (bn >= nLines) bn = nLines;
-	// for (int i = topLine; i < bn; i++) {
-	// 	BKRun* run = &runs[lines[i].firstRun];
-	// 	int offset = lines[i].firstRunOffset;
-	// 	int x = 10;
-	// 	int n = lines[i].totalChars;
-	// 	do {
-	// 		int pn = n < run->n ? n : run->n;
-	// 		if (pn > 0) {
-	// 			#ifdef PSP
-	// 				x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
-	// 			#elif defined(__vita__)
-	// 				psp2shell_print("rendering - %s\n", &run->text[offset]);
-	// 				FZScreen::drawText(x, y, RGBA8(0, 0, 0, 255), 1.0f, &run->text[offset]);
-	// 			#endif
-	// 		}
-	// 		n -= pn;
-	// 		offset = 0;
-	// 		++run;
-	// 	} while (n > 0);
-	// 	//y += lines[i].vSpace;
-	// 	y += font->getLineHeight()*(BKUser::options.txtHeightPct/100.0);
-	// 	//if (y > maxY)
-	// 	//	break;
-	// }
+	//bool txtJustify; ??
+
+	FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
+	int y = 10;
+	int bn = topLine + linesPerPage;
+	//if (bn >= nLines)
+		bn = nRuns;
+	psp2shell_print("render::content - topLine: %i\n", topLine);
+	psp2shell_print("render::content - linesPerPage: %i\n", linesPerPage);
+	psp2shell_print("render::content - bn: %i\n", bn);
+	for (int i = topLine; i < bn; i++) {
+		BKRun* run = &runs[lines[i].firstRun];
+		int offset = lines[i].firstRunOffset;
+		int x = 10;
+		int n = lines[i].totalChars;
+		do {
+			int pn = n < run->n ? n : run->n;
+			if (pn > 0) {
+				#ifdef PSP
+					x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
+				#elif defined(__vita__)
+					psp2shell_print("render::content ------- start\n");
+						psp2shell_print("run->text[offset] %s\n", &run->text[offset]);
+						psp2shell_print("x,y : %i, %i\n", x, y);
+					psp2shell_print("render::content ------- end\n");
+					//FZScreen::drawText(x, y, RGBA8(0, 0, 0, 255), 1.0f, &run->text[offset]);
+				#endif
+			}
+			n -= pn;
+			offset = 0;
+			++run;
+		} while (n > 0);
+		y += lines[i].vSpace;
+		//y += font->getLineHeight()*(BKUser::options.txtHeightPct/100.0);
+		//if (y > maxY)
+		//	break;
+	}
 
 	FZScreen::matricesFor2D();
 }
