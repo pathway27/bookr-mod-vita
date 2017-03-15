@@ -20,6 +20,9 @@
 #include <list>
 using namespace std;
 #include "bkfancytext.h"
+#include <math.h>
+#include <string.h>
+#include <algorithm>
 
 BKFancyText::BKFancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0), holdScroll(false) {
 	lastFontSize = BKUser::options.txtSize;
@@ -100,9 +103,15 @@ void BKFancyText::reflow(int width) {
 	float spaceWidth = 0.0f;
 	BKRunsIterator rit(runs, 0, 0, nRuns);
 	BKRunsIterator lastSpace = rit;
-	FZCharMetrics* fontChars = font->getMetrics();
-	const int spaceWidthC = fontChars[32].xadvance;
-	const float spaceWidthCF = float(spaceWidthC);
+
+	#ifdef PSP
+		FZCharMetrics* fontChars = font->getMetrics();
+		const int spaceWidthC = fontChars[32].xadvance;
+		const float spaceWidthCF = float(spaceWidthC);
+	#elif defined(__vita__)
+		const int spaceWidthC = 10;
+		const float spaceWidthCF = 10;
+	#endif
 
 	while (!rit.end()) {
 		if (currentWidth > width || rit.lineBreakMark > 0) {
@@ -138,7 +147,11 @@ void BKFancyText::reflow(int width) {
 			lastSpace = rit;
 			++lineSpaces;
 		}
-		currentWidth += fontChars[c].xadvance;
+		#ifdef PSP
+			currentWidth += fontChars[c].xadvance;
+		#elif defined(__vita__)
+			currentWidth += 10;
+		#endif
 		rit.currentWidth = currentWidth;
 	}
 
@@ -156,7 +169,11 @@ void BKFancyText::reflow(int width) {
 
 void BKFancyText::resizeView(int width, int height) {
 	reflow(width - 10 - 10);
-	linesPerPage = (height - 10) / (font->getLineHeight()*(BKUser::options.txtHeightPct/100.0));
+	#ifdef PSP
+		linesPerPage = (height - 10) / (font->getLineHeight()*(BKUser::options.txtHeightPct/100.0));
+	#elif defined(__vita__)
+		linesPerPage = 25;
+	#endif
 	maxY = height - 10;
 	totalPages = (nLines / linesPerPage) + 1;
 }
@@ -383,6 +400,7 @@ char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
 			}
 		}
 	}
+	
 	// last run
 	run.text = &b[li];
 	run.n = length - li;
@@ -439,6 +457,27 @@ int BKFancyText::resume() {
 	return 0;
 }
 
+static int strpos(string haystack, char needle, int nth)
+{// Will return position of n-th occurence of a char in a string.
+		if (nth == 0)
+			return 0;
+		string read;    // A string that will contain the read part of the haystack
+		for (int i=1 ; i<nth+1 ; ++i)
+		{
+						std::size_t found = haystack.find(needle);
+						read += haystack.substr(0,found+1); // the read part of the haystack is stocked in the read string
+						haystack.erase(0, found+1);     // remove the read part of the haystack up to the i-th needle
+						if (i == nth)
+						{
+										return read.size();
+						}
+		}
+		return -1;
+}
+
+static int pageNumber = 0;
+static int maxPageNumber = 0;
+static int linesPerPage = 25;
 void BKFancyText::renderContent() {
 	FZScreen::clear(BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
 	FZScreen::color(0xffffffff);
@@ -453,51 +492,72 @@ void BKFancyText::renderContent() {
 		FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
 	#endif
 
-	// #ifdef __vita__
-	// 	BKRun r = runs[0];
-	// 	string s = string(r.text);
-	// 	// psp2shell_print("runs[0] - %s\n", s.substr(0, 250).c_str());
-	// 	// psp2shell_print("nruns - %i\n", nRuns);
-	// 	FZScreen::drawText(20, 40, RGBA8(0, 0, 0, 255), 1.0f, s.substr(0, 250).c_str());
-	// #endif
+	#ifdef __vita__
+		BKRun r = runs[0];
+		string s = string(r.text);
+		unsigned int s_size = float(s.size());
+		// psp2shell_print("size - %i\n", s_size);
+
+		if (maxPageNumber == 0) {
+			// size_t count = std::count(s.begin(), s.end(), '\n');
+			// psp2shell_print("count - %f\n", count);
+			maxPageNumber = (totalPages / 2) - 1;//(int) ceil(count / (float) linesPerPage);
+		}
+
+		int startPosition = strpos(s, '\n', pageNumber * linesPerPage);
+		int endPosition = strpos(s, '\n', (pageNumber+1) * linesPerPage);
+		// for (int i = 0; i < ceil(s_size / 250); i++) {
+		// 	FZScreen::drawText(20*(i+1), 20*(i+1), RGBA8(0, 0, 0, 255), 1.0f, s.substr(250*(i), 250*(i+1)).c_str());
+		// }
+
+		// psp2shell_print("runs[0] - %s\n", s.substr(0, 250).c_str());
+		#ifdef DEBUG
+			// psp2shell_print("pageNumber - %i\n", pageNumber);
+			// psp2shell_print("maxPageNumber - %i\n", maxPageNumber);
+			// psp2shell_print("startPosition - %i\n", startPosition);
+			// psp2shell_print("endPosition - %i\n", endPosition);
+		#endif
+		FZScreen::drawText(20, 40, RGBA8(0, 0, 0, 255), 1.0f, s.substr(startPosition, endPosition).c_str());
+	#endif
 
 	//bool txtJustify; ??
 
-	FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
-	int y = 10;
-	int bn = topLine + linesPerPage;
-	//if (bn >= nLines)
-		bn = nRuns;
-	psp2shell_print("render::content - topLine: %i\n", topLine);
-	psp2shell_print("render::content - linesPerPage: %i\n", linesPerPage);
-	psp2shell_print("render::content - bn: %i\n", bn);
-	for (int i = topLine; i < bn; i++) {
-		BKRun* run = &runs[lines[i].firstRun];
-		int offset = lines[i].firstRunOffset;
-		int x = 10;
-		int n = lines[i].totalChars;
-		do {
-			int pn = n < run->n ? n : run->n;
-			if (pn > 0) {
-				#ifdef PSP
-					x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
-				#elif defined(__vita__)
-					psp2shell_print("render::content ------- start\n");
-						psp2shell_print("run->text[offset] %s\n", &run->text[offset]);
-						psp2shell_print("x,y : %i, %i\n", x, y);
-					psp2shell_print("render::content ------- end\n");
-					//FZScreen::drawText(x, y, RGBA8(0, 0, 0, 255), 1.0f, &run->text[offset]);
-				#endif
-			}
-			n -= pn;
-			offset = 0;
-			++run;
-		} while (n > 0);
-		y += lines[i].vSpace;
-		//y += font->getLineHeight()*(BKUser::options.txtHeightPct/100.0);
-		//if (y > maxY)
-		//	break;
-	}
+	// FZScreen::ambientColor(0xff000000 | BKUser::options.colorSchemes[BKUser::options.currentScheme].txtFGColor);
+	// int y = 10;
+	// int bn = topLine + linesPerPage;
+	// if (bn >= nLines) bn = nLines;
+	// psp2shell_print("render::content - topLine: %i\n", topLine);
+	// psp2shell_print("render::content - linesPerPage: %i\n", linesPerPage);
+	// psp2shell_print("render::content - bn: %i\n", bn);
+	// for (int i = topLine; i < bn; i++) {
+	// 	BKRun* run = &runs[lines[i].firstRun];
+	// 	int offset = lines[i].firstRunOffset;
+	// 	int x = 10;
+	// 	int n = lines[i].totalChars;
+	// 	do {
+	// 		int pn = n < run->n ? n : run->n;
+	// 		if (pn > 0) {
+	// 			#ifdef PSP
+	// 				x = drawText(&run->text[offset], font, x, y, pn, false, BKUser::options.txtJustify, lines[i].spaceWidth, true);
+	// 			#elif defined(__vita__)
+	// 				psp2shell_print("render::content ------- start\n");
+	// 					psp2shell_print("run->text[offset] %s\n", &run->text[offset]);
+	// 					psp2shell_print("x,y : %i, %i\n", x, y);
+	// 				psp2shell_print("render::content ------- end\n");
+	// 				//FZScreen::drawText(x, y, RGBA8(0, 0, 0, 255), 1.0f, &run->text[offset]);
+	// 			#endif
+	// 		}
+	// 		n -= pn;
+	// 		offset = 0;
+	// 		++run;
+	// 	} while (n > 0);
+		
+	// 	y += 10*(BKUser::options.txtHeightPct/100.0);
+
+	// 	//y += lines[i].vSpace;
+	// 	//if (y > maxY)
+	// 	//	break;
+	// }
 
 	FZScreen::matricesFor2D();
 }
@@ -570,10 +630,14 @@ int BKFancyText::pan(int x, int y) {
 }
 
 int BKFancyText::screenUp() {
+	if (pageNumber > 0)
+		pageNumber--;
 	return setCurrentPage(getCurrentPage() - 1);
 }
 
 int BKFancyText::screenDown() {
+	if (pageNumber < maxPageNumber)
+		pageNumber++;
 	return setCurrentPage(getCurrentPage() + 1);
 }
 

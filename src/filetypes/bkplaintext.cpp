@@ -84,8 +84,12 @@ BKPlainText* BKPlainText::create(string& file) {
 
 	psp2shell_print("post parse\n");
 	//r->resetFonts();
-	//r->resizeView(480, 272);
-	//r->resizeView(960, 544);
+	#ifdef PSP
+		r->resizeView(480, 272);
+	#elif defined(__vita__)
+		r->resizeView(960, 544);
+	#endif
+
 	return r;
 }
 
