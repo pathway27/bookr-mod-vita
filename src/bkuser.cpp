@@ -63,8 +63,8 @@ void BKUser::setDefaultControls() {
     controls.showToolbar		= FZ_REPS_SELECT;
     
     // set menu default controls
-    controls.select				= FZ_REPS_CIRCLE;//FZ_REPS_CIRCLE;
-    controls.cancel				= FZ_REPS_CROSS;//FZ_REPS_CROSS;
+    controls.select				= FZ_REPS_CROSS;//FZ_REPS_CIRCLE;
+    controls.cancel				= FZ_REPS_CIRCLE;//FZ_REPS_CROSS;
     controls.alternate			= FZ_REPS_TRIANGLE;
     controls.details			= FZ_REPS_SQUARE;	
     controls.menuUp				= FZ_REPS_UP;

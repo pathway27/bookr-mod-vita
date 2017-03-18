@@ -25,11 +25,11 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 set(VITA_APP_NAME "Bookr MOD Vita")
 # Unique ID must be exactly 9 characters. Recommended: XXXXYYYYY where X =
 # unique string of developer and Y = a unique number for this app
-set(VITA_TITLEID  "BOKR00027")
+set(VITA_TITLEID  "PATH00027")
 # Optional version string to show in LiveArea's more info screen
 set(VITA_VERSION  "00.01")
 
-execute_process(COMMAND git describe --always
+execute_process(COMMAND git describe --tags
   OUTPUT_VARIABLE GIT_VERSION)
 string(REGEX REPLACE "\n$" "" GIT_VERSION "${GIT_VERSION}")
 configure_file(
@@ -40,7 +40,7 @@ configure_file(
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-narrowing -Wno-write-strings")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
@@ -59,7 +59,7 @@ foreach (_variableName ${_variableNames})
    message(STATUS "${_variableName}=${${_variableName}}")
 endforeach()
 execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
-add_definitions(-DDEBUG)
+#add_definitions(-DDEBUG)
 #add_definitions(-DGENKIHEN)
 
 	
@@ -94,8 +94,6 @@ add_executable(bookr-mod-vita
   src/bkmainmenu.cpp
   src/bkpopup.cpp
   src/bkfilechooser.cpp
-  
-  # 
 
   src/bkdocument.cpp
   src/bkbookmark.cpp

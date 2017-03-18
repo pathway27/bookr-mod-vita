@@ -5,6 +5,8 @@ Programming the Vita
 Porting experience
 Graphics Programming
 
+Note: I am a web developer professionally so besides my uni c++ i haven't used it much.
+
 # Random Notes
 
 ## VITA Hardware
@@ -17,6 +19,20 @@ DISP: 960x544 (16:9) OLED multi-touch @ 220ppi
 PSP   480x272 (16:9)
 
 Compass?
+
+## Directory Stucture
+
+The original bookr had all it's c files outside, i've tried to arrange them in folders so as not to get
+overwhelmed.
+
+```
+  data              - should have all images and external resources, should also subdivide into vita/psp
+  ext               - external libraries used statically by bookr
+  sce_sys           - vita resources
+  src               - main directory for c++ source files
+    filetypes       - classes for specific filetypes for books
+    graphics        - has main rendering, texture classes and shaders (eventually)
+```
 
 ## Licensing and Copyright
 

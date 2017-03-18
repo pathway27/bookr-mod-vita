@@ -219,7 +219,9 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
 
 #ifdef __vita__
   FZTexture* FZTexture::createFromVitaTexture(vita2d_texture* v_texture) {
-      psp2shell_print("create from vita");
+      #ifdef DEBUG
+        psp2shell_print("create from vita");
+      #endif
       FZTexture* texture = new FZTexture();
       texture->vita_texture = v_texture;
       //psp2shell_print("%p\n", (void *) &(texture->vita_texture));
