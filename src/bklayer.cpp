@@ -515,9 +515,11 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	int scrY = 0;
 	char *t =(char*)circleLabel.c_str(); 
 	// int tw = textW(t, fontBig);
-	psp2shell_print("draw dialog frame\n");
 
 	#ifdef __vita__
+		#ifdef DEBUG
+			psp2shell_print("draw dialog frame\n");
+		#endif
 		// 960
 		// 920
     // 544
@@ -1008,7 +1010,7 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 	
 	// back
 	#ifdef __vita__
-		vita2d_draw_rectangle(80, y, 960 - 146, h, bg1);
+		vita2d_draw_rectangle(80, y, 960 - 156, h, bg1);
 	#elif defined(PSP)
 		FZScreen::ambientColor(bg1);
 		drawPill(40, y, 480 - 86, h, 6, 31, 1);

@@ -27,20 +27,20 @@ using namespace std;
 #include "bkfancytext.h"
 
 class BKPlainText : public BKFancyText {
-	private:
-	string fileName;
-	char* buffer;
+  private:
+    string fileName;
+    char* buffer;
 
-	protected:
-	BKPlainText();
-	~BKPlainText();
+  protected:
+    BKPlainText();
+    ~BKPlainText();
 
-	public:
-	virtual void getFileName(string&);
-	virtual void getTitle(string&);
-	virtual void getType(string&);
+  public:
+    virtual void getFileName(string&);
+    virtual void getTitle(string&);
+    virtual void getType(string&);
 
-	static BKPlainText* create(string& file);
+    static BKPlainText* create(string& file);
 };
 
 #endif

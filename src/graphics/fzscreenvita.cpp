@@ -35,6 +35,7 @@
 
 #include <psp2kern/kernel/cpu.h>
 #include <psp2/pvf.h>
+#include <psp2/pgf.h>
 #include <psp2/io/dirent.h>
 #include <psp2/io/fcntl.h>
 
@@ -216,12 +217,16 @@ void FZScreen::getAnalogPad(int& x, int& y) {
 }
 
 void FZScreen::startDirectList() {
-    psp2shell_print("start drawing");
+    #ifdef DEBUG
+      psp2shell_print("start drawing");
+    #endif
     vita2d_start_drawing();
 }
 
 void FZScreen::endAndDisplayList() {
-    psp2shell_print("end drawing");
+    #ifdef DEBUG
+      psp2shell_print("end drawing");
+    #endif
     vita2d_end_drawing();
 }
 

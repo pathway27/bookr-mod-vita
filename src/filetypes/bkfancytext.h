@@ -42,99 +42,99 @@ using namespace std;
 //#define BKFT_FONT_FIXED			1
 
 struct BKRun {
-	char* text;
-	bool lineBreak;
-	int n;
-	int style;
-	int font;
-	int bgcolor;
-	int fgcolor;
+  char* text;
+  bool lineBreak;
+  int n;
+  int style;
+  int font;
+  int bgcolor;
+  int fgcolor;
 };
 
 struct BKLine {
-	int firstRun;
-	int firstRunOffset;
-	int totalChars;
-	float spaceWidth;
-	BKLine(int fr, int fro, int tc, float sw) : firstRun(fr), firstRunOffset(fro), totalChars(tc), spaceWidth(sw) { }
-	BKLine() { }
+  int firstRun;
+  int firstRunOffset;
+  int totalChars;
+  float spaceWidth;
+  BKLine(int fr, int fro, int tc, float sw) : firstRun(fr), firstRunOffset(fro), totalChars(tc), spaceWidth(sw) { }
+  BKLine() { }
 };
 
 class BKFancyText : public BKDocument {
-	private:
-	BKLine* lines;
-	int nLines;
-	int topLine;
-	int maxY;
-	FZFont* font;
-	int rotation;
-	int lastFontSize;
-	string lastFontFace;
-	int	lastHeightPct;
-	int lastWrapCR;
+  private:
+  BKLine* lines;
+  int nLines;
+  int topLine;
+  int maxY;
+  FZFont* font;
+  int rotation;
+  int lastFontSize;
+  string lastFontFace;
+  int	lastHeightPct;
+  int lastWrapCR;
 
-	int linesPerPage;
-	int totalPages;
-	void reflow(int width);
+  int linesPerPage;
+  int totalPages;
+  void reflow(int width);
 
-	protected:
-	BKRun* runs;
-	int nRuns;
-	BKFancyText();
-	~BKFancyText();
+  protected:
+  BKRun* runs;
+  int nRuns;
+  BKFancyText();
+  ~BKFancyText();
 
-	void resizeView(int widht, int height);
-	void resetFonts();
-	int setLine(int l);
-	int runForLine(int l);
-	int lineForRun(int r);
+  void resizeView(int widht, int height);
+  void resetFonts();
+  int setLine(int l);
+  int runForLine(int l);
+  int lineForRun(int r);
 
-	bool holdScroll;
+  bool holdScroll;
 
-	// a lot of ebook formats use HTML as a display format, on top of a
-	// container format. so it makes sense to put the parser/tokenizer in
-	// the base class
-	static char* parseHTML(BKFancyText* r, char* in, int n);
+  // a lot of ebook formats use HTML as a display format, on top of a
+  // container format. so it makes sense to put the parser/tokenizer in
+  // the base class
+  static char* parseHTML(BKFancyText* r, char* in, int n);
 
-	// same with plain text
-	static char* parseText(BKFancyText* r, char* b, int length);
+  // same with plain text
+  static char* parseText(BKFancyText* r, char* b, int length);
 
-	public:
-	virtual int updateContent();
-	virtual int resume();
-	virtual void renderContent();
+  public:
+  virtual int updateContent();
+  virtual int resume();
+  virtual void renderContent();
 
-	virtual void getFileName(string&) = 0;
-	virtual void getTitle(string&) = 0;
-	virtual void getType(string&) = 0;
+  virtual void getFileName(string&) = 0;
+  virtual void getTitle(string&) = 0;
+  virtual void getType(string&) = 0;
 
-	virtual bool isPaginated();
-	virtual int getTotalPages();
-	virtual int getCurrentPage();
-	virtual int setCurrentPage(int);
+  virtual bool isPaginated();
+  virtual int getTotalPages();
+  virtual int getCurrentPage();
+  virtual int setCurrentPage(int);
 
-	virtual bool isZoomable();
-	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
-	virtual int getCurrentZoomLevel();
-	virtual int setZoomLevel(int);
-	virtual bool hasZoomToFit();
-	virtual int setZoomToFitWidth();
-	virtual int setZoomToFitHeight();
+  virtual bool isZoomable();
+  virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
+  virtual int getCurrentZoomLevel();
+  virtual int setZoomLevel(int);
+  virtual bool hasZoomToFit();
+  virtual int setZoomToFitWidth();
+  virtual int setZoomToFitHeight();
 
-	virtual int pan(int, int);
+  virtual int pan(int, int);
 
-	virtual int screenUp();
-	virtual int screenDown();
-	virtual int screenLeft();
-	virtual int screenRight();
+  virtual int screenUp();
+  virtual int screenDown();
+  virtual int screenLeft();
+  virtual int screenRight();
 
-	virtual bool isRotable();
-	virtual int getRotation();
-	virtual int setRotation(int, bool bForce=false);
+  virtual bool isRotable();
+  virtual int getRotation();
+  virtual int setRotation(int, bool bForce=false);
 
-	virtual bool isBookmarkable();
-	virtual void getBookmarkPosition(map<string, int>&);
-	virtual int setBookmarkPosition(map<string, int>&);
+  virtual bool isBookmarkable();
+  virtual void getBookmarkPosition(map<string, int>&);
+  virtual int setBookmarkPosition(map<string, int>&);
 };
 
 #endif

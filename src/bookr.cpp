@@ -108,7 +108,9 @@ int main(int argc, char* argv[]) {
         // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs		
         command = (*it)->update(buttons);
         if (command == BK_CMD_OPEN_FILE) {
-            psp2shell_print("Got BK_CMD_OPEN_FILE");
+            #ifdef DEBUG
+              psp2shell_print("Got BK_CMD_OPEN_FILE");
+            #endif
         }
 
         // dont proc events while in the reload timer
@@ -146,14 +148,17 @@ int main(int argc, char* argv[]) {
             }
             case BK_CMD_INVOKE_OPEN_FILE: {
                 // add a file chooser layer
-				        string title("Open (use SQUARE to open Vietnamese chm/html)");
+				        // string title("Open (use SQUARE to open Vietnamese chm/html)");
+                string title("Bookr Mod Vita: Open File");
 				        fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
 				        layers.push_back(fs);
                 break;
             }
             case BK_CMD_OPEN_FILE: {
                 // open a file as a document
-                psp2shell_print("BK_CMD_OPEN_FILE?");
+                #ifdef DEBUG
+                  psp2shell_print("BK_CMD_OPEN_FILE?");
+                #endif
                 string s;
 
                 bool convertToVN = false;
@@ -167,7 +172,9 @@ int main(int argc, char* argv[]) {
                   fs->getFullPath(s);
                   //convertToVN = fs->isConvertToVN();
                   fs = 0;
-                  psp2shell_print("getFullPath %s\n", s.c_str());
+                  #ifdef DEBUG
+                    psp2shell_print("getFullPath %s\n", s.c_str());
+                  #endif
                 }
                 // if (command == BK_CMD_OPEN_CACHE) {
                 //   // open selected cache
@@ -192,13 +199,16 @@ int main(int argc, char* argv[]) {
                 FZScreen::swapBuffers();
                 // FZScreen::checkEvents();
                 l->release();
-                psp2shell_print("BKLogo Created\n");
-
-                // detect file type and add a new display layer
+                #ifdef DEBUG
+                  psp2shell_print("BKLogo Created\n");
+                  psp2shell_print("Pre Document::create\n");
+                #endif
                 
-                psp2shell_print("Pre Document::create\n");
+                // detect file type and add a new display layer
                 documentLayer = BKDocument::create(s);
-                psp2shell_print("Post Document::create\n");
+                #ifdef DEBUG
+                  psp2shell_print("Post Document::create\n");
+                #endif
                 if (documentLayer == 0) {
                   // error, back to logo screen
                   BKLogo* l = BKLogo::create();

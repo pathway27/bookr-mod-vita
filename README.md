@@ -1,6 +1,7 @@
 ## bookr-mod-vita
 
-A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#forks).
+A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#forks).  
+You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md).
 
 ## Building
 
@@ -61,18 +62,17 @@ Nguyen Chi Tam (nguyenchitam at gmail dot com)
 
 ## Credits
 
-The forks above.
-All the VITA hacking/dev scene
+The original and forks above.  
 
 - Team Molecule (yifan, xyzz, DaveeFTW, xerpi)
 - TheFlow
 - libvita2d - xerpi
-
 - [learnopengl.com](learnopengl.com)
 - peeps on #vitasdk on freenode
 - people that read
 
-pathway27 (Sree) - ME! - This port to VITA
+
+All the VITA hacking/dev scene.
 
 ## License
 

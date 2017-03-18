@@ -41,7 +41,9 @@ BKDocument* BKDocument::create(string& filePath) {
 	// }
 	if (doc != 0)
 	{
-		psp2shell_print("doc != 0 \n");
+		#ifdef DEBUG
+			psp2shell_print("doc != 0 \n");
+		#endif
 		// doc->buildToolbarMenus();
 
 		// if (doc->isBookmarkable()) {

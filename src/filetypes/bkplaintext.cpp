@@ -26,82 +26,93 @@ using namespace std;
 
 BKPlainText::BKPlainText() : buffer(0) { }
 BKPlainText::~BKPlainText() {
-	saveLastView();
-	if (buffer)
-		free(buffer);
+    saveLastView();
+    if (buffer)
+      free(buffer);
 }
 
 BKPlainText* BKPlainText::create(string& file) {
-	psp2shell_print("BKPlainText::create\n");
-	BKPlainText* r = new BKPlainText();
-	r->fileName = file;
+    #ifdef DEBUG
+      psp2shell_print("BKPlainText::create\n");
+    #endif
+    BKPlainText* r = new BKPlainText();
+    r->fileName = file;
 
-	// read file to memory
-	psp2shell_print("pre fopen\n");
-	FILE* f = fopen(file.c_str(), "r");
-	if (f == NULL) {
-		psp2shell_print("fopen null\n");
-		delete r;
-		return NULL;
-	}
-	psp2shell_print("post fopen\n");
+    // read file to memory
+    #ifdef DEBUG
+      psp2shell_print("pre fopen\n");
+    #endif
+    FILE* f = fopen(file.c_str(), "r");
+    if (f == NULL) {
+      #ifdef DEBUG
+        psp2shell_print("fopen null\n");
+      #endif
+      delete r;
+      return NULL;
+    }
+    #ifdef DEBUG
+      psp2shell_print("post fopen\n");
+    #endif
 
-	long length = 0;
-	fseek(f, 0, SEEK_END);
-	length = ftell(f);
-	fseek(f, 0, SEEK_SET);
-	if (length > 4*1024*1024)
-		length = 4*1024*1024;
-	char* b = (char*)malloc(length);
-	fread(b, length, 1, f);
-	fclose(f);
+    long length = 0;
+    fseek(f, 0, SEEK_END);
+    length = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    if (length > 4*1024*1024)
+      length = 4*1024*1024;
+    char* b = (char*)malloc(length);
+    fread(b, length, 1, f);
+    fclose(f);
 
-	bool isHTML = false;
-	// FIX: make the heuristic a bit more advanced than that...
-	const char* fc = file.c_str();
-	int fs = file.size();
-	if (
-		((fc[fs - 1] | 0x20) == 'l') &&
-		((fc[fs - 2] | 0x20) == 'm') &&
-		((fc[fs - 3] | 0x20) == 't') &&
-		((fc[fs - 4] | 0x20) == 'h')
-	) {
-		isHTML = true;
-	}
-	if (
-		((fc[fs - 1] | 0x20) == 'm') &&
-		((fc[fs - 2] | 0x20) == 't') &&
-		((fc[fs - 3] | 0x20) == 'h')
-	) {
-		isHTML = true;
-	}
-	
-	if (isHTML) {
-		r->buffer = BKFancyText::parseHTML(r, b, length);
-	} else {
-		r->buffer = BKFancyText::parseText(r, b, length);
-	}
+    bool isHTML = false;
+    // FIX: make the heuristic a bit more advanced than that...
+    const char* fc = file.c_str();
+    int fs = file.size();
+    if (
+      ((fc[fs - 1] | 0x20) == 'l') &&
+      ((fc[fs - 2] | 0x20) == 'm') &&
+      ((fc[fs - 3] | 0x20) == 't') &&
+      ((fc[fs - 4] | 0x20) == 'h')
+    ) {
+      isHTML = true;
+    }
+    if (
+      ((fc[fs - 1] | 0x20) == 'm') &&
+      ((fc[fs - 2] | 0x20) == 't') &&
+      ((fc[fs - 3] | 0x20) == 'h')
+    ) {
+      isHTML = true;
+    }
+    
+    if (isHTML) {
+      //r->buffer = BKFancyText::parseHTML(r, b, length);
+    } else {
+      r->buffer = BKFancyText::parseText(r, b, length);
+    }
 
-	psp2shell_print("post parse\n");
-	//r->resetFonts();
-	#ifdef PSP
-		r->resizeView(480, 272);
-	#elif defined(__vita__)
-		r->resizeView(960, 544);
-	#endif
+    #ifdef DEBUG
+      psp2shell_print("post parse\n");
+    #endif
+    
+    //r->resetFonts();
+    #ifdef PSP
+      r->resizeView(480, 272);
+    #elif defined(__vita__)
+      r->resizeView(960, 544);
+    #endif
 
-	return r;
+    return r;
 }
 
 void BKPlainText::getFileName(string& fn) {
-	fn = fileName;
+    fn = fileName;
 }
 
 void BKPlainText::getTitle(string& t) {
-	t = "FIX PLAIN TEXT TITLES";
+    t = "FIX PLAIN TEXT TITLES";
 }
 
 void BKPlainText::getType(string& t) {
-	t = "Plain text";
+  t = "Plain text";
 }
 
