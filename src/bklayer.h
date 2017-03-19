@@ -110,7 +110,6 @@ class BKLayer : public FZRefCounted {
 	static FZTexture* texUI2;
 	
 	static FZTexture* texLogo;
-	static FZTexture* genLogo;
 
 	int textW(char* t, FZFont* font);
 	int textWidthRange(char* t, int n, FZFont* font);

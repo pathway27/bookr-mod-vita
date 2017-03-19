@@ -74,7 +74,7 @@ link_directories(
 # Add all the files needed to compile here
 add_executable(bookr-mod-vita
   image.o
-  sce_sys/icon0.o
+  sce_sys/icon0_t.o
 
   src/bookr.cpp
   src/graphics/fzscreenvita.cpp

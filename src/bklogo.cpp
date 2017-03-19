@@ -75,19 +75,16 @@ void BKLogo::render() {
     #ifdef DEBUG
       psp2shell_print("bklogo draw texture");
     #endif
-    //vita2d_draw_texture(vita2d_load_PNG_buffer(&_binary_image_png_start), 0, 0);
-    vita2d_draw_texture(genLogo->vita_texture, 0, 0);
-    vita2d_draw_texture(texLogo->vita_texture, 552, 300);
 
-    FZScreen::drawText(532, 460, RGBA8(0,0,0,255), 1.0f, "Only TXTs for now.");
-    // 960
-    // 096
-    // 864
-    
-    // 504
-    // 544
+    vita2d_draw_texture(texLogo->vita_texture, 350, 150);
+    if (loading)
+        FZScreen::drawText(380, 400, RGBA8(0,0,0,255), 1.0f, "Loading...");
+    else
+        FZScreen::drawText(380, 400, RGBA8(0,0,0,255), 1.0f, "Only TXTs for now.");
+
     vita2d_draw_rectangle(96, 504, 768, 40, RGBA8(105,105,105,255)); // my cheapo drawPill
     FZScreen::drawText(255, 527, RGBA8(255,255,255,255), 1.0f, "Press Start");
+    
   #else
     genLogo->bindForDisplay();
     drawImage(0, 0, FZ_SCREEN_WIDTH, FZ_SCREEN_HEIGHT, 0, 0);

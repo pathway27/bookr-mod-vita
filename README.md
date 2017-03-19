@@ -11,6 +11,8 @@ You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 ./build.sh # Creates a build folder with vpk
+# run pngquant on all your png images if not
+# Convert images to binary: arm-vita-eabi-ld -r -b binary -o image.o image.png
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)

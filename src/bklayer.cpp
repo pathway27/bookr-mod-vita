@@ -48,7 +48,6 @@ FZFont* BKLayer::fontUTF = 0;
 FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
-FZTexture* BKLayer::genLogo = 0;
 
 extern "C" {
   extern unsigned int size_res_logo;
@@ -61,8 +60,6 @@ extern "C" {
   extern unsigned char res_uifont[];
   extern unsigned char pdf_font_DroidSansFallback_ttf_buf[];
   extern unsigned int  pdf_font_DroidSansFallback_ttf_len;
-	extern unsigned char _binary_image_png_start;
-	extern unsigned int _binary_image_png_size;
 	extern unsigned char _binary_icon0_t_png_start;
 	extern unsigned int _binary_icon0_t_png_size;
 };
@@ -72,7 +69,6 @@ void BKLayer::load() {
 		#ifdef DEBUG
 			psp2shell_print("bklayer load");
 		#endif
-		genLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_image_png_start)  );
 		texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
 	#elif defined(MAC)
 		genLogo = FZTexture::createFromSOIL("image.png");

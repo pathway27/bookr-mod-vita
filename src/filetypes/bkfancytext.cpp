@@ -375,8 +375,14 @@ char* BKFancyText::parseHTML(BKFancyText* r, char* in, int n) {
 }
 
 static vector<string> sRuns;
+static int pageNumber = 0;
+static int maxPageNumber = 0;
+static int linesPerPage = 25;
 char* BKFancyText::parseText(BKFancyText* r, char* b, int length) {
     sRuns.clear();
+    pageNumber = 0;
+    maxPageNumber = 0;
+
     // tokenize text file
     list<BKRun> tempRuns;
     int li = 0;
@@ -499,9 +505,6 @@ static int strpos(string haystack, char needle, int nth)
     return -1;
 }
 
-static int pageNumber = 0;
-static int maxPageNumber = 0;
-static int linesPerPage = 25;
 void BKFancyText::renderContent() {
     FZScreen::clear(BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
     FZScreen::color(0xffffffff);

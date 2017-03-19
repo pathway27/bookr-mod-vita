@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
             case BK_CMD_INVOKE_OPEN_FILE: {
                 // add a file chooser layer
 				        // string title("Open (use SQUARE to open Vietnamese chm/html)");
-                string title("Bookr Mod Vita: Open File");
+                string title("Bookr Mod Vita: Open File       Triangle: Parent Folder");
 				        fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
 				        layers.push_back(fs);
                 break;

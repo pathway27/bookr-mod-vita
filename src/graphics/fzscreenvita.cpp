@@ -47,8 +47,9 @@
 #include "fzscreen.h"
 #include "fztexture.h"
 
-extern unsigned char _binary_image_png_start;
-extern unsigned char _binary_icon0_t_png_start;
+#ifdef GENKIHEN
+  extern unsigned char _binary_image_png_start;
+#endif
 
 static bool closing = false;
 
@@ -106,6 +107,9 @@ static void * ptr_align64_uncached(unsigned long ptr) {
 static string psp_full_path;
 static vita2d_pgf *pgf;
 static vita2d_pvf *pvf;
+#ifdef GENKIHEN
+  static FZTexture* genLogo;
+#endif
 static void initalDraw() {
     vita2d_start_drawing();
     vita2d_clear_screen();
@@ -118,7 +122,17 @@ static void initalDraw() {
 
     vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
 
+    #ifdef GENKIHEN
+      vita2d_draw_texture(genLogo->vita_texture, 0, 0);
+    #endif
+
     vita2d_end_drawing();
+    vita2d_swap_buffers();
+
+    // Show Genkihen splash for 2 seconds.
+    #ifdef GENKIHEN
+      sceKernelDelayThread(2*1000000);
+    #endif
 }
 
 // Move this to constructor?
@@ -128,6 +142,8 @@ void FZScreen::open(int argc, char** argv) {
 
     pgf = vita2d_load_default_pgf();
     pvf = vita2d_load_default_pvf();
+    genLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_image_png_start)  );
+
     psp_full_path = "ux0:";
 
     initalDraw();
