@@ -46,8 +46,7 @@ So bookr uses the GNU GPLv2+ which requires
 - Include License (LICENSE in this repo)
 
 So for the things i change i'm adding my copright and a notice of modification before the GPL notice.  
-[Some](http://stackoverflow.com/questions/11670368/gpl-copyright-notice-when-contributing-new-file)
-[links](http://softwareengineering.stackexchange.com/questions/157968/how-to-manage-a-copyright-notice-in-an-open-source-project
+[Some](http://stackoverflow.com/questions/11670368/gpl-copyright-notice-when-contributing-new-file) [links](http://softwareengineering.stackexchange.com/questions/157968/how-to-manage-a-copyright-notice-in-an-open-source-project)
 
 
 ## Macro definitions

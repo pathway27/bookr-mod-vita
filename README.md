@@ -3,6 +3,12 @@
 A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#forks).  
 You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md).
 
+TODO:
+
+- Custom Fonts
+- HTML
+- PDF
+
 ## Building
 
 ### For VITA (on *nix)
@@ -11,8 +17,8 @@ You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 ./build.sh # Creates a build folder with vpk
-# run pngquant on all your png images if not
-# Convert images to binary: arm-vita-eabi-ld -r -b binary -o image.o image.png
+# run pngquant on all your png images if not done already
+# Convert images used in app to binary: arm-vita-eabi-ld -r -b binary -o image.o image.png
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
