@@ -75,6 +75,8 @@ link_directories(
 add_executable(bookr-mod-vita
   image.o
   sce_sys/icon0_t.o
+  data/fonts/res_txtfont.c
+  data/fonts/res_uifont.c
 
   src/bookr.cpp
   src/graphics/fzscreenvita.cpp
