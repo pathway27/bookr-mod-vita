@@ -1,0 +1,26 @@
+TARGET_LIB=libfonts.a
+OBJS:=Dingbats.o             NimbusMonL-ReguObli.o     NimbusRomNo9L-ReguItal.o  NimbusSanL-ReguItal.o
+OBJS+=NimbusMonL-Bold.o      NimbusRomNo9L-Medi.o      NimbusSanL-Bold.o         StandardSymL.o
+OBJS+=NimbusMonL-BoldObli.o  NimbusRomNo9L-MediItal.o  NimbusSanL-BoldItal.o     URWChanceryL-MediItal.o
+OBJS+=NimbusMonL-Regu.o      NimbusRomNo9L-Regu.o      NimbusSanL-Regu.o
+
+INCDIR  = ../include
+PREFIX ?= ${VITASDK}/arm-vita-eabi
+CC      = arm-vita-eabi-gcc
+AR      = arm-vita-eabi-ar
+
+CFLAGS    = -Wl,-q -Wall -O3 -I$(INCDIR) -I$(VITASDK)/arm-vita-eabi/include/freetype2
+CXXFLAGS  = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS   = $(CFLAGS)
+
+LIBDIR=
+LDFLAGS=
+
+all: $(TARGET_LIB)
+
+$(TARGET_LIB): $(OBJS)
+	$(AR) -rc $@ $^
+
+clean:
+	rm -f  $(TARGET_LIB)
+	rm -Rf *.o

@@ -1,0 +1,29 @@
+TARGET_LIB=libapps.a
+OBJS:=pdfapp.o
+
+CXX=g++
+CC=gcc
+OEX=o
+AR=ar
+ARFLAGS=rc
+
+CXXFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+CFLAGS=-I../include -g3 -Wall -W -Wno-unused -O0 -pipe `freetype-config --cflags`
+
+all: $(TARGET_LIB)
+
+%.a: $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+	ranlib $@
+	cp $@ ../libs
+
+%.$(OEX): %.cpp
+	$(CXX) $(CXXFLAGS) $< -c -o $@
+
+%.$(OEX): %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+clean:
+	rm -f  $(TARGET_LIB)
+	rm -Rf *.o
+	rm -f gmon.out

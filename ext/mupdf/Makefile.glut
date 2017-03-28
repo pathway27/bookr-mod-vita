@@ -1,0 +1,18 @@
+all:
+	@(cd base; make -f Makefile.glut)
+	@(cd fonts; make -f Makefile.glut)
+	@(cd mupdf; make -f Makefile.glut)
+	@(cd raster; make -f Makefile.glut)
+	@(cd stream; make -f Makefile.glut)
+	@(cd world; make -f Makefile.glut)
+#	@(cd apps; make -f Makefile.glut)
+
+clean:
+	@(cd base; make -f Makefile.glut clean)
+	@(cd fonts; make -f Makefile.glut clean)
+	@(cd mupdf; make -f Makefile.glut clean)
+	@(cd raster; make -f Makefile.glut clean)
+	@(cd stream; make -f Makefile.glut clean)
+	@(cd world; make -f Makefile.glut clean)
+#	@(cd apps; make -f Makefile.glut clean)
+	@(cd libs; rm *.a)

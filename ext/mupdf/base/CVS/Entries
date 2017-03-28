@@ -1,0 +1,14 @@
+/Makefile/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/Makefile.glut/1.2/Thu Nov 22 22:54:16 2007/-ko/
+/base_cleanname.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/base_cpudep.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/base_error.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/base_hash.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/base_matrix.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/base_memory.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/base_rect.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/base_rune.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/util_getopt.c/1.1/Wed Sep 28 13:25:16 2005/-ko/
+/util_strlcat.c/1.2/Fri Nov 11 07:32:54 2005/-ko/
+/util_strlcpy.c/1.2/Fri Nov 11 07:32:54 2005/-ko/
+/util_strsep.c/1.1/Wed Sep 28 13:25:16 2005/-ko/

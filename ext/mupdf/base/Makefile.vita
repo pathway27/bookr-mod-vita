@@ -1,0 +1,25 @@
+TARGET_LIB = libbase.a
+OBJS       = base_cleanname.o base_hash.o base_rect.o base_cpudep.o base_matrix.o \
+             base_rune.o util_getopt.o util_strsep.o base_error.o base_memory.o
+
+INCDIR     = ../include
+
+PREFIX ?= ${VITASDK}/arm-vita-eabi
+CC      = arm-vita-eabi-gcc
+AR      = arm-vita-eabi-ar
+
+CFLAGS    = -Wl,-q -Wall -O3 -I$(INCDIR) -I$(VITASDK)/arm-vita-eabi/include/freetype2
+CXXFLAGS  = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS   = $(CFLAGS)
+
+LIBDIR=
+LDFLAGS=
+
+all: $(TARGET_LIB)
+
+$(TARGET_LIB): $(OBJS)
+	$(AR) -rc $@ $^
+
+clean:
+	rm -f  $(TARGET_LIB)
+	rm -Rf *.o

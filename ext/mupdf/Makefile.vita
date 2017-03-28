@@ -1,0 +1,18 @@
+all:
+	@(cd base; make -f Makefile.vita; cp libbase.a ../libs)
+	@(cd fonts; make -f Makefile.vita; cp libfonts.a ../libs)
+	@(cd mupdf; make -f Makefile.vita; cp libmupdf.a ../libs)
+	@(cd raster; make -f Makefile.vita; cp libraster.a ../libs)
+	@(cd stream; make -f Makefile.vita; cp libstream.a ../libs)
+	@(cd world; make -f Makefile.vita; cp libworld.a ../libs)
+#	@(cd apps; make -f Makefile.vita; cp libapps.a ../libs)
+
+clean:
+	@(cd base; make -f Makefile.vita clean)
+	@(cd fonts; make -f Makefile.vita clean)
+	@(cd mupdf; make -f Makefile.vita clean)
+	@(cd raster; make -f Makefile.vita clean)
+	@(cd stream; make -f Makefile.vita clean)
+	@(cd world; make -f Makefile.vita clean)
+#	@(cd apps; make -f Makefile.vita clean)
+	@(cd libs; rm *.a)

@@ -1,0 +1,26 @@
+TARGET_LIB=libworld.a
+OBJS:=node_toxml.o node_misc1.o node_misc2.o node_optimize.o node_path.o node_text.o node_tree.o
+OBJS+=res_colorspace.o res_font.o res_image.o res_shade.o
+
+INCDIR=../include
+
+PREFIX ?= ${VITASDK}/arm-vita-eabi
+CC      = arm-vita-eabi-gcc
+AR      = arm-vita-eabi-ar
+
+CFLAGS    = -Wl,-q -Wall -O3 -I$(INCDIR) -I$(VITASDK)/arm-vita-eabi/include/freetype2
+CXXFLAGS  = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS   = $(CFLAGS)
+
+LIBDIR=
+LDFLAGS=
+LIBS=
+
+all: $(TARGET_LIB)
+
+$(TARGET_LIB): $(OBJS)
+	$(AR) -rc $@ $^
+
+clean:
+	rm -f  $(TARGET_LIB)
+	rm -Rf *.o
