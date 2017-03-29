@@ -1,9 +1,10 @@
 # Motivations
 
-Learning C++
-Programming the Vita
-Porting experience
+Learning C++  
+Programming the Vita  
+Porting experience  
 Graphics Programming
+
 
 Note: I am a web developer professionally so besides my uni c++ i haven't used it much.
 
@@ -28,7 +29,7 @@ overwhelmed.
 ```
   data              - should have all images and external resources, should also subdivide into vita/psp
   ext               - external libraries used statically by bookr
-  sce_sys           - vita resources
+  sce_sys           - vita resources, should refactor into data/vita
   src               - main directory for c++ source files
     filetypes       - classes for specific filetypes for books
     graphics        - has main rendering, texture classes and shaders (eventually)
@@ -124,6 +125,11 @@ So it seems like most applications share the same paradigm of
 Looks like bookr used the old fixed-pipeline version of OpenGL which has been depricated.  
 Replacing it with a good programmable-pipeline abstraction feels hard.  
 Got a cool shader class so far. 
+
+### MuPDF
+
+The general idea seems to be to read the file and store it in a pixmap buffer.
+Then put the pixmap buffer into a texture which you can render.
 
 ### Bitwise Operations
 
