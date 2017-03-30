@@ -51,6 +51,7 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   "${CMAKE_SOURCE_DIR}/src"
   "$ENV{VITASDK}/arm-vita-eabi/include/freetype2"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
 )
 
 # Debug CMAKE/ENV variables
@@ -67,6 +68,7 @@ execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
 link_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/libs"
 )
 
 
@@ -100,17 +102,26 @@ add_executable(bookr-mod-vita
   src/bkdocument.cpp
   src/bkbookmark.cpp
   src/filetypes/bkfancytext.cpp
+  src/filetypes/bkplaintext.cpp
+  src/filetypes/bkpdf.cpp
   # src/filetypes/bkdjvu.cpp
   # src/filetypes/bkpalmdoc.cpp
-  src/filetypes/bkplaintext.cpp
+  
   # src/
 )
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
 #-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \ -lSceNetCtl_stub -lSceKernel_stub -lScePower_stub -lSceAppMgr_stub
+#mupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm 
 target_link_libraries(bookr-mod-vita
   vita2d
   freetype
+  mupdf
+  raster
+  world
+  fonts
+  stream
+  base
   psp2shell
   SceDisplay_stub
   SceGxm_stub
