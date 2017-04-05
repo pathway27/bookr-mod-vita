@@ -98,8 +98,8 @@ void BKMainMenu::rebuildMenu() {
 }
 
 void BKMainMenu::buildMainMenu() {
-	mainItems.push_back(BKMenuItem("Open file", "Select", 0));
-	mainItems.push_back(BKMenuItem("Browse chm cache", "Select", 0));
+	mainItems.push_back(BKMenuItem("Open File", "Select", 0));
+	mainItems.push_back(BKMenuItem("Browse chm Cache", "Select", 0));
 	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
 	mainItems.push_back(BKMenuItem("Options", "Select", 0));
 	mainItems.push_back(BKMenuItem("About", "Select", 0));
