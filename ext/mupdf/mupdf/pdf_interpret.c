@@ -223,7 +223,7 @@ runextgstate(pdf_gstate *gstate, pdf_xref *xref, fz_obj *extgstate)
 			{
 				gstate->font = pdf_finditem(xref->store, PDF_KFONT, fz_arrayget(val, 0));
 				if (!gstate->font)
-					return fz_throw("syntaxerror: missing font resource");
+					return fz_throw("syntaxerror: missing font resource 226");
 				gstate->size = fz_toreal(fz_arrayget(val, 1));
 			}
 			else
@@ -646,15 +646,15 @@ Lsetcolor:
 
 			dict = fz_dictgets(rdb, "Font");
 			if (!dict)
-				return fz_throw("syntaxerror: missing font resource");
+				return fz_throw("syntaxerror: missing font resource 649");
 
 			obj = fz_dictget(dict, csi->stack[0]);
 			if (!obj)
-				return fz_throw("syntaxerror: missing font resource");
+				return fz_throw("syntaxerror: missing font resource 653");
 
 			gstate->font = pdf_finditem(xref->store, PDF_KFONT, obj);
 			if (!gstate->font)
-				return fz_throw("syntaxerror: missing font resource");
+				return fz_throw("syntaxerror: missing font resource 657"); //here
 
 			gstate->size = fz_toreal(csi->stack[1]);
 		}

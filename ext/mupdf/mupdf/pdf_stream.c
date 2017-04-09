@@ -387,7 +387,7 @@ pdf_openrawstream(fz_stream **stmp, pdf_xref *xref, int oid, int gen)
 		return nil;
 	}
 
-	return fz_throw("syntaxerror: object is not a stream");
+	return fz_throw("syntaxerror: object is not a stream 390");
 }
 
 /*
@@ -453,7 +453,7 @@ pdf_openstream(fz_stream **stmp, pdf_xref *xref, int oid, int gen)
 		return nil;
 	}
 
-	return fz_throw("syntaxerror: object is not a stream");
+	return fz_throw("syntaxerror: object is not a stream 456");
 }
 
 /*

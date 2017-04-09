@@ -5,7 +5,9 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-//#include <freetype/internal/ftobjs.h>
+#ifdef FT_FONT_FORMATS_H
+	#include FT_FONT_FORMATS_H
+#endif
 
 static char *basefontnames[14][7] =
 {
@@ -45,16 +47,11 @@ enum { UNKNOWN, TYPE1, CFF, TRUETYPE, CID };
 
 static int ftkind(FT_Face face)
 {
-	//const char *kind = face->driver->clazz->root.module_name;
-	//pdf_logfont("ft driver %s\n", kind);
-	//if (!strcmp(kind, "type1"))
-	//	return TYPE1;
-	//if (!strcmp(kind, "cff"))
-	//	return CFF;
-	//if (!strcmp(kind, "truetype"))
-	//	return TRUETYPE;
-	//if (!strcmp(kind, "t1cid"))
-	//	return CID;
+	const char *kind = FT_Get_Font_Format(face);
+	if (!strcmp(kind, "TrueType")) return TRUETYPE;
+	if (!strcmp(kind, "Type 1")) return TYPE1;
+	if (!strcmp(kind, "CFF")) return TYPE1;
+	if (!strcmp(kind, "CID Type 1")) return TYPE1;
 	return UNKNOWN;
 }
 

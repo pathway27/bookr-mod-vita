@@ -359,7 +359,7 @@ fz_error *
 pdf_uncacheobject(pdf_xref *xref, int oid, int gen)
 {
 	pdf_xrefentry *x;
-//	int prev;
+	// int prev;
 
 	if (oid < 0 || oid >= xref->len)
 		return fz_throw("rangecheck: object number out of range: %d", oid);
@@ -369,8 +369,8 @@ pdf_uncacheobject(pdf_xref *xref, int oid, int gen)
 	x = xref->table + oid;
 
 	x->type = 'n';
-//	x->ofs = findnext(xref, oid);
-//	x->gen ++;
+	// x->ofs = findnext(xref, oid);
+	// x->gen ++;
 
 	if (x->stmbuf)
 		fz_dropbuffer(x->stmbuf);
@@ -380,9 +380,9 @@ pdf_uncacheobject(pdf_xref *xref, int oid, int gen)
 		fz_dropobj(x->obj);
 	x->obj = nil;
 
-//	prev = findprev(xref, oid);
-//	xref->table[prev].type = 'd';
-//	xref->table[prev].ofs = oid;
+	// prev = findprev(xref, oid);
+	// xref->table[prev].type = 'd';
+	// xref->table[prev].ofs = oid;
 
 	return nil;
 }
