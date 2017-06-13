@@ -71,7 +71,7 @@ void BKLayer::load() {
 		#endif
 		texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
 	#elif defined(MAC)
-		genLogo = FZTexture::createFromSOIL("image.png");
+		// genLogo = FZTexture::createFromSOIL("image.png");
 		texLogo = FZTexture::createFromSOIL("sce_sys/icon0_t.png");
 	#elif defined(PSP)
 		// if (!fontBig){

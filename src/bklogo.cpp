@@ -86,8 +86,8 @@ void BKLogo::render() {
     FZScreen::drawText(255, 527, RGBA8(255,255,255,255), 1.0f, "Press Start");
     
   #else
-    genLogo->bindForDisplay();
-    drawImage(0, 0, FZ_SCREEN_WIDTH, FZ_SCREEN_HEIGHT, 0, 0);
+    // genLogo->bindForDisplay();
+    // drawImage(0, 0, FZ_SCREEN_WIDTH, FZ_SCREEN_HEIGHT, 0, 0);
     texLogo->bindForDisplay();
     drawImage(76, 360, 128, 128, 0, 0);
   #endif

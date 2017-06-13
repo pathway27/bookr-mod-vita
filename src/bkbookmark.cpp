@@ -60,14 +60,14 @@ static void clearXML() {
 	doc->InsertFirstChild(root);
 	
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
 
 	doc->SaveFile(xmlfilename);
 }
 
 static void loadXML() {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
 
 	if (doc != 0)
 		delete doc;
@@ -95,7 +95,7 @@ static void loadXML() {
 
 static void saveXML() {
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath(), BOOKMARK_XML);
+	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
 
 	if (doc != 0) {
 		doc->SaveFile(xmlfilename);
