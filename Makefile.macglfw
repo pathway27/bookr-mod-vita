@@ -27,12 +27,19 @@ LIBS+=-lSOIL#-lmupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm
 
 EXE=bookr.glfw
 
-all: $(EXE)
+.PHONY: clean all bookrconfig.h
+
+all: bookrconfig.h $(EXE)
+
+bookrconfig.h:
+	@cat bookrconfig.h.in | sed 's/@GIT_VERSION@/'`git rev-parse HEAD`'/' > src/bookrconfig.h
 
 OBJS:=src/bookr.o src/bkuser.o src/graphics/fzscreenglfw.o src/graphics/shaders/shader.o
 OBJS+=src/graphics/fzrefcount.o src/graphics/fzimage.o src/graphics/fztexture.o
 OBJS+=src/graphics/fzinstreammem.o src/graphics/fzfont.o src/graphics/fzscreencommon.o src/bklayer.o
 OBJS+=src/bklogo.o
+OBJS+=src/bkpopup.o src/bkfilechooser.o src/bkmainmenu.o src/bkdocument.o src/bkbookmark.o
+OBJS+=src/filetypes/bkplaintext.o src/filetypes/bkfancytext.o
 #OBJS:= bkpdf.o  bkdocument.o bkmainmenu.o bkfilechooser.o bkpagechooser.o bkcolorschememanager.o  bkuser.o bookr.o bkbookmark.o bkpopup.o bkcolorchooser.o bkdjvu.o bkfancytext.o bkplaintext.o bkpalmdoc.o palmdoc/palm.o
 #OBJS+= tinystr.o tinyxmlerror.o tinyxml.o tinyxmlparser.o
 #OBJS+= res_uifont.o res_txtfont.o res_uitex.o res_logo.o res_uitex2.o 
@@ -42,7 +49,7 @@ OBJS+=src/bklogo.o
 	
 $(EXE): $(OBJS)
 	@(cd ext/tinyxml2; make)
-	$(CLINK) $(LDFLAGS) $(OBJS) $(LIBS) -o $@
+	$(CLINK) $(LDFLAGS) ${INCS} $(OBJS) $(LIBS) -o $@
 %.$(OEX): %.cpp
 	$(CXX) $(CXXFLAGS) $< -c -o $@
 

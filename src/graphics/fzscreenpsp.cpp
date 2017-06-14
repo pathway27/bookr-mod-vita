@@ -383,7 +383,7 @@ struct CompareDirent {
 	}
 };
 
-int FZScreen::dirContents(char* path, vector<FZDirent>& a) {
+int FZScreen::dirContents(const char* path, vector<FZDirent>& a) {
 	SceUID fd;
 	SceIoDirent *findData;
 	findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent));	// dont ask me WHY...

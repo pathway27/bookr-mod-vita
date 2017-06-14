@@ -397,6 +397,11 @@ int FZScreen::readCtrl() {
     return keyState;
 }
 
+void FZScreen::getAnalogPad(int& x, int& y) {
+	x = 128;
+	y = 128;
+}
+
 void FZScreen::swapBuffers() {
     glfwSwapBuffers(window);
 }
@@ -501,7 +506,7 @@ struct CompareDirent {
     }
 };
 
-int FZScreen::dirContents(const char* path, char* spath, vector<FZDirent>& a) {
+int FZScreen::dirContents(const char* path, vector<FZDirent>& a) {
 }
 
 int FZScreen::getSuspendSerial() {

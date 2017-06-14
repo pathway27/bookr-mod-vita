@@ -9,3 +9,6 @@ Release
 *.sfo
 
 out/*
+
+bookr.glfw
+src/bookrconfig.h

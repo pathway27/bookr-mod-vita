@@ -7,32 +7,50 @@
                 "/usr/include",
                 "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include",
                 "/usr/local/vitasdk/arm-vita-eabi/include",
-                "/usr/local/Cellar/glm/0.9.8.3/include/glm"],
-            "browse" : {
-                "limitSymbolsToIncludedHeaders" : true,
-                "databaseFilename" : ""
+                "/usr/local/Cellar/glm/0.9.8.3/include/glm"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "/usr/local/include",
+                    "/usr/include",
+                    "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include",
+                    "/usr/local/vitasdk/arm-vita-eabi/include",
+                    "/usr/local/Cellar/glm/0.9.8.3/include/glm"
+                ]
             }
         },
         {
             "name": "Linux",
-            "includePath": ["/usr/include"],
-            "browse" : {
-                "limitSymbolsToIncludedHeaders" : true,
-                "databaseFilename" : ""
+            "includePath": [
+                "/usr/include"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "/usr/include"
+                ]
             }
         },
         {
             "name": "Win32",
-            "includePath": ["c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include"],
-            "browse" : {
-                "limitSymbolsToIncludedHeaders" : true,
-                "databaseFilename" : ""
+            "includePath": [
+                "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include"
+                ]
             }
         }
     ],
-    "clang_format" : {
-        "style" : "file",
-        "fallback-style" : "LLVM",
-        "sort-includes" : false
+    "clang_format": {
+        "style": "file",
+        "fallback-style": "LLVM",
+        "sort-includes": false
     }
 }
