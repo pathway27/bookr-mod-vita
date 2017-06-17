@@ -11,7 +11,7 @@ ARFLAGS=r
 DEFS = -DMAC
 INCS:= -Isrc -Iext/tinyxml2 -Iext/SOIL -Isrc/graphics/shaders #-Imupdf/include -Idjvu/libdjvupsp  `freetype-config --cflags`
 INCS+= -I/usr/local/include/glm -I/usr/X11/include/freetype2
-OPTS = -g3 -Wall -W -Wno-unused -O0 -pipe
+OPTS = -g3 -Wall -W -Wno-unused -Wno-non-pod-varargs -O0 -pipe
 
 #-Lmupdf/libs -Ldjvu/libs -L/sw/lib
 LIBDIRS =  -L/usr/X11/lib -Lext/tinyxml2

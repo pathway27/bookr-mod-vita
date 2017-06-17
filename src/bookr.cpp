@@ -61,8 +61,8 @@ int main(int argc, char* argv[]) {
     bkLayers layers;
     BKFileChooser* fs = 0;
     BKMainMenu* mm = BKMainMenu::create();
-    layers.push_back(BKLogo::create());
-    layers.push_back(mm);
+    //layers.push_back(BKLogo::create());
+    //layers.push_back(mm);
 
     std::cout << "Hi" << std::endl;  
 
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     bool dirty = true;
     bool exitApp = false;
     int reloadTimer = 0;
-    while (!exitApp) {
+    while ( !exitApp )  {
         // psp2shell_print("while entered");
         // draw state to back buffer
         if (dirty) {
@@ -101,10 +101,18 @@ int main(int argc, char* argv[]) {
         //std::cout << buttons << std::endl;
         dirty = buttons != 0;
 
+        #ifdef MAC
+          if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
+              break;
+        #endif
+
         // // the last layer always owns the input focus
         bkLayersIt it(layers.end());
         --it;
         int command = 0;
+
+        //if ((*it) == nullptr)
+        continue;
         // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs		
         command = (*it)->update(buttons);
         if (command == BK_CMD_OPEN_FILE) {
