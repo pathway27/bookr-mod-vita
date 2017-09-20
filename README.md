@@ -38,10 +38,11 @@ make -f Makefile.macglfw
 ./bookr.glut
 ```
 
-### For PSP
+### For Windows
 
 ```
-TODO
+Open the solution file in Visual Studio
+Change to Folder View and run to make bookr-mod-vita.exe
 ```
 
 ## Installation
