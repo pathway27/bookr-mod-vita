@@ -62,6 +62,31 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
 add_subdirectory(ext/tinyxml2)
 
+set(COMMON_SRCS
+  	src/bookr.cpp
+	  src/graphics/fzscreencommon.cpp
+
+	  src/bkuser.cpp
+
+	  #texture image refcounted
+	  src/graphics/fzrefcount.cpp
+	  src/graphics/fzimage.cpp
+	  src/graphics/fztexture.cpp
+
+	  src/graphics/fzfont.cpp
+	  src/graphics/fzinstreammem.cpp
+	  src/bklayer.cpp
+	  src/bklogo.cpp
+	  src/bkmainmenu.cpp
+	  src/bkpopup.cpp
+	  src/bkfilechooser.cpp
+
+	  src/bkdocument.cpp
+	  src/bkbookmark.cpp
+	  src/filetypes/bkfancytext.cpp
+	  src/filetypes/bkplaintext.cpp
+)
+
 if (WIN32)
   include_directories(
 	  ${CMAKE_BINARY_DIR}
@@ -88,38 +113,9 @@ if (WIN32)
   ## Build and link
   # Add all the files needed to compile here
   add_executable(bookr-mod-vita
-	  #data/fonts/res_txtfont.c
-	  #data/fonts/res_uifont.c
-	  src/graphics/shaders/shader.cpp
-
-	  src/bookr.cpp
+	  ${COMMON_SRCS}
+    src/graphics/shaders/shader.cpp
 	  src/graphics/fzscreenglfw.cpp
-	  src/graphics/fzscreencommon.cpp
-
-	  src/bkuser.cpp
-
-	  #texture image refcounted
-	  src/graphics/fzrefcount.cpp
-	  src/graphics/fzimage.cpp
-	  src/graphics/fztexture.cpp
-
-	  src/graphics/fzfont.cpp
-	  src/graphics/fzinstreammem.cpp
-	  src/bklayer.cpp
-	  src/bklogo.cpp
-	  src/bkmainmenu.cpp
-	  src/bkpopup.cpp
-	  src/bkfilechooser.cpp
-
-	  src/bkdocument.cpp
-	  src/bkbookmark.cpp
-	  src/filetypes/bkfancytext.cpp
-	  src/filetypes/bkplaintext.cpp
-	  #src/filetypes/bkpdf.cpp
-	  # src/filetypes/bkdjvu.cpp
-	  # src/filetypes/bkpalmdoc.cpp
-  
-	  # src/
   )
 
 
@@ -132,6 +128,96 @@ if (WIN32)
 	  #freetype6.dll
 	  tinyxml2
 	  SOIL
+  )
+else()
+  # Add any additional include paths here
+  include_directories(
+    ${CMAKE_BINARY_DIR}
+    "${CMAKE_SOURCE_DIR}/src"
+    "$ENV{VITASDK}/arm-vita-eabi/include/freetype2"
+    "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
+  )
+
+  # Debug CMAKE/ENV variables
+  get_cmake_property(_variableNames VARIABLES)
+  foreach (_variableName ${_variableNames})
+     message(STATUS "${_variableName}=${${_variableName}}")
+  endforeach()
+  execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+  add_definitions(-DDEBUG)
+  #add_definitions(-DGENKIHEN)
+
+	
+  # Add any additional library paths here
+  # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
+  link_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
+    "${CMAKE_SOURCE_DIR}/ext/mupdf/libs"
+  )
+
+
+  ## Build and link
+  # Add all the files needed to compile here
+  add_executable(bookr-mod-vita
+    ${COMMON_SRCS}
+    
+    image.o
+    sce_sys/icon0_t.o
+    data/fonts/res_txtfont.c
+    data/fonts/res_uifont.c
+
+    src/graphics/fzscreenvita.cpp
+    
+    src/filetypes/bkpdf.cpp
+  )
+
+  # Library to link to (drop the -l prefix). This will mostly be stubs.
+  #-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \ -lSceNetCtl_stub -lSceKernel_stub -lScePower_stub -lSceAppMgr_stub
+  #mupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm 
+  target_link_libraries(bookr-mod-vita
+    vita2d
+    mupdf
+    freetype
+    raster
+    world
+    fonts
+    stream
+    base
+    psp2shell
+    SceDisplay_stub
+    SceGxm_stub
+    SceSysmodule_stub
+    SceCtrl_stub
+    ScePgf_stub
+    ScePvf_stub
+    SceCommonDialog_stub
+    ScePower_stub
+    SceCpuForKernel_stub
+    SceNet_stub # these four and psp2shell for debug
+    SceNetCtl_stub
+    SceAppMgr_stub
+    SceLibKernel_stub
+    png
+    jpeg
+    z
+    m
+    c
+    tinyxml2
+  )
+
+  ## Create Vita files
+  vita_create_self(eboot.bin bookr-mod-vita
+  #  UNSAFE
+  )
+  # The FILE directive lets you add additional files to the VPK, the syntax is
+  # FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
+  vita_create_vpk(bookr-mod-vita.vpk ${VITA_TITLEID} eboot.bin
+    VERSION ${VITA_VERSION}
+    NAME ${VITA_APP_NAME}
+    FILE sce_sys/icon0.png sce_sys/icon0.png
+    FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+    FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+    FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
   )
 endif (WIN32)
 
