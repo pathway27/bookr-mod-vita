@@ -11,6 +11,7 @@
 #include <iostream>
 #include <map>
 
+#define GLEW_STATIC
 #include <GL/glew.h>
 
 class Shader
