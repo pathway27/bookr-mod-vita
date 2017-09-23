@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     bkLayers layers;
     BKFileChooser* fs = 0;
     BKMainMenu* mm = BKMainMenu::create();
-    //layers.push_back(BKLogo::create());
+    layers.push_back(BKLogo::create());
     //layers.push_back(mm);
 
     std::cout << "Hi" << std::endl;  
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
         //std::cout << buttons << std::endl;
         dirty = buttons != 0;
 
-        #ifdef MAC
+        #if defined(MAC) || defined(WIN32)
           if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
               break;
         #endif
