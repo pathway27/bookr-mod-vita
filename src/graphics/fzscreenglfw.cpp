@@ -27,14 +27,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <cstring>
-#include <time.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <sys/stat.h>
+#ifdef MAC
+  #include <stdlib.h>
+  #include <dirent.h>
+  #include <string.h>
+  #include <stdio.h>
+  #include <cstring>
+  #include <time.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+#endif
 
 #include <iostream>
 
@@ -98,16 +100,18 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 break;
             case GLFW_KEY_W:
                 keyState |= FZ_CTRL_UP;
-                glClearColor(0.2f, 0.0f, 0.0f, 1.0f);
+                glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 break;
             case GLFW_KEY_S:
                 keyState |= FZ_CTRL_DOWN; 
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                glClearColor(0.0f, 1.0f, 0.3f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 break;
             case GLFW_KEY_A:
                 keyState |= FZ_CTRL_LEFT;
+                glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
                 break;
             case GLFW_KEY_D: {
                 keyState |= FZ_CTRL_RIGHT;
@@ -189,87 +193,6 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
             }
             case GLFW_KEY_K: {
                 keyState |= FZ_CTRL_SQUARE; 
-                
-                // Configure VAO/VBO
-                GLuint VAO, VBO;
-                GLfloat vertices[] = { 
-                    // Pos      // Tex
-                    0.0f, 1.0f, 0.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f, 0.0f,
-                    0.0f, 0.0f, 0.0f, 0.0f, 
-                
-                    0.0f, 1.0f, 0.0f, 1.0f,
-                    1.0f, 1.0f, 1.0f, 1.0f,
-                    1.0f, 0.0f, 1.0f, 0.0f
-                };
-
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                
-                
-                glBindVertexArray(VAO);
-                  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-                  glEnableVertexAttribArray(0);
-                  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-                glBindVertexArray(0);
-                
-                Shader ourShader("src/graphics/shaders/textures.vert.orig", 
-                                 "src/graphics/shaders/textures.frag.orig");
-                glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(940), 
-                    static_cast<GLfloat>(544), 0.0f, -1.0f, 1.0f);
-
-                glUniform1i(glGetUniformLocation(ourShader.Program, "image"), 0);
-                glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-                // Load textures
-                glGenTextures(1, &texture);
-                glBindTexture(GL_TEXTURE_2D, texture);
-                  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-                  unsigned char* image = SOIL_load_image("sce_sys/icon0_t.png", &width, &height, 0, SOIL_LOAD_RGB);
-                  glClearColor(0.0, 0.0, 0.0, 0.0);
-                  glClear(GL_COLOR_BUFFER_BIT);
-                  
-                  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-                  glGenerateMipmap(GL_TEXTURE_2D);
-
-                  SOIL_free_image_data(image);
-                glBindTexture(GL_TEXTURE_2D, 0);
-
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                //glBindTexture(GL_TEXTURE_2D, texture);
-                // Texture2D &texture,                                       glm::vec2 position, glm::vec2 size, GLfloat rotate, glm::vec3 color
-                // Renderer->DrawSprite(ResourceManager::GetTexture("face"), glm::vec2(200, 200), glm::vec2(300, 400), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-                glBindTexture(GL_TEXTURE_2D, texture);
-                ourShader.Use();
-                // glm::mat4 model;
-                
-                // model = glm::translate(model, glm::vec3(glm::vec2(0, 0), 0.0f));  
-
-                // glm::vec2 size = glm::vec2(300, 400);
-                // model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); 
-                // model = glm::rotate(model, 45.0f, glm::vec3(0.0f, 0.0f, 1.0f)); 
-                // model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
-
-                // model = glm::scale(model, glm::vec3(size, 1.0f)); 
-              
-                // this->shader.SetMatrix4("model", model);
-                // glUniformMatrix4fv(glGetUniformLocation(ourShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-                // this->shader.SetVector3f("spriteColor", color);
-                // glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
-                // glUniform3f(glGetUniformLocation(ourShader.Program, "spriteColor"), color.x, color.y, color.z);
-              
-                //glActiveTexture(GL_TEXTURE0);
-                
-
-                glBindVertexArray(VAO);
-                  glDrawArrays(GL_TRIANGLES, 0, 6);
-                glBindVertexArray(0);
-                
                 break;
             }
             case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
@@ -329,8 +252,8 @@ static void loadShaders() {
     };
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    VBOs["texture"] = VBO;
-    VAOs["texture"] = VAO;
+    //VBOs["texture"] = VBO;
+	//VAOs["texture"] = VAO;
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -365,6 +288,8 @@ void FZScreen::open(int argc, char** argv) {
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK)
         cout << "Failed to initialize GLEW" << endl;
+    if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
+      cout << "Failed to initialize GLEW_VERSION_2_1" << endl;
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -439,11 +364,11 @@ void FZScreen::drawArray() {
     //glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 1, GL_FALSE, glm::value_ptr(color)); 
     glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 0.0f, 1.0f, 0.0f);
 
-    cout << "vao texture id" + VAOs["texture"] << endl;
+    //cout << "vao texture id" + VAOs["texture"] << endl;
 
-    glBindVertexArray(VAOs["texture"]);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+    //glBindVertexArray(VAOs["texture"]);
+    //glDrawArrays(GL_TRIANGLES, 0, 6);
+    //glBindVertexArray(0);
 }
 
 void FZScreen::drawArray(int prim, int count, void* indices, void* vertices) {
@@ -508,10 +433,12 @@ struct CompareDirent {
 };
 
 int FZScreen::dirContents(const char* path, vector<FZDirent>& a) {
+	return 0;
 }
 
 int FZScreen::getSuspendSerial() {
     //return powerResumed;
+	return 0;
 }
 
 void FZScreen::setSpeed(int v) {
@@ -527,22 +454,26 @@ void FZScreen::setSpeed(int v) {
 }
 
 int FZScreen::getSpeed() {
+	return 0;
 }
 
 void FZScreen::getTime(int &h, int &m) {
 }
 
 int FZScreen::getBattery() {
+	return 0;
 }
 
 int FZScreen::getUsedMemory() {
     //struct mallinfo mi = mallinfo();
     //return mi.uordblks;
     //return mi.arena;
+	return 0;
 }
 
 void* FZScreen::getListMemory(int s) {
     //return sceGuGetMemory(s);
+	return 0;
 }
 
 
