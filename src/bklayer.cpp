@@ -70,7 +70,7 @@ void BKLayer::load() {
 			psp2shell_print("bklayer load");
 		#endif
 		texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
-	#elif defined(MAC)
+	#elif defined(MAC) || defined(WIN32)
 		// genLogo = FZTexture::createFromSOIL("image.png");
 		texLogo = FZTexture::createFromSOIL("sce_sys/icon0_t.png");
 	#elif defined(PSP)
