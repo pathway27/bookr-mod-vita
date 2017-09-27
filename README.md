@@ -42,6 +42,7 @@ make -f Makefile.macglfw
 
 ```
 Open the solution file in Visual Studio
+Download lots of dependancies into (ext), add to visual studio settings.
 Change to Folder View and run to make bookr-mod-vita.exe
 ```
 
@@ -55,9 +56,9 @@ Use the .vpk to install.
 
 Considering Noto fonts.
 
-## Forks
+## Source and Forks
 
-**[Original bookr.](https://sourceforge.net/projects/bookr/)**  
+**[Original bookr](https://sourceforge.net/projects/bookr/)**  
 Carlos Carrasco Martinez (carloscm at gmail dot com),  
 Christian Payeur (christian dot payeur at gmail dot com),  
 Nguyen Chi Tam (nguyenchitam at gmail dot com)  
@@ -79,7 +80,6 @@ The original and forks above.
 - [learnopengl.com](learnopengl.com)
 - peeps on #vitasdk on freenode
 - people that read
-
 
 All the VITA hacking/dev scene.
 
