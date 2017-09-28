@@ -37,16 +37,16 @@
 #include <cstring>
 #include <map>
 
-#ifdef MAC
+#if defined(MAC) || defined(WIN32)
   #define GLEW_STATIC
   #include <GL/glew.h>
   #include <SOIL.h>
+
   #include <glm/glm.hpp>
-	#include <glm/gtc/matrix_transform.hpp>
-	#include <glm/gtc/type_ptr.hpp>
+  #include <glm/gtc/matrix_transform.hpp>
+  #include <glm/gtc/type_ptr.hpp>
+
   #include <GLFW/glfw3.h>
-#elif defined(__WIN32__)
-  #include <glad/glad.h>
 #endif
 
 using namespace std;
