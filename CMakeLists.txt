@@ -1,7 +1,6 @@
 ## This file is a quick tutorial on writing CMakeLists for targeting the Vita
 cmake_minimum_required(VERSION 2.8)
-set(DESKTOP ON CACHE BOOL "Build for Desktop")
-add_definitions(-DDESKTOP)
+include(ExternalProject)
 
 if (NOT DESKTOP)
   ## This includes the Vita toolchain, must go before project definition
@@ -88,6 +87,15 @@ set(COMMON_SRCS
 )
 
 if (WIN32)
+  ExternalProject_Add(glew
+    GIT_REPOSITORY https://github.com/nigels-com/glew.git
+    GIT_TAG "master"
+    CONFIGURE_COMMAND ""
+    INSTALL_COMMAND ""
+    BUILD_COMMAND ""
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glew"
+  )
+
   include_directories(
 	  ${CMAKE_BINARY_DIR}
 	  "${CMAKE_SOURCE_DIR}/src"
