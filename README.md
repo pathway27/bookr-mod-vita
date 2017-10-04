@@ -41,6 +41,7 @@ make -f Makefile.macglfw
 ### For Windows
 
 ```
+git clone --recursive https://github.com/pathway27/bookr-mod-vita
 Open the solution file in Visual Studio
 Download lots of dependancies into (ext), add to visual studio settings.
 Change to Folder View and run to make bookr-mod-vita.exe
