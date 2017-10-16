@@ -72,7 +72,7 @@ set(COMMON_SRCS
 	  src/graphics/fzimage.cpp
 	  src/graphics/fztexture.cpp
 
-	  src/graphics/fzfont.cpp
+	  #src/graphics/fzfont.cpp
 	  src/graphics/fzinstreammem.cpp
 	  src/bklayer.cpp
 	  src/bklogo.cpp
@@ -88,23 +88,66 @@ set(COMMON_SRCS
 
 if (WIN32)
   ExternalProject_Add(glew
-    GIT_REPOSITORY https://github.com/nigels-com/glew.git
-    GIT_TAG "master"
-    CONFIGURE_COMMAND ""
-    INSTALL_COMMAND ""
-    BUILD_COMMAND ""
+    URL https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
+    URL_MD5 32a72e6b43367db8dbea6010cd095355
+    #--Configure step-------------
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glew"
+    CONFIGURE_COMMAND ""
+    #--Build step-----------------
+    BUILD_COMMAND ""
+    #--Install step---------------
+    UPDATE_COMMAND "" # Skip annoying updates for every build
+    INSTALL_COMMAND ""
+  )
+
+  ExternalProject_Add(glm
+    URL https://github.com/g-truc/glm/releases/download/0.9.8.5/glm-0.9.8.5.zip
+    URL_MD5 456c9f54cf9da189733a74c173b840b5
+    #--Configure step-------------
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glm"
+    CONFIGURE_COMMAND ""
+    #--Build step-----------------
+    BUILD_COMMAND ""
+    #--Install step---------------
+    UPDATE_COMMAND "" # Skip annoying updates for every build
+    INSTALL_COMMAND ""
+  )
+
+  ExternalProject_Add(glfw
+    URL https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN32.zip
+    URL_MD5 c1fce22f39deab17a819da9d23b3a002
+    #--Configure step-------------
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glfw"
+    CONFIGURE_COMMAND ""
+    #--Build step-----------------
+    BUILD_COMMAND ""
+    #--Install step---------------
+    UPDATE_COMMAND "" # Skip annoying updates for every build
+    INSTALL_COMMAND ""
+  )
+
+  ExternalProject_Add(freetype2
+    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.3.tar.gz
+    URL_MD5 8b0c80b64042b7c39b9fa9debe6305c3
+    #--Configure step-------------
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/freetype"
+    CONFIGURE_COMMAND ""
+    #--Build step-----------------
+    BUILD_COMMAND ""
+    #--Install step---------------
+    UPDATE_COMMAND "" # Skip annoying updates for every build
+    INSTALL_COMMAND ""
   )
 
   include_directories(
 	  ${CMAKE_BINARY_DIR}
 	  "${CMAKE_SOURCE_DIR}/src"
 	  #"${CMAKE_SOURCE_DIR}/ext/mupdf/include"
-	  "${CMAKE_SOURCE_DIR}/ext/glfw-3.2.1.bin.WIN32/include"
-	  "${CMAKE_SOURCE_DIR}/ext/glew-2.0.0/include"
+	  "${CMAKE_SOURCE_DIR}/ext/glfw/include"
+	  "${CMAKE_SOURCE_DIR}/ext/glew/include"
 	  "${CMAKE_SOURCE_DIR}/ext/glm"
-	  "${CMAKE_SOURCE_DIR}/ext/freetype-2.3.5-1-lib/include/freetype2"
-	  "${CMAKE_SOURCE_DIR}/ext/freetype-2.3.5-1-lib/include"
+	  "${CMAKE_SOURCE_DIR}/ext/freetype/include/freetype2"
+	  "${CMAKE_SOURCE_DIR}/ext/freetype/include"
 	  "${CMAKE_SOURCE_DIR}/ext/SOIL/src"
   )
 
@@ -125,7 +168,7 @@ if (WIN32)
     src/graphics/shaders/shader.cpp
 	  src/graphics/fzscreenglfw.cpp
   )
-
+  
 
   target_link_libraries(bookr-mod-vita
 	  OpenGL32
@@ -137,6 +180,8 @@ if (WIN32)
 	  tinyxml2
 	  SOIL
   )
+
+  add_dependencies(bookr-mod-vita glew glm glfw freetype2)
 else()
   # Add any additional include paths here
   include_directories(

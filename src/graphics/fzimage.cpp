@@ -99,13 +99,13 @@ unsigned int FZImage::getCLUTSize() {
 
 FZImage* FZImage::createEmpty(unsigned int w, unsigned int h, unsigned int cs, Format f) {
 	FZImage* image = new FZImage(w, h, f);
-	image->data = (char*)memalign(16, h * w  * image->getBytesPerPixel());
+	/*image->data = (char*)memalign(16, h * w  * image->getBytesPerPixel());
 	memset(image->data, 0, h * w  * image->getBytesPerPixel());
 	if (cs > 0) {
 		image->clutSize = cs;
 		image->clut = (unsigned int*)memalign(16, cs * 4);
 		memset(image->clut, 0, cs * 4);
-	}
+	}*/
 	return image;
 }
 
@@ -118,24 +118,24 @@ FZImage* FZImage::createWithData(unsigned int w, unsigned int h, char* data) {
 void FZImage::swizzle(int sx, int sy) {
 	//FZImage* from = createEmpty(width, height, 0, imageFormat);
 	//char* fromData = from->getData();
-	int bpp = getBytesPerPixel();
-	char* fromData = (char*)memalign(16, width * height  * bpp);
-	char* toData = getData();
-	memcpy(fromData, toData, width * height * bpp);
-	int p = width * bpp;
+	//int bpp = getBytesPerPixel();
+	//char* fromData = (char*)memalign(16, width * height  * bpp);
+	//char* toData = getData();
+	//memcpy(fromData, toData, width * height * bpp);
+	//int p = width * bpp;
 
-	for (unsigned int j = 0; j < height; j += sy) {
-		for (int i = 0; i < p; i += sx) {
-			char* base = &fromData[i + j*p];
-			for (int k = 0; k < sy; k++) {
-				memcpy(toData, base, sx);
-				toData += sx;
-				base += p;
-			}
-		}
-	}
-	//from->release();
-	free(fromData);
+	//for (unsigned int j = 0; j < height; j += sy) {
+	//	for (int i = 0; i < p; i += sx) {
+	//		char* base = &fromData[i + j*p];
+	//		for (int k = 0; k < sy; k++) {
+	//			memcpy(toData, base, sx);
+	//			toData += sx;
+	//			base += p;
+	//		}
+	//	}
+	//}
+	////from->release();
+	//free(fromData);
 }
 
 FZImage* FZImage::createRGB24FromRGB32(FZImage* from) {

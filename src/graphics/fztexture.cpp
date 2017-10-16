@@ -39,14 +39,10 @@
   #include <vita2d.h>
 #else
   #include <stdio.h>
-  #ifdef MAC
-    #define GLEW_STATIC
-    #include <GL/glew.h>
-    #include <GLFW/glfw3.h>
-    #include <SOIL.h>
-  #else
-    #include <glad/glad.h>
-  #endif
+  #define GLEW_STATIC
+  #include <GL/glew.h>
+  #include <GLFW/glfw3.h>
+  #include <SOIL.h>
 #endif
 
 #include <stddef.h>

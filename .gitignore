@@ -13,3 +13,5 @@ out/*
 
 bookr.glfw
 src/bookrconfig.h
+
+ext/
