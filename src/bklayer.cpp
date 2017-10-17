@@ -232,48 +232,11 @@ void BKLayer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
 }
 
 int BKLayer::textWidthRange(char* t, int n, FZFont* font) {
-	FZCharMetrics* fontChars = font->getMetrics();
-	int baseX = 0;
-	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
-		int idx = *p;
-		// printable & white space
-		if (idx >= 32)
-			baseX += fontChars[idx].xadvance;
-	}
-	return baseX;
+	return 0;
 }
 
 int BKLayer::textW(char* t, FZFont* font) {
-	FZCharMetrics* fontChars = font->getMetrics();
-	// precalc vertex count
-	int vc = 0;
-	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
-		if (*p <= 32)
-			continue;
-		vc += 2;
-	}
-	// lame
-	if (vc == 0)
-		return 0;
-	int baseX = 0;
-	for (unsigned char *p = (unsigned char*)t; *p != 0; p++) {
-		int idx = *p;
-		// new line
-		if (idx == 10) {
-			return baseX;
-		}
-		// white space
-		if (idx == 32) {
-			baseX += fontChars[idx].xadvance;
-			continue;
-		}
-		// printable
-		if (idx > 32) {
-			baseX += fontChars[idx].xadvance;
-			continue;
-		}
-	}
-	return baseX;
+	return 0;
 }
 	
 void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
@@ -283,228 +246,15 @@ void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
 
 
 int BKLayer::drawUTFText(const char* t, FZFont* font, int x, int y, int skipUTFChars, int maxWidth) {
-  if(maxWidth<=0 ||maxWidth>480){
-    maxWidth = 480;
-  }
-  if (skipUTFChars < 0){
-    skipUTFChars = 0;
-  }
-  int length = strlen(t);
-  int nextUTFIndex = 0;
-  int nextUTFLength = 0;
-  unsigned long utf = 0;
-
-  // skip first <skipUTFChars> UTF chars.
-  int skipc = skipUTFChars;
-  while (skipc > 0 && (nextUTFLength = FZFont::get_next_utf8_char(&utf, t+nextUTFIndex, length - nextUTFIndex)) > 0){
-    skipc--;
-    nextUTFIndex+=nextUTFLength;
-  }
-
-  // read at most 64 UTF chars
-  int vc = 0;
-  int textWidth = 0;
-  int baseX = x;
-  int baseY = y;
-  FZTexture* utf_texture = 0;
-  FZCharMetrics met;
-
-  while((nextUTFLength = FZFont::get_next_utf8_char(&utf, t+nextUTFIndex, length - nextUTFIndex)) > 0){
-    nextUTFIndex+=nextUTFLength;
-    
-    if(font->getSingleMetrics(utf,&met,&utf_texture)>0 && utf_texture){
-      textWidth+=met.xadvance;
-      if(textWidth < maxWidth){
-	vc++;
-
-	utf_texture->bindForDisplay();
-	T32FV32F2D* vertices = (T32FV32F2D*)FZScreen::getListMemory(2 * sizeof(struct T32FV32F2D));
-	vertices[0].u = met.x;
-	vertices[0].v = met.y;
-	vertices[0].x = baseX + met.xoffset;
-	vertices[0].y = baseY + met.yoffset;
-	vertices[0].z = 0;
-	
-	vertices[1].u = met.x + met.width;
-	vertices[1].v = met.y + met.height;
-	vertices[1].x = baseX + met.xoffset + met.width;
-	vertices[1].y = baseY + met.yoffset + met.height;
-	vertices[1].z = 0;
-
-	// vertices[0].u = 0;
-	// vertices[0].v = 0;
-	// vertices[0].x = baseX + met.xoffset;
-	// vertices[0].y = baseY + met.yoffset;
-	// vertices[0].z = 0;
-	
-	// vertices[1].u = utf_texture->getWidth();
-	// vertices[1].v = utf_texture->getHeight();
-	// vertices[1].x = baseX + met.xoffset + utf_texture->getWidth();
-	// vertices[1].y = baseY + met.yoffset + utf_texture->getHeight();
-	// vertices[1].z = 0;
-			
-	baseX += met.xadvance;
-
-	FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,vertices);
-	utf_texture->release();
-      }
-      else{
-	utf_texture->release();
-	font->doneUTFFont();
-	return 1;
-      }
-    }
-  }
-  font->doneUTFFont();
   return 0;
 }
 
 int BKLayer::drawUTFMenuItem(BKMenuItem* item, FZFont* font, int x, int y, int skipPixels, int maxWidth) {
-  if(item->tex && font == item->currentTexFont){
-    // texture is okay, draw it directly.
-  }
-  else{
-    if (item->tex){
-      item->tex->release();
-      item->tex = 0;
-    }
-    item->currentTexFont = font;
-    // create new texture for this menuitem.
-    item->tex = item->currentTexFont->getTextureFromString(item->label.c_str(),0);
-  }
-
-  if(item->tex && font == item->currentTexFont){
-    /*FZScreen::commitAll();*/
-    item->tex->bindForDisplay();
-    FZCharMetrics* met = ((FZFont*)(item->tex))->getMetrics();
-    int w = met->width - skipPixels;
-    int ret = 0;
-    if(w > maxWidth ){
-      w = maxWidth;
-      ret = 1;
-    }
-    //drawImage(x, y + met->yoffset, w, met->height, met->x+skipPixels, met->y);
-    int x_first = met->x+skipPixels;
-    int x_last = met->x+skipPixels+w-1;
-    int line_no_first = x_first / IMAGE_MAX_WIDTH;
-    int line_no_last = x_last / IMAGE_MAX_WIDTH;
-    int y_first = met->y + ((FZFont*)(item->tex))->getLineHeight() * line_no_first;
-    if (line_no_first == line_no_last){
-      drawImage(x, y + met->yoffset, w, met->height, x_first, y_first);
-    }
-    else{
-      int w_first = (line_no_first+1) * IMAGE_MAX_WIDTH - x_first;
-      drawImage(x, y + met->yoffset, w_first, met->height, x_first, y_first);
-      drawImage(x+w_first, y + met->yoffset, w-w_first, met->height, 0, y_first+((FZFont*)(item->tex))->getLineHeight());
-    }
-
-    return ret;
-  }
-  else{
-    drawText("<Invalid Item>",font,x,y);
-    return 0;
-  }
+  return 0;
 }
 
 int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
-	if (n < 0) {
-		n = strlen(t);
-	}
-	FZCharMetrics* fontChars = font->getMetrics();
-	// precalc vertex count
-	int vc = 0;
-	int i = 0;
-	for (unsigned char *p = (unsigned char*)t; i < n; i++, p++) {
-		if (*p <= 32)
-			continue;
-		vc += 2;
-	}
-	// lame
-	if (vc == 0)
-		return 0;
-	// build varray
-	T32FV32F2D* vertices = (T32FV32F2D*)FZScreen::getListMemory(vc * sizeof(struct T32FV32F2D));
-	// fill varray
-	int iv = 0;
-	int baseX = x;
-	int baseY = y;
-
-	i = 0;
-	float fx = 0.0f;
-	for (unsigned char *p = (unsigned char*)t; i < n; i++, p++) {
-		int idx = *p;
-		// new line
-		if (idx == 10 && useLF) {
-			baseY += font->getLineHeight()*(BKUser::options.txtHeightPct/100.0);
-			baseX = x;
-			fx = 0.0f;
-		}
-		// white space
-		if (idx == 32) {
-			if (usePS)
-				fx += ps;
-			else
-				baseX += fontChars[idx].xadvance;
-			continue;
-		}
-		// printable
-		if (idx > 32) {
-			int topleft = iv;
-			int botright = topleft + 1;
-			int cx = usePS ? x + int(floor(fx)) : baseX;
-
-			vertices[topleft].u = fontChars[idx].x;
-			vertices[topleft].v = fontChars[idx].y;
-			vertices[topleft].x = cx + fontChars[idx].xoffset;
-			vertices[topleft].y = baseY + fontChars[idx].yoffset;
-			vertices[topleft].z = 0;
-
-			vertices[botright].u = fontChars[idx].x + fontChars[idx].width;
-			vertices[botright].v = fontChars[idx].y + fontChars[idx].height;
-			vertices[botright].x = cx + fontChars[idx].xoffset + fontChars[idx].width;
-			vertices[botright].y = baseY + fontChars[idx].yoffset + fontChars[idx].height;
-			vertices[botright].z = 0;
-
-			baseX += fontChars[idx].xadvance;
-			if (usePS)
-				fx += float(fontChars[idx].xadvance);
-			iv+=2;
-			continue;
-		}
-	}
-	if (use3D) {
-		// no quads on psp so we need triangles
-		T32FV32F2D* vertices3d = (T32FV32F2D*)FZScreen::getListMemory(vc * sizeof(struct T32FV32F2D) * 3);
-		int i3d = 0;
-		for (iv = 0; iv < vc; iv+=2, i3d+=6) {
-			int topleft = iv;
-			int botright = topleft + 1;
-
-			// tri 1
-			vertices3d[i3d] = vertices[topleft];
-
-			vertices3d[i3d+1].u = vertices[botright].u;
-			vertices3d[i3d+1].v = vertices[topleft].v;
-			vertices3d[i3d+1].x = vertices[botright].x;
-			vertices3d[i3d+1].y = vertices[topleft].y;
-			vertices3d[i3d+1].z = 0;
-
-			vertices3d[i3d+2].u = vertices[topleft].u;
-			vertices3d[i3d+2].v = vertices[botright].v;
-			vertices3d[i3d+2].x = vertices[topleft].x;
-			vertices3d[i3d+2].y = vertices[botright].y;
-			vertices3d[i3d+2].z = 0;
-
-			// tri 2
-			vertices3d[i3d+3] = vertices3d[i3d+1];
-			vertices3d[i3d+4] = vertices[botright];
-			vertices3d[i3d+5] = vertices3d[i3d+2];
-		}
-		FZScreen::drawArray(FZ_TRIANGLES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_3D,vc * 3,0,vertices3d);
-	} else {
-		FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,vc,0,vertices);
-	}
-	return baseX;
+	return 0;
 }
 
 void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
@@ -736,7 +486,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 			#ifdef __vita__
 				FZScreen::drawText(116, (ITEMHEIGHT + (i*15)) + scrY, RGBA8(255, 255, 255, 255), 1.0f, items[i + topItem].label.c_str());
 			#else
-				drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
+				//drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
 			#endif
 		}
 	}
@@ -880,11 +630,11 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 	
 	// selected item
 	int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
-	drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
+	//drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
 	if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
 		FZScreen::ambientColor(0xff000000);
 		//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
-		drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
+		//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
 	}
 
 	// scrollbar
@@ -929,51 +679,51 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 	for (int i = 0; i < maxItemNum; ++i) {
 		if (i + topItem == selItem)
 			continue;
-		if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
+		/*if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
 			break;
 		if ((i + topItem) >= (int)(items.size()))
-			break;
+			break;*/
 
-		drawOutlinePrefix(items[i + topItem].prefix, x_left, ITEMHEIGHT + i * itemFont->getLineHeight() + scrY, mark_width, itemFont->getLineHeight(),9);
+		//drawOutlinePrefix(items[i + topItem].prefix, x_left, ITEMHEIGHT + i * itemFont->getLineHeight() + scrY, mark_width, itemFont->getLineHeight(),9);
 
 		text_left = x_left +  mark_width * items[i + topItem].prefix.length();
-		if(useUTFFont){
-		  int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, text_left, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, text_right - text_left);
-		  if(tooLong){
-		    //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
-		    texUI->bindForDisplay();
-		    drawImage(text_right, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
-		  }
-		}
-		else{
-		  drawText((char*)items[i + topItem].label.c_str(), itemFont, text_left, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
-		}
+		//if(useUTFFont){
+		//  //int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, text_left, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, text_right - text_left);
+		//  if(tooLong){
+		//    //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
+		//    texUI->bindForDisplay();
+		//    //drawImage(text_right, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
+		//  }
+		//}
+		//else{
+		//  //drawText((char*)items[i + topItem].label.c_str(), itemFont, text_left, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
+		//}
 	}
 	FZScreen::ambientColor(0xff000000);
-	drawOutlinePrefix(items[selItem].prefix, x_left, ITEMHEIGHT + selPos * itemFont->getLineHeight() + scrY, mark_width, itemFont->getLineHeight(),9);
+	//drawOutlinePrefix(items[selItem].prefix, x_left, ITEMHEIGHT + selPos * itemFont->getLineHeight() + scrY, mark_width, itemFont->getLineHeight(),9);
 	text_left = x_left +  mark_width * items[selItem].prefix.length();
 
-	if(useUTFFont){
-	  int tooLong;
-	  if(skipChars==0)
-	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, text_left, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, text_right-text_left);
-	  else {
-	    //drawUTFText("...", itemFont, 40+25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 480);
-	    texUI->bindForDisplay();
-	    drawImage(text_left,ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff,12,12,7,112);
-	    tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, text_left + 14, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, skipChars*10+14, text_right-text_left-14);
-	  }
-	  if(tooLong){
-	    texUI->bindForDisplay();
-	    drawImage(text_right, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 12,12,7,112);
-	  }
-	  else{
-	    maxSkipChars = skipChars;
-	  }
-	  itemFont->doneUTFFont();
-	}
-	else
-	  drawText((char*)items[selItem].label.c_str(), itemFont, text_left, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
+	//if(useUTFFont){
+	//  int tooLong;
+	//  if(skipChars==0)
+	//    //tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, text_left, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, text_right-text_left);
+	//  else {
+	//    //drawUTFText("...", itemFont, 40+25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 480);
+	//    texUI->bindForDisplay();
+	//    //drawImage(text_left,ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff,12,12,7,112);
+	//    //tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, text_left + 14, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, skipChars*10+14, text_right-text_left-14);
+	//  }
+	//  if(tooLong){
+	//    texUI->bindForDisplay();
+	//    //drawImage(text_right, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 12,12,7,112);
+	//  }
+	//  else{
+	//    maxSkipChars = skipChars;
+	//  }
+	//  itemFont->doneUTFFont();
+	//}
+	//else
+	  //drawText((char*)items[selItem].label.c_str(), itemFont, text_left, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
 
 	// if(!hasOutline)
 	//   items.clear();

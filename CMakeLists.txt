@@ -59,7 +59,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
-add_subdirectory(ext/tinyxml2)
+add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
+
 
 set(COMMON_SRCS
   	src/bookr.cpp
@@ -87,6 +88,9 @@ set(COMMON_SRCS
 )
 
 if (WIN32)
+
+  include_external_msproject(SOIL_WIN "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/SOIL.vcxproj")
+
   ExternalProject_Add(glew
     URL https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
     URL_MD5 32a72e6b43367db8dbea6010cd095355
@@ -127,8 +131,8 @@ if (WIN32)
   )
 
   ExternalProject_Add(freetype2
-    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.3.tar.gz
-    URL_MD5 8b0c80b64042b7c39b9fa9debe6305c3
+    URL https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.6.5.zip
+    URL_MD5 ab9e0e387b93daec8c486e5432cb8362
     #--Configure step-------------
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/freetype"
     CONFIGURE_COMMAND ""
@@ -153,12 +157,12 @@ if (WIN32)
 
   link_directories(
 	  ${CMAKE_CURRENT_BINARY_DIR}
+    "${CMAKE_CURRENT_BINARY_DIR}/ext/tinyxml2/Debug"
 	  "${CMAKE_SOURCE_DIR}/ext/mupdf/libs"
-	  "${CMAKE_SOURCE_DIR}/ext/glew-2.0.0/lib/Release/Win32"
-	  "${CMAKE_SOURCE_DIR}/ext/glfw-3.2.1.bin.WIN32/lib-vc2015"
-	  "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VC9/Debug"
-	  "${CMAKE_SOURCE_DIR}/ext/freetype-2.3.5-1-lib/lib"
-	  "${CMAKE_SOURCE_DIR}/ext/freetype-2.3.5-1-bin/bin"
+	  "${CMAKE_SOURCE_DIR}/ext/glew/lib/Release/Win32"
+	  "${CMAKE_SOURCE_DIR}/ext/glfw/lib-vc2015"
+	  "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/Debug"
+	  "${CMAKE_SOURCE_DIR}/ext/freetype/win32"
 	)
 
   ## Build and link
@@ -175,13 +179,13 @@ if (WIN32)
 	  glew32s
 	  glew32
 	  glfw3
-	  freetype
+	  freetype265
 	  #freetype6.dll
 	  tinyxml2
 	  SOIL
   )
 
-  add_dependencies(bookr-mod-vita glew glm glfw freetype2)
+  add_dependencies(bookr-mod-vita glew glm glfw freetype2 tinyxml2 SOIL_WIN)
 else()
   # Add any additional include paths here
   include_directories(

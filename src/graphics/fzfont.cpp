@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifdef MAC
+#if defined(MAC) || defined(WIN32)
 static void* memalign(int t, int s) {
 	return malloc(s);
 }

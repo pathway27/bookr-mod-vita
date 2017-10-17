@@ -225,7 +225,7 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
   }
 #endif
 
-#ifdef MAC
+#if defined(MAC) || defined(WIN32)
   FZTexture* FZTexture::createFromSOIL(char* filename) {
       std::cout <<"create from SOIL" << std::endl;
       int width, height;
@@ -285,7 +285,7 @@ bool FZTexture::initFromImage(FZTexture* texture, FZImage* image, bool buildMipm
     // BUG: swizzle is not working above 8bpp
     image->swizzle(16, 8);	// swizzle is always 16x8 bytes
     texture->texImage = image;
-  #else
+  #elif defined(OLD)
     texture->bind();
     glEnable(GL_TEXTURE_2D);
 
