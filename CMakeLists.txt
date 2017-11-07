@@ -59,6 +59,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
 
 
