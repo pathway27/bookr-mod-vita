@@ -33,6 +33,7 @@
 #include <iostream>
 #ifdef __vita__
   #include <psp2/kernel/threadmgr.h>
+  #include <psp2/kernel/clib.h>
 #endif
 
 #include "graphics/fzscreen.h"
@@ -52,9 +53,7 @@ int main(int argc, char* argv[]) {
     BKUser::init();
 
   #ifdef DEBUG    
-    psp2shell_init(3333, 0);
-    sceKernelDelayThread(2*1000000);
-    psp2shell_print_color(COL_GREEN, "Debug Started: in main\n");
+    printf("Debug Started: in main\n");
   #endif
 
     BKLayer::load();
@@ -62,7 +61,7 @@ int main(int argc, char* argv[]) {
     BKFileChooser* fs = 0;
     BKMainMenu* mm = BKMainMenu::create();
     layers.push_back(BKLogo::create());
-    //layers.push_back(mm);
+    layers.push_back(mm);
 
     std::cout << "Hi" << std::endl;  
 
@@ -71,7 +70,7 @@ int main(int argc, char* argv[]) {
     bool exitApp = false;
     int reloadTimer = 0;
     while ( !exitApp )  {
-        // psp2shell_print("while entered");
+        // printf("while entered");
         // draw state to back buffer
         if (dirty) {
             FZScreen::startDirectList();
@@ -111,13 +110,13 @@ int main(int argc, char* argv[]) {
         --it;
         int command = 0;
 
-        //if ((*it) == nullptr)
-        continue;
+        if ((*it) == nullptr)
+            continue;
         // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs		
         command = (*it)->update(buttons);
         if (command == BK_CMD_OPEN_FILE) {
             #ifdef DEBUG
-              psp2shell_print("Got BK_CMD_OPEN_FILE");
+              printf("Got BK_CMD_OPEN_FILE");
             #endif
         }
 
@@ -165,7 +164,7 @@ int main(int argc, char* argv[]) {
             case BK_CMD_OPEN_FILE: {
                 // open a file as a document
                 #ifdef DEBUG
-                  psp2shell_print("BK_CMD_OPEN_FILE?");
+                  printf("BK_CMD_OPEN_FILE?");
                 #endif
                 string s;
 
@@ -181,7 +180,7 @@ int main(int argc, char* argv[]) {
                   //convertToVN = fs->isConvertToVN();
                   fs = 0;
                   #ifdef DEBUG
-                    psp2shell_print("getFullPath %s\n", s.c_str());
+                    printf("getFullPath %s\n", s.c_str());
                   #endif
                 }
                 // if (command == BK_CMD_OPEN_CACHE) {
@@ -208,14 +207,14 @@ int main(int argc, char* argv[]) {
                 // FZScreen::checkEvents();
                 l->release();
                 #ifdef DEBUG
-                  psp2shell_print("BKLogo Created\n");
-                  psp2shell_print("Pre Document::create\n");
+                  printf("BKLogo Created\n");
+                  printf("Pre Document::create\n");
                 #endif
                 
                 // detect file type and add a new display layer
                 documentLayer = BKDocument::create(s);
                 #ifdef DEBUG
-                  psp2shell_print("Post Document::create\n");
+                  printf("Post Document::create\n");
                 #endif
                 if (documentLayer == 0) {
                   // error, back to logo screen
@@ -243,8 +242,7 @@ int main(int argc, char* argv[]) {
         #endif
     }
 
-  #ifdef DEBUG  
-    psp2shell_exit();
+  #ifdef DEBUG
   #endif
 
     bkLayersIt it(layers.begin());
@@ -260,19 +258,4 @@ int main(int argc, char* argv[]) {
     FZScreen::exit();
 
     return 0;
-}
-
-void bkInit() {}
-
-void loadLastFile() {}
-
-void clearLayers() {
-  // bkLayersIt it(layers.begin());
-  // bkLayersIt end(layers.end());
-  // while (it != end) {
-  // 	(*it)->release();
-  // 	++it;
-  // }
-  // layers.clear();
-
 }

@@ -33,25 +33,25 @@ BKPlainText::~BKPlainText() {
 
 BKPlainText* BKPlainText::create(string& file) {
     #ifdef DEBUG
-      psp2shell_print("BKPlainText::create\n");
+      printf("BKPlainText::create\n");
     #endif
     BKPlainText* r = new BKPlainText();
     r->fileName = file;
 
     // read file to memory
     #ifdef DEBUG
-      psp2shell_print("pre fopen\n");
+      printf("pre fopen\n");
     #endif
     FILE* f = fopen(file.c_str(), "r");
     if (f == NULL) {
       #ifdef DEBUG
-        psp2shell_print("fopen null\n");
+        printf("fopen null\n");
       #endif
       delete r;
       return NULL;
     }
     #ifdef DEBUG
-      psp2shell_print("post fopen\n");
+      printf("post fopen\n");
     #endif
 
     long length = 0;
@@ -91,7 +91,7 @@ BKPlainText* BKPlainText::create(string& file) {
     }
 
     #ifdef DEBUG
-      psp2shell_print("post parse\n");
+      printf("post parse\n");
     #endif
     
     //r->resetFonts();

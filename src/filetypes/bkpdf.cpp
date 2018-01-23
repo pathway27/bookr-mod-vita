@@ -28,7 +28,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "bkbookmark.h"
+#include "../bkbookmark.h"
 
 #ifdef MAC
 static void* memalign(int t, int s) {
@@ -39,7 +39,6 @@ static void* memalign(int t, int s) {
 #endif
 
 #include "bkpdf.h"
-#include "bkdebug.h"
 
 extern "C" {
 #include "fitz.h"

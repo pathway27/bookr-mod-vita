@@ -6,8 +6,7 @@ You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/
 TODO:
 
 - Custom Fonts
-- HTML
-- PDF
+- MuPDF (HTML, PDF)
 
 ## Building
 
@@ -22,30 +21,11 @@ git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
-export PSVITAIP=192.168.1.5
+export PSVITAIP=IP-HERE
 cd build && make send
 ```
 
-### For Mac
-
-```sh
-# This is just for devel.
-# Currently on OSX El Capitan 10.11.5
-git clone --recursive https://github.com/pathway27/bookr-mod-vita
-# install ext/SOIL (there's a readme)
-brew install glfw GLEW glm
-make -f Makefile.macglfw
-./bookr.glut
-```
-
-### For Windows
-
-```
-git clone --recursive https://github.com/pathway27/bookr-mod-vita
-Open the solution file in Visual Studio
-Download lots of dependancies into (ext), add to visual studio settings.
-Change to Folder View and run to make bookr-mod-vita.exe
-```
+See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md) for desktop dev. version.
 
 ## Installation
 
@@ -59,14 +39,13 @@ Considering Noto fonts.
 
 ## Source and Forks
 
-**[Original bookr](https://sourceforge.net/projects/bookr/)**  
-Carlos Carrasco Martinez (carloscm at gmail dot com),  
-Christian Payeur (christian dot payeur at gmail dot com),  
-Nguyen Chi Tam (nguyenchitam at gmail dot com)  
+**[Original bookr](https://sourceforge.net/projects/bookr/)**
 
-**[bookr-mod](https://code.google.com/archive/p/bookr-mod/)**  
-2525275 @ gmail
+- Carlos Carrasco Martinez (carloscm at gmail dot com)
+- Christian Payeur (christian dot payeur at gmail dot com)
+- Nguyen Chi Tam (nguyenchitam at gmail dot com)
 
+**[bookr-mod](https://code.google.com/archive/p/bookr-mod/) - 2525275 @ gmail **  
 **bookr-hbs - HomebrewStore Development Team**  
 **ozbookr - by Oleg Zhuk (zhukoo @ gmail)**  
 **gtzampanaskis/bookr**
@@ -82,7 +61,7 @@ The original and forks above.
 - peeps on #vitasdk on freenode
 - people that read
 
-All the VITA hacking/dev scene.
+All of the VITA hacking/dev. scene.
 
 ## License
 

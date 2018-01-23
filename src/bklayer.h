@@ -23,6 +23,19 @@
 #include <vector>
 #include <string>
 
+#if defined(MAC) || defined(WIN32)
+  #define GLEW_STATIC
+  #include <GL/glew.h>
+  #include <SOIL.h>
+
+  #include <glm/glm.hpp>
+  #include <glm/gtc/matrix_transform.hpp>
+  #include <glm/gtc/type_ptr.hpp>
+
+  #include <GLFW/glfw3.h>
+#endif
+
+
 using namespace std;
 
 #include "graphics/fzfont.h"

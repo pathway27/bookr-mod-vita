@@ -709,7 +709,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 
 void BKMainMenu::render() {
 	#ifdef DEBUG
-    psp2shell_print("mainmenu render\n");
+    printf("mainmenu render\n");
   #endif
 	string t("");
 	if (mode == BKMM_MAIN) {

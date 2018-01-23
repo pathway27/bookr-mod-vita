@@ -8,7 +8,7 @@ OEX=o
 AR=ar
 ARFLAGS=r
 
-DEFS = -DMAC
+DEFS = -DMAC -DDESKTOP
 INCS:= -Isrc -Iext/tinyxml2 -Iext/SOIL -Isrc/graphics/shaders #-Imupdf/include -Idjvu/libdjvupsp  `freetype-config --cflags`
 INCS+= -I/usr/local/include/glm -I/usr/X11/include/freetype2
 OPTS = -g3 -Wall -W -Wno-unused -Wno-non-pod-varargs -O0 -pipe

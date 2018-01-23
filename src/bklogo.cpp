@@ -62,18 +62,18 @@ int BKLogo::update(unsigned int buttons) {
 
 void BKLogo::render() {
   #ifdef DEBUG
-    psp2shell_print("bklogo render");
+    printf("bklogo render");
   #endif
     FZScreen::clear(0xffffff, FZ_COLOR_BUFFER);
     FZScreen::color(0xffffffff);
 
-    FZScreen::matricesFor2D();
-    FZScreen::enable(FZ_TEXTURE_2D);
-    FZScreen::disable(FZ_BLEND);
+    FZScreen::matricesFor2D(); // remove
+    FZScreen::enable(FZ_TEXTURE_2D); // remove
+    FZScreen::disable(FZ_BLEND); // remove
   
   #ifdef __vita__
     #ifdef DEBUG
-      psp2shell_print("bklogo draw texture");
+      printf("bklogo draw texture");
     #endif
 
     vita2d_draw_texture(texLogo->vita_texture, 350, 150);
@@ -118,8 +118,8 @@ void BKLogo::render() {
     //         FZScreen::ambientColor(0xff222222);
     //         drawTextHC("Error: invalid or corrupted file", fontBig, 130);
     //     }
-        // FZScreen::ambientColor(0xffffffff);
-        // drawTextHC("Press Start", fontBig, 244);
+    // FZScreen::ambientColor(0xffffffff);
+    // drawTextHC("Press Start", fontBig, 244);
     // }
 }
 

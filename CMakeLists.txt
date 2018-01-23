@@ -59,7 +59,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
 
 
@@ -89,7 +89,7 @@ set(COMMON_SRCS
 )
 
 if (WIN32)
-
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
   include_external_msproject(SOIL_WIN "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/SOIL.vcxproj")
 
   ExternalProject_Add(glew
@@ -164,6 +164,7 @@ if (WIN32)
 	  "${CMAKE_SOURCE_DIR}/ext/glfw/lib-vc2015"
 	  "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/Debug"
 	  "${CMAKE_SOURCE_DIR}/ext/freetype/win32"
+    "${CMAKE_SOURCE_DIR}/ext/psp2shell/win32"
 	)
 
   ## Build and link
@@ -191,9 +192,10 @@ else()
   # Add any additional include paths here
   include_directories(
     ${CMAKE_BINARY_DIR}
-    "${CMAKE_SOURCE_DIR}/src"
-    "$ENV{VITASDK}/arm-vita-eabi/include/freetype2"
-    "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
+    ${CMAKE_SOURCE_DIR}/ext/psp2shell/psp2shell_m/include
+    ${CMAKE_SOURCE_DIR}/ext/psp2shell/common
+    $ENV{VITASDK}/arm-vita-eabi/include/freetype2
+    # "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
   )
 
   # Debug CMAKE/ENV variables
@@ -226,7 +228,7 @@ else()
 
     src/graphics/fzscreenvita.cpp
     
-    src/filetypes/bkpdf.cpp
+    # src/filetypes/bkpdf.cpp
   )
 
   # Library to link to (drop the -l prefix). This will mostly be stubs.
@@ -241,7 +243,6 @@ else()
     fonts
     stream
     base
-    psp2shell
     SceDisplay_stub
     SceGxm_stub
     SceSysmodule_stub
@@ -267,8 +268,7 @@ else()
   vita_create_self(eboot.bin bookr-mod-vita
   #  UNSAFE
   )
-  # The FILE directive lets you add additional files to the VPK, the syntax is
-  # FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
+
   vita_create_vpk(bookr-mod-vita.vpk ${VITA_TITLEID} eboot.bin
     VERSION ${VITA_VERSION}
     NAME ${VITA_APP_NAME}
@@ -285,7 +285,12 @@ add_custom_target(send
     DEPENDS eboot.bin
 )
 
+add_custom_target(sendvpk
+    COMMAND curl -T bookr-mod-vita.vpk ftp://$(PSVITAIP):1337/ux0:/vpk/
+    DEPENDS bookr-mod-vita.vpk
+)
+
 add_custom_target(copy
     COMMAND cp eboot.bin F:/app/${VITA_TITLEID}/eboot.bin
-    DEPENDS eboot.bin
+    DEPENDS bookr-mod-vita.self
 )

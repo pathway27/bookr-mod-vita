@@ -108,11 +108,53 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 glClearColor(0.0f, 1.0f, 0.3f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 break;
-            case GLFW_KEY_A:
+            case GLFW_KEY_A: {
                 keyState |= FZ_CTRL_LEFT;
-                glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+                Shader recShader("src/graphics/shaders/rectangle.vert", 
+                                 "src/graphics/shaders/rectangle.frag");
+                
+                GLuint vao;
+                glGenVertexArrays(1, &vao);
+                glBindVertexArray(vao);
+
+                // Create a Vertex Buffer Object and copy the vertex data to it
+                GLuint vbo;
+                glGenBuffers(1, &vbo);
+
+                GLfloat vertices[] = {
+                    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top-left
+                     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top-right
+                     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
+                    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom-left
+                };
+                glBindBuffer(GL_ARRAY_BUFFER, vbo);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+                // Create an element array
+                GLuint ebo;
+                glGenBuffers(1, &ebo);
+
+                GLuint elements[] = {
+                    0, 1, 2,
+                    2, 3, 0
+                };
+
+                recShader.Use();
+                // Specify the layout of the vertex data
+                GLint posAttrib = glGetAttribLocation(recShader.Program, "position");
+                glEnableVertexAttribArray(posAttrib);
+                glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+
+                GLint colAttrib = glGetAttribLocation(recShader.Program, "color");
+                glEnableVertexAttribArray(colAttrib);
+                glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+                
+
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                 break;
+            }
             case GLFW_KEY_D: {
                 keyState |= FZ_CTRL_RIGHT;
                 Shader ourShader("src/graphics/shaders/textures.vert", 
@@ -484,7 +526,12 @@ void FZScreen::waitVblankStart() {
 }
 
 void FZScreen::color(unsigned int c) {
-    // sceGuColor(c);
+    float red = (float)((c & 0xff000000) >> 24);
+    float green = (float)((c & 0x00ff0000) >> 16);
+    float blue = (float)((c & 0x0000ff00) >> 8);
+    float alpha = (float)(c & 0x000000ff);
+    glClearColor(red, green, blue, alpha);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void FZScreen::ambientColor(unsigned int c) {

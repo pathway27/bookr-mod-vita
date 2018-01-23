@@ -42,7 +42,7 @@ BKDocument* BKDocument::create(string& filePath) {
 	if (doc != 0)
 	{
 		#ifdef DEBUG
-			psp2shell_print("doc != 0 \n");
+			printf("doc != 0 \n");
 		#endif
 		// doc->buildToolbarMenus();
 

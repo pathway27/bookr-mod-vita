@@ -23,11 +23,11 @@
 #include <string>
 #include <vector>
 
-#include "graphics/fzscreen.h"
+#include "../graphics/fzscreen.h"
 
 using namespace std;
 
-#include "bkdocument.h"
+#include "../bkdocument.h"
 
 #define BKFT_CONT_NONE			0
 #define BKFT_CONT_LF			1

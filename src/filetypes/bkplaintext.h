@@ -20,7 +20,7 @@
 #ifndef BKPLAINTEXT_H
 #define BKPLAINTEXT_H
 
-#include "graphics/fzscreen.h"
+#include "../graphics/fzscreen.h"
 
 using namespace std;
 

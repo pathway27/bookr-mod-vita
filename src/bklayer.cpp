@@ -67,7 +67,7 @@ extern "C" {
 void BKLayer::load() {
 	#ifdef __vita__
 		#ifdef DEBUG
-			psp2shell_print("bklayer load");
+			printf("bklayer load");
 		#endif
 		texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
 	#elif defined(MAC) || defined(WIN32)
@@ -129,30 +129,95 @@ struct T32FV32F2D {
 };
 
 void BKLayer::drawImage(int x, int y) {
-		// shaders["texture"].Use();
-		// // vertex
-		// glm::mat4 model;
+	// shaders["texture"].Use();
+	// // vertex
+	// glm::mat4 model;
   //   model = glm::translate(model, glm::vec3(x, y, 0.0f));
   
   //   this->shader.SetMatrix4("model", model);
-		// glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, GL_FALSE, glm::value_ptr(model));
+	// glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, GL_FALSE, glm::value_ptr(model));
 
-		// glBindVertexArray(VAOs["texture"]);
+	// glBindVertexArray(VAOs["texture"]);
   //   	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   //   glBindVertexArray(0);
 }
 
 void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-	// FZScreen::drawArray();
-	// struct T32FV32F2D vertices[2] = {
+#if defined(MAC) || defined(WIN32)
+  Shader ourShader("src/graphics/shaders/textures.vert", 
+                   "src/graphics/shaders/textures.frag");
+  
+  GLfloat vertices[] = {
+    // Positions          // Colors           // Texture Coords
+    1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
+    1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
+  };
+  GLuint indices[] = {  // Note that we start from 0!
+      0, 1, 3, // First Triangle
+      1, 2, 3  // Second Triangle
+  };
+  GLuint VBO, VAO, EBO;
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
 
-	// 	{ tx, ty, x, y, 0 },
-	// 	{ tx + w, ty + h, x + w, y + h, 0 }
-	// };
-	// T32FV32F2D* verts = (T32FV32F2D*)FZScreen::getListMemory(2*sizeof(struct T32FV32F2D));
-	// memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
-	// FZScreen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
-	
+  glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+    // Color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+    // TexCoord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
+  glBindVertexArray(0); // Unbind VAO
+
+
+  // glGenTextures(1, &texture);
+  // glBindTexture(GL_TEXTURE_2D, texture);
+  //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  //   unsigned char* image = SOIL_load_image("image.png", &width, &height, 0, SOIL_LOAD_RGB);
+  //   glClearColor(0.0, 0.0, 0.0, 0.0);
+  //   glClear(GL_COLOR_BUFFER_BIT);
+
+  //   cout << SOIL_last_result() << endl; 
+  //   cout << "null: " << !image << endl;
+  //   cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
+  //   cout << "Width: " <<  width << endl;
+  //   cout << "Height: " << height << endl;
+  //   cout << "Obj: " << texture << endl;
+
+  //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
+  //   GL_RGB, GL_UNSIGNED_BYTE, image);
+  //   glGenerateMipmap(GL_TEXTURE_2D);
+
+  //   SOIL_free_image_data(image);
+  // glBindTexture(GL_TEXTURE_2D, 0);
+
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  ourShader.Use();
+  // glBindTexture(GL_TEXTURE_2D, texture);
+  
+  glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0);
+#endif
 }
 
 void BKLayer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
@@ -264,7 +329,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 
 	#ifdef __vita__
 		#ifdef DEBUG
-			psp2shell_print("draw dialog frame\n");
+			printf("draw dialog frame\n");
 		#endif
 		// 960
 		// 920
@@ -391,7 +456,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 		tl = items[selItem].triangleLabel; 
 	}
 	#ifdef DEBUG
-    psp2shell_print("drawmenu\n");
+    printf("drawmenu\n");
   #endif
 	drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
@@ -426,6 +491,8 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	#elif defined(PSP)
 		int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
 		drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
+  #elif defined(MAC)
+
 	#endif
 	// if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
 	// 	FZScreen::ambientColor(0xff000000);

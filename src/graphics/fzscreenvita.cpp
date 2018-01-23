@@ -142,7 +142,7 @@ void FZScreen::open(int argc, char** argv) {
 
     pgf = vita2d_load_default_pgf();
     pvf = vita2d_load_default_pvf();
-    genLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_image_png_start)  );
+    //genLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_image_png_start)  );
 
     psp_full_path = "ux0:";
 
@@ -171,7 +171,7 @@ void FZScreen::drawText(int x, int y, unsigned int color, float scale, const cha
 
 void FZScreen::setTextSize(float x, float y) {
     //vita2d_pvf_set_char_size(pvf, x, y);
-    vita2d_pgf_set_resolution(pgf, x, y);
+    //vita2d_pgf_set_resolution(pgf, x, y);
 }
 
 static bool stickyKeys = false;
@@ -234,14 +234,14 @@ void FZScreen::getAnalogPad(int& x, int& y) {
 
 void FZScreen::startDirectList() {
     #ifdef DEBUG
-      psp2shell_print("start drawing");
+      printf("start drawing");
     #endif
     vita2d_start_drawing();
 }
 
 void FZScreen::endAndDisplayList() {
     #ifdef DEBUG
-      psp2shell_print("end drawing");
+      printf("end drawing");
     #endif
     vita2d_end_drawing();
 }
