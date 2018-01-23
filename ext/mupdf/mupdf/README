@@ -1,4 +1,0 @@
-Modified pdf_font.c:
-
-ftkind(FT_Face face) only returns UNKOWN
-  need to get FT_Face type i.e. what kind of font type it is? truetype? type1?

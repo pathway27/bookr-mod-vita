@@ -40,11 +40,6 @@ static void* memalign(int t, int s) {
 
 #include "bkpdf.h"
 
-extern "C" {
-#include "fitz.h"
-#include "mupdf.h"
-}
-
 static const float zoomLevels[] = { 0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f, 0.7f, 0.8f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
 	1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
@@ -55,29 +50,6 @@ static unsigned int* bounceBuffer = NULL;
 //static unsigned int* backBuffer = NULL;
 static fz_pixmap* fullPageBuffer = NULL;
 static fz_pixmap* cachePageBuffer = NULL;
-
-struct PDFContext {
-	/* current document params */
-	//string docTitle;
-	pdf_xref *xref;
-	pdf_outline *outline;
-	pdf_pagetree *pages;
-
-	/* current view params */
-	/*float zoom;
-	int rotate;
-	fz_pixmap *image;*/
-
-	/* current page params */
-	int pageno;
-	pdf_page *page;
-	float zoom;
-	int zoomLevel;
-	float rotate;
-	int rotateLevel;
-
-	fz_renderer *rast;
-};
 
 static int pdfInit() {
 
@@ -211,7 +183,7 @@ static PDFContext* pdfOpen(char *filename) {
 		}
 	}
 	// pdf_debugoutline(ctx->outline,0);
-/*
+  /*
 	char* ptitle = filename;
 	if (strrchr(app->doctitle, '\\'))
 		pt = strrchr(app->doctitle, '\\') + 1;
@@ -227,11 +199,11 @@ static PDFContext* pdfOpen(char *filename) {
 			}
 		}
 	}
-*/
+  */
 	/*
 	* Start at first page
 	*/
-/*
+  /*
 	app->shrinkwrap = 1;
 	if (app->pageno < 1)
 		app->pageno = 1;
@@ -242,7 +214,7 @@ static PDFContext* pdfOpen(char *filename) {
 	app->pany = 0;
 
 	pdfapp_showpage(app, 1, 1);
-*/
+  */
 
 	ctx->pageno = 1; 
 	ctx->zoomLevel = 13;
@@ -517,26 +489,26 @@ static int pdfLoadPage(PDFContext* ctx) {
 	}
 	*/
 
-#ifndef PSP
-#define setmeminfolog(...)
-#endif
+	#ifndef PSP
+	#define setmeminfolog(...)
+	#endif
 
 	obj = pdf_getpageobject(ctx->pages, ctx->pageno - 1);
 
 	DEBUGBOOKR("MEM 1:%d\n",MEMINFO);
 
-#ifdef _DEBUGBOOKR
-	setmeminfolog(0);
-#endif
+	#ifdef _DEBUGBOOKR
+	  setmeminfolog(0);
+  #endif
 	error = pdf_loadpage(&ctx->page, ctx->xref, obj);
 
 	DEBUGBOOKR("MEM 2:%d\n",MEMINFO);
 
 	if (error) {
 
-#ifndef PSP
+  #ifndef PSP
 		printf("errLP1: %d\n", error);
-#endif
+  #endif
 
 		if(ctx->xref->file->dead){
 		  // load failed because we just returned from sleep mode
@@ -662,9 +634,9 @@ static int pdfLoadPage(PDFContext* ctx) {
 
 		}
 
-#ifdef _DEBUGBOOKR
+  #ifdef _DEBUGBOOKR
 		setmeminfolog(0);
-#endif
+  #endif
 		if(!BKUser::options.pdfOptimizeForSmallImages)    
 		  setenv("BOOKR_IMAGE_SCALE_DENOM_ALWAYS_MAX","0",1);
 
@@ -694,7 +666,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	
 
 	
-#ifndef PSP
+  #ifndef PSP
 	if (getenv("DEBUGTREE")){
 	  printf("\n\n debug tree ------------------------------------------------\n");
 	  fz_debugtree(ctx->page->tree);
@@ -703,7 +675,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 
 	//printf("\n\n OPT debug tree OPT ------------------------------------------------\n");
 	//fz_debugtree(ctx->page->tree);
-#endif
+  #endif
 	recalcScreenMediaBox(ctx);
 	if (BKUser::options.pdfFastScroll && ctx->zoom < 2.01f) {
 		pdfRenderFullPage(ctx);
@@ -741,8 +713,8 @@ BKPDF::~BKPDF() {
 	  cachePageBuffer = NULL;
 	}
 
-//#error reactivate the hash!
-//#error idea - list allocs linear, list frees linear, do merge every N allocs
+  //#error reactivate the hash!
+  //#error idea - list allocs linear, list frees linear, do merge every N allocs
 	//free_all();
 	pdf_donefontlibs();
 }
@@ -914,10 +886,10 @@ BKPDF* BKPDF::create(string& file,string& longFileName) {
 	    return NULL;
 	  }
 	}
-// 	else{
-// 	  delete b;
-// 	  return NULL;
-// 	}
+	// 	else{
+	// 	  delete b;
+	// 	  return NULL;
+	// 	}
 	b->redrawBuffer();
 	//print_allocs();
  	FZScreen::resetReps();
@@ -1007,12 +979,12 @@ void BKPDF::getZoomLevels(vector<BKDocument::ZoomLevel>& v) {
 
 int BKPDF::getCurrentZoomLevel() {
 	int zl = ctx->zoomLevel;
-// 	if(zoomLevels[zl] != ctx->zoom){
-// 	  zl = 0;
-// 	  while (zoomLevels[zl]<ctx->zoom){
-// 	    zl++;
-// 	  }
-// 	}
+	// 	if(zoomLevels[zl] != ctx->zoom){
+	// 	  zl = 0;
+	// 	  while (zoomLevels[zl]<ctx->zoom){
+	// 	    zl++;
+	// 	  }
+	// 	}
 	return zl;
 }
 
@@ -1091,17 +1063,17 @@ int BKPDF::setZoomLevel(int z) {
 
 	ctx->zoom = zoomLevels[ctx->zoomLevel];
 
-// 	float nx = float(panX)*ctx->zoom;
-// 	float ny = float(panY)*ctx->zoom;
-// 	clipCoords(nx, ny);
-// 	panX = int(nx);
-// 	panY = int(ny);
+	// 	float nx = float(panX)*ctx->zoom;
+	// 	float ny = float(panY)*ctx->zoom;
+	// 	clipCoords(nx, ny);
+	// 	panX = int(nx);
+	// 	panY = int(ny);
 
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
 	if (BKUser::options.pageScrollCacheMode) {
-// 		pdfRenderFullPage(ctx);
+	// 		pdfRenderFullPage(ctx);
 		loadNewPage = true;
 		resetPanXY = false;
 		return BK_CMD_MARK_DIRTY;
@@ -1131,17 +1103,17 @@ int BKPDF::setZoomToFitWidth() {
 	  ctx->zoomLevel = newzl;
 	}
 
-// 	float nx = float(panX)*ctx->zoom;
-// 	float ny = float(panY)*ctx->zoom;
-// 	clipCoords(nx, ny);
-// 	panX = int(nx);
-// 	panY = int(ny);
+	// 	float nx = float(panX)*ctx->zoom;
+	// 	float ny = float(panY)*ctx->zoom;
+	// 	clipCoords(nx, ny);
+	// 	panX = int(nx);
+	// 	panY = int(ny);
 	
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
 	if (BKUser::options.pageScrollCacheMode) {
-// 		pdfRenderFullPage(ctx);
+	// 		pdfRenderFullPage(ctx);
 		loadNewPage = true;
 		resetPanXY = false;
 		return BK_CMD_MARK_DIRTY;
@@ -1165,18 +1137,18 @@ int BKPDF::setZoomToFitHeight() {
 	  ctx->zoomLevel = newzl;
 	}
 
-/*
-	float nx = float(panX)*ctx->zoom;
-	float ny = float(panY)*ctx->zoom;
-	clipCoords(nx, ny);
-	panX = int(nx);
-	panY = int(ny);
-*/
+	/*
+		float nx = float(panX)*ctx->zoom;
+		float ny = float(panY)*ctx->zoom;
+		clipCoords(nx, ny);
+		panX = int(nx);
+		panY = int(ny);
+	*/
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
 	if (BKUser::options.pageScrollCacheMode) {
-// 		pdfRenderFullPage(ctx);
+	// 		pdfRenderFullPage(ctx);
 		loadNewPage = true;
 		resetPanXY = false;
 		return BK_CMD_MARK_DIRTY;
@@ -1235,7 +1207,7 @@ int BKPDF::setZoomIn(int left, int right) {
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
 	if (BKUser::options.pageScrollCacheMode) {
-// 		pdfRenderFullPage(ctx);
+	// 		pdfRenderFullPage(ctx);
 		loadNewPage = true;
 		resetPanXY = false;
 		return BK_CMD_MARK_DIRTY;
@@ -1402,19 +1374,19 @@ int BKPDF::setRotation(int z, bool bForce) {
 
 	ctx->rotate = rotateLevels[ctx->rotateLevel];
 
-/*	
-	float nx = float(panX);
-	float ny = float(panY);
-	clipCoords(nx, ny);
-	panX = int(nx);
-	panY = int(ny);
-*/
+	/*	
+		float nx = float(panX);
+		float ny = float(panY);
+		clipCoords(nx, ny);
+		panX = int(nx);
+		panY = int(ny);
+	*/
 	char t[256];
 	snprintf(t, 256, "Rotate to %3.3g°", ctx->rotate);
 	setBanner(t);
 
 	if (BKUser::options.pageScrollCacheMode) {
-// 		pdfRenderFullPage(ctx);
+	// 		pdfRenderFullPage(ctx);
 		loadNewPage = true;
 		resetPanXY = false;
 		return BK_CMD_MARK_DIRTY;
@@ -1522,11 +1494,11 @@ void BKPDF::renderContent() {
 		drawTextHC(t, fontBig, 130);
 	}
 
-#ifdef PSP
-	//int tfm = sceKernelTotalFreeMemSize();
-	//int mfm = sceKernelMaxFreeMemSize();
-	//printf("tfm %d, mfm %d\n", tfm, mfm);
-#endif
+	#ifdef PSP
+		//int tfm = sceKernelTotalFreeMemSize();
+		//int mfm = sceKernelMaxFreeMemSize();
+		//printf("tfm %d, mfm %d\n", tfm, mfm);
+	#endif
 }
 
 static inline void bk_memcpysr8(void* to, void* from, unsigned int n) {
@@ -1852,17 +1824,17 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	       ){
 
 
-#ifndef PSP
-// 	    // why we are re-rendering cache?
-// 	    fprintf(stderr,"debug: cond1: %s\n", cachePageBuffer == NULL ? "true": "false");
-// 	    if (cachePageBuffer){
-// 	      fprintf(stderr,"debug: cond2: %s\n", (h1>0 && !(((x1>=cachePageBuffer->x && (x1+w1)<=(cachePageBuffer->x+cachePageBuffer->w))||(cachePageBuffer->x <= 0&&cachePageBuffer->w >= fabs(screenMediaBox.x1 - screenMediaBox.x0))) && y1>=cachePageBuffer->y && (y1+h1)<=(cachePageBuffer->y+cachePageBuffer->h)))? "true": "false");
+		#ifndef PSP
+		// 	    // why we are re-rendering cache?
+		// 	    fprintf(stderr,"debug: cond1: %s\n", cachePageBuffer == NULL ? "true": "false");
+		// 	    if (cachePageBuffer){
+		// 	      fprintf(stderr,"debug: cond2: %s\n", (h1>0 && !(((x1>=cachePageBuffer->x && (x1+w1)<=(cachePageBuffer->x+cachePageBuffer->w))||(cachePageBuffer->x <= 0&&cachePageBuffer->w >= fabs(screenMediaBox.x1 - screenMediaBox.x0))) && y1>=cachePageBuffer->y && (y1+h1)<=(cachePageBuffer->y+cachePageBuffer->h)))? "true": "false");
 
-// 	      //fprintf(stderr,"debug: cond2-1: %s\n", h1>0 ?"true": "false");
+		// 	      //fprintf(stderr,"debug: cond2-1: %s\n", h1>0 ?"true": "false");
 
-// 	      fprintf(stderr,"debug: cond3: %s\n", (w2>0 && !(x2>=cachePageBuffer->x && (x2+w2)<=(cachePageBuffer->x+cachePageBuffer->w) && ((y2>=cachePageBuffer->y && (y2+h2)<=(cachePageBuffer->y+cachePageBuffer->h))||(cachePageBuffer->y <= 0&& cachePageBuffer->h >= fabs(screenMediaBox.y1 - screenMediaBox.y0))))) ? "true": "false");
-// 	    }
-#endif
+		// 	      fprintf(stderr,"debug: cond3: %s\n", (w2>0 && !(x2>=cachePageBuffer->x && (x2+w2)<=(cachePageBuffer->x+cachePageBuffer->w) && ((y2>=cachePageBuffer->y && (y2+h2)<=(cachePageBuffer->y+cachePageBuffer->h))||(cachePageBuffer->y <= 0&& cachePageBuffer->h >= fabs(screenMediaBox.y1 - screenMediaBox.y0))))) ? "true": "false");
+		// 	    }
+		#endif
 
 	    if (cachePageBuffer!=NULL){
 	      fz_droppixmap(cachePageBuffer);
@@ -1903,9 +1875,9 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	      cachew = fz_ceil(fabs(screenMediaBox.x1 - screenMediaBox.x0)-cachex);
 	    if(cachey+cacheh>fabs(screenMediaBox.y1 - screenMediaBox.y0))
 	      cacheh = fz_ceil(fabs(screenMediaBox.y1 - screenMediaBox.y0)-cachey);
-#ifndef PSP
-// 	    fprintf(stderr,"re-rendering cache buffer: x: %d, y: %d, w: %d, h: %d\n", cachex, cachey, cachew, cacheh);
-#endif
+			#ifndef PSP
+			// 	    fprintf(stderr,"re-rendering cache buffer: x: %d, y: %d, w: %d, h: %d\n", cachex, cachey, cachew, cacheh);
+			#endif
 	    
 	    cachePageBuffer = pdfRenderTile(ctx, cachex + screenMediaBox.x0, cachey + screenMediaBox.y0, cachew, cacheh);
 
@@ -1926,14 +1898,14 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 
 
 	    // XXX: do we have to compute the gap?
-#if 0
-	    if (cachePageBuffer){
-	      cachePageBuffer->x = cachex;
-	      cachePageBuffer->y = cachey;
-	      cachePageBuffer->w = cachew;
-	      cachePageBuffer->h = cacheh;
-	    }
-#endif
+				#if 0
+					    if (cachePageBuffer){
+					      cachePageBuffer->x = cachex;
+					      cachePageBuffer->y = cachey;
+					      cachePageBuffer->w = cachew;
+					      cachePageBuffer->h = cacheh;
+					    }
+				#endif
 	  }
 	  // copy correct region from cache to bounceBuffer.
 	  if(cachePageBuffer){
@@ -2060,6 +2032,8 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	
 	return true;
 }
+
+
 void BKPDF::panBuffer(int nx, int ny) {
 	if (pageError)
 		return;
@@ -2095,71 +2069,71 @@ void BKPDF::panBuffer(int nx, int ny) {
 
 
 	// incremental pan is disabled, for now
-// #if 0
-// 	if (ny != panY) {
-// 		int dy = ny - panY;
-// 		int ady = dy > 0 ? dy : -dy;
-// 		int pdfx = panX;
-// 		int pdfy = dy > 0 ? panY + 272 : panY + dy;
-// 		int pdfw = 480;
-// 		int pdfh = ady;
-// 		int bx = 0;
-// 		int by = dy > 0 ? 272 - dy : 0;
-// 		int destDirtyX = 0;
-// 		int destDirtyY = dy > 0 ? 0 : ady;
-// 		int srcDirtyY = dy > 0 ? ady : 0;
-// 		int n = pdfh*pdfw;
-// 		// displaced area
-// 		bk_memcpy(backBuffer + destDirtyX + destDirtyY*480, bounceBuffer + srcDirtyY*480, 480*(272 - pdfh)*4);
-// 		// render new area
-// 		fz_pixmap* pix = pdfRenderTile(ctx, pdfx, pdfy, pdfw, pdfh);
-// 		// copy and shift colors
-// 		bk_memcpysr8(backBuffer + bx + by*480, pix->samples, n*4);
-// 		fz_droppixmap(pix);
-// 		panY = ny;
-// 		unsigned int* t = bounceBuffer;
-// 		bounceBuffer = backBuffer;
-// 		backBuffer = t;
-// 	}
-// 	if (nx != panX) {
-// 		int dx = nx - panX;
-// 		int adx = dx > 0 ? dx : -dx;
-// 		int pdfx = dx > 0 ? panX + 480 : panX + dx;
-// 		int pdfy = panY;
-// 		int pdfw = adx;
-// 		int pdfh = 272;
-// 		int bx = dx > 0 ? 480 - dx : 0;
-// 		int by = 0;
+	// #if 0
+	// 	if (ny != panY) {
+	// 		int dy = ny - panY;
+	// 		int ady = dy > 0 ? dy : -dy;
+	// 		int pdfx = panX;
+	// 		int pdfy = dy > 0 ? panY + 272 : panY + dy;
+	// 		int pdfw = 480;
+	// 		int pdfh = ady;
+	// 		int bx = 0;
+	// 		int by = dy > 0 ? 272 - dy : 0;
+	// 		int destDirtyX = 0;
+	// 		int destDirtyY = dy > 0 ? 0 : ady;
+	// 		int srcDirtyY = dy > 0 ? ady : 0;
+	// 		int n = pdfh*pdfw;
+	// 		// displaced area
+	// 		bk_memcpy(backBuffer + destDirtyX + destDirtyY*480, bounceBuffer + srcDirtyY*480, 480*(272 - pdfh)*4);
+	// 		// render new area
+	// 		fz_pixmap* pix = pdfRenderTile(ctx, pdfx, pdfy, pdfw, pdfh);
+	// 		// copy and shift colors
+	// 		bk_memcpysr8(backBuffer + bx + by*480, pix->samples, n*4);
+	// 		fz_droppixmap(pix);
+	// 		panY = ny;
+	// 		unsigned int* t = bounceBuffer;
+	// 		bounceBuffer = backBuffer;
+	// 		backBuffer = t;
+	// 	}
+	// 	if (nx != panX) {
+	// 		int dx = nx - panX;
+	// 		int adx = dx > 0 ? dx : -dx;
+	// 		int pdfx = dx > 0 ? panX + 480 : panX + dx;
+	// 		int pdfy = panY;
+	// 		int pdfw = adx;
+	// 		int pdfh = 272;
+	// 		int bx = dx > 0 ? 480 - dx : 0;
+	// 		int by = 0;
 
-// 		int destDirtyX = dx > 0 ? 0 : adx;
-// 		int destDirtyY = 0;
-// 		int srcDirtyX = dx > 0 ? adx : 0;
-// 		// displaced area
-// 		unsigned int* s = bounceBuffer + srcDirtyX;
-// 		unsigned int* d = backBuffer + destDirtyX + destDirtyY*480;
-// 		int tw = 480 - pdfw;
-// 		for (int j = 0; j < 272; ++j) {
-// 			bk_memcpy(d, s, tw*4);
-// 			s += 480;
-// 			d += 480;
-// 		}
-// 		// render new area
-// 		fz_pixmap* pix = pdfRenderTile(ctx, pdfx, pdfy, pdfw, pdfh);
-// 		// copy and shift colors
-// 		s = (unsigned int*)pix->samples;
-// 		d = backBuffer + bx + by*480;
-// 		for (int j = 0; j < 272; ++j) {
-// 			bk_memcpysr8(d, s, pdfw*4);
-// 			d += tw + pdfw;
-// 			s += pdfw;
-// 		}
-// 		fz_droppixmap(pix);
-// 		panX = nx;
-// 		unsigned int* t = bounceBuffer;
-// 		bounceBuffer = backBuffer;
-// 		backBuffer = t;
-// 	}
-// #endif
+	// 		int destDirtyX = dx > 0 ? 0 : adx;
+	// 		int destDirtyY = 0;
+	// 		int srcDirtyX = dx > 0 ? adx : 0;
+	// 		// displaced area
+	// 		unsigned int* s = bounceBuffer + srcDirtyX;
+	// 		unsigned int* d = backBuffer + destDirtyX + destDirtyY*480;
+	// 		int tw = 480 - pdfw;
+	// 		for (int j = 0; j < 272; ++j) {
+	// 			bk_memcpy(d, s, tw*4);
+	// 			s += 480;
+	// 			d += 480;
+	// 		}
+	// 		// render new area
+	// 		fz_pixmap* pix = pdfRenderTile(ctx, pdfx, pdfy, pdfw, pdfh);
+	// 		// copy and shift colors
+	// 		s = (unsigned int*)pix->samples;
+	// 		d = backBuffer + bx + by*480;
+	// 		for (int j = 0; j < 272; ++j) {
+	// 			bk_memcpysr8(d, s, pdfw*4);
+	// 			d += tw + pdfw;
+	// 			s += pdfw;
+	// 		}
+	// 		fz_droppixmap(pix);
+	// 		panX = nx;
+	// 		unsigned int* t = bounceBuffer;
+	// 		bounceBuffer = backBuffer;
+	// 		backBuffer = t;
+	// 	}
+	// #endif
 }
 
 int BKPDF::resume() {
@@ -2284,6 +2258,7 @@ float BKPDF::getCurrentZoom(){
     return ctx->zoom;
   return 0.0f;
 }
+
 void BKPDF::setZoom(float z){
   if(ctx && z>0.0f){
     ctx->zoom = z;
@@ -2343,22 +2318,22 @@ void
 BKPDF::gotoOutline(void* o, bool ignoreZoom){
   pdf_link* link= o?((pdf_outline* )o)->link:NULL;
   if (!link||!ctx){
-#ifndef PSP
-    fprintf(stderr, "GOTOOUTLINE: no link or ctx. link:%p ctx:%p\n",link, ctx);
-#endif    
-    return;
-  }
-  int pageno = pdf_getpagenumberfromreference(ctx->pages,link->dest);
-  
-  if (pageno<0){
-#ifndef PSP
-    fprintf(stderr, "GOTOOUTLINE: cannot get page number.oid: %d\n",link->dest->u.r.oid);
-#endif    
-    return;
-  }
-#ifndef PSP
-  fprintf(stderr, "GOTOOUTLINE: page: %d, pos_type: %d, %f %f %f %f\n",pageno, link->pos_type, link->x, link->y, link->z, link->w);
-#endif    
+	#ifndef PSP
+	    fprintf(stderr, "GOTOOUTLINE: no link or ctx. link:%p ctx:%p\n",link, ctx);
+	#endif    
+	    return;
+	  }
+	  int pageno = pdf_getpagenumberfromreference(ctx->pages,link->dest);
+	  
+	  if (pageno<0){
+	#ifndef PSP
+	    fprintf(stderr, "GOTOOUTLINE: cannot get page number.oid: %d\n",link->dest->u.r.oid);
+	#endif    
+	    return;
+	  }
+	#ifndef PSP
+	  fprintf(stderr, "GOTOOUTLINE: page: %d, pos_type: %d, %f %f %f %f\n",pageno, link->pos_type, link->x, link->y, link->z, link->w);
+	#endif    
 
   // let's get w/h of the target page...
   fz_obj* targetPage = pdf_getpageobject(ctx->pages, pageno);
@@ -2382,9 +2357,9 @@ BKPDF::gotoOutline(void* o, bool ignoreZoom){
     pageh = fabs(bbox.y1-bbox.y0);
   }
   
-#ifndef PSP
-  fprintf(stderr, "GET_PAGE_WH: failed? %s. w: %f h: %f\n",getpagewhfailed?"YES":"NO", pagew, pageh);
-#endif
+	#ifndef PSP
+	  fprintf(stderr, "GET_PAGE_WH: failed? %s. w: %f h: %f\n",getpagewhfailed?"YES":"NO", pagew, pageh);
+	#endif
   
 
   setCurrentPage(pageno+1);
@@ -2468,9 +2443,9 @@ BKPDF::gotoOutline(void* o, bool ignoreZoom){
 
   default:
 
-#ifndef PSP
-    fprintf(stderr, "GOTOOUTLINE: unimplemented page position: %d\n",link->pos_type);
-#endif
+	#ifndef PSP
+	    fprintf(stderr, "GOTOOUTLINE: unimplemented page position: %d\n",link->pos_type);
+	#endif
     break;
   }
   loadNewPage = true;

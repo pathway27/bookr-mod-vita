@@ -33,10 +33,6 @@ See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.
 
 Use the .vpk to install.
 
-## CJK PDF Support
-
-Considering Noto fonts.
-
 ## Source and Forks
 
 **[Original bookr](https://sourceforge.net/projects/bookr/)**
@@ -65,5 +61,5 @@ All of the VITA hacking/dev. scene.
 
 ## License
 
-Uses the same license as bookr, GNU GPLv2+, see [LICENSE](https://github.com/pathway27/bookr-mod-vita/blob/master/LICENSE).  
-Original sources at respective tags of this repository.
+Licensed under GNU GPLv3+, see [LICENSE](https://github.com/pathway27/bookr-mod-vita/blob/master/LICENSE).  
+Third party libraries have their own licenses can be found in their own directories under `ext`.

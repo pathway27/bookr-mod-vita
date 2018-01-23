@@ -212,7 +212,7 @@ else()
   # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
   link_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_SOURCE_DIR}/ext/mupdf/libs"
+    "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
   )
 
 

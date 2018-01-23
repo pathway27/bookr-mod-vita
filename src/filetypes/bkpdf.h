@@ -24,12 +24,10 @@
 
 #include "../graphics/fzscreen.h"
 #include "../graphics/fzfont.h"
-
-using namespace std;
-
 #include "../bkdocument.h"
 
-struct PDFContext;
+#include <mupdf/fitz.h>
+
 class BKPDF : public BKDocument {
 	PDFContext* ctx;
 
