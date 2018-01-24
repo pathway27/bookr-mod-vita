@@ -189,6 +189,27 @@ if (WIN32)
 
   add_dependencies(bookr-mod-vita glew glm glfw freetype2 tinyxml2 SOIL_WIN)
 else()
+  ExternalProject_Add(mupdf_lib
+    GIT_REPOSITORY https://github.com/pathway27/mupdf
+    GIT_TAG 1.12.0-vita
+    #--Configure step-------------
+    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
+    CONFIGURE_COMMAND make generate
+    #--Build step-----------------
+    BUILD_COMMAND make OS=vita build=release prefix=/usr/local/vitasdk/arm-vita-eabi HAVE_X11=no HAVE_GLUT=no
+    BUILD_IN_SOURCE 1
+    #--Install step---------------
+    # INSTALL_COMMAND "make OS=vita build=release prefix=/usr/local/vitasdk/arm-vita-eabi HAVE_X11=no HAVE_GLUT=no install"
+    LOG_DOWNLOAD 1
+  )
+
+  # ExternalProject_Add_Step(mupdf_lib generate_step # Names of project and custom step
+  #   COMMAND make generate        # Command line invoked by this step
+  #   # DEPENDEES update
+  #   DEPENDERS build
+  #   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/ext/mupdf # Working directory for command
+  # )
+
   # Add any additional include paths here
   include_directories(
     ${CMAKE_BINARY_DIR}
@@ -277,6 +298,8 @@ else()
     FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
     FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
   )
+
+  add_dependencies(bookr-mod-vita mupdf_lib)
 endif (WIN32)
 
 # From VitaShell
