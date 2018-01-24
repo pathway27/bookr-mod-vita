@@ -199,16 +199,9 @@ else()
     BUILD_COMMAND make OS=vita build=release prefix=/usr/local/vitasdk/arm-vita-eabi HAVE_X11=no HAVE_GLUT=no
     BUILD_IN_SOURCE 1
     #--Install step---------------
-    # INSTALL_COMMAND "make OS=vita build=release prefix=/usr/local/vitasdk/arm-vita-eabi HAVE_X11=no HAVE_GLUT=no install"
+    INSTALL_COMMAND ""
     LOG_DOWNLOAD 1
   )
-
-  # ExternalProject_Add_Step(mupdf_lib generate_step # Names of project and custom step
-  #   COMMAND make generate        # Command line invoked by this step
-  #   # DEPENDEES update
-  #   DEPENDERS build
-  #   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/ext/mupdf # Working directory for command
-  # )
 
   # Add any additional include paths here
   include_directories(
@@ -259,11 +252,6 @@ else()
     vita2d
     mupdf
     freetype
-    raster
-    world
-    fonts
-    stream
-    base
     SceDisplay_stub
     SceGxm_stub
     SceSysmodule_stub
