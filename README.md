@@ -15,9 +15,9 @@ TODO:
 ```sh
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
-./build.sh # Creates a build folder with vpk
 # run pngquant on all your png images if not done already
 # Convert images used in app to binary: arm-vita-eabi-ld -r -b binary -o image.o image.png
+./build.sh # Creates a build folder with vpk
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
@@ -41,7 +41,7 @@ Use the .vpk to install.
 - Christian Payeur (christian dot payeur at gmail dot com)
 - Nguyen Chi Tam (nguyenchitam at gmail dot com)
 
-**[bookr-mod](https://code.google.com/archive/p/bookr-mod/) - 2525275 @ gmail **  
+**[bookr-mod](https://code.google.com/archive/p/bookr-mod/) - 2525275 @ gmail**  
 **bookr-hbs - HomebrewStore Development Team**  
 **ozbookr - by Oleg Zhuk (zhukoo @ gmail)**  
 **gtzampanaskis/bookr**

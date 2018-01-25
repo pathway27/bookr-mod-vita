@@ -8,7 +8,7 @@
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
- 
+
  * AND VARIOUS OTHER FORKS.
  * See Forks in the README for more info
  *
@@ -116,7 +116,7 @@ void BKLayer::load() {
 		// image->release();
 		// }
 	#endif
-	
+
 }
 
 void BKLayer::unload(){
@@ -132,7 +132,7 @@ void BKLayer::drawImage(int x, int y) {
 	// // vertex
 	// glm::mat4 model;
   //   model = glm::translate(model, glm::vec3(x, y, 0.0f));
-  
+
   //   this->shader.SetMatrix4("model", model);
 	// glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, GL_FALSE, glm::value_ptr(model));
 
@@ -143,15 +143,15 @@ void BKLayer::drawImage(int x, int y) {
 
 void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
 #if defined(MAC) || defined(WIN32)
-  Shader ourShader("src/graphics/shaders/textures.vert", 
+  Shader ourShader("src/graphics/shaders/textures.vert",
                    "src/graphics/shaders/textures.frag");
-  
+
   GLfloat vertices[] = {
     // Positions          // Colors           // Texture Coords
     1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
     1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
     -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
+    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
   };
   GLuint indices[] = {  // Note that we start from 0!
       0, 1, 3, // First Triangle
@@ -192,7 +192,7 @@ void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
   //   glClearColor(0.0, 0.0, 0.0, 0.0);
   //   glClear(GL_COLOR_BUFFER_BIT);
 
-  //   cout << SOIL_last_result() << endl; 
+  //   cout << SOIL_last_result() << endl;
   //   cout << "null: " << !image << endl;
   //   cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
   //   cout << "Width: " <<  width << endl;
@@ -200,7 +200,7 @@ void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
   //   cout << "Obj: " << texture << endl;
 
   //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
+  //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
   //   GL_RGB, GL_UNSIGNED_BYTE, image);
   //   glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -212,7 +212,7 @@ void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
 
   ourShader.Use();
   // glBindTexture(GL_TEXTURE_2D, texture);
-  
+
   glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
@@ -233,22 +233,22 @@ void BKLayer::drawPill(int x, int y, int w, int h, int r, int tx, int ty) {
 	struct T32FV32F2D vertices[7*2] = {
 		{ tx, ty, x, y, 0 },
 		{ tx + r, ty + r, x + r, y + r, 0 },
-	
+
 		{ tx + r, ty, x + w, y, 0 },
 		{ tx, ty + r, x + w + r, y + r, 0 },
-	
+
 		{ tx, ty + r, x, y + h, 0 },
 		{ tx + r, ty, x + r, y + h + r, 0 },
-	
+
 		{ tx + r, ty + r, x + w, y + h, 0 },
 		{ tx, ty, x + w + r, y + h + r, 0 },
-	
+
 		{ tx + r, ty + r, x + r, y, 0 },
 		{ tx + r, ty + r, x + w, y + h + r, 0 },
-	
+
 		{ tx + r, ty + r, x, y + r, 0 },
 		{ tx + r, ty + r, x + r, y + h, 0 },
-	
+
 		{ tx + r, ty + r, x + w, y + r, 0 },
 		{ tx + r, ty + r, x + r + w, y + h, 0 }
 	};
@@ -261,22 +261,22 @@ void BKLayer::drawTPill(int x, int y, int w, int h, int r, int tx, int ty) {
 	struct T32FV32F2D vertices[5*2] = {
 		{ tx, ty, x, y, 0 },
 		{ tx + r, ty + r, x + r, y + r, 0 },
-	
+
 		{ tx + r, ty, x + w, y, 0 },
 		{ tx, ty + r, x + w + r, y + r, 0 },
-	
+
 		/*{ tx, ty + r, x, y + h, 0 },
 		{ tx + r, ty, x + r, y + h + r, 0 },
-	
+
 		{ tx + r, ty + r, x + w, y + h, 0 },
 		{ tx, ty, x + w + r, y + h + r, 0 },*/
-	
+
 		{ tx + r, ty + r, x + r, y, 0 },
 		{ tx + r, ty + r, x + w, y + h + r, 0 },
-	
+
 		{ tx + r, ty + r, x, y + r, 0 },
 		{ tx + r, ty + r, x + r, y + h, 0 },
-	
+
 		{ tx + r, ty + r, x + w, y + r, 0 },
 		{ tx + r, ty + r, x + r + w, y + h, 0 }
 	};
@@ -302,7 +302,7 @@ int BKLayer::textWidthRange(char* t, int n, FZFont* font) {
 int BKLayer::textW(char* t, FZFont* font) {
 	return 0;
 }
-	
+
 void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
 	int w = textW(t, font);
 	drawText(t, font, (480 - w) / 2, y);
@@ -323,7 +323,7 @@ int BKLayer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bo
 
 void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
 	int scrY = 0;
-	char *t =(char*)circleLabel.c_str(); 
+	char *t =(char*)circleLabel.c_str();
 	// int tw = textW(t, fontBig);
 
 	#ifdef __vita__
@@ -341,7 +341,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 
 		//context label
 		vita2d_draw_rectangle(106, 494, 748, 50, RGBA8(85, 85, 85, 255));
-		
+
 		//icons
 		//(0, 0, 0, 255)
 		//vita2d_draw_texture(genLogo->vita_texture, 0, 0);
@@ -353,11 +353,11 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 		// (255, 255, 255, 255)
 		FZScreen::setTextSize(20.0f, 20.0f);
 		FZScreen::drawText(116, 88, RGBA8(255, 255, 255, 255), 1.0f, title.c_str());
-		
+
 		//labels
 		// if triangle/circle
 	#endif
-	
+
 	// texUI->bindForDisplay();
 	// // back
 	// FZScreen::ambientColor(0xf0222222);
@@ -373,15 +373,15 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	// // drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
 	// // drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
 	// switch (BKUser::controls.select) {
-	// case FZ_REPS_CROSS:	
-	// 	drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); 
+	// case FZ_REPS_CROSS:
+	// 	drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
 	// 	break;
 	// case FZ_REPS_CIRCLE:
 	// default:
 	// 	drawImage(430, 29 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
 	// 	break;
 	// }
-	
+
 	// FZScreen::ambientColor(0xffcccccc);
 	// // circle or other context icon
 	// if (flags & BK_MENU_ITEM_USE_LR_ICON) {
@@ -423,6 +423,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items) {
   drawMenu(title, triangleLabel, items, false);
 }
+
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont) {
 	int maxItemNum = 8;
 	int selPos = selItem - topItem;
@@ -452,7 +453,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 
 	string tl(triangleLabel);
 	if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
-		tl = items[selItem].triangleLabel; 
+		tl = items[selItem].triangleLabel;
 	}
 	#ifdef DEBUG
     printf("drawmenu\n");
@@ -524,7 +525,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	// 		FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
 	// 		drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
 	// 		FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
-	// 		drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
+	// 		drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);
 	// 	}
 	// }
 
@@ -675,7 +676,7 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 
 	string tl;
 	if (items[selItem].flags & BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL) {
-		tl = triangleLabel; 
+		tl = triangleLabel;
 	}
 	drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 	if (hasOutline){
@@ -693,7 +694,7 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 	if(useUTFFont)
 	  ITEMHEIGHT = 62;
 	FZScreen::ambientColor(0xffffffff);
-	
+
 	// selected item
 	int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
 	//drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
@@ -729,7 +730,7 @@ void BKLayer::drawOutline(string& title, string& triangleLabel, vector<BKOutline
 	// 		FZScreen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
 	// 		drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
 	// 		FZScreen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
-	// 		drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);		
+	// 		drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);
 	// 	}
 	// }
 
@@ -819,7 +820,7 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 		int h = 25 + (25*l);
 		int y = (272 - h) /2;
 	#endif
-	
+
 	// back
 	#ifdef __vita__
 		vita2d_draw_rectangle(80, y, 960 - 156, h, bg1);
@@ -835,8 +836,8 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 		FZScreen::ambientColor(bg2);
 		drawPill(45, 5 + y, 480 - 96, 20, 6, 31, 1);
 	#endif
-	
-	
+
+
 	// // icons
 	// FZScreen::ambientColor(bg1|0xff000000);
 	// // drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);

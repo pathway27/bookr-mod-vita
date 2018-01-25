@@ -3,7 +3,7 @@
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com)
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -100,10 +100,10 @@ void BKMainMenu::rebuildMenu() {
 void BKMainMenu::buildMainMenu() {
 	mainItems.push_back(BKMenuItem("Open File", "Select", 0));
 	mainItems.push_back(BKMenuItem("Browse chm Cache", "Select", 0));
-	mainItems.push_back(BKMenuItem("Controls", "Select", 0));	
+	mainItems.push_back(BKMenuItem("Controls", "Select", 0));
 	mainItems.push_back(BKMenuItem("Options", "Select", 0));
 	mainItems.push_back(BKMenuItem("About", "Select", 0));
-	mainItems.push_back(BKMenuItem("Exit", "Select", 0));	
+	mainItems.push_back(BKMenuItem("Exit", "Select", 0));
 }
 
 void BKMainMenu::buildControlMenu() {
@@ -112,7 +112,7 @@ void BKMainMenu::buildControlMenu() {
 	controlItems.clear();
 
 	controlItems.push_back(BKMenuItem("Restore defaults", "Select", 0));
-	
+
 	string t("Previous page: ");
 	t += FZScreen::nameForButtonReps(BKUser::controls.previousPage);
 	controlItems.push_back(BKMenuItem(t, cb, 0));
@@ -164,7 +164,7 @@ void BKMainMenu::buildOptionMenu() {
 	case FZ_REPS_CROSS:		t.append("Western"); break;
 	}
 	optionItems.push_back(BKMenuItem(t, "Choose", BK_MENU_ITEM_USE_LR_ICON));
-	
+
 	t = ("PDF - Fast images (zoom limited to 2x): ");
 	t += BKUser::options.pdfFastScroll ? "Enabled" : "Disabled";
 	optionItems.push_back(BKMenuItem(t, "Toggle", 0));
@@ -302,17 +302,15 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			  by Carlos and Edward.\n\
 			  V8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\n\
 			Modified for Official Firmware by the HomebrewStore Development Team.\n\n\
-			This program is licensed under the terms of the GPL v2.\n\n\
+			This program is licensed under the terms of the GPL v3+.\n\n\
 			This program uses the following libraries/projects:\n\
 			  vita2d by xerpi under MIT.\n\
-			  MuPDF library under the terms of the AFPL.\n\
-			  chmlib 0.39 by Jed Wing <jedwin@ugcs.caltech.edu>\n\
-			  VnConv by Pham Kim Long <longp@cslab.felk.cvut.cz>\n\
-			  DjVuLibre 3.5 by Leon Bottou and Yann Le Cun\n\n\
+			  MuPDF library under the terms of the AGPL v3.\n\
 			Thanks to:\n\
 			  Team Molecule for Henkaku\n\
 			  vitasdk Contibutors\n\
-			  people on freenode #vitasdk\n";
+			  people on freenode #vitasdk\n\
+				ebraminio for help on harbuzz\n";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
@@ -386,7 +384,7 @@ int BKMainMenu::updateControls(unsigned int buttons) {
 		if (selItem == CONTROLS_MENU_ITEM_RESTORE_DEFAULTS) {
 			BKUser::setDefaultControls();
 			BKUser::save();
-			buildControlMenu();			
+			buildControlMenu();
 			return BK_CMD_MARK_DIRTY;
 		}
 		buttonsHack = 0;
@@ -646,7 +644,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 				BKUser::options.currentScheme = 0;
 			}
 			buildOptionMenu();
-			return BK_CMD_MARK_DIRTY;	
+			return BK_CMD_MARK_DIRTY;
 		} else if (selItem == OPTIONS_MENU_ITEM_CPU_BUS_SPEED) {
 			++BKUser::options.pspSpeed;
 			if (BKUser::options.pspSpeed > 6) {
@@ -739,4 +737,3 @@ BKMainMenu* BKMainMenu::create() {
 	FZScreen::resetReps();
 	return f;
 }
-

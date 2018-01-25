@@ -42,7 +42,6 @@ execute_process(COMMAND git describe --tags
                 COMMAND sed -e "s,v,0," -e "s,\\(.*\\)\\.,\\1," -e "s,-.*,,g"
                 OUTPUT_VARIABLE VITA_VERSION)
 string(REGEX REPLACE "\n$" "" VITA_VERSION "${VITA_VERSION}")
-message(STATUS "VITA_VERSION: ${VITA_VERSION}")
 
 # Optional version string to show in LiveArea's more info screen
 set(VITA_VERSION "${VITA_VERSION}")
@@ -89,106 +88,12 @@ set(COMMON_SRCS
 )
 
 if (WIN32)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-  include_external_msproject(SOIL_WIN "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/SOIL.vcxproj")
-
-  ExternalProject_Add(glew
-    URL https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
-    URL_MD5 32a72e6b43367db8dbea6010cd095355
-    #--Configure step-------------
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glew"
-    CONFIGURE_COMMAND ""
-    #--Build step-----------------
-    BUILD_COMMAND ""
-    #--Install step---------------
-    UPDATE_COMMAND "" # Skip annoying updates for every build
-    INSTALL_COMMAND ""
-  )
-
-  ExternalProject_Add(glm
-    URL https://github.com/g-truc/glm/releases/download/0.9.8.5/glm-0.9.8.5.zip
-    URL_MD5 456c9f54cf9da189733a74c173b840b5
-    #--Configure step-------------
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glm"
-    CONFIGURE_COMMAND ""
-    #--Build step-----------------
-    BUILD_COMMAND ""
-    #--Install step---------------
-    UPDATE_COMMAND "" # Skip annoying updates for every build
-    INSTALL_COMMAND ""
-  )
-
-  ExternalProject_Add(glfw
-    URL https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN32.zip
-    URL_MD5 c1fce22f39deab17a819da9d23b3a002
-    #--Configure step-------------
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glfw"
-    CONFIGURE_COMMAND ""
-    #--Build step-----------------
-    BUILD_COMMAND ""
-    #--Install step---------------
-    UPDATE_COMMAND "" # Skip annoying updates for every build
-    INSTALL_COMMAND ""
-  )
-
-  ExternalProject_Add(freetype2
-    URL https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.6.5.zip
-    URL_MD5 ab9e0e387b93daec8c486e5432cb8362
-    #--Configure step-------------
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/freetype"
-    CONFIGURE_COMMAND ""
-    #--Build step-----------------
-    BUILD_COMMAND ""
-    #--Install step---------------
-    UPDATE_COMMAND "" # Skip annoying updates for every build
-    INSTALL_COMMAND ""
-  )
-
-  include_directories(
-	  ${CMAKE_BINARY_DIR}
-	  "${CMAKE_SOURCE_DIR}/src"
-	  #"${CMAKE_SOURCE_DIR}/ext/mupdf/include"
-	  "${CMAKE_SOURCE_DIR}/ext/glfw/include"
-	  "${CMAKE_SOURCE_DIR}/ext/glew/include"
-	  "${CMAKE_SOURCE_DIR}/ext/glm"
-	  "${CMAKE_SOURCE_DIR}/ext/freetype/include/freetype2"
-	  "${CMAKE_SOURCE_DIR}/ext/freetype/include"
-	  "${CMAKE_SOURCE_DIR}/ext/SOIL/src"
-  )
-
-  link_directories(
-	  ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_CURRENT_BINARY_DIR}/ext/tinyxml2/Debug"
-	  "${CMAKE_SOURCE_DIR}/ext/mupdf/libs"
-	  "${CMAKE_SOURCE_DIR}/ext/glew/lib/Release/Win32"
-	  "${CMAKE_SOURCE_DIR}/ext/glfw/lib-vc2015"
-	  "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/Debug"
-	  "${CMAKE_SOURCE_DIR}/ext/freetype/win32"
-    "${CMAKE_SOURCE_DIR}/ext/psp2shell/win32"
-	)
-
-  ## Build and link
-  # Add all the files needed to compile here
-  add_executable(bookr-mod-vita
-	  ${COMMON_SRCS}
-    src/graphics/shaders/shader.cpp
-	  src/graphics/fzscreenglfw.cpp
-  )
-  
-
-  target_link_libraries(bookr-mod-vita
-	  OpenGL32
-	  glew32s
-	  glew32
-	  glfw3
-	  freetype265
-	  #freetype6.dll
-	  tinyxml2
-	  SOIL
-  )
-
-  add_dependencies(bookr-mod-vita glew glm glfw freetype2 tinyxml2 SOIL_WIN)
+  include(CMakeWindows)
 else()
+  # TODO: turn images to binary with
+  # arm-vita-eabi-ld -r -b binary -o icon0_t.o icon0_t.png
+
+
   ExternalProject_Add(mupdf_lib
     GIT_REPOSITORY https://github.com/pathway27/mupdf
     GIT_TAG 1.12.0-vita
@@ -221,7 +126,7 @@ else()
   add_definitions(-DDEBUG)
   #add_definitions(-DGENKIHEN)
 
-	
+
   # Add any additional library paths here
   # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
   link_directories(
@@ -234,20 +139,20 @@ else()
   # Add all the files needed to compile here
   add_executable(bookr-mod-vita
     ${COMMON_SRCS}
-    
+
     image.o
     sce_sys/icon0_t.o
     data/fonts/res_txtfont.c
     data/fonts/res_uifont.c
 
     src/graphics/fzscreenvita.cpp
-    
+
     # src/filetypes/bkpdf.cpp
   )
 
   # Library to link to (drop the -l prefix). This will mostly be stubs.
   #-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \ -lSceNetCtl_stub -lSceKernel_stub -lScePower_stub -lSceAppMgr_stub
-  #mupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm 
+  #mupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm
   target_link_libraries(bookr-mod-vita
     vita2d
     mupdf

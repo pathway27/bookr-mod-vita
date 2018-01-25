@@ -8,7 +8,7 @@
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
- 
+
  * AND VARIOUS OTHER FORKS.
  * See Forks in the README for more info
  *
@@ -45,29 +45,30 @@
 #include "bkdocument.h"
 
 int main(int argc, char* argv[]) {
-    BKDocument *documentLayer = 0;
-    FZScreen::open(argc, argv);
-    FZScreen::setupCtrl();
+    BKDocument *documentLayer = 0; // file we're opening
+    FZScreen::open(argc, argv);    // GPU init and initalDraw
+    FZScreen::setupCtrl();         // initalise control sampling, TODO: put in ::open
 
-    BKUser::init();
+    BKUser::init();                // get app settings from user.xml
 
-  #ifdef DEBUG    
+  #ifdef DEBUG
     printf("Debug Started: in main\n");
   #endif
 
-    BKLayer::load();
-    bkLayers layers;
-    BKFileChooser* fs = 0;
-    BKMainMenu* mm = BKMainMenu::create();
-    layers.push_back(BKLogo::create());
-    layers.push_back(mm);
+    BKLayer::load();                       // make textures
+    bkLayers layers;                       // iterator over all gui obj. that are initalsed
+    BKFileChooser* fs = 0;                 // file chooser, only opens when Open File in mainmenu
+    BKMainMenu* mm = BKMainMenu::create(); // Main Menu, only opens when pressed start on opening screen
+    layers.push_back(BKLogo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
+    layers.push_back(mm);                  // Main Menu
 
-    std::cout << "Hi" << std::endl;  
+    std::cout << "Hi" << std::endl;
 
     // Swapping buffers based on dirty variable feels dirty.
     bool dirty = true;
     bool exitApp = false;
     int reloadTimer = 0;
+    // Event Loop
     while ( !exitApp )  {
         // printf("while entered");
         // draw state to back buffer
@@ -83,7 +84,7 @@ int main(int argc, char* argv[]) {
             }
             FZScreen::endAndDisplayList();
         }
-        
+
         FZScreen::waitVblankStart();
 
         // draw it
@@ -95,7 +96,7 @@ int main(int argc, char* argv[]) {
         //FZScreen::checkEvents();
         //FZ_DEBUG_SCREEN_SET00
         int buttons = FZScreen::readCtrl();
-        
+
         //std::cout << buttons << std::endl;
         dirty = buttons != 0;
 
@@ -111,7 +112,7 @@ int main(int argc, char* argv[]) {
 
         if ((*it) == nullptr)
             continue;
-        // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs		
+        // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs
         command = (*it)->update(buttons);
         if (command == BK_CMD_OPEN_FILE) {
             #ifdef DEBUG
@@ -121,12 +122,13 @@ int main(int argc, char* argv[]) {
 
         // dont proc events while in the reload timer
         std::cout << command << std::endl;
-        
+
+        // pusedo message passing
         switch (command) {
-            case BK_CMD_MARK_DIRTY:
+            case BK_CMD_MARK_DIRTY: {
                 dirty = true;
                 // mm->rebuildMenu();
-            break;
+            } break;
             case BK_CMD_CLOSE_TOP_LAYER: {
                 bkLayersIt it(layers.end());
                 --it;
@@ -209,9 +211,13 @@ int main(int argc, char* argv[]) {
                   printf("BKLogo Created\n");
                   printf("Pre Document::create\n");
                 #endif
-                
+
                 // detect file type and add a new display layer
                 documentLayer = BKDocument::create(s);
+
+                // specific create BKPDF::create
+                //   init mupdf vars
+                //   b->redrawBuffer(); sets bouncebuffer
                 #ifdef DEBUG
                   printf("Post Document::create\n");
                 #endif
@@ -224,6 +230,10 @@ int main(int argc, char* argv[]) {
                   // file loads ok, add the layer
                   layers.push_back(documentLayer);
                 }
+
+                // render document
+                // render filetype content i.e. bouncebuffer with FZScreen::copyImage
+                // wait for event, redraw bouncebuffer responding to events
 
                 // FZScreen::setSpeed(BKUser::options.pspSpeed);
 
@@ -244,6 +254,7 @@ int main(int argc, char* argv[]) {
   #ifdef DEBUG
   #endif
 
+    // Get rid of all gui layers
     bkLayersIt it(layers.begin());
     bkLayersIt end(layers.end());
     while (it != end) {

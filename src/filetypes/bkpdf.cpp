@@ -56,9 +56,9 @@ static int pdfInit() {
 	if (bounceBuffer == NULL) {
 		bounceBuffer = (unsigned int*)memalign(16, 480*272*4);
 	}
-//	if (backBuffer == NULL) {
-//		backBuffer = (unsigned int*)memalign(16, 480*272*4);
-//	}
+	//	if (backBuffer == NULL) {
+	//		backBuffer = (unsigned int*)memalign(16, 480*272*4);
+	//	}
 	return 0;
 }
 
@@ -177,7 +177,6 @@ static PDFContext* pdfOpen(char *filename) {
 	if (error) {
 		printf("warn11 - no outline: %d\n", error);
 	} else {
-		error = pdf_loadoutline(&ctx->outline, ctx->xref);
 		if (error) {
 			printf("warn12 - no outline: %d\n", error);
 		}
@@ -216,7 +215,7 @@ static PDFContext* pdfOpen(char *filename) {
 	pdfapp_showpage(app, 1, 1);
   */
 
-	ctx->pageno = 1; 
+	ctx->pageno = 1;
 	ctx->zoomLevel = 13;
 	ctx->zoom = zoomLevels[ctx->zoomLevel];
 	ctx->rotate = 0.0f;
@@ -289,7 +288,7 @@ static void pdfRenderFullPage(PDFContext* ctx) {
 	}
 	float h = ctx->page->mediabox.y1 - ctx->page->mediabox.y0;
 	float w = ctx->page->mediabox.x1 - ctx->page->mediabox.x0;
-	
+
 	DEBUGBOOKR("FullPage: before renderTile mem:%d\n",((struct mallinfo)mallinfo()).uordblks);
 	fullPageBuffer = pdfRenderTile(ctx,
 		ctx->page->mediabox.x0,
@@ -430,7 +429,7 @@ static void optimizeNode(fz_node *node) {
 int BKPDF::pdfReopenFile(){
   //if ( ctx && fileName){
     if(ctx->xref->file->file > 0){
-      //fclose(ctx->xref->file->file);     
+      //fclose(ctx->xref->file->file);
       ctx->xref->file->file = open((char*)fileName.c_str(),O_BINARY | O_RDONLY, 0666);
       ctx->xref->file->dead = 0;
     }
@@ -484,7 +483,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	}
 	list<fz_obj *key>::iterator it(keys.begin);
 	while (it != keys.end()) {
-		
+
 		++it;
 	}
 	*/
@@ -516,7 +515,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 		  if (ctx->page)
 		    pdf_droppage(ctx->page);
 		  ctx->page = 0;
-		  
+
 		  // empty store to save memory
 		  if (ctx->xref->store){
 		    if (BKUser::options.evictGlyphCacheOnNewPage){
@@ -541,7 +540,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 		    if (ctx->page)
 		      pdf_droppage(ctx->page);
 		    ctx->page = 0;
-		    
+
 		    // empty store to save memory
 		    if (ctx->xref->store){
 		      if (BKUser::options.evictGlyphCacheOnNewPage){
@@ -555,11 +554,11 @@ static int pdfLoadPage(PDFContext* ctx) {
 		      }
 		    }
 		    bk_pdf_resetbufferssize();
-		    
+
 		    DEBUGBOOKR("MEM 3:%d\n",MEMINFO);
-		    
+
 		    error = pdf_loadpage(&ctx->page, ctx->xref, obj);
-		    
+
 		    DEBUGBOOKR("MEM 4:%d\n",MEMINFO);
 
 		  }
@@ -585,11 +584,11 @@ static int pdfLoadPage(PDFContext* ctx) {
 		      setenv("BOOKR_MAX_IMAGE_SCALE_DENOM","8",1);
 		      break;
 		    }
-		    
+
 		    if (ctx->page)
 		      pdf_droppage(ctx->page);
 		    ctx->page = 0;
-		    
+
 		    // empty store to save memory
 		    if (ctx->xref->store){
 		      if (BKUser::options.evictGlyphCacheOnNewPage){
@@ -614,7 +613,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 		    }
 		  }
 
-		  
+
 		  // restore original image quality setting.
 		  switch (BKUser::options.pdfImageQuality){
 		  case 0:
@@ -637,7 +636,7 @@ static int pdfLoadPage(PDFContext* ctx) {
   #ifdef _DEBUGBOOKR
 		setmeminfolog(0);
   #endif
-		if(!BKUser::options.pdfOptimizeForSmallImages)    
+		if(!BKUser::options.pdfOptimizeForSmallImages)
 		  setenv("BOOKR_IMAGE_SCALE_DENOM_ALWAYS_MAX","0",1);
 
 	}
@@ -647,7 +646,7 @@ static int pdfLoadPage(PDFContext* ctx) {
 	  if (ctx->page)
 	    pdf_droppage(ctx->page);
 	  ctx->page = 0;
-	  
+
 	  // empty store to save memory
 	  if (ctx->xref->store){
 	    if (BKUser::options.evictGlyphCacheOnNewPage){
@@ -663,9 +662,9 @@ static int pdfLoadPage(PDFContext* ctx) {
 	  bk_pdf_resetbufferssize();
 	  return -1;
 	}
-	
 
-	
+
+
   #ifndef PSP
 	if (getenv("DEBUGTREE")){
 	  printf("\n\n debug tree ------------------------------------------------\n");
@@ -719,7 +718,7 @@ BKPDF::~BKPDF() {
 	pdf_donefontlibs();
 }
 
-// PDF memory pooling ----------------------------------------------------------
+/* PDF memory pooling ----------------------------------------------------------
 
 // static long long alloc_mallocs = 0;
 // static long long alloc_malloc_size = 0;
@@ -746,15 +745,13 @@ BKPDF::~BKPDF() {
 
 // static void print_allocs() {
 // #ifndef PSP
-// /*
 // 	printf("\n-----------------------------\n");
 // 	printf("alloc_mallocs = %qd\n", alloc_mallocs);
-// 	printf("alloc_malloc_size = %qd\n", alloc_malloc_size); 
+// 	printf("alloc_malloc_size = %qd\n", alloc_malloc_size);
 // 	printf("alloc_frees = %qd\n", alloc_frees);
 // 	printf("alloc_reallocs = %qd\n", alloc_reallocs);
 // 	printf("alloc_realloc_size = %qd\n", alloc_realloc_size);
 // 	printf("alloc_large_realloc = %qd\n", alloc_large_realloc);
-// */
 // #endif
 // }
 
@@ -806,6 +803,7 @@ BKPDF::~BKPDF() {
 // }
 
 // static fz_memorycontext bkmem = { bkmalloc, bkrealloc, bkfree };
+*/
 
 static bool lastScrollFlag = false;
 BKPDF* BKPDF::create(string& file,string& longFileName) {
@@ -858,14 +856,14 @@ BKPDF* BKPDF::create(string& file,string& longFileName) {
 	// Add bookmark support
 	//int position = BKBookmark::getLastView(b->filePath);
 	//b->setPage(position);
-	
+
 
 	//load from bookmark.xml if available
 	if (b->isBookmarkable()){
 	    BKBookmark bm;
 	    string fn;
 	    b->getFileName(fn);
-	    if (BKBookmarksManager::getLastView(fn, bm)) {  
+	    if (BKBookmarksManager::getLastView(fn, bm)) {
 	      b->setBookmarkPosition(bm.viewData);
 	      b->setZoom(bm.zoom);
 	    }
@@ -875,7 +873,7 @@ BKPDF* BKPDF::create(string& file,string& longFileName) {
  	if (!b->pageError){
  	    b->retryLoadPageWhenError = true;
  	}
-       	else if(b->retryLoadPageWhenError){
+  else if(b->retryLoadPageWhenError){
 	  b->pdfReopenFile();
 	  b->pageError = pdfLoadPage(ctx) != 0;
 	  if (!b->pageError){
@@ -928,7 +926,7 @@ static void pdfClose(PDFContext* ctx) {
 	if (ctx->rast)
 		fz_droprenderer(ctx->rast);
 	ctx->rast = 0;
-	
+
 	if(bounceBuffer){
 	  free(bounceBuffer);
 	  bounceBuffer = NULL;
@@ -1000,12 +998,12 @@ int BKPDF::setZoomLevel2(int z){
 		ctx->zoomLevel = n - 1;
   	ctx->zoom = zoomLevels[ctx->zoomLevel];
 	return ctx->zoomLevel;
-} 
+}
 
 int BKPDF::setZoomLevel(int z) {
 	if (z == ctx->zoomLevel)
 		return 0;
-	
+
 	if (z == ctx->zoomLevel+1 && zoomLevels[ctx->zoomLevel] > ctx->zoom)
 	  z -= 1;
 
@@ -1021,7 +1019,7 @@ int BKPDF::setZoomLevel(int z) {
 	if (BKUser::options.pdfFastScroll && zoomLevels[ctx->zoomLevel] > 2.01f) {
 		int i;
 		for(i=0;i<n;i++){
-		  if(zoomLevels[i]>2.01f) 
+		  if(zoomLevels[i]>2.01f)
 		    break;
 		}
 		ctx->zoomLevel = i-1;
@@ -1050,7 +1048,7 @@ int BKPDF::setZoomLevel(int z) {
 	    currentPage = &xpos_even;
 	    adjPage = &xpos_odd;
 	  }
-	
+
 	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
 	    *currentPage = panY;
 	    *adjPage = int(float( *adjPage + 136 ) * zoomLevels[ctx->zoomLevel] / ctx->zoom - 136);
@@ -1108,7 +1106,7 @@ int BKPDF::setZoomToFitWidth() {
 	// 	clipCoords(nx, ny);
 	// 	panX = int(nx);
 	// 	panY = int(ny);
-	
+
 	char t[256];
 	snprintf(t, 256, "Zoom %2.3gx", ctx->zoom);
 	setBanner(t);
@@ -1158,13 +1156,13 @@ int BKPDF::setZoomToFitHeight() {
 }
 
 int BKPDF::setZoomIn(int left, int right) {
-	
+
   // calc new zoom, 16x max.
 	float oldZoom = ctx->zoom;
 	ctx->zoom = oldZoom * 480.0f/(right-left);
 	if (ctx->zoom > 16.0f)
 	  ctx->zoom = 16.0f;
-	    
+
 	int newzl = ctx->zoomLevel;
 	if(zoomLevels[newzl] != ctx->zoom){
 	  newzl = 0;
@@ -1177,7 +1175,7 @@ int BKPDF::setZoomIn(int left, int right) {
 	float nx,ny;
 	nx = ((float)panX  + left - leftMargin ) * ctx->zoom/oldZoom;
 	ny = float( panY ) * ctx->zoom / oldZoom;
-	
+
 	panX = int(nx);
 	panY = int(ny);
 
@@ -1192,7 +1190,7 @@ int BKPDF::setZoomIn(int left, int right) {
 	    currentPage = &xpos_even;
 	    adjPage = &xpos_odd;
 	  }
-	
+
 	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
 	    *currentPage = panY;
 	    *adjPage = int(float( *adjPage ) * ctx->zoom / oldZoom);
@@ -1259,7 +1257,7 @@ int BKPDF::getCurrentPage() {
 }
 
 int BKPDF::setCurrentPage(int position) {
-	int oldPage = ctx->pageno; 
+	int oldPage = ctx->pageno;
 	ctx->pageno = position;
 	if (ctx->pageno < 1)
 		ctx->pageno = 1;
@@ -1284,6 +1282,7 @@ bool BKPDF::isRotable() {
 int BKPDF::getRotation() {
 	return ctx->rotateLevel;
 }
+
 int BKPDF::setRotation2(int z, bool bForce) {
 
 	int n = 4;
@@ -1321,7 +1320,7 @@ int BKPDF::setRotation(int z, bool bForce) {
 		    currentPage = &xpos_even;
 		    adjPage = &xpos_odd;
 		  }
-		  
+
 		  if(z%2){ //vetical mode, take panY value
 		    *currentPage = panY;
 		    *adjPage = *adjPage+240-136;
@@ -1348,7 +1347,7 @@ int BKPDF::setRotation(int z, bool bForce) {
 		    currentPage = &xpos_even;
 		    adjPage = &xpos_odd;
 		  }
-		  
+
 		  if(z%2){ //vetical mode, take panY value
 		    *currentPage = panY;
 		    *adjPage = int(fabs(screenMediaBox.x1 - screenMediaBox.x0)) - (*adjPage+240) - 136;
@@ -1374,7 +1373,7 @@ int BKPDF::setRotation(int z, bool bForce) {
 
 	ctx->rotate = rotateLevels[ctx->rotateLevel];
 
-	/*	
+	/*
 		float nx = float(panX);
 		float ny = float(panY);
 		clipCoords(nx, ny);
@@ -1382,7 +1381,7 @@ int BKPDF::setRotation(int z, bool bForce) {
 		panY = int(ny);
 	*/
 	char t[256];
-	snprintf(t, 256, "Rotate to %3.3g°", ctx->rotate);
+	snprintf(t, 256, "Rotate to %3.3gï¿½", ctx->rotate);
 	setBanner(t);
 
 	if (BKUser::options.pageScrollCacheMode) {
@@ -1391,7 +1390,7 @@ int BKPDF::setRotation(int z, bool bForce) {
 		resetPanXY = false;
 		return BK_CMD_MARK_DIRTY;
 	}
-	
+
 	redrawBuffer();
 	return BK_CMD_MARK_DIRTY;
 }
@@ -1406,7 +1405,7 @@ void BKPDF::getTitle(string& s, int type) {
     break;
   case 3:
     s = ctitle?ctitle:"<No Title Info>";
-    s += " ["; 
+    s += " [";
     s += longFileName;
     s += "]";
     break;
@@ -1442,7 +1441,7 @@ int BKPDF::prePan(int x, int y) {
 }
 
 int BKPDF::pan(int x, int y) {
-  
+
   int minValueX = 32 * BKUser::options.analogRateX / 100;
   int minValueY = 32 * BKUser::options.analogRateY / 100;
 	if (x > -1 * minValueX && x < minValueX)
@@ -1525,7 +1524,7 @@ extern "C" {
 bool BKPDF::redrawBuffer(bool setSpeed) {
 	if (pageError)
 		return false;
-	
+
 	if(setSpeed)
 	  FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 	recalcScreenMediaBox(ctx);
@@ -1538,7 +1537,7 @@ bool BKPDF::redrawBuffer(bool setSpeed) {
 	  panY = fabs(screenMediaBox.y1 - screenMediaBox.y0) - neg_panY;
 	  neg_panY = -1;
 	}
-	
+
 	if (loadNewPage && resetPanXY) {
 
 		if(xpos_mode){
@@ -1549,7 +1548,7 @@ bool BKPDF::redrawBuffer(bool setSpeed) {
 		  else{ // current page is even page.
 		    currentPage = &xpos_even;
 		  }
-		  
+
 		  if(ctx->rotateLevel%2){ //vetical mode, set panY value
 		    panY = *currentPage;
 		  }
@@ -1624,7 +1623,7 @@ bool BKPDF::redrawBuffer(bool setSpeed) {
 		  else{ // current page is even page.
 		    currentPage = &xpos_even;
 		  }
-		  
+
 		  if(ctx->rotateLevel%2){ //vetical mode, take panY value
 		    *currentPage = panY;
 		  }
@@ -1683,7 +1682,7 @@ bool BKPDF::redrawBuffer(bool setSpeed) {
 	  else{ // current page is even page.
 	    currentPage = &xpos_even;
 	  }
-	  
+
 	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
 	    *currentPage = panY;
 	  }
@@ -1704,7 +1703,7 @@ bool BKPDF::redrawBuffer(bool setSpeed) {
 	if(!pix){
 	if(setSpeed)
 	  FZScreen::setSpeed(BKUser::options.pspSpeed);
-	
+
 	  return false;
 	}
 	leftMargin = 0;
@@ -1748,7 +1747,7 @@ bool BKPDF::redrawBuffer(bool setSpeed) {
 	backBuffer = t;*/
 	if(setSpeed)
 	  FZScreen::setSpeed(BKUser::options.pspSpeed);
-	
+
 	return true;
 }
 
@@ -1766,25 +1765,25 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 
 	if (pageError)
 	  return false;
-	
+
 	if(setSpeed)
 	  FZScreen::setSpeed(BKUser::options.pspMenuSpeed);
 
 	int ka_w = (newx>oldx)? (480 - newx + oldx):(480-oldx+newx);
 	int ka_h = (newy>oldy)? (272 - newy + oldy):(272-oldy+newy);
 
-	if ((BKUser::options.pageScrollCacheMode == 2 
+	if ((BKUser::options.pageScrollCacheMode == 2
 	     || (BKUser::options.pageScrollCacheMode == 1 && (newx==oldx||newy==oldy)))
 	    && ka_w>0 && ka_h>0){
 	  // we can use cache for this movement
-	  
+
 	  // move reusable area to right position
 	  int ka_x = (newx>oldx)?(newx-oldx):0;
 	  int ka_y = (newy>oldy)?(newy-oldy):0;
-	  
+
 	  int tg_x = ka_x - newx+oldx;
 	  int tg_y = ka_y - newy+oldy;
-	  
+
 	  if (tg_y < ka_y){
 	    //move the first pixel backward first
 	    for (int i=0;i<ka_h;i++){
@@ -1796,7 +1795,7 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	      memmove(bounceBuffer + (tg_y + i) * 480 + tg_x, bounceBuffer + (ka_y + i) * 480 + ka_x, ka_w*4);
 	    }
 	  }
-	  
+
 	  // compute new areas (at most 2 areas needed)
 	  // area1(x1,y1,w1,h1) is for newy-oldy
 	  // area2(x2,y2,w2,h2) is for newx-oldx after newy-oldy
@@ -1813,12 +1812,12 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	  w2 = abs(newx-oldx);
 	  y2 = (newy>oldy)?newy:oldy;
 	  h2 = 272 - h1;
-	  
+
 	  scr_x2 = (newx>oldx)?480-w2:0;
 	  scr_y2 = (newy>oldy)?0:h1;
 
 	  // Need to re-render cache if either cache is empty or cache misses.
-	  if ( cachePageBuffer == NULL 
+	  if ( cachePageBuffer == NULL
 	       || (h1>0 && !(((x1>=cachePageBuffer->x && (x1+w1)<=(cachePageBuffer->x+cachePageBuffer->w))||(cachePageBuffer->x <= 0 && cachePageBuffer->w >= fabs(screenMediaBox.x1 - screenMediaBox.x0))) && y1>=cachePageBuffer->y && (y1+h1)<=(cachePageBuffer->y+cachePageBuffer->h)))
 	       || (w2>0 && !(x2>=cachePageBuffer->x && (x2+w2)<=(cachePageBuffer->x+cachePageBuffer->w) && ((y2>=cachePageBuffer->y && (y2+h2)<=(cachePageBuffer->y+cachePageBuffer->h))||(cachePageBuffer->y <= 0&& cachePageBuffer->h >= fabs(screenMediaBox.y1 - screenMediaBox.y0)))))
 	       ){
@@ -1878,7 +1877,7 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 			#ifndef PSP
 			// 	    fprintf(stderr,"re-rendering cache buffer: x: %d, y: %d, w: %d, h: %d\n", cachex, cachey, cachew, cacheh);
 			#endif
-	    
+
 	    cachePageBuffer = pdfRenderTile(ctx, cachex + screenMediaBox.x0, cachey + screenMediaBox.y0, cachew, cacheh);
 
 	    if (cachePageBuffer){
@@ -1954,7 +1953,7 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 		  }
 		  dd += 480;
 		}
-		
+
 		dd = bounceBuffer + ((272-cachePageBuffer->h)/2)*480 + scr_x2;
 		unsigned int* ss = s+(x2-cachePageBuffer->x);
 		for (int i = 0;i<h2;i++){
@@ -1979,9 +1978,9 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	      FZScreen::setSpeed(BKUser::options.pspSpeed);
 	    return true;
 	  }
-	  
+
 	}
-	
+
 	// todo: just render it as normal
 	float bw = fabs(screenMediaBox.x1 - screenMediaBox.x0);
 	float bh = fabs(screenMediaBox.y1 - screenMediaBox.y0);
@@ -1989,13 +1988,13 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	  bw = 480;
 	if (bh > 272)
 	  bh = 272;
-	
+
 	fz_pixmap* pix = pdfRenderTile(ctx, panX + screenMediaBox.x0, panY + screenMediaBox.y0, bw, bh);
-	
+
 	if(pix){
 	  unsigned int* s = (unsigned int*)pix->samples;
 	  unsigned int* d = bounceBuffer;
-	  
+
 	  // fill bg area if needed
 	  if (pix->w < 480 || pix->h < 272) {
 	    unsigned int *dd = d;
@@ -2026,10 +2025,10 @@ bool BKPDF::redrawBufferIncremental(int newx, int newy, bool setSpeed) {
 	  fz_droppixmap(pix);
 	  setThumbnail( int(fabs(screenMediaBox.x1 - screenMediaBox.x0)), int(fabs(screenMediaBox.y1 - screenMediaBox.y0)), pw, ph, panX, panY );
 	}
-	
+
 	if(setSpeed)
 	  FZScreen::setSpeed(BKUser::options.pspSpeed);
-	
+
 	return true;
 }
 
@@ -2046,7 +2045,7 @@ void BKPDF::panBuffer(int nx, int ny) {
 	  else{ // current page is even page.
 	    currentPage = &xpos_even;
 	  }
-	  
+
 	  if(ctx->rotateLevel%2){ //vetical mode, take panY value
 	    *currentPage = ny;
 	  }
@@ -2278,7 +2277,7 @@ BKPDF::getOutlineType(){
   return OUTLINE_PDF;
 }
 
-void* 
+void*
 BKPDF::getOutlines(){
   return ctx?ctx->outline:0;
 }
@@ -2320,20 +2319,20 @@ BKPDF::gotoOutline(void* o, bool ignoreZoom){
   if (!link||!ctx){
 	#ifndef PSP
 	    fprintf(stderr, "GOTOOUTLINE: no link or ctx. link:%p ctx:%p\n",link, ctx);
-	#endif    
+	#endif
 	    return;
 	  }
 	  int pageno = pdf_getpagenumberfromreference(ctx->pages,link->dest);
-	  
+
 	  if (pageno<0){
 	#ifndef PSP
 	    fprintf(stderr, "GOTOOUTLINE: cannot get page number.oid: %d\n",link->dest->u.r.oid);
-	#endif    
+	#endif
 	    return;
 	  }
 	#ifndef PSP
 	  fprintf(stderr, "GOTOOUTLINE: page: %d, pos_type: %d, %f %f %f %f\n",pageno, link->pos_type, link->x, link->y, link->z, link->w);
-	#endif    
+	#endif
 
   // let's get w/h of the target page...
   fz_obj* targetPage = pdf_getpageobject(ctx->pages, pageno);
@@ -2356,11 +2355,11 @@ BKPDF::gotoOutline(void* o, bool ignoreZoom){
     pagew = fabs(bbox.x1-bbox.x0);
     pageh = fabs(bbox.y1-bbox.y0);
   }
-  
+
 	#ifndef PSP
 	  fprintf(stderr, "GET_PAGE_WH: failed? %s. w: %f h: %f\n",getpagewhfailed?"YES":"NO", pagew, pageh);
 	#endif
-  
+
 
   setCurrentPage(pageno+1);
   switch (link->pos_type){
