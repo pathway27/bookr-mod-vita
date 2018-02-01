@@ -8,7 +8,7 @@
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
- 
+
  * AND VARIOUS OTHER FORKS.
  * See Forks in the README for more info
  *
@@ -84,7 +84,7 @@ int exit_callback(int arg1, int arg2, void *common) {
 // yeah yeah yeah no mutex whatever whatever whatever
 static volatile int powerResumed = 0;
 
-/* Power Callback */ 
+/* Power Callback */
 int power_callback(int unknown, int pwrflags, void *common) {
 }
 
@@ -206,7 +206,7 @@ static void updateReps(int keyState) {
 void FZScreen::resetReps() {
     stickyKeys = true;
 }
-    
+
 int* FZScreen::ctrlReps() {
     return breps;
 }
@@ -241,7 +241,7 @@ void FZScreen::startDirectList() {
 
 void FZScreen::endAndDisplayList() {
     #ifdef DEBUG
-      printf("end drawing");
+      printf("end drawing\n");
     #endif
     vita2d_end_drawing();
 }
@@ -249,11 +249,12 @@ void FZScreen::endAndDisplayList() {
 static void* lastFramebuffer = NULL;
 void FZScreen::swapBuffers() {
     lastFramebuffer = vita2d_get_current_fb();
+    printf("FZScreen::swapBuffers\n");
     vita2d_swap_buffers();
-}  
+}
 
 void FZScreen::waitVblankStart() {
-    // this is the default value in vita2d? 
+    // this is the default value in vita2d?
     //vita2d_set_vblank_wait(1);
 }
 
@@ -283,7 +284,7 @@ void FZScreen::clear(unsigned int color, int b) {
 void FZScreen::checkEvents(int buttons) {
 }
 
-void FZScreen::matricesFor2D(int rotation) {    
+void FZScreen::matricesFor2D(int rotation) {
 }
 
 struct T32FV32F2D {
@@ -337,6 +338,14 @@ void FZScreen::drawArray(int prim, int vtype, int count, void* indices, void* ve
 void FZScreen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
   int dx, int dy, int destw, void *dest) {
     //sceGuCopyImage(psm, sx, sy, width, height, srcw, src, dx, dy, destw, dest);
+}
+
+void FZScreen::drawPixel(float x, float y, unsigned int color) {
+    vita2d_draw_pixel(x, y, color);
+}
+
+void* FZScreen::framebuffer() {
+    return lastFramebuffer;
 }
 
 void FZScreen::blendFunc(int op, int src, int dst) {
@@ -398,12 +407,12 @@ int FZScreen::getSuspendSerial() {
 void FZScreen::setSpeed(int v) {
     if (v <= 0 || v > 6)
         return;
-    
+
     //scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
-    
+
     scePowerSetArmClockFrequency(speedValues[v*2]);
     //scePowerSetCpuClockFrequency(speedValues[v*2]);
-    
+
     scePowerSetBusClockFrequency(speedValues[v*2+1]);
 }
 
@@ -431,11 +440,6 @@ int FZScreen::getUsedMemory() {
 }
 
 void FZScreen::setBrightness(int b){
-#ifdef FW150
-    if (b<10) b = 10;
-    if (b>100) b = 100;
-    sceDisplaySetBrightness(b,0);
-#endif
     return;
 }
 

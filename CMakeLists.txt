@@ -100,6 +100,7 @@ else()
     #--Configure step-------------
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
     CONFIGURE_COMMAND make generate
+    UPDATE_COMMAND ""
     #--Build step-----------------
     BUILD_COMMAND make OS=vita build=release prefix=/usr/local/vitasdk/arm-vita-eabi HAVE_X11=no HAVE_GLUT=no
     BUILD_IN_SOURCE 1
@@ -114,7 +115,7 @@ else()
     ${CMAKE_SOURCE_DIR}/ext/psp2shell/psp2shell_m/include
     ${CMAKE_SOURCE_DIR}/ext/psp2shell/common
     $ENV{VITASDK}/arm-vita-eabi/include/freetype2
-    # "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
+    "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
   )
 
   # Debug CMAKE/ENV variables
@@ -147,7 +148,7 @@ else()
 
     src/graphics/fzscreenvita.cpp
 
-    # src/filetypes/bkpdf.cpp
+    src/filetypes/bkpdf.cpp
   )
 
   # Library to link to (drop the -l prefix). This will mostly be stubs.
@@ -156,6 +157,8 @@ else()
   target_link_libraries(bookr-mod-vita
     vita2d
     mupdf
+    mupdfthird
+    pthread
     freetype
     SceDisplay_stub
     SceGxm_stub

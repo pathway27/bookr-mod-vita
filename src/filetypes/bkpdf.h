@@ -1,35 +1,60 @@
 /*
- * Bookr: document reader for the Sony PSP 
- * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
+ * Bookr % VITA: document reader for the Sony PS Vita
+ * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
  *
- * This program is free software; you can redistribute it and/or modify
+ * IS A MODIFICATION OF THE ORIGINAL
+ *
+ * Bookr and bookr-mod for PSP
+ * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com),
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
+
+ * AND VARIOUS OTHER FORKS.
+ * See Forks in the README for more info
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef BKPDF_H
 #define BKPDF_H
 
 #include <string>
+extern "C" {
+	#include <mupdf/fitz.h>
+}
 
 #include "../graphics/fzscreen.h"
 #include "../graphics/fzfont.h"
 #include "../bkdocument.h"
 
-#include <mupdf/fitz.h>
-
+struct PDFContext;
 class BKPDF : public BKDocument {
 	PDFContext* ctx;
+	fz_context  *m_ctx;
+	fz_document *m_doc;
+	fz_page *m_page;
+	fz_pixmap *m_pix;
+	fz_rect m_bounds;
+	fz_matrix m_transform;
+	int m_page_number, m_page_count;
+	// fz_text_page *m_pageText;
+	fz_rect m_matches[512];
+	bool m_curPageLoaded;
+	bool m_fitWidth;
+	float m_scale, m_rotate;
+
+	int m_width, m_height;
 
 	string fileName;
 
@@ -61,7 +86,7 @@ class BKPDF : public BKDocument {
 	virtual void renderContent();
 
 	virtual void getFileName(string&);
-	virtual void getTitle(string&, int type = 0);
+	virtual void getTitle(string&);
 	virtual void getType(string&);
 
 	virtual bool isPaginated();
@@ -99,7 +124,7 @@ class BKPDF : public BKDocument {
 	virtual int getOutlineType();
 	virtual void* getOutlines();
 	virtual void gotoOutline(void *o, bool ignoreZoom = false);
-	static BKPDF* create(string& file,string& longFileName);
+	static BKPDF* create(string& file);
 	static bool isPDF(string& file);
 };
 

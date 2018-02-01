@@ -113,13 +113,15 @@ int main(int argc, char* argv[]) {
         if ((*it) == nullptr)
             continue;
         // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs
+        printf("pre update-buttons\n");
         command = (*it)->update(buttons);
         if (command == BK_CMD_OPEN_FILE) {
             #ifdef DEBUG
-              printf("Got BK_CMD_OPEN_FILE");
+              printf("Got BK_CMD_OPEN_FILE\n");
             #endif
         }
 
+        printf("post update-buttons\n");
         // dont proc events while in the reload timer
         std::cout << command << std::endl;
 

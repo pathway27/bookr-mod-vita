@@ -1,5 +1,5 @@
 /*
- * Bookr: document reader for the Sony PSP 
+ * Bookr: document reader for the Sony PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com)
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
  *
@@ -23,22 +23,22 @@
 #ifdef __vita__
 	#include <vita2d.h>
 #endif
-// #include "filetypes/bkpdf.h"
+#include "filetypes/bkpdf.h"
 // #include "filetypes/bkdjvu.h"
 // #include "filetypes/bkpalmdoc.h"
 #include "filetypes/bkplaintext.h"
 
 BKDocument* BKDocument::create(string& filePath) {
 	BKDocument* doc = 0;
-	// if (BKPDF::isPDF(filePath)) {
-	// 	doc = BKPDF::create(filePath);
+	if (BKPDF::isPDF(filePath)) {
+		doc = BKPDF::create(filePath);
 	// } else if (BKDJVU::isDJVU(filePath)) {
 	// 	doc = BKDJVU::create(filePath);
 	// } else if (BKPalmDoc::isPalmDoc(filePath)) {
 	// 	doc = BKPalmDoc::create(filePath);
-	// } else {
+	} else {
 		doc = BKPlainText::create(filePath);
-	// }
+	}
 	if (doc != 0)
 	{
 		#ifdef DEBUG
@@ -88,15 +88,19 @@ void BKDocument::setBanner(char* b) {
 
 int BKDocument::update(unsigned int buttons) {
 	// let the view quit update processing early for some special events
+	printf("BKDocument::update\n");
 	if (lastSuspendSerial != FZScreen::getSuspendSerial()) {
 		lastSuspendSerial = FZScreen::getSuspendSerial();
 		int r = resume();
 		if (r != 0)
 			return r;
 	}
+
+	printf("BKDocument::updateContent pre\n");
 	int r = updateContent();
 	if (r != 0)
 		return r;
+	printf("BKDocument::updateContent post\n");
 
 	bannerFrames--;
 	tipFrames--;
@@ -126,14 +130,17 @@ int BKDocument::update(unsigned int buttons) {
 	if (frames % 60 == 0 && r == 0 && mode != BKDOC_VIEW)
 		r = BK_CMD_MARK_DIRTY;
 
+	printf("BKDocument::updateContent - done\n");
 	return r;
 }
 
 int BKDocument::processEventsForView() {
+	printf("BKDocument::processEventsForView - start\n");
 	int* b = FZScreen::ctrlReps();
 
 	// button handling - pagination
 	if (isPaginated()) {
+		printf("BKDocument::processEventsForView - paginated - start\n");
 		// int n = getTotalPages();
 		int p = getCurrentPage();
 		int op = p;
@@ -164,12 +171,15 @@ int BKDocument::processEventsForView() {
 		int r = 0;
 		if (op != p)
 			setCurrentPage(p);
+		printf("BKDocument::processEventsForView - paginated - end\n");
 		if (r != 0)
 			return r;
 	}
 
 	// button handling - zoom
+	/*
 	if (isZoomable()) {
+		printf("BKDocument::processEventsForView - zoomable - start\n");
 		vector<ZoomLevel> zooms;
 		getZoomLevels(zooms);
 		int z = getCurrentZoomLevel();
@@ -179,51 +189,51 @@ int BKDocument::processEventsForView() {
 		if (b[BKUser::controls.zoomOut] == 1) {
 			z--;
 		}
-		/*if (b[BKUser::controls.zoomFitWidth] == 1) {
-			z ?
-		}
-		if (b[BKUser::controls.zoomFitHeight] == 1) {
-			z ?
-		}
-		*/
 		int r = setZoomLevel(z);
+		printf("BKDocument::processEventsForView - zoomable - end\n");
 		if (r != 0)
 			return r;
 	}
+	*/
 
 	// button handling - analog pad panning
-	{
+	/*
+		{
+
 		int ax = 0, ay = 0;
 		FZScreen::getAnalogPad(ax, ay);
-		int r = pan(ax, ay);
+		int r = 0; //pan(ax, ay);
 		if (r != 0)
 			return r;
 	}
+	*/
 
 	// button handling - digital panning
-	{
-		if (b[BKUser::controls.screenUp] == 1 || b[BKUser::controls.screenUp] > 20) {
-			int r = screenUp();
-			if (r != 0)
-				return r;
+	/*
+		{
+			if (b[BKUser::controls.screenUp] == 1 || b[BKUser::controls.screenUp] > 20) {
+				int r = screenUp();
+				if (r != 0)
+					return r;
+			}
+			if (b[BKUser::controls.screenDown] == 1 || b[BKUser::controls.screenDown] > 20) {
+				int r = screenDown();
+				if (r != 0)
+					return r;
+			}
+			if (b[BKUser::controls.screenLeft] == 1 || b[BKUser::controls.screenLeft] > 20) {
+				int r = screenLeft();
+				if (r != 0)
+					return r;
+			}
+			if (b[BKUser::controls.screenRight] == 1 || b[BKUser::controls.screenRight] > 20) {
+				int r = screenRight();
+				if (r != 0)
+					return r;
+			}
 		}
-		if (b[BKUser::controls.screenDown] == 1 || b[BKUser::controls.screenDown] > 20) {
-			int r = screenDown();
-			if (r != 0)
-				return r;
-		}
-		if (b[BKUser::controls.screenLeft] == 1 || b[BKUser::controls.screenLeft] > 20) {
-			int r = screenLeft();
-			if (r != 0)
-				return r;
-		}
-		if (b[BKUser::controls.screenRight] == 1 || b[BKUser::controls.screenRight] > 20) {
-			int r = screenRight();
-			if (r != 0)
-				return r;
-		}
-	}
-	
+	*/
+
 	// button handling - rotation - TO DO
 	/*
 	virtual bool isRotable() = 0;
@@ -244,6 +254,7 @@ int BKDocument::processEventsForView() {
 		return BK_CMD_MARK_DIRTY;
 	}
 
+	printf("BKDocument::processEventsForView - end\n");
 	return 0;
 }
 
@@ -348,7 +359,7 @@ void BKDocument::buildToolbarMenus() {
 			i.iconW = 18;
 			i.iconH = 26;
 			toolbarMenus[2].push_back(i);
-	
+
 			i.label = "Fit width";
 			i.iconX = 95;
 			i.iconY = 53;
@@ -519,7 +530,7 @@ int BKDocument::processEventsForToolbar() {
 			zi = 1;
 			zo = 0;
 		}
-		
+
 		// zoom in
 		if (toolbarSelMenu == 2 && toolbarSelMenuItem == zi && isZoomable()) {
 			vector<ZoomLevel> zooms;
@@ -722,7 +733,7 @@ void BKDocument::render() {
 	// drawImage(38 + 1*55, 205, 18, 26, 19, 53);
 	// drawImage(38 + 2*55, 205, 18, 26, 38, 53);
 	// drawImage(38 + 3*55, 205, 19, 26, 19, 79);
-	
+
 	// // selected column
 	// for (int i = init, j = 0; i < ts; i++, j++) {
 	// 	const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
@@ -758,7 +769,7 @@ void BKDocument::render() {
 	// 	drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
 	// }
 
-	
+
 	// string t;
 	// if (isPaginated()) {
 	// 	char tp[256];

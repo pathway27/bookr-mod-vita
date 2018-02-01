@@ -8,7 +8,7 @@
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
- 
+
  * AND VARIOUS OTHER FORKS.
  * See Forks in the README for more info
  *
@@ -208,6 +208,8 @@ using namespace std;
   #define FZ_DEBUG_SCREEN_SET00 pspDebugScreenSetXY(0,0);
   #define printf pspDebugScreenPrintf
 #elif defined(__vita__) && defined(DEBUG)
+  #include <psp2/kernel/clib.h>
+  #define printf sceClibPrintf
 #else
   #define FZ_DEBUG_SCREEN_INIT
   #define FZ_DEBUG_SCREEN_SET00
@@ -260,7 +262,7 @@ public:
   /**
    * Commit dirty cache.
    */
-  
+
   static void commitAll();
 
   static void commitRange(const void* p, unsigned int size);
@@ -299,6 +301,7 @@ public:
   static void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
     int dx, int dy, int destw, void *dest);
 
+  static void drawPixel(float x, float y, unsigned int color);
   static void* framebuffer();
 
   static void blendFunc(int op, int src, int dst);
@@ -346,4 +349,3 @@ public:
 #endif
 
 #endif
-
