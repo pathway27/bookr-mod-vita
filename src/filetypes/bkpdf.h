@@ -29,10 +29,7 @@
 #ifndef BKPDF_H
 #define BKPDF_H
 
-#include <string>
-extern "C" {
-	#include <mupdf/fitz.h>
-}
+#include <mupdf/fitz.h>
 
 #include "../graphics/fzscreen.h"
 #include "../graphics/fzfont.h"

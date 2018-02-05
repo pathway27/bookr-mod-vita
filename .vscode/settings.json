@@ -5,5 +5,7 @@
       "map": "cpp",
       "*.frag.*": "glsl",
       "*.vert.*": "glsl",
+      "xstring": "cpp",
+      "utils.c": "cpp"
     }
   }
