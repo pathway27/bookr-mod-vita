@@ -1,11 +1,18 @@
 {
-    "files.associations": {
-      "Makefile.*": "makefile",
-      "vector": "cpp",
-      "map": "cpp",
-      "*.frag.*": "glsl",
-      "*.vert.*": "glsl",
-      "xstring": "cpp",
-      "utils.c": "cpp"
-    }
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "files.associations": {
+    "Makefile.*": "makefile",
+    "vector": "cpp",
+    "map": "cpp",
+    "*.frag.*": "glsl",
+    "*.vert.*": "glsl",
+    "xstring": "cpp",
+    "utils.c": "cpp",
+    "xlocale": "cpp",
+    "initializer_list": "cpp",
+    "type_traits": "cpp",
+    "xtree": "cpp",
+    "xutility": "cpp"
   }
+}

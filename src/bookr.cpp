@@ -83,14 +83,7 @@ int main(int argc, char* argv[]) {
                 ++it;
             }
             FZScreen::endAndDisplayList();
-        }
-
-        FZScreen::waitVblankStart();
-
-        // draw it
-        if (dirty) {
             FZScreen::swapBuffers();
-            //dirty = false;
         }
 
         //FZScreen::checkEvents();

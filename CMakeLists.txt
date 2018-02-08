@@ -148,7 +148,7 @@ else()
 
     src/graphics/fzscreenvita.cpp
 
-    src/filetypes/bkpdf.cpp
+    src/filetypes/bkmudocument.cpp
   )
 
   # Library to link to (drop the -l prefix). This will mostly be stubs.
