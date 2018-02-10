@@ -54,10 +54,10 @@ static vita2d_texture *texture;
 BKMUDocument::BKMUDocument(string& f) : 
   filename(f), m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false),
   m_pageText(nullptr), m_links(nullptr), panX(0), panY(0),
-  m_curPageLoaded(false), m_current_page(0), m_fitWidth(true), m_scale(96)
+  m_curPageLoaded(false), m_current_page(0), m_fitWidth(true), m_scale(1)
 {
   #ifdef DEBUG
-    printf("new BKMUDocument::BKMUDocument");
+    printf("BKMUDocument::BKMUDocument\n");
   #endif
 
   m_rotate = 0.0f;
@@ -65,11 +65,13 @@ BKMUDocument::BKMUDocument(string& f) :
   m_height = FZ_SCREEN_HEIGHT;
 
   // Initalize fitz context
-  m_ctx = fz_new_context(nullptr, nullptr, FZ_STORE_UNLIMITED);
+  m_ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
   if (m_ctx)
     fz_register_document_handlers(m_ctx);
   else
     printf("MuPDF context allocation problem");
+
+  fz_set_use_document_css(m_ctx, 1);
 
   // Open Document; TODO: Implement keyboard password
   fz_try(m_ctx) {
@@ -77,7 +79,7 @@ BKMUDocument::BKMUDocument(string& f) :
     if (fz_needs_password(m_ctx, m_doc)) {
       int okay = 0;
       char *password;
-      char defaultValue = '\0';
+      char defaultValue;
       // input for password
       if (!okay)
         fz_throw(m_ctx, FZ_ERROR_GENERIC, "no pass");
@@ -96,7 +98,7 @@ BKMUDocument::BKMUDocument(string& f) :
 
 BKMUDocument::~BKMUDocument() {
   #ifdef DEBUG
-    printf("BKMUDocument::~BKMUDocument");
+    printf("BKMUDocument::~BKMUDocument\n");
   #endif
   
   mudoc_singleton = nullptr;
@@ -107,7 +109,7 @@ BKMUDocument::~BKMUDocument() {
 
 BKMUDocument* BKMUDocument::create(string& file) {
   #ifdef DEBUG
-    printf("BKMUDocument::create");
+    printf("BKMUDocument::create\n");
   #endif
   
 	if (mudoc_singleton) {
@@ -124,10 +126,14 @@ BKMUDocument* BKMUDocument::create(string& file) {
 int BKMUDocument::updateContent() {
   if (loadNewPage) {
     redrawBuffer();
+
+    panY = 0;
     loadNewPage = false;
     char t[256];
-		snprintf(t, 256, "Page %d of %d", m_current_page, m_pages);
+
+		snprintf(t, 256, "Page %d of %d", m_current_page + 1, m_pages);
 		setBanner(t);
+    
 		return BK_CMD_MARK_DIRTY;
   }
 	return 0;
@@ -155,7 +161,7 @@ void BKMUDocument::renderContent() {
   vita2d_draw_texture(texture, panX, panY);
   printf("BKMUDocument::renderContent -- post pixel\n");
 
-	// TODO: Show Page Error, don't draw texture then.
+	// TODO: Show Page Error, don"t draw texture then.
 	// if (pageError) {
 	// 	texUI->bindForDisplay();
 	// 	FZScreen::ambientColor(0xf06060ff);
@@ -175,7 +181,7 @@ int BKMUDocument::getCurrentPage() {
 }
 
 int BKMUDocument::setCurrentPage(int page_number) {
-  if (page_number < 0 || page_number > m_pages)
+  if (page_number < 0 || page_number >= m_pages)
     // TODO(UI): Some visual notice of start or end
     return 1;
   else {
@@ -183,11 +189,10 @@ int BKMUDocument::setCurrentPage(int page_number) {
     m_current_page = page_number;
 
 		char t[256];
-		snprintf(t, 256, "Loading page %d", m_current_page);
+		snprintf(t, 256, "Loading page %d", m_current_page + 1);
 		setBanner(t);
 		
-    panY = 0;
-		return BK_CMD_MARK_DIRTY;
+		return 0;
   }
 }
 
@@ -197,8 +202,8 @@ bool BKMUDocument::redrawBuffer(bool setSpeed) {
     printf("BKMUDocument::redrawBuffer\n");
   #endif
   
-	fz_scale(&m_transform, m_scale / 72, m_scale / 72);
-  fz_pre_rotate(&m_transform, m_rotate);
+	// fz_scale(&m_transform, m_scale / 72, m_scale / 72);
+  // fz_pre_rotate(&m_transform, m_rotate);
   
   fz_drop_stext_page(m_ctx, m_pageText);
   m_pageText = nullptr;
@@ -212,15 +217,13 @@ bool BKMUDocument::redrawBuffer(bool setSpeed) {
   m_pageText = fz_new_stext_page_from_page(m_ctx, m_page, nullptr);
 
   // bounds for inital window size
-  /*
-    fz_rect rect;
-    fz_irect irect;
-    fz_bound_page(m_ctx, m_page, &rect);
-    fz_transform_rect(&rect, &m_transform);
-    fz_round_rect(&irect, &rect);
-  */
+  fz_bound_page(m_ctx, m_page, &m_bounds);
+  if (m_fitWidth)
+    m_scale = m_width / (m_bounds.x1 - m_bounds.x0);
 
-	//fixBounds();
+  fz_scale(&m_transform, m_scale, m_scale);
+  fz_pre_rotate(&m_transform, m_rotate);
+  fz_transform_rect(&m_bounds, &m_transform);
 
   // TODO: Is display list or bbox better?
   fz_annot *annot;
@@ -229,7 +232,11 @@ bool BKMUDocument::redrawBuffer(bool setSpeed) {
 	fz_catch(m_ctx) {
 		printf("cannot render page: %s\n", fz_caught_message(m_ctx));
 	}
+
+  // Crashes due to GPU memory use without this.
+  vita2d_free_texture(texture);
   texture = _vita2d_load_pixmap_generic(m_pix);
+
   fz_drop_pixmap(m_ctx, m_pix);
 
   // load annotations
@@ -246,14 +253,25 @@ bool BKMUDocument::isMUDocument(string& file) {
   char header[4];
 	memset((void*)header, 0, 4);
 	FILE* f = fopen(file.c_str(), "r");
+  const char* ext = get_ext(file.c_str());
 	if( !f )
 		return false;
 	fread(header, 4, 1, f);
 	fclose(f);
 
-  // Check for PDF
-  // TODO: Check for XPS, SVG, CBZ, IMG, TIFF, HTML, EPUB, GPRF
-	return header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46;
+  // TODO: get libmagic or something?
+  // Trusting the user for now...
+	return ((header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46) ||
+          (strcmp(ext, ".xps") == 0) ||
+          (strcmp(ext, ".svg") == 0) ||
+          (strcmp(ext, ".cbz") == 0) ||
+          (strcmp(ext, ".img") == 0) ||
+          (strcmp(ext, ".tiff") == 0) ||
+          (strcmp(ext, ".htm") == 0) ||
+          (strcmp(ext, ".html") == 0) ||
+          (strcmp(ext, ".epub") == 0) ||
+          (strcmp(ext, ".fb2") == 0)
+  );
 }
 
 void BKMUDocument::getFileName(string& s) {
@@ -264,14 +282,34 @@ bool BKMUDocument::isPaginated() {
   return true;
 }
 
-// Normalize
+// TODO: Move this to bkuser.
+static float speed = 0.5f;
 int BKMUDocument::pan(int x, int y) {
   #ifdef DEBUG
-    printf("pan x %i y %i", x, y);
+    printf("INPUT x %i y %i\n", x, y);
   #endif
-  panX = x;
-	panY = y;
+  
+  if (abs(x) <= FZ_ANALOG_THRESHOLD &&
+      abs(y) <= FZ_ANALOG_THRESHOLD)
 	return 0;
+
+  // TODO: Choose invert analog settings
+  // if settings.invertAnalog
+  // x = -x
+
+  if (abs(x) > FZ_ANALOG_THRESHOLD)
+    panX -= x/10;
+    //panX += speed * (x/FZ_ANALOG_THRESHOLD);
+
+  if (abs(y) > FZ_ANALOG_THRESHOLD)
+    panY -= y/10;
+	  //panY += speed * (y/FZ_ANALOG_THRESHOLD);
+
+  #ifdef DEBUG
+    printf("OUTPUT x %i y %i\n", panX, panY);
+  #endif
+
+	return BK_CMD_MARK_DIRTY;
 }
 
 // -------------------- NOT IMPLEMENTED YET --------------------

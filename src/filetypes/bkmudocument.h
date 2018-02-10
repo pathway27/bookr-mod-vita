@@ -58,8 +58,8 @@ private:
   float m_rotate;
   int m_width;
   int m_height;
-  int panX;
-	int panY;
+  float panX;
+	float panY;
 
   string filename;
 

@@ -201,7 +201,6 @@ int BKDocument::processEventsForView() {
 	*/
 
 	// button handling - analog pad panning
-	/*
 	{
 		int ax = 0, ay = 0;
 		FZScreen::getAnalogPad(ax, ay);
@@ -209,7 +208,6 @@ int BKDocument::processEventsForView() {
 		if (r != 0)
 			return r;
 	}
-	*/
 
 	// button handling - digital panning
 	{
