@@ -26,105 +26,88 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BKPDF_H
-#define BKPDF_H
+#ifndef BKMUPDFDOCUMENT_H
+#define BKMUPDFDOCUMENT_H
 
 #include <mupdf/fitz.h>
 
-#include "../graphics/fzscreen.h"
-#include "../graphics/fzfont.h"
 #include "../bkdocument.h"
+#include "../graphics/fzscreen.h"
 
-struct PDFContext;
-class BKPDF : public BKDocument {
-	PDFContext* ctx;
-	fz_context  *m_ctx;
-	fz_document *m_doc;
-	fz_page *m_page;
-	fz_pixmap *m_pix;
-	fz_rect m_bounds;
-	fz_matrix m_transform;
-	int m_page_number, m_page_count;
-	// fz_text_page *m_pageText;
-	fz_rect m_matches[512];
-	bool m_curPageLoaded;
-	bool m_fitWidth;
-	float m_scale, m_rotate;
+using namespace std;
 
-	int m_width, m_height;
+class BKMUDocument : public BKDocument {
+private:
+  fz_context *m_ctx;
+  fz_document *m_doc;
+  fz_page *m_page;
+  fz_pixmap *m_pix;
+  fz_rect m_bounds;
+  fz_matrix m_transform;
+  fz_stext_page *m_pageText;
+  fz_rect m_matches[512];
+  fz_link *m_links;
+  
+  int m_current_page;
+  int m_pages;
+  bool m_curPageLoaded;
+  bool m_fitWidth;
+  bool loadNewPage;
+  
+  float m_scale;
+  float m_rotate;
+  int m_width;
+  int m_height;
+  float panX;
+	float panY;
 
-	string fileName;
+  string filename;
 
-	int panX;
-	int panY;
-	int neg_panX;
-	int neg_panY;
-	bool loadNewPage;
-	bool resetPanXY;
-	bool pageError;
-	bool retryLoadPageWhenError;
-	int leftMargin;
-	void panBuffer(int nx, int ny);
-	void clipCoords(float& nx, float& ny);
-	bool redrawBuffer(bool setSpeed = false);
-	bool redrawBufferIncremental(int nx, int ny, bool setSpeed = false);
-	int prePan(int x, int y);
-	int pdfReopenFile();
+  bool redrawBuffer(bool setSpeed = false);
 
-	string title;
-	char* ctitle;
-	protected:
-	BKPDF(string& f);
-	~BKPDF();
+protected:
+  BKMUDocument(string& f);
+  ~BKMUDocument();
 
-	public:
+public:
 	virtual int updateContent();
 	virtual int resume();
 	virtual void renderContent();
 
-	virtual void getFileName(string&);
-	virtual void getTitle(string&);
-	virtual void getType(string&);
-
-	virtual bool isPaginated();
-	virtual int getTotalPages();
+  virtual bool isPaginated();
+  virtual int getTotalPages();
 	virtual int getCurrentPage();
 	virtual int setCurrentPage(int);
 
-	virtual bool isZoomable();
-	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
-	virtual int getCurrentZoomLevel();
-	virtual int setZoomLevel2(int);
-	virtual int setZoomLevel(int);
-	virtual bool hasZoomToFit();
-	virtual int setZoomToFitWidth();
-	virtual int setZoomToFitHeight();
-	virtual int setZoomIn(int,int);
-	virtual void setZoom(float z);
-	virtual int pan(int, int);
-
-	virtual int screenUp();
+  virtual int pan(int, int);
+  virtual int screenUp();
 	virtual int screenDown();
 	virtual int screenLeft();
 	virtual int screenRight();
 
+  virtual void getFileName(string&);
+  virtual void getTitle(string&);
+  virtual void getType(string&);
+
+  static BKMUDocument* create(string& file);
+  static bool isMUDocument(string& file);
+
+	virtual bool isZoomable();
+	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v);
+	virtual int getCurrentZoomLevel();
+	virtual int setZoomLevel(int);
+	virtual bool hasZoomToFit();
+	virtual int setZoomToFitWidth();
+	virtual int setZoomToFitHeight();
+
 	virtual bool isRotable();
-	virtual int getRotation();
-	virtual int setRotation2(int, bool bForce=false);
+	virtual int getRotation() ;
 	virtual int setRotation(int, bool bForce=false);
 
 	virtual bool isBookmarkable();
 	virtual void getBookmarkPosition(map<string, int>&);
 	virtual int setBookmarkPosition(map<string, int>&);
-	virtual int getFastImageStatus();
-	virtual float getCurrentZoom();
-	virtual int getOutlineType();
-	virtual void* getOutlines();
-	virtual void gotoOutline(void *o, bool ignoreZoom = false);
-	static BKPDF* create(string& file);
-	static bool isPDF(string& file);
 };
 
-#define GLYPHCACHE_SIZE 524288
-#define GLYPHCACHE_SLOTS (GLYPHCACHE_SIZE / 32)
 #endif
+

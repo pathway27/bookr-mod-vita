@@ -1,5 +1,8 @@
 // TODO: Find a place for this
 
+#include <stdio.h>
+#include <string.h>
+
 #include <vita2d.h>
 
 static vita2d_texture* _vita2d_load_pixmap_generic(fz_pixmap *pixmap)
@@ -24,4 +27,11 @@ static vita2d_texture* _vita2d_load_pixmap_generic(fz_pixmap *pixmap)
   }
 
   return texture;
+}
+
+const char *get_ext (const char *fspec) {
+    char *e = strrchr (fspec, '.');
+    if (e == NULL)
+        e = ""; // fast method, could also use &(fspec[strlen(fspec)]).
+    return e;
 }

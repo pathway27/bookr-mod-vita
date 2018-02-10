@@ -23,15 +23,15 @@
 #ifdef __vita__
 	#include <vita2d.h>
 #endif
-#include "filetypes/bkpdf.h"
+#include "filetypes/bkmudocument.h"
 // #include "filetypes/bkdjvu.h"
 // #include "filetypes/bkpalmdoc.h"
 #include "filetypes/bkplaintext.h"
 
 BKDocument* BKDocument::create(string& filePath) {
 	BKDocument* doc = 0;
-	if (BKPDF::isPDF(filePath)) {
-		doc = BKPDF::create(filePath);
+	if (BKMUDocument::isMUDocument(filePath)) {
+		doc = BKMUDocument::create(filePath);
 	// } else if (BKDJVU::isDJVU(filePath)) {
 	// 	doc = BKDJVU::create(filePath);
 	// } else if (BKPalmDoc::isPalmDoc(filePath)) {
@@ -88,7 +88,9 @@ void BKDocument::setBanner(char* b) {
 
 int BKDocument::update(unsigned int buttons) {
 	// let the view quit update processing early for some special events
-	printf("BKDocument::update\n");
+	#ifdef DEBUG_RENDER
+		printf("BKDocument::update\n");
+	#endif
 	if (lastSuspendSerial != FZScreen::getSuspendSerial()) {
 		lastSuspendSerial = FZScreen::getSuspendSerial();
 		int r = resume();
@@ -96,11 +98,16 @@ int BKDocument::update(unsigned int buttons) {
 			return r;
 	}
 
-	printf("BKDocument::updateContent pre\n");
+	#ifdef DEBUG_RENDER
+		printf("BKDocument::updateContent pre\n");
+	#endif
+
 	int r = updateContent();
 	if (r != 0)
 		return r;
-	printf("BKDocument::updateContent post\n");
+	#ifdef DEBUG_RENDER
+		printf("BKDocument::updateContent post\n");
+	#endif
 
 	bannerFrames--;
 	tipFrames--;
@@ -130,17 +137,24 @@ int BKDocument::update(unsigned int buttons) {
 	if (frames % 60 == 0 && r == 0 && mode != BKDOC_VIEW)
 		r = BK_CMD_MARK_DIRTY;
 
-	printf("BKDocument::updateContent - done\n");
+	#ifdef DEBUG_RENDER
+		printf("BKDocument::updateContent - done\n");
+	#endif
+
 	return r;
 }
 
 int BKDocument::processEventsForView() {
-	printf("BKDocument::processEventsForView - start\n");
+	#ifdef DEBUG_RENDER
+		printf("BKDocument::processEventsForView - start\n");
+	#endif
 	int* b = FZScreen::ctrlReps();
 
 	// button handling - pagination
 	if (isPaginated()) {
-		printf("BKDocument::processEventsForView - paginated - start\n");
+		#ifdef DEBUG_RENDER
+			printf("BKDocument::processEventsForView - paginated - start\n");
+		#endif
 		// int n = getTotalPages();
 		int p = getCurrentPage();
 		int op = p;
@@ -156,22 +170,12 @@ int BKDocument::processEventsForView() {
 		if (b[BKUser::controls.previous10Pages] == 1) {
 			p -= 10;
 		}
-		/*if (b[BKUser::controls.firstPage] == 1) {
-			p = 1;
-		}
-		if (b[BKUser::controls.lastPage] == 1) {
-			p = n;
-		}*/
-		/*if (b[BKUser::controls.screenfulUp] == 1) {
-			?
-		}
-		if (b[BKUser::controls.screenfulDown] == 1) {
-			?
-		}*/
 		int r = 0;
 		if (op != p)
 			setCurrentPage(p);
-		printf("BKDocument::processEventsForView - paginated - end\n");
+		#ifdef DEBUG_RENDER
+			printf("BKDocument::processEventsForView - paginated - end\n");
+		#endif
 		if (r != 0)
 			return r;
 	}
@@ -197,49 +201,40 @@ int BKDocument::processEventsForView() {
 	*/
 
 	// button handling - analog pad panning
-	/*
-		{
-
+	{
 		int ax = 0, ay = 0;
 		FZScreen::getAnalogPad(ax, ay);
-		int r = 0; //pan(ax, ay);
+		int r = pan(ax, ay);
 		if (r != 0)
 			return r;
 	}
-	*/
 
 	// button handling - digital panning
-	/*
-		{
-			if (b[BKUser::controls.screenUp] == 1 || b[BKUser::controls.screenUp] > 20) {
-				int r = screenUp();
-				if (r != 0)
-					return r;
-			}
-			if (b[BKUser::controls.screenDown] == 1 || b[BKUser::controls.screenDown] > 20) {
-				int r = screenDown();
-				if (r != 0)
-					return r;
-			}
-			if (b[BKUser::controls.screenLeft] == 1 || b[BKUser::controls.screenLeft] > 20) {
-				int r = screenLeft();
-				if (r != 0)
-					return r;
-			}
-			if (b[BKUser::controls.screenRight] == 1 || b[BKUser::controls.screenRight] > 20) {
-				int r = screenRight();
-				if (r != 0)
-					return r;
-			}
+	{
+		if (b[BKUser::controls.screenUp] == 1 || b[BKUser::controls.screenUp] > 20) {
+			int r = screenUp();
+			if (r != 0)
+				return r;
 		}
-	*/
+		if (b[BKUser::controls.screenDown] == 1 || b[BKUser::controls.screenDown] > 20) {
+			int r = screenDown();
+			if (r != 0)
+				return r;
+		}
+		if (b[BKUser::controls.screenLeft] == 1 || b[BKUser::controls.screenLeft] > 20) {
+			int r = screenLeft();
+			if (r != 0)
+				return r;
+		}
+		if (b[BKUser::controls.screenRight] == 1 || b[BKUser::controls.screenRight] > 20) {
+			int r = screenRight();
+			if (r != 0)
+				return r;
+		}
+	}
 
 	// button handling - rotation - TO DO
-	/*
-	virtual bool isRotable() = 0;
-	virtual int getRotation() = 0;
-	virtual void setRotation(int) = 0;
-	*/
+	/**/
 
 	// bookmarks and other features are not supported by mapeable keys
 
@@ -254,7 +249,9 @@ int BKDocument::processEventsForView() {
 		return BK_CMD_MARK_DIRTY;
 	}
 
-	printf("BKDocument::processEventsForView - end\n");
+	#ifdef DEBUG_RENDER
+		printf("BKDocument::processEventsForView - end\n");
+	#endif
 	return 0;
 }
 
@@ -593,49 +590,55 @@ void BKDocument::render() {
 	renderContent();
 
 	// // flash tip for menu/toolbar on load
-	// if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
-	// 	int alpha = 0xff;
-	// 	if (tipFrames <= 32) {
-	// 		alpha = tipFrames*(256/32) - 8;
-	// 	}
-	// 	if (alpha > 0) {
-	// 		texUI->bindForDisplay();
-	// 		FZScreen::ambientColor(0x222222 | (alpha << 24));
-	// 		drawPill(480 - 37 - 37 - 8, 272 - 18 - 4,
-	// 			37*2 + 2, 50,
-	// 			6,
-	// 			31, 1);
-	// 		FZScreen::ambientColor(0xffffff | (alpha << 24));
-	// 		drawImage(480 - 37 - 2, 272 - 18,
-	// 			37, 18,
-	// 			75, 60);
-	// 		drawImage(480 - 37 - 2 - 2 - 37, 272 - 18,
-	// 			37, 18,
-	// 			75, 39);
-	// 	}
-	// }
+	/*
+		if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
+			int alpha = 0xff;
+			if (tipFrames <= 32) {
+				alpha = tipFrames*(256/32) - 8;
+			}
+			if (alpha > 0) {
+				texUI->bindForDisplay();
+				FZScreen::ambientColor(0x222222 | (alpha << 24));
+				drawPill(480 - 37 - 37 - 8, 272 - 18 - 4,
+					37*2 + 2, 50,
+					6,
+					31, 1);
+				FZScreen::ambientColor(0xffffff | (alpha << 24));
+				drawImage(480 - 37 - 2, 272 - 18,
+					37, 18,
+					75, 60);
+				drawImage(480 - 37 - 2 - 2 - 37, 272 - 18,
+					37, 18,
+					75, 39);
+			}
+		}
+	*/
 
-	// label
-	// if (bannerFrames > 0 && BKUser::options.displayLabels) {
-	// 	int y = mode == BKDOC_TOOLBAR ? 10 : 240;
-	// 	int alpha = 0xff;
-	// 	if (bannerFrames <= 32) {
-	// 		alpha = bannerFrames*(256/32) - 8;
-	// 	}
-	// 	if (alpha > 0) {
-	// 		#ifdef __vita__
-	// 			vita2d_draw_rectangle(150, y, 180, 20, 0x222222 | (alpha << 24));
-	// 			FZScreen::drawText(216, 188, (0xffffff | (alpha << 24)), 1.0f, banner.c_str());
-	// 		#elif defined(PSP)
-	// 			texUI->bindForDisplay();
-	// 			FZScreen::ambientColor(0x222222 | (alpha << 24));
-	// 			drawPill(150, y, 180, 20, 6, 31, 1);
-	// 			fontBig->bindForDisplay();
-	// 			FZScreen::ambientColor(0xffffff | (alpha << 24));
-	// 			drawTextHC((char*)banner.c_str(), fontBig, y + 4);
-	// 		#endif
-	// 	}
-	// }
+	// banner that shows page loading and current page number / number of pages
+	if (bannerFrames > 0 && BKUser::options.displayLabels) {
+		#ifdef __vita__
+			int y = mode == BKDOC_TOOLBAR ? 10 : FZ_SCREEN_HEIGHT - 50;
+		#elif defined(PSP)
+			int y = mode == BKDOC_TOOLBAR ? 10 : 240;
+		#endif
+		int alpha = 0xff;
+		if (bannerFrames <= 32) {
+			alpha = bannerFrames*(256/32) - 8;
+		}
+		if (alpha > 0) {
+			#ifdef __vita__
+				vita2d_draw_rectangle((FZ_SCREEN_WIDTH / 2) - 180, y, (2*180), 30, 0x222222 | (alpha << 24));
+				FZScreen::drawText((FZ_SCREEN_WIDTH / 2) - 180 + 90, y + 21, (0xffffff | (alpha << 24)), 1.0f, banner.c_str());
+			#elif defined(PSP)
+				texUI->bindForDisplay();
+				FZScreen::ambientColor(0x222222 | (alpha << 24));
+				drawPill(150, y, 180, 20, 6, 31, 1);
+				fontBig->bindForDisplay();
+				FZScreen::ambientColor(0xffffff | (alpha << 24));
+				drawTextHC((char*)banner.c_str(), fontBig, y + 4);
+			#endif
+		}
+	}
 
 	// if (mode != BKDOC_TOOLBAR)
 	// 	return;
@@ -643,86 +646,100 @@ void BKDocument::render() {
 	// // all of the icons menus must have at least one item
 
 	// // wrap menu indexes
-	// if (toolbarSelMenu >= 4)
-	// 	toolbarSelMenu = 0;
-	// if (toolbarSelMenu < 0)
-	// 	toolbarSelMenu = 3;
-	// if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
-	// 	toolbarSelMenuItem = 0;
-	// if (toolbarSelMenuItem < 0)
-	// 	toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
+	/*
+		if (toolbarSelMenu >= 4)
+			toolbarSelMenu = 0;
+		if (toolbarSelMenu < 0)
+			toolbarSelMenu = 3;
+		if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
+			toolbarSelMenuItem = 0;
+		if (toolbarSelMenuItem < 0)
+			toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
+	*/
 
 	// const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
 
 	// // background
-	// #ifdef PSP
-	// 	texUI->bindForDisplay();
-	// 	FZScreen::ambientColor(0xf0222222);
-	// 	drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
-	// #elif defined(__vita__)
-	// 	vita2d_draw_rectangle(20, 544 - 75, 960 - 46, 544, 0xf0222222);
-	// #endif
+	/*
+		#ifdef PSP
+			texUI->bindForDisplay();
+			FZScreen::ambientColor(0xf0222222);
+			drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
+		#elif defined(__vita__)
+			vita2d_draw_rectangle(20, 544 - 75, 960 - 46, 544, 0xf0222222);
+		#endif
+	*/
 
 	// // context label
-	// #ifdef PSP
-	// 	FZScreen::ambientColor(0xff555555);
-	// 	//drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
-	// 	drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
-	// #elif defined(__vita__)
-	// 	vita2d_draw_rectangle(25, 544 - 30, 960 - 57, 30, 0xff555555);
-	// #endif
+	/*
+		#ifdef PSP
+			FZScreen::ambientColor(0xff555555);
+			//drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
+			drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
+		#elif defined(__vita__)
+			vita2d_draw_rectangle(25, 544 - 30, 960 - 57, 30, 0xff555555);
+		#endif
+	*/
 
 	// // selected column - decide if it overflows
-	// int ts = toolbarMenus[toolbarSelMenu].size();
-	// int init = 0;
-	// bool overflow = false;
-	// int cs = ts;
-	// if (ts > 5) {		// overflow mode
-	// 	overflow = true;
-	// 	init = toolbarSelMenuItem - 4;
-	// 	if (init < 0)
-	// 		init = 0;
-	// 	ts = 5 + init;
-	// 	cs = 5;
-	// }
+	/*
+		int ts = toolbarMenus[toolbarSelMenu].size();
+		int init = 0;
+		bool overflow = false;
+		int cs = ts;
+		if (ts > 5) {		// overflow mode
+			overflow = true;
+			init = toolbarSelMenuItem - 4;
+			if (init < 0)
+				init = 0;
+			ts = 5 + init;
+			cs = 5;
+		}
+	*/
 
 	// // highlight icon column
-	// #ifdef PSP
-	// 	FZScreen::ambientColor(0xf0555555);
-	// 	drawPill(25 + toolbarSelMenu*55,
-	// 		272 - 156 - cs*35+70,
-	// 		40, cs*35+45,
-	// 		6, 31, 1
-	// 	);
-	// #elif defined(__vita__)
-	// 	vita2d_draw_rectangle(25 + toolbarSelMenu*55, (544 - 156 - (cs*35+70)), 40, (cs*35)+45, 0xf0555555);
-	// #endif
+	/*
+		#ifdef PSP
+			FZScreen::ambientColor(0xf0555555);
+			drawPill(25 + toolbarSelMenu*55,
+				272 - 156 - cs*35+70,
+				40, cs*35+45,
+				6, 31, 1
+			);
+		#elif defined(__vita__)
+			vita2d_draw_rectangle(25 + toolbarSelMenu*55, (544 - 156 - (cs*35+70)), 40, (cs*35)+45, 0xf0555555);
+		#endif
+	*/
 
 	// // selected icon item row
-	// FZScreen::ambientColor(0xf0cccccc);
-	// int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
-	// int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
-	// if (iw < mw)
-	// 	iw = mw;
-	// int selItemI = overflow ?
-	// 	toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
-	// 	: toolbarSelMenuItem;
-	// drawPill(
-	// 	30 + toolbarSelMenu*55,
-	// 	272 - 156 - selItemI*35+40,
-	// 	iw + 10 + 35,
-	// 	30,
-	// 	6, 31, 1);
+	/*
+		FZScreen::ambientColor(0xf0cccccc);
+		int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
+		int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
+		if (iw < mw)
+			iw = mw;
+		int selItemI = overflow ?
+			toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+			: toolbarSelMenuItem;
+		drawPill(
+			30 + toolbarSelMenu*55,
+			272 - 156 - selItemI*35+40,
+			iw + 10 + 35,
+			30,
+			6, 31, 1);
+	*/
 
 	// // button icons
-	// FZScreen::ambientColor(0xffcccccc);
-	// int tw = textW((char*)it.circleLabel.c_str(), fontBig);
-	// if (it.circleLabel.size() > 0) {
-	// 	drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-	// }
-	// if (it.triangleLabel.size() > 0) {
-	// 	drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
-	// }
+	/*
+		FZScreen::ambientColor(0xffcccccc);
+		int tw = textW((char*)it.circleLabel.c_str(), fontBig);
+		if (it.circleLabel.size() > 0) {
+			drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+		}
+		if (it.triangleLabel.size() > 0) {
+			drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+		}
+	*/
 
 	// // icon bar
 	// texUI2->bindForDisplay();
@@ -735,18 +752,20 @@ void BKDocument::render() {
 	// drawImage(38 + 3*55, 205, 19, 26, 19, 79);
 
 	// // selected column
-	// for (int i = init, j = 0; i < ts; i++, j++) {
-	// 	const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
-	// 	if (i == toolbarSelMenuItem)
-	// 		FZScreen::ambientColor(0xff000000);
-	// 	else
-	// 		FZScreen::ambientColor(0xffffffff);
-	// 	if (it2.iconW > 0)
-	// 		drawImage(
-	// 			40 + toolbarSelMenu*55,
-	// 			272 - 156 - j*35+45,
-	// 			it2.iconW, it2.iconH, it2.iconX, it2.iconY);
-	// }
+	/*
+		for (int i = init, j = 0; i < ts; i++, j++) {
+			const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
+			if (i == toolbarSelMenuItem)
+				FZScreen::ambientColor(0xff000000);
+			else
+				FZScreen::ambientColor(0xffffffff);
+			if (it2.iconW > 0)
+				drawImage(
+					40 + toolbarSelMenu*55,
+					272 - 156 - j*35+45,
+					it2.iconW, it2.iconH, it2.iconX, it2.iconY);
+		}
+	*/
 
 	// fontBig->bindForDisplay();
 	// // item label for selected item
@@ -763,11 +782,13 @@ void BKDocument::render() {
 	// }
 
 	// // overflow indicators
-	// if (overflow) {
-	// 	FZScreen::ambientColor(0xffffffff);
-	// 	drawText("...", fontBig, 43 + toolbarSelMenu*55, 0);
-	// 	drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
-	// }
+	/*
+		if (overflow) {
+			FZScreen::ambientColor(0xffffffff);
+			drawText("...", fontBig, 43 + toolbarSelMenu*55, 0);
+			drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
+		}
+	*/
 
 
 	// string t;

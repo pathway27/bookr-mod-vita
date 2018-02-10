@@ -114,6 +114,10 @@ using namespace std;
 #define FZ_CTRL_HOLD            0x020000
 #define FZ_CTRL_NOTE            0x800000
 
+#define FZ_ANALOG_CENTER 128
+#define FZ_ANALOG_THRESHOLD 50
+#define FZ_ANALOG_SENSITIVITY 16
+
 #ifdef __vita__
   #define FZ_CTRL_L3          0x000002
   #define FZ_CTRL_R3          0x000004
@@ -199,7 +203,7 @@ using namespace std;
 #define FZ_PSM_T4               (4) /* Texture */
 #define FZ_PSM_T8               (5) /* Texture */
 
-#define FZ_SCREEN_WIDTH					940
+#define FZ_SCREEN_WIDTH					960
 #define FZ_SCREEN_HEIGHT				544
 
 #ifdef PSP
