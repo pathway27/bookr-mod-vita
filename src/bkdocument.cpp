@@ -89,7 +89,7 @@ void BKDocument::setBanner(char* b) {
 int BKDocument::update(unsigned int buttons) {
 	// let the view quit update processing early for some special events
 	#ifdef DEBUG_RENDER
-	printf("BKDocument::update\n");
+		printf("BKDocument::update\n");
 	#endif
 	if (lastSuspendSerial != FZScreen::getSuspendSerial()) {
 		lastSuspendSerial = FZScreen::getSuspendSerial();
@@ -99,14 +99,14 @@ int BKDocument::update(unsigned int buttons) {
 	}
 
 	#ifdef DEBUG_RENDER
-	printf("BKDocument::updateContent pre\n");
+		printf("BKDocument::updateContent pre\n");
 	#endif
 
 	int r = updateContent();
 	if (r != 0)
 		return r;
 	#ifdef DEBUG_RENDER
-	printf("BKDocument::updateContent post\n");
+		printf("BKDocument::updateContent post\n");
 	#endif
 
 	bannerFrames--;
@@ -138,7 +138,7 @@ int BKDocument::update(unsigned int buttons) {
 		r = BK_CMD_MARK_DIRTY;
 
 	#ifdef DEBUG_RENDER
-	printf("BKDocument::updateContent - done\n");
+		printf("BKDocument::updateContent - done\n");
 	#endif
 
 	return r;
@@ -146,14 +146,14 @@ int BKDocument::update(unsigned int buttons) {
 
 int BKDocument::processEventsForView() {
 	#ifdef DEBUG_RENDER
-	printf("BKDocument::processEventsForView - start\n");
+		printf("BKDocument::processEventsForView - start\n");
 	#endif
 	int* b = FZScreen::ctrlReps();
 
 	// button handling - pagination
 	if (isPaginated()) {
 		#ifdef DEBUG_RENDER
-		printf("BKDocument::processEventsForView - paginated - start\n");
+			printf("BKDocument::processEventsForView - paginated - start\n");
 		#endif
 		// int n = getTotalPages();
 		int p = getCurrentPage();
@@ -174,7 +174,7 @@ int BKDocument::processEventsForView() {
 		if (op != p)
 			setCurrentPage(p);
 		#ifdef DEBUG_RENDER
-		printf("BKDocument::processEventsForView - paginated - end\n");
+			printf("BKDocument::processEventsForView - paginated - end\n");
 		#endif
 		if (r != 0)
 			return r;
@@ -250,7 +250,7 @@ int BKDocument::processEventsForView() {
 	}
 
 	#ifdef DEBUG_RENDER
-	printf("BKDocument::processEventsForView - end\n");
+		printf("BKDocument::processEventsForView - end\n");
 	#endif
 	return 0;
 }
@@ -614,29 +614,31 @@ void BKDocument::render() {
 		}
 	*/
 
-	// label
-	/*
-		if (bannerFrames > 0 && BKUser::options.displayLabels) {
+	// banner that shows page loading and current page number / number of pages
+	if (bannerFrames > 0 && BKUser::options.displayLabels) {
+		#ifdef __vita__
+			int y = mode == BKDOC_TOOLBAR ? 10 : FZ_SCREEN_HEIGHT - 50;
+		#elif defined(PSP)
 			int y = mode == BKDOC_TOOLBAR ? 10 : 240;
-			int alpha = 0xff;
-			if (bannerFrames <= 32) {
-				alpha = bannerFrames*(256/32) - 8;
-			}
-			if (alpha > 0) {
-				#ifdef __vita__
-					vita2d_draw_rectangle(150, y, 180, 20, 0x222222 | (alpha << 24));
-					FZScreen::drawText(216, 188, (0xffffff | (alpha << 24)), 1.0f, banner.c_str());
-				#elif defined(PSP)
-					texUI->bindForDisplay();
-					FZScreen::ambientColor(0x222222 | (alpha << 24));
-					drawPill(150, y, 180, 20, 6, 31, 1);
-					fontBig->bindForDisplay();
-					FZScreen::ambientColor(0xffffff | (alpha << 24));
-					drawTextHC((char*)banner.c_str(), fontBig, y + 4);
-				#endif
-			}
+		#endif
+		int alpha = 0xff;
+		if (bannerFrames <= 32) {
+			alpha = bannerFrames*(256/32) - 8;
 		}
-	*/
+		if (alpha > 0) {
+			#ifdef __vita__
+				vita2d_draw_rectangle((FZ_SCREEN_WIDTH / 2) - 180, y, (2*180), 30, 0x222222 | (alpha << 24));
+				FZScreen::drawText((FZ_SCREEN_WIDTH / 2) - 180 + 90, y + 21, (0xffffff | (alpha << 24)), 1.0f, banner.c_str());
+			#elif defined(PSP)
+				texUI->bindForDisplay();
+				FZScreen::ambientColor(0x222222 | (alpha << 24));
+				drawPill(150, y, 180, 20, 6, 31, 1);
+				fontBig->bindForDisplay();
+				FZScreen::ambientColor(0xffffff | (alpha << 24));
+				drawTextHC((char*)banner.c_str(), fontBig, y + 4);
+			#endif
+		}
+	}
 
 	// if (mode != BKDOC_TOOLBAR)
 	// 	return;
