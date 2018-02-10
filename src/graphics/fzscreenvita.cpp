@@ -26,8 +26,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include <psp2/kernel/processmgr.h>
 #include <psp2/ctrl.h>
 #include <psp2/power.h>
@@ -216,8 +214,8 @@ void FZScreen::setupCtrl() {
     resetReps();
 }
 
-static int lastAnalogX = 0;
-static int lastAnalogY = 0;
+static volatile int lastAnalogX = 0;
+static volatile int lastAnalogY = 0;
 int FZScreen::readCtrl() {
     SceCtrlData pad;
     sceCtrlPeekBufferPositive(0, &pad, 1);
@@ -228,8 +226,8 @@ int FZScreen::readCtrl() {
 }
 
 void FZScreen::getAnalogPad(int& x, int& y) {
-    x = lastAnalogX - 128;
-    y = lastAnalogY - 128;
+    x = lastAnalogX - FZ_ANALOG_CENTER;
+    y = lastAnalogY - FZ_ANALOG_CENTER;
 }
 
 void FZScreen::startDirectList() {

@@ -125,6 +125,7 @@ else()
   endforeach()
   execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
   add_definitions(-DDEBUG)
+  #add_definitions(-DDEBUG_RENDER)
   #add_definitions(-DGENKIHEN)
 
 
@@ -148,7 +149,7 @@ else()
 
     src/graphics/fzscreenvita.cpp
 
-    src/filetypes/bkpdf.cpp
+    src/filetypes/bkmudocument.cpp
   )
 
   # Library to link to (drop the -l prefix). This will mostly be stubs.

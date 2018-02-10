@@ -63,16 +63,16 @@ void BKUser::setDefaultControls() {
     controls.showToolbar		= FZ_REPS_SELECT;
     
     // set menu default controls
-    controls.select				= FZ_REPS_CROSS;//FZ_REPS_CIRCLE;
-    controls.cancel				= FZ_REPS_CIRCLE;//FZ_REPS_CROSS;
+    controls.select				= FZ_REPS_CROSS;
+    controls.cancel				= FZ_REPS_CIRCLE;
     controls.alternate			= FZ_REPS_TRIANGLE;
     controls.details			= FZ_REPS_SQUARE;	
     controls.menuUp				= FZ_REPS_UP;
     controls.menuDown			= FZ_REPS_DOWN;
     controls.menuLeft			= FZ_REPS_LEFT;
     controls.menuRight			= FZ_REPS_RIGHT;
-    controls.menuLTrigger                   = FZ_REPS_LTRIGGER;
-    controls.menuRTrigger                   = FZ_REPS_RTRIGGER;
+    controls.menuLTrigger       = FZ_REPS_LTRIGGER;
+    controls.menuRTrigger       = FZ_REPS_RTRIGGER;
     controls.resume				= FZ_REPS_START;
 }
 

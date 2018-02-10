@@ -441,7 +441,7 @@ static vita2d_texture *texture;
 void BKPDF::renderContent() {
   printf("BKPDF::renderContent\n");
 
-  FZScreen::clear(BKUser::options.colorSchemes[BKUser::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
+  FZScreen::clear(0xefefef, FZ_COLOR_BUFFER);
   FZScreen::color(0xffffffff);
   // FZScreen::matricesFor2D(rotation);
   FZScreen::enable(FZ_TEXTURE_2D);

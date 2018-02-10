@@ -32,7 +32,7 @@ using namespace std;
 // bookmark-able file.
 
 class BKDocument : public BKLayer {
-	private:
+private:
 	int lastSuspendSerial;
 	#define BKDOC_VIEW			0
 	#define BKDOC_TOOLBAR		1
@@ -66,12 +66,12 @@ class BKDocument : public BKLayer {
 
 	int frames;
 
-	protected:
+protected:
 	BKDocument();
 	virtual void saveLastView();
 	~BKDocument();
 
-	public:
+public:
 	// BKLayer::update is implemented outside the document viewers.
 	// The viewers receive the "cooked" events via the is/get/set
 	// APIs. Of course they can still override this method if neeeded

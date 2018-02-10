@@ -706,7 +706,7 @@ int BKMainMenu::updateOptions(unsigned int buttons) {
 }
 
 void BKMainMenu::render() {
-	#ifdef DEBUG
+	#ifdef DEBUG_RENDER
     printf("mainmenu render\n");
   #endif
 	string t("");
