@@ -79,7 +79,7 @@ void BKLogo::render() {
     if (loading)
         FZScreen::drawText(380, 400, RGBA8(0,0,0,255), 1.0f, "Loading...");
     else
-        FZScreen::drawText(380, 400, RGBA8(0,0,0,255), 1.0f, "Only TXTs for now.");
+        FZScreen::drawText(380, 400, RGBA8(0,0,0,255), 1.0f, "TXT - PDF - CBZ - HTML - EPUB - FB2");
 
     vita2d_draw_rectangle(96, 504, 768, 40, RGBA8(105,105,105,255)); // my cheapo drawPill
     FZScreen::drawText(255, 527, RGBA8(255,255,255,255), 1.0f, "Press Start");
