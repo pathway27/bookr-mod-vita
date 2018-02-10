@@ -5,8 +5,8 @@ You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/
 
 TODO:
 
-- Custom Fonts
-- MuPDF (HTML, PDF)
+- Zoom, User Preferences
+- Better UI
 
 ## Building
 

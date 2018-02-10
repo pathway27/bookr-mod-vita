@@ -95,8 +95,10 @@ else()
 
 
   ExternalProject_Add(mupdf_lib
+    PREFIX "${CMAKE_SOURCE_DIR}/ext/mupdf"
     GIT_REPOSITORY https://github.com/pathway27/mupdf
-    GIT_TAG 1.12.0-vita
+    GIT_TAG origin/1.12.0-vita
+    GIT_PROGRESS 1
     #--Configure step-------------
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
     CONFIGURE_COMMAND make generate
@@ -106,7 +108,6 @@ else()
     BUILD_IN_SOURCE 1
     #--Install step---------------
     INSTALL_COMMAND ""
-    LOG_DOWNLOAD 1
   )
 
   # Add any additional include paths here
@@ -124,8 +125,17 @@ else()
      message(STATUS "${_variableName}=${${_variableName}}")
   endforeach()
   execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
-  add_definitions(-DDEBUG)
-  #add_definitions(-DDEBUG_RENDER)
+
+  message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+  IF(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DDEBUG)
+    #add_definitions(-DDEBUG_RENDER)
+  ENDIF()
+
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -O3")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -std=c++11")
   #add_definitions(-DGENKIHEN)
 
 
