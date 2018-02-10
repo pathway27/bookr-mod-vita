@@ -26,8 +26,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include <psp2/kernel/processmgr.h>
 #include <psp2/ctrl.h>
 #include <psp2/power.h>

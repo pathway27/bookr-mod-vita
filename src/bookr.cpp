@@ -106,7 +106,11 @@ int main(int argc, char* argv[]) {
         if ((*it) == nullptr)
             continue;
         // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs
-        printf("pre update-buttons\n");
+
+        // These take up most of the stdout
+        #ifdef DEBUG_BUTTONS
+          printf("pre update-buttons\n");
+        #endif
         command = (*it)->update(buttons);
         if (command == BK_CMD_OPEN_FILE) {
             #ifdef DEBUG
@@ -114,7 +118,9 @@ int main(int argc, char* argv[]) {
             #endif
         }
 
-        printf("post update-buttons\n");
+        #ifdef DEBUG_BUTTONS
+          printf("post update-buttons\n");
+        #endif
         // dont proc events while in the reload timer
         std::cout << command << std::endl;
 
@@ -160,7 +166,7 @@ int main(int argc, char* argv[]) {
             case BK_CMD_OPEN_FILE: {
                 // open a file as a document
                 #ifdef DEBUG
-                  printf("BK_CMD_OPEN_FILE?");
+                  printf("BK_CMD_OPEN_FILE\n");
                 #endif
                 string s;
 
@@ -238,7 +244,9 @@ int main(int argc, char* argv[]) {
         }
 
         #ifdef DEBUG
-          if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
+          // Quick close
+          if ((buttons == (FZ_CTRL_LTRIGGER | FZ_CTRL_CIRCLE)) ||
+              FZScreen::isClosing())
               break;
           else {
               FZScreen::checkEvents(buttons);

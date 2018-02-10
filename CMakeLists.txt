@@ -125,6 +125,7 @@ else()
   endforeach()
   execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
   add_definitions(-DDEBUG)
+  #add_definitions(-DDEBUG_RENDER)
   #add_definitions(-DGENKIHEN)
 
 

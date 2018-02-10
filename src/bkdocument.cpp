@@ -88,7 +88,9 @@ void BKDocument::setBanner(char* b) {
 
 int BKDocument::update(unsigned int buttons) {
 	// let the view quit update processing early for some special events
+	#ifdef DEBUG_RENDER
 	printf("BKDocument::update\n");
+	#endif
 	if (lastSuspendSerial != FZScreen::getSuspendSerial()) {
 		lastSuspendSerial = FZScreen::getSuspendSerial();
 		int r = resume();
@@ -96,11 +98,16 @@ int BKDocument::update(unsigned int buttons) {
 			return r;
 	}
 
+	#ifdef DEBUG_RENDER
 	printf("BKDocument::updateContent pre\n");
+	#endif
+
 	int r = updateContent();
 	if (r != 0)
 		return r;
+	#ifdef DEBUG_RENDER
 	printf("BKDocument::updateContent post\n");
+	#endif
 
 	bannerFrames--;
 	tipFrames--;
@@ -130,17 +137,24 @@ int BKDocument::update(unsigned int buttons) {
 	if (frames % 60 == 0 && r == 0 && mode != BKDOC_VIEW)
 		r = BK_CMD_MARK_DIRTY;
 
+	#ifdef DEBUG_RENDER
 	printf("BKDocument::updateContent - done\n");
+	#endif
+
 	return r;
 }
 
 int BKDocument::processEventsForView() {
+	#ifdef DEBUG_RENDER
 	printf("BKDocument::processEventsForView - start\n");
+	#endif
 	int* b = FZScreen::ctrlReps();
 
 	// button handling - pagination
 	if (isPaginated()) {
+		#ifdef DEBUG_RENDER
 		printf("BKDocument::processEventsForView - paginated - start\n");
+		#endif
 		// int n = getTotalPages();
 		int p = getCurrentPage();
 		int op = p;
@@ -159,7 +173,9 @@ int BKDocument::processEventsForView() {
 		int r = 0;
 		if (op != p)
 			setCurrentPage(p);
+		#ifdef DEBUG_RENDER
 		printf("BKDocument::processEventsForView - paginated - end\n");
+		#endif
 		if (r != 0)
 			return r;
 	}
@@ -235,7 +251,9 @@ int BKDocument::processEventsForView() {
 		return BK_CMD_MARK_DIRTY;
 	}
 
+	#ifdef DEBUG_RENDER
 	printf("BKDocument::processEventsForView - end\n");
+	#endif
 	return 0;
 }
 
