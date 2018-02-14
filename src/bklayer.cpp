@@ -424,6 +424,13 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
   drawMenu(title, triangleLabel, items, false);
 }
 
+void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, string& upperBreadCrumb) {
+  drawMenu(title, triangleLabel, items, false);
+	#ifdef __vita__
+		FZScreen::drawText(116, 71, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
+	#endif
+}
+
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont) {
 	int maxItemNum = 8;
 	int selPos = selItem - topItem;

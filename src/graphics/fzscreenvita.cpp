@@ -41,6 +41,9 @@
 
 #include <malloc.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "fzscreen.h"
 #include "fztexture.h"
@@ -102,7 +105,7 @@ static void * ptr_align64_uncached(unsigned long ptr) {
 }
 
 
-static string psp_full_path;
+static string psv_full_path;
 static vita2d_pgf *pgf;
 static vita2d_pvf *pvf;
 #ifdef GENKIHEN
@@ -142,7 +145,12 @@ void FZScreen::open(int argc, char** argv) {
     pvf = vita2d_load_default_pvf();
     //genLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_image_png_start)  );
 
-    psp_full_path = "ux0:";
+    psv_full_path = "ux0:";
+
+    struct stat st = {0};
+    if (stat("ux0:data/Bookr", &st) == -1) {
+      sceIoMkdir("ux0:data/Bookr", 0700);
+    }
 
     initalDraw();
 }
@@ -366,7 +374,7 @@ void FZScreen::dcacheWritebackAll() {
 }
 
 string FZScreen::basePath() {
-    return psp_full_path;
+    return psv_full_path;
 }
 
 struct CompareDirent {

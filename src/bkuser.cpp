@@ -28,7 +28,7 @@
 
 
 #include <tinyxml2.h>
- 
+
 #include "graphics/fzscreen.h"
 #include "bkuser.h"
 
@@ -132,8 +132,16 @@ void BKUser::setDefaultOptions() {
 }
 
 void BKUser::save() {
+    #ifdef DEBUG
+      printf("BKUser::save\n");
+    #endif
+
     char filename[1024];
-    snprintf(filename, 1024, "%s/%s", FZScreen::basePath().c_str(), "user.xml");
+    #ifdef __vita__
+      snprintf(filename, 1024, "%s%s", FZScreen::basePath().c_str(), "data/Bookr/user.xml");
+    #else
+      snprintf(filename, 1024, "%s/%s", FZScreen::basePath().c_str(), "user.xml");
+    #endif
     FILE* f = fopen(filename, "w");
     if (f == NULL) {
         printf("cannot save prefs to %s\n", filename);
@@ -208,17 +216,33 @@ void BKUser::save() {
 }
 
 void BKUser::load() {
+    #ifdef DEBUG
+      printf("BKUser::load\n");
+    #endif
+    
     char filename[1024];
-    snprintf(filename, 1024, "%s/%s", FZScreen::basePath().c_str(), "user.xml");
+    #ifdef __vita__
+      snprintf(filename, 1024, "%s%s", FZScreen::basePath().c_str(), "data/Bookr/user.xml");
+    #else
+      snprintf(filename, 1024, "%s/%s", FZScreen::basePath().c_str(), "user.xml");
+    #endif
+
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+      #ifndef DEBUG
+        printf("%s doesn't exist; creating.\n", filename);
+      #endif
+      BKUser::save();
+    }
     
     XMLDocument doc;
-    doc.LoadFile("user.xml");
+    doc.LoadFile(filename);
 
     if(doc.Error()) {
-#ifndef PSP
+      #ifndef DEBUG
         printf("invalid %s, cannot load preferences: %s\n", filename, doc.GetErrorStr1());
-#endif
-        return;
+      #endif
+      return;
     }
 
     XMLElement* root = doc.RootElement();

@@ -31,16 +31,17 @@ class BKLogo : public BKLayer {
 	bool error;
 	string text;
 
-	protected:
+protected:
 	BKLogo();
 	~BKLogo();
 
 
-	public:
+public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
 	void setLoading(bool v);
 	void setError(bool err);
+	void setError(bool err, string message);
 
 	static BKLogo* create();
 	static void show(string text);
