@@ -132,7 +132,7 @@ void BKFileChooser::render() {
 		items.push_back(BKMenuItem(dirFiles[i].name, cl, f)); 
 	}
 	string tl("Parent folder");
-	drawMenu(title, tl, items);
+	drawMenu(title, tl, items, path);
 }
 
 BKFileChooser* BKFileChooser::create(string& t, int r) {

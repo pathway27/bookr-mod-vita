@@ -179,6 +179,7 @@ class BKLayer : public FZRefCounted {
 	int maxSkipChars;
 	void drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags);
 	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items);
+	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, string& upperBreadCrumb);
 	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont);
 	void drawOutline(string& title, string& triangleLabel, vector<BKOutlineItem>& items, bool useUTFFont);
 	void menuCursorUpdate(unsigned int buttons, int max);
