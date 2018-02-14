@@ -21,6 +21,7 @@
 #include <list>
 
 #include "bkplaintext.h"
+#include "../utils.h"
 
 using namespace std;
 
@@ -116,3 +117,12 @@ void BKPlainText::getType(string& t) {
   t = "Plain text";
 }
 
+bool BKPlainText::isPlainText(string& file) {
+  // Read First 4 bytes
+	FILE* f = fopen(file.c_str(), "r");
+  const char* ext = get_ext(file.c_str());
+	fclose(f);
+
+  // Trusting the user for now...
+	return strcmp(ext, ".txt") == 0;
+}
