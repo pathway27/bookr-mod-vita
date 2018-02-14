@@ -41,7 +41,7 @@ extern "C" {
 
 #include "bkmudocument.h"
 #include "../bkbookmark.h"
-#include "../utils.c"
+#include "../utils.h"
 
 using namespace std;
 
@@ -85,7 +85,7 @@ BKMUDocument::BKMUDocument(string& f) :
         fz_throw(m_ctx, FZ_ERROR_GENERIC, "no pass");
     }
   } fz_catch(m_ctx) {
-      fz_throw(m_ctx, FZ_ERROR_GENERIC, "opening error");
+    fz_throw(m_ctx, FZ_ERROR_GENERIC, "opening error");
   }
 
   // Set page count

@@ -41,6 +41,7 @@ class BKPlainText : public BKFancyText {
     virtual void getType(string&);
 
     static BKPlainText* create(string& file);
+    static bool isPlainText(string& file);
 };
 
 #endif

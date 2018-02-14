@@ -36,11 +36,14 @@ BKDocument* BKDocument::create(string& filePath) {
 	// 	doc = BKDJVU::create(filePath);
 	// } else if (BKPalmDoc::isPalmDoc(filePath)) {
 	// 	doc = BKPalmDoc::create(filePath);
-	} else {
+	} else if (BKPlainText::isPlainText(filePath)) {
 		doc = BKPlainText::create(filePath);
+	} else {
+		return nullptr;
+		//throw std::string("Divide by zero");
 	}
-	if (doc != 0)
-	{
+	
+	if (doc != 0)	{
 		#ifdef DEBUG
 			printf("doc != 0 \n");
 		#endif
@@ -55,6 +58,7 @@ BKDocument* BKDocument::create(string& filePath) {
 		// 	}
 		// }
 	}
+
 	return doc;
 }
 

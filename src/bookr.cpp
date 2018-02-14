@@ -49,11 +49,13 @@ int main(int argc, char* argv[]) {
     FZScreen::open(argc, argv);    // GPU init and initalDraw
     FZScreen::setupCtrl();         // initalise control sampling, TODO: put in ::open
 
-    BKUser::init();                // get app settings from user.xml
 
   #ifdef DEBUG
     printf("Debug Started: in main\n");
   #endif
+  
+    BKUser::init();                // get app settings from user.xml
+
 
     BKLayer::load();                       // make textures
     bkLayers layers;                       // iterator over all gui obj. that are initalsed
@@ -215,17 +217,19 @@ int main(int argc, char* argv[]) {
 
                 // detect file type and add a new display layer
                 documentLayer = BKDocument::create(s);
-
+                
                 // specific create BKPDF::create
                 //   init mupdf vars
                 //   b->redrawBuffer(); sets bouncebuffer
                 #ifdef DEBUG
                   printf("Post Document::create\n");
                 #endif
-                if (documentLayer == 0) {
+                if (documentLayer == nullptr) {
                   // error, back to logo screen
                   BKLogo* l = BKLogo::create();
-                  l->setError(true);
+                  l->setError(true, "File is not compatible");
+                  // Still no way of getting exact error during file opening
+                  // or during class init... maybe throw string and try and catch
                   layers.push_back(l);
                 } else {
                   // file loads ok, add the layer

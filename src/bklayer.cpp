@@ -66,7 +66,7 @@ extern "C" {
 void BKLayer::load() {
 	#ifdef __vita__
 		#ifdef DEBUG
-			printf("bklayer load");
+			printf("bklayer load\n");
 		#endif
 		texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
 	#elif defined(MAC) || defined(WIN32)
@@ -327,7 +327,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 	// int tw = textW(t, fontBig);
 
 	#ifdef __vita__
-		#ifdef DEBUG
+		#ifdef DEBUG_RENDER
 			printf("draw dialog frame\n");
 		#endif
 		// 960
@@ -455,7 +455,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 	if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
 		tl = items[selItem].triangleLabel;
 	}
-	#ifdef DEBUG
+	#ifdef DEBUG_RENDER
     printf("drawmenu\n");
   #endif
 	drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);

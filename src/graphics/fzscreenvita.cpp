@@ -231,14 +231,14 @@ void FZScreen::getAnalogPad(int& x, int& y) {
 }
 
 void FZScreen::startDirectList() {
-    #ifdef DEBUG
+    #ifdef DEBUG_RENDER
       printf("start drawing");
     #endif
     vita2d_start_drawing();
 }
 
 void FZScreen::endAndDisplayList() {
-    #ifdef DEBUG
+    #ifdef DEBUG_RENDER
       printf("end drawing\n");
     #endif
     vita2d_end_drawing();
@@ -247,7 +247,9 @@ void FZScreen::endAndDisplayList() {
 static void* lastFramebuffer = NULL;
 void FZScreen::swapBuffers() {
     lastFramebuffer = vita2d_get_current_fb();
+  #ifdef DEBUG_RENDER
     printf("FZScreen::swapBuffers\n");
+  #endif
     vita2d_swap_buffers();
 }
 
