@@ -1,6 +1,6 @@
 ## bookr-mod-vita
 
-A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#forks).  
+A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#source-and-forks).  
 You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md).
 
 TODO:
@@ -33,23 +33,9 @@ See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.
 
 Use the .vpk to install.
 
-## Source and Forks
-
-**[Original bookr](https://sourceforge.net/projects/bookr/)**
-
-- Carlos Carrasco Martinez (carloscm at gmail dot com)
-- Christian Payeur (christian dot payeur at gmail dot com)
-- Nguyen Chi Tam (nguyenchitam at gmail dot com)
-
-**[bookr-mod](https://code.google.com/archive/p/bookr-mod/) - 2525275 @ gmail**  
-**bookr-hbs - HomebrewStore Development Team**  
-**ozbookr - by Oleg Zhuk (zhukoo @ gmail)**  
-**gtzampanaskis/bookr**
-
 ## Credits
 
-The original and forks above.  
-
+- [Original and Forks](https://github.com/pathway27/bookr-mod-vita/blob/master/forks.md)
 - Team Molecule (yifan, xyzz, DaveeFTW, xerpi)
 - TheFlow
 - libvita2d - xerpi

@@ -63,28 +63,29 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
 
 
 set(COMMON_SRCS
-  	src/bookr.cpp
-	  src/graphics/fzscreencommon.cpp
+    src/bookr.cpp
+    src/utils.cpp
+    src/graphics/fzscreencommon.cpp
 
-	  src/bkuser.cpp
+    src/bkuser.cpp
 
-	  #texture image refcounted
-	  src/graphics/fzrefcount.cpp
-	  src/graphics/fzimage.cpp
-	  src/graphics/fztexture.cpp
+    #texture image refcounted
+    src/graphics/fzrefcount.cpp
+    src/graphics/fzimage.cpp
+    src/graphics/fztexture.cpp
 
-	  #src/graphics/fzfont.cpp
-	  src/graphics/fzinstreammem.cpp
-	  src/bklayer.cpp
-	  src/bklogo.cpp
-	  src/bkmainmenu.cpp
-	  src/bkpopup.cpp
-	  src/bkfilechooser.cpp
+    #src/graphics/fzfont.cpp
+    src/graphics/fzinstreammem.cpp
+    src/bklayer.cpp
+    src/bklogo.cpp
+    src/bkmainmenu.cpp
+    src/bkpopup.cpp
+    src/bkfilechooser.cpp
 
-	  src/bkdocument.cpp
-	  src/bkbookmark.cpp
-	  src/filetypes/bkfancytext.cpp
-	  src/filetypes/bkplaintext.cpp
+    src/bkdocument.cpp
+    src/bkbookmark.cpp
+    src/filetypes/bkfancytext.cpp
+    src/filetypes/bkplaintext.cpp
 )
 
 if (WIN32)

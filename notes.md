@@ -6,20 +6,19 @@ Porting experience
 Graphics Programming
 
 
-Note: I am a web developer professionally so besides my uni c++ i haven't used it much.
+Note: I am a web developer professionally so besides my Uni. C++ I haven't used it much.
 
 # Random Notes
 
 ## VITA Hardware
 
  CPU: ARM Cortex-A9 MPCore (32-bit armv7-a, 4 cores) 2GHz (NEON SIMD)  
- RAM: PowerVR SGX543MP4+ (512MB)  
- GPU: 128MB (4 cores)  
-DISP: 960x544 (16:9) OLED multi-touch @ 220ppi
+ RAM: 512MB
+ GPU: PowerVR SGX543MP4+ 128MB (4 cores)
+DISP: 5" 960x544 (16:9) OLED multi-touch @ 220ppi
+ INP: Dual Touch Pads, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks
 
-PSP   480x272 (16:9)
-
-Compass?
+PSP  480x272 (16:9)
 
 ## Directory Stucture
 
@@ -37,7 +36,7 @@ overwhelmed.
 
 ## Licensing and Copyright
 
-Porting an open source project is hard to know all the legal terms.  
+When porting an open source project it's hard to know all the legal terms.  
 So bookr uses the GNU GPLv2+ which requires 
 
 - Include Original (all in this repo)
@@ -46,7 +45,7 @@ So bookr uses the GNU GPLv2+ which requires
 - State Changes (commits on this repo)
 - Include License (LICENSE in this repo)
 
-So for the things i change i'm adding my copright and a notice of modification before the GPL notice.  
+So for the things I change I'm adding my copright and a notice of modification before the GPL notice. Please add an issue if I did anything wrong.  
 [Some](http://stackoverflow.com/questions/11670368/gpl-copyright-notice-when-contributing-new-file) [links](http://softwareengineering.stackexchange.com/questions/157968/how-to-manage-a-copyright-notice-in-an-open-source-project)
 
 
@@ -56,16 +55,13 @@ So for the things i change i'm adding my copright and a notice of modification b
 #ifdef __vita__
 ```
 
-Checking for preprocessor macro variables on your tool chain
-arm-vita-eabi-gcc -dM -E - < /dev/null | grep -i VITA
+Checking for preprocessor macro variables on your tool chain 
+`arm-vita-eabi-gcc -dM -E - < /dev/null | grep -i vita`. That's how i found `__vita__`
 
-that's how i found __vita__
+## Versioning Based on git tags
 
-## versioning based on git tags
-
-I read the cmake tutorial which goes through setting up
-variables like version through an internal environment variables
-I then found a stackoverflow for the exact thing, see CMakeLists.txt:32:38
+The [cmake tutorial](https://cmake.org/cmake-tutorial/) goes through setting up variables like version through an internal environment variables.
+See [CMakeLists.txt](https://github.com/pathway27/bookr-mod-vita/blob/master/CMakeLists.txt#L36).
 
 ## Using Visual Studio Code
 
@@ -128,8 +124,8 @@ Got a cool shader class so far.
 
 ### MuPDF
 
-The general idea seems to be to read the file and store it in a pixmap buffer.
-Then put the pixmap buffer into a texture which you can render.
+The general idea seems to be to read the file and initalise some structures it has defined and finally draw a page into a pixmap buffer. Then put the pixmap into a texture onto the GPU which you can render.
+
 
 ### Bitwise Operations
 
@@ -145,11 +141,32 @@ Then put the pixmap buffer into a texture which you can render.
 
 ### Cmake Special Flags
 
-```
+```bash
 mkdir Release
 cd Release
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release .. # This adds -O3
 make
 
-same for Debug
+same for Debug # Adds -DDEBUG
+```
+
+### Class Hierarchy
+
+```
+main .
+  bkdocument .
+    
+    bklayer .
+      fzfont graphics
+        fztexture graphics
+          fzimage graphics
+            fzrefcount graphics
+            fzinputstream base
+              fzrefcount base
+      bkuser .
+    
+    bkbookmark .
+      fzscreen graphics
+        pspdebug - ifdef PSP
+      pspiofilemgr - ifdef PSP else fcntl
 ```
