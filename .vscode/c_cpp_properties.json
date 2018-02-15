@@ -47,7 +47,8 @@
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/ucrt",
                 "${workspaceRoot}/ext/freetype/include",
                 "${workspaceRoot}/ext/mupdf/include",
-                "${workspaceRoot}/ext/libvita2d/libvita2d/include"
+                "${workspaceRoot}/ext/libvita2d/libvita2d/include",
+                "${workspaceRoot}/ext/tinyxml2"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
