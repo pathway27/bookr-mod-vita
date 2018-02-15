@@ -49,14 +49,18 @@ BKDocument* BKDocument::create(string& filePath) {
 		#endif
 		// doc->buildToolbarMenus();
 
-		// if (doc->isBookmarkable()) {
-		// 	BKBookmark b;
-		// 	string fn;
-		// 	doc->getFileName(fn);
-		// 	if (BKBookmarksManager::getLastView(fn, b)) {
-		// 		doc->setBookmarkPosition(b.viewData);
-		// 	}
-		// }
+		if (doc->isBookmarkable()) {
+			BKBookmark b;
+			string fn;
+			doc->getFileName(fn);
+			if (BKBookmarksManager::getLastView(fn, b)) {
+				#ifdef DEBUG
+					printf("bookmark: page %i; created at %s \n", b.page, b.createdOn);
+				#endif
+
+				doc->setBookmarkPosition(b.viewData);
+			}
+		}
 	}
 
 	return doc;

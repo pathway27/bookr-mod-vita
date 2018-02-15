@@ -16,6 +16,8 @@
     "xutility": "cpp",
     "algorithm": "cpp",
     "xiosbase": "cpp",
-    "iosfwd": "cpp"
+    "iosfwd": "cpp",
+    "utility": "cpp",
+    "list": "cpp"
   }
 }

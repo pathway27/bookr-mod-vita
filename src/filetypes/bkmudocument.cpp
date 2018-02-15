@@ -101,6 +101,7 @@ BKMUDocument::~BKMUDocument() {
     printf("BKMUDocument::~BKMUDocument\n");
   #endif
   
+  saveLastView();
   mudoc_singleton = nullptr;
   fz_drop_pixmap(m_ctx, m_pix);
   fz_drop_document(m_ctx, m_doc);
@@ -119,6 +120,8 @@ BKMUDocument* BKMUDocument::create(string& file) {
 
 	BKMUDocument* b = new BKMUDocument(file);
 	mudoc_singleton = b;
+
+
   b->redrawBuffer(false);
   return b;
 }
@@ -147,7 +150,9 @@ int BKMUDocument::resume() {
 }
 
 void BKMUDocument::renderContent() {
-  printf("BKMUDocument::renderContent %i / %i\n", m_current_page, m_pages);
+  #ifdef DEBUG_RENDER
+    printf("BKMUDocument::renderContent %i / %i\n", m_current_page, m_pages);
+  #endif
 
   FZScreen::clear(0xefefef, FZ_COLOR_BUFFER);
   // char text[100];
@@ -157,9 +162,9 @@ void BKMUDocument::renderContent() {
   // sprintf(text, "Pixmap info h:%d w:%d", m_pix->h, m_pix->w);
 
 	// TODO: convert to texture
-  printf("BKMUDocument::renderContent -- pre pixel\n");
+  // printf("BKMUDocument::renderContent -- pre pixel\n");
   vita2d_draw_texture(texture, panX, panY);
-  printf("BKMUDocument::renderContent -- post pixel\n");
+  // printf("BKMUDocument::renderContent -- post pixel\n");
 
 	// TODO: Show Page Error, don"t draw texture then.
 	// if (pageError) {
@@ -285,7 +290,7 @@ bool BKMUDocument::isPaginated() {
 // TODO: Move this to bkuser.
 static float speed = 0.5f;
 int BKMUDocument::pan(int x, int y) {
-  #ifdef DEBUG
+  #ifdef DEBUG_BUTTONS
     printf("INPUT x %i y %i\n", x, y);
   #endif
   
@@ -305,11 +310,15 @@ int BKMUDocument::pan(int x, int y) {
     panY -= y/10;
 	  //panY += speed * (y/FZ_ANALOG_THRESHOLD);
 
-  #ifdef DEBUG
+  #ifdef DEBUG_BUTTONS
     printf("OUTPUT x %i y %i\n", panX, panY);
   #endif
 
 	return BK_CMD_MARK_DIRTY;
+}
+
+bool BKMUDocument::isBookmarkable() {
+  return true;
 }
 
 // -------------------- NOT IMPLEMENTED YET --------------------
@@ -368,14 +377,24 @@ int BKMUDocument::setRotation(int r, bool bForce) {
   return 0;
 }
 
-bool BKMUDocument::isBookmarkable() {
-  return false;
+
+void BKMUDocument::getBookmarkPosition(map<string, int>& m) {
+  m["page"] = m_current_page;
+  
+  m["panX"] = panX;
+  m["panY"] = panY;
 }
 
-void BKMUDocument::getBookmarkPosition(map<string, int>& b) {}
+int BKMUDocument::setBookmarkPosition(map<string, int>& m) {
+  #ifdef DEBUG
+    printf("setBookmarkPosition: page %i", m["page"]);
+  #endif
+  setCurrentPage(m["page"]);
 
-int BKMUDocument::setBookmarkPosition(map<string, int>& b) {
-  return 0;
+  panX = m["panX"];
+  panY = m["panY"];
+
+  return BK_CMD_MARK_DIRTY;
 }
 
 void BKMUDocument::getTitle(string&) {}

@@ -44,30 +44,45 @@
 */
 using namespace tinyxml2;
 
-static XMLDocument* doc = 0;
-static XMLNode* rootNode = 0;
-static XMLElement* root = 0;
+static XMLDocument *doc = 0;
+static XMLElement *root = 0;
 
 static void clearXML() {
+	#ifdef DEBUG
+		printf("clearXML\n");
+	#endif
+
 	if (doc != 0)
 		delete doc;
 	doc = new XMLDocument();
 
-	rootNode = doc->NewElement("bookmarks");
-	root = rootNode->ToElement();
+	root = doc->NewElement("bookmarks");
 	root->SetAttribute("version", "2");
-
 	doc->InsertFirstChild(root);
 	
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+	#ifdef __vita__
+		snprintf(xmlfilename, 1024, "%s%s%s", FZScreen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
+	#else
+		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+	#endif
+	
 
 	doc->SaveFile(xmlfilename);
 }
 
 static void loadXML() {
+	#ifdef DEBUG
+		printf("loadXML\n");
+	#endif
+
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+	
+	#ifdef __vita__
+		snprintf(xmlfilename, 1024, "%s%s%s", FZScreen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
+	#else
+		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+	#endif
 
 	if (doc != 0)
 		delete doc;
@@ -80,6 +95,7 @@ static void loadXML() {
 		clearXML();
 	}
 
+	root = doc->FirstChildElement("bookmarks");
 	// check basic file structure
 	if (root == 0) {
 		printf("WARNING: corrupted bookmarks file\n");
@@ -94,8 +110,16 @@ static void loadXML() {
 }
 
 static void saveXML() {
+	#ifdef DEBUG
+		printf("saveXML\n");
+	#endif
+
 	char xmlfilename[1024];
-	snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+	#ifdef __vita__
+		snprintf(xmlfilename, 1024, "%s%s%s", FZScreen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
+	#else
+		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+	#endif
 
 	if (doc != 0) {
 		doc->SaveFile(xmlfilename);
@@ -103,6 +127,10 @@ static void saveXML() {
 }
 
 static XMLNode* fileNode(string& filename) {
+	#ifdef DEBUG
+		printf("fileNode\n");
+	#endif
+
 	if (doc == 0)
 		loadXML();
 	XMLElement* file = root->FirstChildElement("file");
@@ -118,6 +146,10 @@ static XMLNode* fileNode(string& filename) {
 }
 
 static XMLElement* lastFileNode() {
+	#ifdef DEBUG
+		printf("lastFileNode\n");
+	#endif
+
 	if (doc == 0)
 		loadXML();
 	XMLElement* file = root->FirstChildElement("lastfile");
@@ -125,6 +157,10 @@ static XMLElement* lastFileNode() {
 }
 
 static XMLNode* loadOrAddFileNode(string& filename) {
+	#ifdef DEBUG
+		printf("loadOrAddFileNode\n");
+	#endif
+	
 	if (doc == 0)
 		loadXML();
 	XMLNode* file = fileNode(filename);
@@ -138,6 +174,10 @@ static XMLNode* loadOrAddFileNode(string& filename) {
 }
 
 static void loadBookmark(XMLNode* _bn, BKBookmark& b) {
+	#ifdef DEBUG
+		printf("loadBookmark\n");
+	#endif
+
 	XMLElement* bn = _bn->ToElement();
 	if (strncmp(bn->Value(), "lastview", 1024) == 0) {
 		b.lastView = true;
@@ -161,6 +201,10 @@ static void loadBookmark(XMLNode* _bn, BKBookmark& b) {
 
 // find the last read bookmark for a given file
 string BKBookmarksManager::getLastFile() {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::getLastFile\n");
+	#endif
+
 	XMLElement* file = lastFileNode();
 	if (file == 0)
 		return string();
@@ -169,6 +213,10 @@ string BKBookmarksManager::getLastFile() {
 
 // save last use file
 void BKBookmarksManager::setLastFile(string& filename) {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::setLastFile\n");
+	#endif
+
 	XMLElement* file = lastFileNode();
 	if (file != 0)
 	{
@@ -183,6 +231,10 @@ void BKBookmarksManager::setLastFile(string& filename) {
 
 // find the last read bookmark for a given file
 bool BKBookmarksManager::getLastView(string& filename, BKBookmark& b) {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::getLastView\n");
+	#endif
+
 	XMLNode* file = fileNode(filename);
 	if (file == 0)
 		return false;
@@ -195,6 +247,10 @@ bool BKBookmarksManager::getLastView(string& filename, BKBookmark& b) {
 
 // add a new bookmark for a file
 static void addBookmarkProto(string& filename, BKBookmark& b, XMLNode* file) {
+	#ifdef DEBUG
+		printf("addBookmarkProto\n");
+	#endif
+
 	XMLElement* bookmark = doc->NewElement(b.lastView ? "lastview" : "bookmark");
 	bookmark->SetAttribute("title", b.title.c_str());
 	bookmark->SetAttribute("page", b.page);
@@ -213,6 +269,10 @@ static void addBookmarkProto(string& filename, BKBookmark& b, XMLNode* file) {
 }
 
 void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::addBookmark\n");
+	#endif
+
 	XMLNode* file = loadOrAddFileNode(filename);
 	if (b.lastView) {
 		// remove previous lastview
@@ -226,6 +286,10 @@ void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
 
 // load all the bookmarks for a given file
 void BKBookmarksManager::getBookmarks(string& filename, BKBookmarkList &bl) {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::getBookmarks\n");
+	#endif
+
 	XMLNode* file = fileNode(filename);
 	if (file == 0)
 		return;
@@ -242,6 +306,10 @@ void BKBookmarksManager::getBookmarks(string& filename, BKBookmarkList &bl) {
 
 // save all the bookmarks for a given file, overwriting the existing ones
 void BKBookmarksManager::setBookmarks(string& filename, BKBookmarkList &bl) {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::setBookmarks\n");
+	#endif
+
 	BKBookmark lastView;
 	bool lv = getLastView(filename, lastView);
 	XMLNode* file = loadOrAddFileNode(filename);
@@ -256,6 +324,10 @@ void BKBookmarksManager::setBookmarks(string& filename, BKBookmarkList &bl) {
 }
 
 void BKBookmarksManager::clear() {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::clear\n");
+	#endif
+
 	clearXML();
 }
 
