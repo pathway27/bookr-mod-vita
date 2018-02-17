@@ -55,6 +55,9 @@
   }
 
   FZTexture::~FZTexture() {
+      #ifdef DEBUG
+        printf("~FZTexture\n");
+      #endif
       if (texImage)
           texImage->release();
       texImage = NULL;

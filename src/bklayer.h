@@ -20,10 +20,19 @@
 #ifndef BKLAYER_H
 #define BKLAYER_H
 
+#include <cmath>
 #include <vector>
 #include <string>
 
-#if defined(MAC) || defined(WIN32)
+#include "graphics/fzfont.h"
+#include "bkuser.h"
+#include "graphics/fzinstreammem.h"
+#include "graphics/fzscreen.h"
+
+#ifdef __vita__
+  #include <psp2/kernel/threadmgr.h>
+  #include <vita2d.h>
+#elif MAC
   #define GLEW_STATIC
   #include <GL/glew.h>
   #include <SOIL.h>
@@ -33,13 +42,11 @@
   #include <glm/gtc/type_ptr.hpp>
 
   #include <GLFW/glfw3.h>
+  #include <SOIL.h>
+  #include "graphics/shaders/shader.h"
 #endif
 
-
 using namespace std;
-
-#include "graphics/fzfont.h"
-#include "bkuser.h"
 
 #define BK_CMD_CLOSE_TOP_LAYER 1
 #define BK_CMD_MARK_DIRTY 2
@@ -115,86 +122,86 @@ using namespace std;
 #define BK_IMG_FOLDER_YSIZE 20
 
 class BKLayer : public FZRefCounted {
-	protected:
-	static FZFont* fontBig;
-	static FZFont* fontSmall;
-	static FZFont* fontUTF;
-	static FZTexture* texUI;
-	static FZTexture* texUI2;
-	
-	static FZTexture* texLogo;
+  protected:
+  static FZFont* fontBig;
+  static FZFont* fontSmall;
+  static FZFont* fontUTF;
+  static FZTexture* texUI;
+  static FZTexture* texUI2;
+  
+  static FZTexture* texLogo;
 
-	int textW(char* t, FZFont* font);
-	int textWidthRange(char* t, int n, FZFont* font);
-	void drawRect(int x, int y, int w, int h, int r, int tx, int ty);
-	void drawPill(int x, int y, int w, int h, int r, int tx, int ty);
-	void drawTPill(int x, int y, int w, int h, int r, int tx, int ty);
-	int drawText(char* t, FZFont* font, int x, int y, int n = -1, bool useLF = true, bool usePS = false, float ps = 0.0f, bool use3D = false);
-	int drawUTFText(const char*, FZFont*, int, int, int, int);
-	void drawTextHC(char* t, FZFont* font, int y);
-	void drawImage(int x, int y, int w, int h, int tx, int ty);
-	void drawImage(int x, int y);
-	void drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th);
-	void drawOutlinePrefix(string s, int x, int y, int w, int h, int ws);
-	BKLayer();
-	~BKLayer();
+  int textW(char* t, FZFont* font);
+  int textWidthRange(char* t, int n, FZFont* font);
+  void drawRect(int x, int y, int w, int h, int r, int tx, int ty);
+  void drawPill(int x, int y, int w, int h, int r, int tx, int ty);
+  void drawTPill(int x, int y, int w, int h, int r, int tx, int ty);
+  int drawText(char* t, FZFont* font, int x, int y, int n = -1, bool useLF = true, bool usePS = false, float ps = 0.0f, bool use3D = false);
+  int drawUTFText(const char*, FZFont*, int, int, int, int);
+  void drawTextHC(char* t, FZFont* font, int y);
+  void drawImage(int x, int y, int w, int h, int tx, int ty);
+  void drawImage(int x, int y);
+  void drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th);
+  void drawOutlinePrefix(string s, int x, int y, int w, int h, int ws);
+  BKLayer();
+  ~BKLayer();
 
-	// "flexible" menu
-	#define BK_MENU_ITEM_FOLDER			1
-	#define BK_MENU_ITEM_USE_LR_ICON	2
-	#define BK_MENU_ITEM_COLOR_RECT		4
-	#define BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL 8
-	struct BKMenuItem {
-		string label;
-		string circleLabel;
-		string triangleLabel;
-		int flags;
-		unsigned int fgcolor;
-		unsigned int bgcolor;
-		FZTexture* tex;
-		FZFont* currentTexFont;
-		int width;
-		BKMenuItem() : flags(0), tex(0) { }
-		BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f), tex(0) { }
-		BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
-		BKMenuItem(string& l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
-		BKMenuItem(char* l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
-		~BKMenuItem(){if(tex) tex->release();}
-	};
-	#define BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL 16
-	struct BKOutlineItem : public BKMenuItem {
-	  void* outline;
-	  string prefix;
-	BKOutlineItem(char* l, string& cl, void* o, string& p, bool hasTriLabel): outline(o), prefix(p) {
-	    label = l;
-	    circleLabel = cl;
-	    flags = hasTriLabel?BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL:0;
-	    tex = 0;
-	  }
-	};
+  // "flexible" menu
+  #define BK_MENU_ITEM_FOLDER			1
+  #define BK_MENU_ITEM_USE_LR_ICON	2
+  #define BK_MENU_ITEM_COLOR_RECT		4
+  #define BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL 8
+  struct BKMenuItem {
+    string label;
+    string circleLabel;
+    string triangleLabel;
+    int flags;
+    unsigned int fgcolor;
+    unsigned int bgcolor;
+    FZTexture* tex;
+    FZFont* currentTexFont;
+    int width;
+    BKMenuItem() : flags(0), tex(0) { }
+    BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f), tex(0) { }
+    BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+    BKMenuItem(string& l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+    BKMenuItem(char* l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+    ~BKMenuItem(){if(tex) tex->release();}
+  };
+  #define BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL 16
+  struct BKOutlineItem : public BKMenuItem {
+    void* outline;
+    string prefix;
+  BKOutlineItem(char* l, string& cl, void* o, string& p, bool hasTriLabel): outline(o), prefix(p) {
+      label = l;
+      circleLabel = cl;
+      flags = hasTriLabel?BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL:0;
+      tex = 0;
+    }
+  };
 
-	int topItem;
-	int selItem;
-	int skipChars;
-	int maxSkipChars;
-	void drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags);
-	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items);
-	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, string& upperBreadCrumb);
-	void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont);
-	void drawOutline(string& title, string& triangleLabel, vector<BKOutlineItem>& items, bool useUTFFont);
-	void menuCursorUpdate(unsigned int buttons, int max);
+  int topItem;
+  int selItem;
+  int skipChars;
+  int maxSkipChars;
+  void drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags);
+  void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items);
+  void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, string& upperBreadCrumb);
+  void drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont);
+  void drawOutline(string& title, string& triangleLabel, vector<BKOutlineItem>& items, bool useUTFFont);
+  void menuCursorUpdate(unsigned int buttons, int max);
 
-	void drawPopup(string& text, string& title, int bg1, int bg2, int fg);
+  void drawPopup(string& text, string& title, int bg1, int bg2, int fg);
 
-	void drawClockAndBattery(string& extra);
-	int drawUTFMenuItem(BKMenuItem*, FZFont*, int, int, int, int);
+  void drawClockAndBattery(string& extra);
+  int drawUTFMenuItem(BKMenuItem*, FZFont*, int, int, int, int);
 
-	public:
-	virtual int update(unsigned int buttons) = 0;
-	virtual void render() = 0;
+  public:
+  virtual int update(unsigned int buttons) = 0;
+  virtual void render() = 0;
 
-	static void load();
-	static void unload();
+  static void load();
+  static void unload();
 };
 
 typedef vector<BKLayer*> bkLayers;

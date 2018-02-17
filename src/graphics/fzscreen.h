@@ -46,6 +46,25 @@
   #include <glm/gtc/type_ptr.hpp>
 
   #include <GLFW/glfw3.h>
+#elif defined(__vita__)
+  #include <psp2/kernel/processmgr.h>
+  #include <psp2/ctrl.h>
+  #include <psp2/power.h>
+  #include <psp2/rtc.h>
+
+  #include <psp2kern/kernel/cpu.h>
+  #include <psp2/pvf.h>
+  #include <psp2/pgf.h>
+  #include <psp2/io/dirent.h>
+  #include <psp2/io/fcntl.h>
+
+  #include <vita2d.h>
+
+  #include <malloc.h>
+  #include <string.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <unistd.h>
 #endif
 
 using namespace std;

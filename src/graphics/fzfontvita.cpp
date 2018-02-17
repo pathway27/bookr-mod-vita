@@ -26,32 +26,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <malloc.h>
-
 #include "fzfont.h"
-#include "bkuser.h"
-
-#include <vita2d.h>
-
 
 FZFont::FZFont() : metrics(0),isUTF(false),ftlib(0),ftface(0) {
 }
 
 FZFont::~FZFont() {
-
+  vita2d_free_font(v_font);
 }
 
-FZFont* FZFont::createFromFile(char* fileName, int fontSize, bool autohint) {
-    FZFont* font = new FZFont();
-	  font->font = vita2d_load_font_file(fileName);
-	  return font;
+FZFont* FZFont::createFromFile(char* fileName, int fontSize) {
+  FZFont* font = new FZFont();
+  font->v_font = vita2d_load_font_file(fileName);
+  return font;
 }
 
-FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize, int fontSize, bool autohint) {
-    FZFont* font = new FZFont();
-	  font->font = vita2d_load_font_mem(buffer, fontSize);
-	  return font;
+FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize) {
+  FZFont* font = new FZFont();
+  font->v_font = vita2d_load_font_mem(buffer, bufferSize);
+  return font;
 }

@@ -16,7 +16,9 @@ TODO:
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # run pngquant on all your png images if not done already
-# Convert images used in app to binary: arm-vita-eabi-ld -r -b binary -o image.o image.png
+# Convert images used in app to binary: 
+# arm-vita-eabi-ld -r -b binary -o image.o image.png
+# figure out exter symbols arm-vita-eabi-objdump -x
 ./build.sh # Creates a build folder with vpk
 # Install .vpk
 
