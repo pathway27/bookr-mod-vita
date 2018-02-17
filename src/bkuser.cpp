@@ -42,93 +42,93 @@ BKUser::Options BKUser::options;
 int csSize = 0;
 
 void BKUser::init() {
-    setDefaultControls();
-    setDefaultOptions();
-    load();
+  setDefaultControls();
+  setDefaultOptions();
+  load();
 }
 
 void BKUser::setDefaultControls() {
-    // set in-book default controls
-    controls.previousPage     	= FZ_REPS_SQUARE;
-    controls.nextPage         	= FZ_REPS_TRIANGLE;
-    controls.previous10Pages  	= FZ_REPS_CIRCLE;
-    controls.next10Pages      	= FZ_REPS_CROSS;
-    controls.screenUp         	= FZ_REPS_UP;
-    controls.screenDown       	= FZ_REPS_DOWN;
-    controls.screenLeft       	= FZ_REPS_LEFT;
-    controls.screenRight      	= FZ_REPS_RIGHT;
-    controls.zoomIn           	= FZ_REPS_RTRIGGER;
-    controls.zoomOut          	= FZ_REPS_LTRIGGER;
-    controls.showMainMenu		= FZ_REPS_START;
-    controls.showToolbar		= FZ_REPS_SELECT;
-    
-    // set menu default controls
-    controls.select				= FZ_REPS_CROSS;
-    controls.cancel				= FZ_REPS_CIRCLE;
-    controls.alternate			= FZ_REPS_TRIANGLE;
-    controls.details			= FZ_REPS_SQUARE;	
-    controls.menuUp				= FZ_REPS_UP;
-    controls.menuDown			= FZ_REPS_DOWN;
-    controls.menuLeft			= FZ_REPS_LEFT;
-    controls.menuRight			= FZ_REPS_RIGHT;
-    controls.menuLTrigger       = FZ_REPS_LTRIGGER;
-    controls.menuRTrigger       = FZ_REPS_RTRIGGER;
-    controls.resume				= FZ_REPS_START;
+  // set in-book default controls
+  controls.previousPage     = FZ_REPS_SQUARE;
+  controls.nextPage         = FZ_REPS_TRIANGLE;
+  controls.previous10Pages  = FZ_REPS_CIRCLE;
+  controls.next10Pages      = FZ_REPS_CROSS;
+  controls.screenUp         = FZ_REPS_UP;
+  controls.screenDown       = FZ_REPS_DOWN;
+  controls.screenLeft       = FZ_REPS_LEFT;
+  controls.screenRight      = FZ_REPS_RIGHT;
+  controls.zoomIn           = FZ_REPS_RTRIGGER;
+  controls.zoomOut          = FZ_REPS_LTRIGGER;
+  controls.showMainMenu     = FZ_REPS_START;
+  controls.showToolbar      = FZ_REPS_SELECT;
+  
+  // set menu default controls
+  controls.select           = FZ_REPS_CROSS;
+  controls.cancel           = FZ_REPS_CIRCLE;
+  controls.alternate        = FZ_REPS_TRIANGLE;
+  controls.details          = FZ_REPS_SQUARE;	
+  controls.menuUp           = FZ_REPS_UP;
+  controls.menuDown         = FZ_REPS_DOWN;
+  controls.menuLeft         = FZ_REPS_LEFT;
+  controls.menuRight        = FZ_REPS_RIGHT;
+  controls.menuLTrigger     = FZ_REPS_LTRIGGER;
+  controls.menuRTrigger     = FZ_REPS_RTRIGGER;
+  controls.resume           = FZ_REPS_START;
 }
 
 void BKUser::setDefaultOptions() {
-    // set default options
-    options.pdfFastScroll = false;
-    options.txtRotation = 0;
-    options.txtFont = "bookr:builtin";
-    options.txtSize = 11;
-    options.txtHeightPct = 100;
+  // set default options
+  options.pdfFastScroll = false;
+  options.txtRotation = 0;
+  options.txtFont = "bookr:builtin";
+  options.txtSize = 11;
+  options.txtHeightPct = 100;
 
-    options.colorSchemes.clear();
-    
-    ColorScheme aScheme;
-    aScheme.txtBGColor = 0xffffff;
-    aScheme.txtFGColor = 0;
-    options.colorSchemes.push_back(aScheme);
-    
-    aScheme.txtBGColor = 0;
-    aScheme.txtFGColor = 0xffffff;
-    options.colorSchemes.push_back(aScheme);
-    
-    options.currentScheme = 0;
+  options.colorSchemes.clear();
+  
+  ColorScheme aScheme;
+  aScheme.txtBGColor = 0xffffff;
+  aScheme.txtFGColor = 0;
+  options.colorSchemes.push_back(aScheme);
+  
+  aScheme.txtBGColor = 0;
+  aScheme.txtFGColor = 0xffffff;
+  options.colorSchemes.push_back(aScheme);
+  
+  options.currentScheme = 0;
 
-    options.txtJustify = true;
-    options.pspSpeed = 0;
-    options.pspMenuSpeed = 0;
-    options.displayLabels = true;
-    options.pdfInvertColors = false;
-    options.lastFolder = FZScreen::basePath();
-    options.lastFontFolder = FZScreen::basePath();
-    options.loadLastFile = false;
-    options.txtWrapCR = 0;
-    options.hScroll = 50;
-    options.vScroll = 20;
-    options.thumbnail = 0;
+  options.txtJustify = true;
+  options.pspSpeed = 0;
+  options.pspMenuSpeed = 0;
+  options.displayLabels = true;
+  options.pdfInvertColors = false;
+  options.lastFolder = FZScreen::basePath();
+  options.lastFontFolder = FZScreen::basePath();
+  options.loadLastFile = false;
+  options.txtWrapCR = 0;
+  options.hScroll = 50;
+  options.vScroll = 20;
+  options.thumbnail = 0;
 
-    ColorScheme tnScheme;
-    tnScheme.txtBGColor = 0x000000;
-    tnScheme.txtFGColor = 0x0000ff;
-    options.thumbnailColorSchemes.push_back(tnScheme);
-    
-    options.currentThumbnailScheme = 0;
-    options.pdfImageQuality = 3;
-    options.pdfImageBufferSizeM = 4;
-    options.analogRateX = 100;
-    options.analogRateY = 100;
-    options.maxTreeHeight = 100;
-    options.screenBrightness = 0; /* disable */
-    options.autoPruneBookmarks = false;
-    options.pdfOptimizeForSmallImages = false;
-    options.defaultTitleMode = 0;
-    options.evictGlyphCacheOnNewPage = false;
-    options.pageScrollCacheMode = 0;
-    options.ignoreXInOutlineOnSquare = false;
-    options.jpeg2000Decoder = true;
+  ColorScheme tnScheme;
+  tnScheme.txtBGColor = 0x000000;
+  tnScheme.txtFGColor = 0x0000ff;
+  options.thumbnailColorSchemes.push_back(tnScheme);
+  
+  options.currentThumbnailScheme = 0;
+  options.pdfImageQuality = 3;
+  options.pdfImageBufferSizeM = 4;
+  options.analogRateX = 100;
+  options.analogRateY = 100;
+  options.maxTreeHeight = 100;
+  options.screenBrightness = 0; /* disable */
+  options.autoPruneBookmarks = false;
+  options.pdfOptimizeForSmallImages = false;
+  options.defaultTitleMode = 0;
+  options.evictGlyphCacheOnNewPage = false;
+  options.pageScrollCacheMode = 0;
+  options.ignoreXInOutlineOnSquare = false;
+  options.jpeg2000Decoder = true;
 }
 
 void BKUser::save() {

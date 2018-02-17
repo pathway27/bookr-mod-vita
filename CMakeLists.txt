@@ -74,9 +74,7 @@ set(COMMON_SRCS
     src/graphics/fzimage.cpp
     src/graphics/fztexture.cpp
 
-    #src/graphics/fzfont.cpp
     src/graphics/fzinstreammem.cpp
-    src/bklayer.cpp
     src/bklogo.cpp
     src/bkmainmenu.cpp
     src/bkpopup.cpp
@@ -88,11 +86,41 @@ set(COMMON_SRCS
     src/filetypes/bkplaintext.cpp
 )
 
+
+
 if (WIN32)
   include(CMakeWindows)
 else()
-  # TODO: turn images to binary with
-  # arm-vita-eabi-ld -r -b binary -o icon0_t.o icon0_t.png
+  # turn images to binary with
+  # https://beesbuzz.biz/blog/e/2014/07/31-embedding_binary_resources_with_cmake_and_c11.php
+  FUNCTION(ADD_RESOURCES out_var)
+    SET(result)
+    FOREACH(in_f ${ARGN})
+      GET_FILENAME_COMPONENT(out_fn ${in_f} NAME_WE)
+      SET(out_f "${CMAKE_CURRENT_BINARY_DIR}/${out_fn}.o")
+      GET_FILENAME_COMPONENT(out_dir ${out_f} DIRECTORY)
+      ADD_CUSTOM_COMMAND(OUTPUT ${out_f}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${out_dir}
+        COMMAND ${CMAKE_LINKER} -r -b binary -o ${out_f} ${in_f}
+        DEPENDS ${in_f}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Building resource ${out_f}"
+        VERBATIM
+        )
+      LIST(APPEND result ${out_f})
+    ENDFOREACH()
+    SET(${out_var} "${result}" PARENT_SCOPE)
+  ENDFUNCTION()
+
+  file(GLOB res_files RELATIVE
+    ${CMAKE_SOURCE_DIR}
+    image.png
+    sce_sys/icon0_t.png
+
+    data/fonts/URW Gothic L Demi.ttf
+    data/icons/*.png
+  )
+  add_resources(bk_resources ${res_files})
 
 
   ExternalProject_Add(mupdf_lib
@@ -152,15 +180,17 @@ else()
   # Add all the files needed to compile here
   add_executable(bookr-mod-vita
     ${COMMON_SRCS}
-
-    image.o
-    sce_sys/icon0_t.o
+    ${bk_resources}
     data/fonts/res_txtfont.c
     data/fonts/res_uifont.c
 
+    
+
     src/graphics/fzscreenvita.cpp
 
+    src/bklayervita.cpp
     src/filetypes/bkmudocument.cpp
+    src/graphics/fzfontvita.cpp
   )
 
   # Library to link to (drop the -l prefix). This will mostly be stubs.
