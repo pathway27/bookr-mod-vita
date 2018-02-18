@@ -263,8 +263,9 @@ int main(int argc, char* argv[]) {
     #endif
   }
 
-#ifdef DEBUG
-#endif
+  #ifdef DEBUG
+    printf("exiting...\n");
+  #endif
 
   // Get rid of all gui layers
   bkLayersIt it(layers.begin());
@@ -275,8 +276,8 @@ int main(int argc, char* argv[]) {
   }
   layers.clear();
 
-  BKLayer::unload();
   FZScreen::close();
+  BKLayer::unload();
   FZScreen::exit();
 
   return 0;
