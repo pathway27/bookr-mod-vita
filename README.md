@@ -3,11 +3,6 @@
 A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#source-and-forks).  
 You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md).
 
-TODO:
-
-- Zoom, User Preferences
-- Better UI
-
 ## Building
 
 ### For VITA (on *nix)
@@ -16,9 +11,6 @@ TODO:
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # run pngquant on all your png images if not done already
-# Convert images used in app to binary: 
-# arm-vita-eabi-ld -r -b binary -o image.o image.png
-# figure out exter symbols arm-vita-eabi-objdump -x
 ./build.sh # Creates a build folder with vpk
 # Install .vpk
 
@@ -29,11 +21,30 @@ cd build && make send
 
 See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md) for desktop dev. version.
 
-## Installation
-
-### PSVITA
+## Installation and Usage
 
 Use the .vpk to install.
+
+```
+Default Controls:
+
+Menu
+X - Choose Item
+O - Cancel
+Triangle - Parent Folder in FileManger
+Directional Arrows - Select File
+Start - Show/Hide Menu
+
+In-Book Default Controls
+Triangle - Next Page
+Square - Previous Page
+O - Previous 10 Pages
+X - Next 10 Pages
+Up/Down D-Pad - Pan Up and Down
+Left Analog Stick - Free Pan with Bounds
+Start - Show/Hide Menu
+```
+
 
 ## Credits
 
