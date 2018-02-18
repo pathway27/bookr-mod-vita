@@ -64,6 +64,11 @@ int BKLogo::update(unsigned int buttons) {
     return 0;
 }
 
+static const unsigned int TITLE_FONT_SIZE = 28;
+static const unsigned int TEXT_PADDED_WIDTH = 20;
+static const char *LOADING_TEXT = "Loading...";
+static const char *DEFAULT_TEXT = "Press Start";
+
 void BKLogo::render() {
   #ifdef DEBUG_RENDER
     printf("bklogo render");
@@ -78,60 +83,62 @@ void BKLogo::render() {
   
   #ifdef __vita__
     vita2d_draw_texture(texLogo->vita_texture, 350, 150);
-    FZScreen::drawText(280, 400, RGBA8(0,0,0,255), 1.0f, "TXT - PDF - CBZ - HTML - EPUB - FB2");
+    vita2d_font_draw_text(fontBig->v_font, 260, 440, RGBA8(0,0,0,255), TITLE_FONT_SIZE, "TXT - PDF - CBZ - HTML - EPUB - FB2");
 
-    if (loading || text.length() > 0 || error)
-      vita2d_draw_rectangle(360, 410, 240, 30, 0xf06060ff);
+    vita2d_draw_rectangle(96, 494, 768, 40, RGBA8(105,105,105,255)); // my cheapo drawPill
 
     if (loading)
-      FZScreen::drawText(373, 430, RGBA8(0,0,0,255), 1.0f, "Loading...");
+      vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255,255,255,255), TITLE_FONT_SIZE,
+        "%*s", TEXT_PADDED_WIDTH / 2 + strlen(LOADING_TEXT) / 2 , LOADING_TEXT);
+    else if (text.length() > 0 && !(error))
+      vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255,255,255,255), TITLE_FONT_SIZE,
+        "%*s", TEXT_PADDED_WIDTH / 2 + strlen(text.c_str()) / 2 , text.c_str());
     else {
-      int color;
-      if (error)
-        color = RGBA8(200,0,0,255);
+      if (error) {
+        vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(200,0,0,255), TITLE_FONT_SIZE,
+          "Error: %*s", TEXT_PADDED_WIDTH / 2 + strlen(text.c_str()) / 2 , text.c_str());
+      }
       else
-        color = RGBA8(0,0,0,255);
-      FZScreen::drawText(373, 430, color, 1.0f, (char*)text.c_str());
+        vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255,255,255,255), TITLE_FONT_SIZE,
+          "%*s", TEXT_PADDED_WIDTH / 2 + strlen(DEFAULT_TEXT) / 2 , DEFAULT_TEXT);
     }
-
-    vita2d_draw_rectangle(96, 504, 768, 40, RGBA8(105,105,105,255)); // my cheapo drawPill
-    FZScreen::drawText(255, 527, RGBA8(255,255,255,255), 1.0f, "Press Start");
   #else
     // genLogo->bindForDisplay();
     // drawImage(0, 0, FZ_SCREEN_WIDTH, FZ_SCREEN_HEIGHT, 0, 0);
     texLogo->bindForDisplay();
     drawImage(76, 360, 128, 128, 0, 0);
+      // FZScreen::enable(FZ_BLEND);
+    // FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
+
+    // texUI->bindForDisplay();
+
+    // FZScreen::ambientColor(0xf0222222);
+    // // drawPill(150, 240, 180, 20, 6, 31, 1);
+    // drawPill(20, 240, 430, 20, 6, 31, 1);
+
+    // fontBig->bindForDisplay();
+    // FZScreen::ambientColor(0xff000000);
+    // drawTextHC("PDF - TXT - PalmDoc - DJVU - CHM - HTML", fontBig, 180);
+    // FZScreen::ambientColor(0xffffffff);
+    // if (loading)
+    //     drawTextHC("Loading...", fontBig, 244);
+    // else if (text.length() > 0)
+    //     drawTextHC((char*) text.c_str(), fontBig, 244);
+    // else {
+    //     if (error) {
+    //         texUI->bindForDisplay();
+    //         FZScreen::ambientColor(0xf06060ff);
+    //         drawRect(0, 126, 480, 26, 6, 31, 1);
+    //         fontBig->bindForDisplay();
+    //         FZScreen::ambientColor(0xff222222);
+    //         drawTextHC("Error: invalid or corrupted file", fontBig, 130);
+    //     }
+    // FZScreen::ambientColor(0xffffffff);
+    // drawTextHC("Press Start", fontBig, 244);
+    // }
   #endif
 
-  // FZScreen::enable(FZ_BLEND);
-  // FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
-  
-  // texUI->bindForDisplay();
-  
-  // FZScreen::ambientColor(0xf0222222);
-  // // drawPill(150, 240, 180, 20, 6, 31, 1);
-  // drawPill(20, 240, 430, 20, 6, 31, 1);
 
-  // fontBig->bindForDisplay();
-  // FZScreen::ambientColor(0xff000000);
-  // drawTextHC("PDF - TXT - PalmDoc - DJVU - CHM - HTML", fontBig, 180);
-  // FZScreen::ambientColor(0xffffffff);
-  // if (loading)
-  //     drawTextHC("Loading...", fontBig, 244);
-  // else if (text.length() > 0)
-  //     drawTextHC((char*) text.c_str(), fontBig, 244);
-  // else {
-  //     if (error) {
-  //         texUI->bindForDisplay();
-  //         FZScreen::ambientColor(0xf06060ff);
-  //         drawRect(0, 126, 480, 26, 6, 31, 1);
-  //         fontBig->bindForDisplay();
-  //         FZScreen::ambientColor(0xff222222);
-  //         drawTextHC("Error: invalid or corrupted file", fontBig, 130);
-  //     }
-  // FZScreen::ambientColor(0xffffffff);
-  // drawTextHC("Press Start", fontBig, 244);
-  // }
 }
 
 BKLogo* BKLogo::create() {

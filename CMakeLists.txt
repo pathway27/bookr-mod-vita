@@ -117,7 +117,7 @@ else()
     image.png
     sce_sys/icon0_t.png
 
-    data/fonts/URW Gothic L Demi.ttf
+    # data/fonts/URW Gothic L Demi.ttf
     data/icons/*.png
   )
   add_resources(bk_resources ${res_files})

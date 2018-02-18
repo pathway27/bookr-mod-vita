@@ -18,7 +18,9 @@
     "xiosbase": "cpp",
     "iosfwd": "cpp",
     "utility": "cpp",
-    "list": "cpp"
+    "list": "cpp",
+    "system_error": "cpp",
+    "exception": "cpp"
   },
   "cmake.cmakePath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
 }

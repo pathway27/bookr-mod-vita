@@ -54,6 +54,7 @@ private:
   bool m_fitWidth;
   bool loadNewPage;
   
+  int zoomLevel;
   float m_scale;
   float m_rotate;
   int m_width;
@@ -63,7 +64,7 @@ private:
 
   string filename;
 
-  bool redrawBuffer(bool setSpeed = false);
+  bool redrawBuffer();
 
 protected:
   BKMUDocument(string& f);
