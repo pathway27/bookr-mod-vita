@@ -89,14 +89,15 @@ void BKLayer::load() {
 }
 
 void BKLayer::unload(){
-  // bad crash if i do these?
-  // delete texLogo;
-  // delete bk_memory_icon;
-  // delete bk_battery_icon;
-  // delete bk_clock_icon;
-  // delete bk_circle_icon;
-  // delete bk_cross_icon;
-  // delete fontBig;
+  // do i need to do this?
+  // crashes if i do...
+  texLogo->release();
+  bk_memory_icon->release();
+  bk_battery_icon->release();
+  bk_clock_icon->release();
+  bk_circle_icon->release();
+  bk_cross_icon->release();
+  fontBig->release();
 }
 
 void BKLayer::drawImage(int x, int y) {

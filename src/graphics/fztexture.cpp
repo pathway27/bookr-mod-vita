@@ -58,13 +58,11 @@
       #ifdef DEBUG
         printf("~FZTexture\n");
       #endif
-      if (texImage)
-          texImage->release();
-      texImage = NULL;
 
-      if (vita_texture)
-          vita2d_free_texture(vita_texture);
-      vita_texture = NULL;
+      if (vita_texture != NULL) {
+        vita2d_free_texture(vita_texture);
+        vita_texture = NULL;
+      }
   }
 
   void FZTexture::bind() {
