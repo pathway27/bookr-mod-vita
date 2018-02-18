@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
         case BK_CMD_INVOKE_OPEN_FILE: {
             // add a file chooser layer
             // string title("Open (use SQUARE to open Vietnamese chm/html)");
-            string title("Bookr Mod Vita: Open File       Triangle: Parent Folder");
+            string title("Open File");
             fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
             layers.push_back(fs);
             break;
@@ -214,9 +214,15 @@ int main(int argc, char* argv[]) {
               printf("Pre Document::create\n");
             #endif
 
+            const char *error;
             // detect file type and add a new display layer
-            documentLayer = BKDocument::create(s);
-            
+            try {
+              documentLayer = BKDocument::create(s);
+            }
+            catch (const char* e) {
+              error = e;
+              documentLayer = nullptr;
+            }
             // specific create BKPDF::create
             //   init mupdf vars
             //   b->redrawBuffer(); sets bouncebuffer
@@ -226,7 +232,7 @@ int main(int argc, char* argv[]) {
             if (documentLayer == nullptr) {
               // error, back to logo screen
               BKLogo* l = BKLogo::create();
-              l->setError(true, "File is not compatible");
+              l->setError(true, error);
               // Still no way of getting exact error during file opening
               // or during class init... maybe throw string and try and catch
               layers.push_back(l);

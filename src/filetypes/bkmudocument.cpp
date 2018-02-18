@@ -27,6 +27,7 @@
  */
 
 #include <map>
+#include <fstream>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,9 +35,12 @@
 #include <string.h>
 #include <time.h>
 #include <malloc.h>
+#include <errno.h>
+
+#include <psp2/io/fcntl.h>
 
 extern "C" {
-	#include <mupdf/fitz.h>
+  #include <mupdf/fitz.h>
 }
 
 #include "bkmudocument.h"
@@ -50,22 +54,25 @@ using namespace std;
 static BKMUDocument* mudoc_singleton = nullptr;
 // texture of current pixmap, TODO: generic fztexture
 static vita2d_texture *texture;
+static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
+  1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
 BKMUDocument::BKMUDocument(string& f) : 
-  filename(f), m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false),
-  m_pageText(nullptr), m_links(nullptr), panX(0), panY(0),
-  m_curPageLoaded(false), m_current_page(0), m_fitWidth(true), m_scale(1)
+  filename(f), m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(true),
+  m_pageText(nullptr), m_links(nullptr), panX(0), panY(0), m_current_page(0),
+  m_curPageLoaded(false), m_fitWidth(true), zoomLevel(4)
 {
   #ifdef DEBUG
     printf("BKMUDocument::BKMUDocument\n");
   #endif
 
+  m_scale = zoomLevels[zoomLevel];
   m_rotate = 0.0f;
   m_width = FZ_SCREEN_WIDTH;
   m_height = FZ_SCREEN_HEIGHT;
 
   // Initalize fitz context
-  m_ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
+  m_ctx = fz_new_context(nullptr, nullptr, FZ_STORE_UNLIMITED);
   if (m_ctx)
     fz_register_document_handlers(m_ctx);
   else
@@ -85,15 +92,22 @@ BKMUDocument::BKMUDocument(string& f) :
         fz_throw(m_ctx, FZ_ERROR_GENERIC, "no pass");
     }
   } fz_catch(m_ctx) {
-    fz_throw(m_ctx, FZ_ERROR_GENERIC, "opening error");
+    printf("opening error: %s\n", fz_caught_message(m_ctx));
+    fz_drop_context(m_ctx);
+    fz_throw(m_ctx, FZ_ERROR_GENERIC, "opening error:");
   }
 
   // Set page count
   fz_try(m_ctx) {
     m_pages = fz_count_pages(m_ctx, m_doc);
   } fz_catch(m_ctx) {
+    printf("page_count error");
     fz_throw(m_ctx, FZ_ERROR_GENERIC, "page_count error");
   }
+
+  #ifdef DEBUG
+    printf("BKMUDocument::BKMUDocument end\n");
+  #endif
 }
 
 BKMUDocument::~BKMUDocument() {
@@ -113,16 +127,16 @@ BKMUDocument* BKMUDocument::create(string& file) {
     printf("BKMUDocument::create\n");
   #endif
   
-	if (mudoc_singleton) {
-		printf("cannot open more than 1 pdf at the same time\n");
-		return mudoc_singleton;
-	}
+  if (mudoc_singleton) {
+    printf("cannot open more than 1 pdf at the same time\n");
+    return mudoc_singleton;
+  }
 
-	BKMUDocument* b = new BKMUDocument(file);
-	mudoc_singleton = b;
+  BKMUDocument* b = new BKMUDocument(file);
+  mudoc_singleton = b;
 
 
-  b->redrawBuffer(false);
+  //b->redrawBuffer(false);
   return b;
 }
 
@@ -134,19 +148,19 @@ int BKMUDocument::updateContent() {
     loadNewPage = false;
     char t[256];
 
-		snprintf(t, 256, "Page %d of %d", m_current_page + 1, m_pages);
-		setBanner(t);
+    snprintf(t, 256, "Page %d of %d", m_current_page + 1, m_pages);
+    setBanner(t);
     
-		return BK_CMD_MARK_DIRTY;
+    return BK_CMD_MARK_DIRTY;
   }
-	return 0;
+  return 0;
 }
 
 int BKMUDocument::resume() {
-	// mupdf leaves open file descriptors around. they don't survive a suspend.
+  // mupdf leaves open file descriptors around. they don't survive a suspend.
   // Is this still the case?
-	// pdfReopenFile();
-	return 0;
+  // pdfReopenFile();
+  return 0;
 }
 
 void BKMUDocument::renderContent() {
@@ -161,28 +175,28 @@ void BKMUDocument::renderContent() {
   //
   // sprintf(text, "Pixmap info h:%d w:%d", m_pix->h, m_pix->w);
 
-	// TODO: convert to texture
+  // TODO: convert to texture
   // printf("BKMUDocument::renderContent -- pre pixel\n");
   vita2d_draw_texture(texture, panX, panY);
   // printf("BKMUDocument::renderContent -- post pixel\n");
 
-	// TODO: Show Page Error, don"t draw texture then.
-	// if (pageError) {
-	// 	texUI->bindForDisplay();
-	// 	FZScreen::ambientColor(0xf06060ff);
-	// 	drawRect(0, 126, 480, 26, 6, 31, 1);
-	// 	fontBig->bindForDisplay();
-	// 	FZScreen::ambientColor(0xff222222);
-	// 	FZScreen::drawText(380, 400, RGBA8(0,0,0,255), 1.0f, "Error in page...");
-	// }
+  // TODO: Show Page Error, don"t draw texture then.
+  // if (pageError) {
+  // 	texUI->bindForDisplay();
+  // 	FZScreen::ambientColor(0xf06060ff);
+  // 	drawRect(0, 126, 480, 26, 6, 31, 1);
+  // 	fontBig->bindForDisplay();
+  // 	FZScreen::ambientColor(0xff222222);
+  // 	FZScreen::drawText(380, 400, RGBA8(0,0,0,255), 1.0f, "Error in page...");
+  // }
 }
 
 int BKMUDocument::getTotalPages() {
-	return m_pages;
+  return m_pages;
 }
 
 int BKMUDocument::getCurrentPage() {
-	return m_current_page;
+  return m_current_page;
 }
 
 int BKMUDocument::setCurrentPage(int page_number) {
@@ -193,21 +207,21 @@ int BKMUDocument::setCurrentPage(int page_number) {
     loadNewPage = true;
     m_current_page = page_number;
 
-		char t[256];
-		snprintf(t, 256, "Loading page %d", m_current_page + 1);
-		setBanner(t);
-		
-		return 0;
+    char t[256];
+    snprintf(t, 256, "Loading page %d", m_current_page + 1);
+    setBanner(t);
+    
+    return 0;
   }
 }
 
 // Draws current page into texture using pixmap
-bool BKMUDocument::redrawBuffer(bool setSpeed) {
+bool BKMUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("BKMUDocument::redrawBuffer\n");
   #endif
   
-	// fz_scale(&m_transform, m_scale / 72, m_scale / 72);
+  // fz_scale(&m_transform, m_scale / 72, m_scale / 72);
   // fz_pre_rotate(&m_transform, m_rotate);
   
   fz_drop_stext_page(m_ctx, m_pageText);
@@ -232,11 +246,11 @@ bool BKMUDocument::redrawBuffer(bool setSpeed) {
 
   // TODO: Is display list or bbox better?
   fz_annot *annot;
-	fz_try(m_ctx)
-		m_pix = fz_new_pixmap_from_page_contents(m_ctx, m_page, &m_transform, fz_device_rgb(m_ctx), 0);
-	fz_catch(m_ctx) {
-		printf("cannot render page: %s\n", fz_caught_message(m_ctx));
-	}
+  fz_try(m_ctx)
+    m_pix = fz_new_pixmap_from_page_contents(m_ctx, m_page, &m_transform, fz_device_rgb(m_ctx), 0);
+  fz_catch(m_ctx) {
+    printf("cannot render page: %s\n", fz_caught_message(m_ctx));
+  }
 
   // Crashes due to GPU memory use without this.
   vita2d_free_texture(texture);
@@ -250,23 +264,43 @@ bool BKMUDocument::redrawBuffer(bool setSpeed) {
     printf("BKMUDocument::redrawBuffer - end\n");
   #endif
 
-	return true;
+  return true;
 }
 
 bool BKMUDocument::isMUDocument(string& file) {
   // Read First 4 bytes
   char header[4];
-	memset((void*)header, 0, 4);
-	FILE* f = fopen(file.c_str(), "r");
+  memset((void*)header, 0, 4);
+  
+  // int fd = sceIoOpen(file.c_str(), SCE_O_RDONLY, 0777);
+  // if(fd == NULL) {
+  //   printf("fopen fail: %d, %s\n", errno, strerror(errno));
+  //   return false;
+  // }
+  FILE* f = fopen(file.c_str(), "r");
+  if(f == NULL) {
+    #ifdef DEBUG
+      printf("fopen fail: %d, %s\n", errno, strerror(errno));
+    #endif
+    throw "failed opening file; try again";
+  }
+
+  // sceIoRead(fd, header, 4);
+  // sceIoClose(fd);
+
+  fread(header, 4, 1, f);
+  fclose(f);
+
   const char* ext = get_ext(file.c_str());
-	if( !f )
-		return false;
-	fread(header, 4, 1, f);
-	fclose(f);
+
+  #ifdef DEBUG
+    printf("scefile opened\n", ext);
+    printf("ismu; ext: %s\n", ext);
+  #endif
 
   // TODO: get libmagic or something?
   // Trusting the user for now...
-	return ((header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46) ||
+  return ((header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46) ||
           (strcmp(ext, ".xps") == 0) ||
           (strcmp(ext, ".svg") == 0) ||
           (strcmp(ext, ".cbz") == 0) ||
@@ -294,27 +328,42 @@ int BKMUDocument::pan(int x, int y) {
     printf("INPUT x %i y %i\n", x, y);
   #endif
   
+  // printf("%f %f %f %f\n", m_bounds.x0, m_bounds.x1, m_bounds.y0, m_bounds.y1);
+  
   if (abs(x) <= FZ_ANALOG_THRESHOLD &&
       abs(y) <= FZ_ANALOG_THRESHOLD)
-	return 0;
+    return 0;
 
   // TODO: Choose invert analog settings
   // if settings.invertAnalog
   // x = -x
 
-  if (abs(x) > FZ_ANALOG_THRESHOLD)
-    panX -= x/10;
-    //panX += speed * (x/FZ_ANALOG_THRESHOLD);
+  // bounds checked pan
+  if (abs(x) > FZ_ANALOG_THRESHOLD) {
+    if (panX > m_bounds.x0) { // left bounds
+      if (x > 0) panX -= x/10;     // only going right allowed
+    } else if (-panX > m_bounds.x1 - m_width) { // right bounds
+      if (x < 0) panX -= x/10;                       // only going left
+    } else {        // inside box
+      panX -= x/10;
+    }
+  }
 
-  if (abs(y) > FZ_ANALOG_THRESHOLD)
-    panY -= y/10;
-	  //panY += speed * (y/FZ_ANALOG_THRESHOLD);
+  if (abs(y) > FZ_ANALOG_THRESHOLD) {
+    if (panY > m_bounds.y0) {
+      if (y > 0) panY -= y/10;
+    } else if (-panY > m_bounds.y1 - m_height) {
+      if (y < 0) panY -= y/10;
+    } else {
+      panY -= y/10;
+    }
+  }
+
 
   #ifdef DEBUG_BUTTONS
     printf("OUTPUT x %i y %i\n", panX, panY);
   #endif
-
-	return BK_CMD_MARK_DIRTY;
+  return BK_CMD_MARK_DIRTY;
 }
 
 bool BKMUDocument::isBookmarkable() {
@@ -324,17 +373,48 @@ bool BKMUDocument::isBookmarkable() {
 // -------------------- NOT IMPLEMENTED YET --------------------
 
 bool BKMUDocument::isZoomable() {
-  return false;
+  return true;
 }
 
-void BKMUDocument::getZoomLevels(vector<BKDocument::ZoomLevel>& v) {}
+void BKMUDocument::getZoomLevels(vector<BKDocument::ZoomLevel>& v) {
+  int n = BKUser::options.pdfFastScroll ? 15 : sizeof(zoomLevels)/sizeof(float);
+  for (int i = 0; i < n; ++i)
+    v.push_back(BKDocument::ZoomLevel(BKDOCUMENT_ZOOMTYPE_ABSOLUTE, "FIX ZOOM LABELS"));
+}
 
 int BKMUDocument::getCurrentZoomLevel() {
-  return 0;
+  return zoomLevel;
 }
 
-int BKMUDocument::setZoomLevel(int new_zoom_level) {
-  return 0;
+int BKMUDocument::setZoomLevel(int z) {
+  if (z == zoomLevel)
+    return 0;
+
+  m_fitWidth = false;
+  int n = sizeof(zoomLevels)/sizeof(float);
+  zoomLevel = z;
+
+  if (zoomLevel < 0)
+    zoomLevel = 0;
+  if (zoomLevel >= n)
+    zoomLevel = n - 1;
+  if (BKUser::options.pdfFastScroll && zoomLevel > 14) {
+    zoomLevel = 14;
+    m_scale = 2.0f;
+  }
+
+  m_scale = zoomLevels[zoomLevel];
+
+  char t[256];
+  snprintf(t, 256, "Zooming %2.3gx...", m_scale);
+  setBanner(t);
+
+  redrawBuffer();
+
+  snprintf(t, 256, "Zoomed %2.3gx...", m_scale);
+  setBanner(t);
+    
+  return BK_CMD_MARK_DIRTY;
 }
 
 bool BKMUDocument::hasZoomToFit() {
@@ -362,7 +442,10 @@ int BKMUDocument::screenLeft() {
 }
 
 int BKMUDocument::screenRight() {
-  return 0;
+  #ifdef DEBUG
+    panX = 0;
+    panY = 0;
+  #endif
 }
 
 bool BKMUDocument::isRotable() {

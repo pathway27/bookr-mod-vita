@@ -41,6 +41,7 @@ static FZTexture* bk_battery_icon;
 static FZTexture* bk_clock_icon;
 static FZTexture* bk_circle_icon;
 static FZTexture* bk_cross_icon;
+static FZTexture* bk_triangle_icon;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
 
@@ -62,6 +63,7 @@ extern "C" {
   extern unsigned char _binary_data_icons_clock_png_start;
   extern unsigned char _binary_data_icons_circle_outline_png_start;
   extern unsigned char _binary_data_icons_close_box_outline_png_start;
+  extern unsigned char _binary_data_icons_triangle_outline_png_start;
   
   extern unsigned char _binary_sce_sys_icon0_t_png_start;
   extern unsigned int _binary_sce_sys_icon0_t_png_size;
@@ -79,6 +81,7 @@ void BKLayer::load() {
 
   bk_circle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_circle_outline_png_start));
   bk_cross_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_close_box_outline_png_start));
+  bk_triangle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_triangle_outline_png_start));
 
   if (!fontBig){
     fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
@@ -183,16 +186,16 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 
   //circle or other context
   // circleLabel
-  vita2d_font_draw_text(fontBig->v_font, DIALOG_ITEM_WIDTH - 40,
+  vita2d_font_draw_text(fontBig->v_font, DIALOG_ITEM_WIDTH - 70,
     DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, t);
 
   switch(BKUser::controls.select) {
     case FZ_REPS_CROSS:
-      vita2d_draw_texture_scale(bk_cross_icon->vita_texture, DIALOG_ITEM_WIDTH - 100, DIALOG_CONTEXT_OFFSET_Y + 7, 
+      vita2d_draw_texture_scale(bk_cross_icon->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
       break;
     case FZ_REPS_CIRCLE:
-      vita2d_draw_texture_scale(bk_circle_icon->vita_texture, DIALOG_ITEM_WIDTH - 100, DIALOG_CONTEXT_OFFSET_Y + 7,
+      vita2d_draw_texture_scale(bk_circle_icon->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
     default:
       break;
@@ -202,8 +205,13 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
   // (255, 255, 255, 255)
   vita2d_font_draw_text(fontBig->v_font, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
 
-  //labels
-  // if triangle/circle
+  // triangle labels
+  if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL)) {
+    vita2d_draw_texture_scale(bk_triangle_icon->vita_texture, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+    vita2d_font_draw_text(fontBig->v_font, DIALOG_TITLE_TEXT_OFFSET_X + 60,
+      DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, triangleLabel.c_str());
+  }
 }
 
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items) {
@@ -212,11 +220,11 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, string& upperBreadCrumb) {
   drawMenu(title, triangleLabel, items, false);
-  FZScreen::drawText(116, 71, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
+  FZScreen::drawText(300, 83, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
 }
 
 #define DIALOG_MENU_FIRST_ITEM_OFFSET_Y DIALOG_TITLE_OFFSET_Y + DIALOG_ITEM_HEIGHT + 15
-#define DIALOG_MENU_ITEM_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 80
+#define DIALOG_MENU_ITEM_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
 #define DIALOG_MENU_ITEM_HEIGHT 40
 
 void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>& items, bool useUTFFont) {
@@ -246,15 +254,38 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
   #endif
   drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
+  // selectedItem
+  int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
   vita2d_draw_rectangle(DIALOG_ITEM_OFFSET_X,
     (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOG_MENU_ITEM_HEIGHT)),
-    DIALOG_ITEM_WIDTH, DIALOG_MENU_ITEM_HEIGHT, COLOR_WHITE);
+    wSelBox, DIALOG_MENU_ITEM_HEIGHT, COLOR_WHITE);
+
+  // check if folder
+
+  // scrollbar
+  if (scrollbar) {
+    float barh = 8.0f / float(items.size());
+    barh *= 73.0f;
+    if (barh < 15.0f)
+      barh = 15.0f;
+    float trel = float(topItem) / float(items.size());
+    trel *= 73.0f;
+
+    vita2d_draw_rectangle(DIALOG_OFFSET_X + wSelBox + 20,
+      DIALOG_MENU_FIRST_ITEM_OFFSET_Y,
+      40,
+      DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - 30,
+    0xff555555);
+
+    vita2d_draw_rectangle(DIALOG_OFFSET_X + wSelBox + 20,
+      DIALOG_MENU_FIRST_ITEM_OFFSET_Y + int(trel),
+      40,
+      DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - int(barh),
+    0xffaaaaaa);
+  }
+
 
   for (int i = 0; i < maxItemNum; ++i) {
-    // if (i + topItem == selItem)
-    // 	continue;
-    // if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-    // 	break;
     if ((i + topItem) >= (int)(items.size()))
       break;
 
