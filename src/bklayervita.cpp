@@ -90,7 +90,6 @@ void BKLayer::load() {
 
 void BKLayer::unload(){
   // do i need to do this?
-  // crashes if i do...
   texLogo->release();
   bk_memory_icon->release();
   bk_battery_icon->release();

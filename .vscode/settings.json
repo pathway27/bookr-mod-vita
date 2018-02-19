@@ -20,7 +20,10 @@
     "utility": "cpp",
     "list": "cpp",
     "system_error": "cpp",
-    "exception": "cpp"
+    "exception": "cpp",
+    "iostream": "cpp",
+    "chrono": "cpp",
+    "string": "cpp"
   },
   "cmake.cmakePath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
 }
