@@ -28,6 +28,9 @@
 
 #include <map>
 #include <fstream>
+#include <chrono>
+#include <iostream>
+#include <sstream>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -140,11 +143,60 @@ BKMUDocument* BKMUDocument::create(string& file) {
   return b;
 }
 
+// Draws current page into texture using pixmap
+bool BKMUDocument::redrawBuffer() {
+  #ifdef DEBUG
+    printf("BKMUDocument::redrawBuffer pp\n");
+    chrono::steady_clock::time_point begin = chrono::steady_clock::now(); 
+  #endif
+  // fz_scale(&m_transform, m_scale / 72, m_scale / 72);
+  // fz_pre_rotate(&m_transform, m_rotate);
+  
+  fz_drop_stext_page(m_ctx, m_pageText);
+  m_pageText = nullptr;
+  fz_drop_link(m_ctx, m_links);
+  m_links = nullptr;
+  fz_drop_page(m_ctx, m_page);
+  m_page = nullptr;
+
+
+  m_page = fz_load_page(m_ctx, m_doc, m_current_page);
+  m_links = fz_load_links(m_ctx, m_page);
+  m_pageText = fz_new_stext_page_from_page(m_ctx, m_page, nullptr);
+
+
+  // bounds for inital window size
+  fz_bound_page(m_ctx, m_page, &m_bounds);
+  if (m_fitWidth)
+    m_scale = m_width / (m_bounds.x1 - m_bounds.x0);
+
+  fz_scale(&m_transform, m_scale, m_scale);
+  fz_pre_rotate(&m_transform, m_rotate);
+  fz_transform_rect(&m_bounds, &m_transform);
+
+  // TODO: Is display list or bbox better?
+  // This is currently the longest operation
+  fz_annot *annot;
+  fz_try(m_ctx)
+    m_pix = fz_new_pixmap_from_page_contents(m_ctx, m_page, &m_transform, fz_device_rgb(m_ctx), 0);
+  fz_catch(m_ctx) {
+    printf("cannot render page: %s\n", fz_caught_message(m_ctx));
+  }
+
+  // Crashes due to GPU memory use without this.
+  vita2d_free_texture(texture);
+  texture = _vita2d_load_pixmap_generic(m_pix);
+
+  fz_drop_pixmap(m_ctx, m_pix);
+  // load annotations
+  
+  return true;
+}
+
 int BKMUDocument::updateContent() {
   if (loadNewPage) {
     redrawBuffer();
 
-    panY = 0;
     loadNewPage = false;
     char t[256];
 
@@ -169,16 +221,7 @@ void BKMUDocument::renderContent() {
   #endif
 
   FZScreen::clear(0xefefef, FZ_COLOR_BUFFER);
-  // char text[100];
-  // sprintf(text, "Hi from PDF::RenderCOntent %d/%d", m_page_number, m_page_count);
-  // FZScreen::drawText(100, 100, RGBA8(0,0,0,255), 1.0f, text);
-  //
-  // sprintf(text, "Pixmap info h:%d w:%d", m_pix->h, m_pix->w);
-
-  // TODO: convert to texture
-  // printf("BKMUDocument::renderContent -- pre pixel\n");
   vita2d_draw_texture(texture, panX, panY);
-  // printf("BKMUDocument::renderContent -- post pixel\n");
 
   // TODO: Show Page Error, don"t draw texture then.
   // if (pageError) {
@@ -206,6 +249,7 @@ int BKMUDocument::setCurrentPage(int page_number) {
   else {
     loadNewPage = true;
     m_current_page = page_number;
+    panY = 0;
 
     char t[256];
     snprintf(t, 256, "Loading page %d", m_current_page + 1);
@@ -213,58 +257,6 @@ int BKMUDocument::setCurrentPage(int page_number) {
     
     return 0;
   }
-}
-
-// Draws current page into texture using pixmap
-bool BKMUDocument::redrawBuffer() {
-  #ifdef DEBUG
-    printf("BKMUDocument::redrawBuffer\n");
-  #endif
-  
-  // fz_scale(&m_transform, m_scale / 72, m_scale / 72);
-  // fz_pre_rotate(&m_transform, m_rotate);
-  
-  fz_drop_stext_page(m_ctx, m_pageText);
-  m_pageText = nullptr;
-  fz_drop_link(m_ctx, m_links);
-  m_links = nullptr;
-  fz_drop_page(m_ctx, m_page);
-  m_page = nullptr;
-
-  m_page = fz_load_page(m_ctx, m_doc, m_current_page);
-  m_links = fz_load_links(m_ctx, m_page);
-  m_pageText = fz_new_stext_page_from_page(m_ctx, m_page, nullptr);
-
-  // bounds for inital window size
-  fz_bound_page(m_ctx, m_page, &m_bounds);
-  if (m_fitWidth)
-    m_scale = m_width / (m_bounds.x1 - m_bounds.x0);
-
-  fz_scale(&m_transform, m_scale, m_scale);
-  fz_pre_rotate(&m_transform, m_rotate);
-  fz_transform_rect(&m_bounds, &m_transform);
-
-  // TODO: Is display list or bbox better?
-  fz_annot *annot;
-  fz_try(m_ctx)
-    m_pix = fz_new_pixmap_from_page_contents(m_ctx, m_page, &m_transform, fz_device_rgb(m_ctx), 0);
-  fz_catch(m_ctx) {
-    printf("cannot render page: %s\n", fz_caught_message(m_ctx));
-  }
-
-  // Crashes due to GPU memory use without this.
-  vita2d_free_texture(texture);
-  texture = _vita2d_load_pixmap_generic(m_pix);
-
-  fz_drop_pixmap(m_ctx, m_pix);
-
-  // load annotations
-
-  #ifdef DEBUG
-    printf("BKMUDocument::redrawBuffer - end\n");
-  #endif
-
-  return true;
 }
 
 bool BKMUDocument::isMUDocument(string& file) {
