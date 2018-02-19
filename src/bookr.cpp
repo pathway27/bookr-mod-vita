@@ -44,6 +44,9 @@
 #include "bkfilechooser.h"
 #include "bkdocument.h"
 
+// Double default 32MB
+int _newlib_heap_size_user = 64 * 1024 * 1024;
+
 int main(int argc, char* argv[]) {
   BKDocument *documentLayer = 0; // file we're opening
   FZScreen::open(argc, argv);    // GPU init and initalDraw
@@ -55,7 +58,6 @@ int main(int argc, char* argv[]) {
 
   BKUser::init();                // get app settings from user.xml
 
-
   BKLayer::load();                       // make textures
   bkLayers layers;                       // iterator over all gui obj. that are initalsed
   BKFileChooser* fs = 0;                 // file chooser, only opens when Open File in mainmenu
@@ -63,40 +65,32 @@ int main(int argc, char* argv[]) {
   layers.push_back(BKLogo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
   layers.push_back(mm);                  // Main Menu
 
-  std::cout << "Hi" << std::endl;
-
   // Swapping buffers based on dirty variable feels dirty.
   bool dirty = true;
   bool exitApp = false;
   int reloadTimer = 0;
   // Event Loop
   while ( !exitApp )  {
-    // printf("while entered");
-    // draw state to back buffer
+    // draw state to back buffer and swap
     if (dirty) {
-        FZScreen::startDirectList();
-        // vita2d_draw_rectangle(20, 20, 400, 250, RGBA8(255, 0, 0, 255));
-        //sceKernelDelayThread(2*1000000);
-        bkLayersIt it(layers.begin());
-        bkLayersIt end(layers.end());
-        while (it != end) {
-            (*it)->render();
-            ++it;
-        }
-        FZScreen::endAndDisplayList();
-        FZScreen::swapBuffers();
+      FZScreen::startDirectList();
+      bkLayersIt it(layers.begin());
+      bkLayersIt end(layers.end());
+      while (it != end) {
+          (*it)->render();
+          ++it;
+      }
+      FZScreen::endAndDisplayList();
+      FZScreen::swapBuffers();
     }
 
-    //FZScreen::checkEvents();
-    //FZ_DEBUG_SCREEN_SET00
     int buttons = FZScreen::readCtrl();
 
-    //std::cout << buttons << std::endl;
     dirty = buttons != 0;
 
     #if defined(MAC) || defined(WIN32)
       if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
-          break;
+        break;
     #endif
 
     // // the last layer always owns the input focus
@@ -105,18 +99,17 @@ int main(int argc, char* argv[]) {
     int command = 0;
 
     if ((*it) == nullptr)
-        continue;
-    // // the PSP hangs when doing file I/O just after a power resume, delay it a few vsyncs
-
+      continue;
+    
     // These take up most of the stdout
     #ifdef DEBUG_BUTTONS
       printf("pre update-buttons\n");
     #endif
     command = (*it)->update(buttons);
     if (command == BK_CMD_OPEN_FILE) {
-        #ifdef DEBUG
-          printf("Got BK_CMD_OPEN_FILE\n");
-        #endif
+      #ifdef DEBUG
+        printf("Got BK_CMD_OPEN_FILE\n");
+      #endif
     }
 
     #ifdef DEBUG_BUTTONS
@@ -276,8 +269,8 @@ int main(int argc, char* argv[]) {
   }
   layers.clear();
 
-  FZScreen::close();
-  BKLayer::unload();
+  FZScreen::close();    // deinit graphics layer
+  BKLayer::unload();    // free textures
   FZScreen::exit();
 
   return 0;
