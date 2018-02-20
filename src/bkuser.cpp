@@ -290,14 +290,14 @@ void BKUser::load() {
                 //printf("invalid user.xml in line %d\n", eset->Row());
                 break;
             }
-            else if (strncmp(option, "menuControlStyle",128) == 0) {
-                // default is asian so we only do the western case
-                if(strncmp(value, "western", 128) == 0) {
+            else if (strncmp(option, "menuControlStyle", 128) == 0) {
+                // default is western so we only do the asian case
+                if (strncmp(value, "western", 128) == 0) {
                     BKUser::controls.select = FZ_REPS_CROSS;
                     BKUser::controls.cancel = FZ_REPS_CIRCLE;
-                } else if (strncmp(value, "asian", 128) != 0) {
-                    //printf("invalid user.xml in line %d\n", eset->Row());
-                    break;
+                } else if (strncmp(value, "asian", 128) == 0) {
+                    BKUser::controls.select = FZ_REPS_CIRCLE;
+                    BKUser::controls.cancel = FZ_REPS_CROSS;
                 }
             }
             else if (strncmp(option, "txtRotation",     128) == 0) options.txtRotation     = atoi(value);
