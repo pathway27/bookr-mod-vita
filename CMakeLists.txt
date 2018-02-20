@@ -33,12 +33,12 @@ if (NOT DESKTOP)
   set(VITA_TITLEID  "PATH00027")
 endif(NOT DESKTOP)
 
-execute_process(COMMAND git describe --tags
+execute_process(COMMAND git describe --long
   OUTPUT_VARIABLE GIT_VERSION)
 string(REGEX REPLACE "\n$" "" GIT_VERSION "${GIT_VERSION}")
 
 # bash "-c" "echo -n hello | sed 's/hello/world/;'"
-execute_process(COMMAND git describe --tags
+execute_process(COMMAND git describe
                 COMMAND sed -e "s,v,0," -e "s,\\(.*\\)\\.,\\1," -e "s,-.*,,g"
                 OUTPUT_VARIABLE VITA_VERSION)
 string(REGEX REPLACE "\n$" "" VITA_VERSION "${VITA_VERSION}")
