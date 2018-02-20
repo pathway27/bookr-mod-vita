@@ -30,6 +30,7 @@
 #define BKMUPDFDOCUMENT_H
 
 #include <mupdf/fitz.h>
+#include <mupdf/pdf.h>
 
 #include "../bkdocument.h"
 #include "../graphics/fzscreen.h"
@@ -47,12 +48,15 @@ private:
   fz_stext_page *m_pageText;
   fz_rect m_matches[512];
   fz_link *m_links;
+  pdf_document *m_pdf;
   
   int m_current_page;
   int m_pages;
   bool m_curPageLoaded;
   bool m_fitWidth;
+
   bool loadNewPage;
+  bool zooming;
   
   int zoomLevel;
   float m_scale;

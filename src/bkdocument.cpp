@@ -72,7 +72,6 @@ BKDocument* BKDocument::create(string& filePath) {
       doc->setBookmarkPosition(b.viewData);
     }
   }
-  doc->updateContent();
 
   return doc;
 }
