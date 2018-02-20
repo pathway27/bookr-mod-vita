@@ -61,7 +61,7 @@ static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f,
   1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
 BKMUDocument::BKMUDocument(string& f) : 
-  filename(f), m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(true),
+  filename(f), m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
   m_pageText(nullptr), m_links(nullptr), panX(0), panY(0), m_current_page(0),
   m_curPageLoaded(false), m_fitWidth(true), zoomLevel(4)
 {
@@ -99,6 +99,8 @@ BKMUDocument::BKMUDocument(string& f) :
     fz_drop_context(m_ctx);
     fz_throw(m_ctx, FZ_ERROR_GENERIC, "opening error:");
   }
+
+  m_pdf = pdf_specifics(m_ctx, m_doc);
 
   // Set page count
   fz_try(m_ctx) {
@@ -139,7 +141,7 @@ BKMUDocument* BKMUDocument::create(string& file) {
   mudoc_singleton = b;
 
 
-  //b->redrawBuffer(false);
+  b->redrawBuffer();
   return b;
 }
 
@@ -195,6 +197,7 @@ bool BKMUDocument::redrawBuffer() {
 
 int BKMUDocument::updateContent() {
   if (loadNewPage) {
+    panY = 0;
     redrawBuffer();
 
     loadNewPage = false;
@@ -249,7 +252,6 @@ int BKMUDocument::setCurrentPage(int page_number) {
   else {
     loadNewPage = true;
     m_current_page = page_number;
-    panY = 0;
 
     char t[256];
     snprintf(t, 256, "Loading page %d", m_current_page + 1);
@@ -462,12 +464,15 @@ void BKMUDocument::getBookmarkPosition(map<string, int>& m) {
 
 int BKMUDocument::setBookmarkPosition(map<string, int>& m) {
   #ifdef DEBUG
-    printf("setBookmarkPosition: page %i", m["page"]);
+    printf("setBookmarkPosition: page %i, panX %i, panY %i", m["page"], m["panX"], m["panY"]);
   #endif
   setCurrentPage(m["page"]);
+  loadNewPage = false;
 
   panX = m["panX"];
   panY = m["panY"];
+
+  redrawBuffer();
 
   return BK_CMD_MARK_DIRTY;
 }
