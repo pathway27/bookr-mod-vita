@@ -199,6 +199,7 @@ int BKMUDocument::updateContent() {
   if (loadNewPage) {
     panY = 0;
     redrawBuffer();
+    saveLastView();
 
     loadNewPage = false;
     char t[256];
