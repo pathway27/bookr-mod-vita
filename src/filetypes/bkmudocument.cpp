@@ -316,6 +316,36 @@ bool BKMUDocument::isPaginated() {
   return true;
 }
 
+#define D_PAD_SPEED 250
+int BKMUDocument::screenUp() {
+  float potentialY = panY + D_PAD_SPEED;
+  
+  #ifdef DEBUG
+    printf("bounds y0: %f y1: %f\n", m_bounds.y0, m_bounds.y1);
+    printf("panY: %f potentialY: %f\n", panY, potentialY);
+  #endif
+
+  if (potentialY >= m_bounds.y0)
+    panY = m_bounds.y0;
+  else
+    panY = potentialY;
+}
+
+int BKMUDocument::screenDown() {
+  float potentialY = panY - D_PAD_SPEED;
+  
+  #ifdef DEBUG
+    printf("bounds y0: %f y1: %f\n", m_bounds.y0, m_bounds.y1);
+    printf("panY: %f potentialY: %f\n", panY, potentialY);
+  #endif
+
+  int bottomBounds = (m_bounds.y1 - FZ_SCREEN_HEIGHT);
+  if (-potentialY >= bottomBounds)
+    panY = -bottomBounds;
+  else
+    panY = potentialY;
+}
+
 // TODO: Move this to bkuser.
 static float speed = 0.5f;
 int BKMUDocument::pan(int x, int y) {
