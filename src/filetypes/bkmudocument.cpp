@@ -454,14 +454,6 @@ int BKMUDocument::setZoomToFitHeight() {
   return 0;
 }
 
-int BKMUDocument::screenUp() {
-  panY += 250;
-}
-
-int BKMUDocument::screenDown() {
-  panY -= 250;
-}
-
 int BKMUDocument::screenLeft() {
   return 0;
 }
