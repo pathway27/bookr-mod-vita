@@ -228,6 +228,7 @@ void BKUser::load() {
     #endif
 
     FILE *file = fopen(filename, "r");
+
     if (!file) {
       #ifndef DEBUG
         printf("%s doesn't exist; creating.\n", filename);
@@ -467,5 +468,6 @@ void BKUser::load() {
       options.pageScrollCacheMode = 0;
     }
 
+    fclose(file);
 }
 

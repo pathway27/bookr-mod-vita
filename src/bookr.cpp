@@ -157,108 +157,105 @@ int main(int argc, char* argv[]) {
           layers.push_back(fs);
           break;
       }
+      case BK_CMD_RELOAD:
       case BK_CMD_OPEN_FILE: {
-          // open a file as a document
-          #ifdef DEBUG
-            printf("BK_CMD_OPEN_FILE\n");
-          #endif
-          string fileName; // this is being changed somewhere...
-          string fnCpy;
+        // open a file as a document
+        #ifdef DEBUG
+          printf("BK_CMD_OPEN_FILE\n");
+        #endif
+        string fileName; // this is being changed somewhere, don't trust it..
+        string fnCpy;
 
-          bool convertToVN = false;
+        bool convertToVN = false;
 
-          if (command == BK_CMD_RELOAD) {
-            documentLayer->getFileName(fileName);
-            documentLayer = 0;
-          }
-          if (command == BK_CMD_OPEN_FILE) {
-            // open selected file
-            fs->getFullPath(fileName);
-            fnCpy = string(fileName);
-            //convertToVN = fs->isConvertToVN();
-            fs = 0;
-            #ifdef DEBUG
-              printf("getFullPath %s\n", fileName.c_str());
-            #endif
-          }
-          // if (command == BK_CMD_OPEN_CACHE) {
-          //   // open selected cache
-          //   ccs->getFullPath(s);
-          //   ccs = 0;
-          // }
-          // clear layers
-          #ifdef DEBUG
-            printf("getFullPath pre layer clear %s\n", fileName.c_str());
-          #endif
-          bkLayersIt it(layers.begin());
-          bkLayersIt end(layers.end());
-          while (it != end) {
-            (*it)->release();
-            ++it;
-          }
-          layers.clear();
-          #ifdef DEBUG
-            printf("getFullPath post layer clear %s\n", fileName.c_str());
-          #endif
-          // little hack to display a loading screen
-          BKLogo* l = BKLogo::create();
-          l->setLoading(true);
-          FZScreen::startDirectList();
-          l->render();
-          FZScreen::endAndDisplayList();
-          FZScreen::waitVblankStart();
-          FZScreen::swapBuffers();
-          // FZScreen::checkEvents();
-          l->release();
-          #ifdef DEBUG
-            printf("getFullPath copy %s\n", fnCpy.c_str());
-          #endif
-          #ifdef DEBUG
-            printf("BKLogo Created\n");
-            printf("Pre Document::create\n");
-          #endif
+        if (command == BK_CMD_RELOAD) {
+          documentLayer->getFileName(fileName);
+          documentLayer = 0;
+        }
+        if (command == BK_CMD_OPEN_FILE) {
+          // open selected file
+          fs->getFullPath(fileName);
+          //convertToVN = fs->isConvertToVN();
+          fs = 0;
           #ifdef DEBUG
             printf("getFullPath %s\n", fileName.c_str());
           #endif
+        }
+        fnCpy = string(fileName);
+        
+        // clear layers
+        #ifdef DEBUG
+          printf("getFullPath pre layer clear %s\n", fileName.c_str());
+        #endif
+        bkLayersIt it(layers.begin());
+        bkLayersIt end(layers.end());
+        while (it != end) {
+          (*it)->release();
+          ++it;
+        }
+        layers.clear();
+        #ifdef DEBUG
+          printf("getFullPath post layer clear %s\n", fileName.c_str());
+        #endif
+        // little hack to display a loading screen
+        BKLogo* l = BKLogo::create();
+        l->setLoading(true);
+        FZScreen::startDirectList();
+        l->render();
+        FZScreen::endAndDisplayList();
+        FZScreen::waitVblankStart();
+        FZScreen::swapBuffers();
+        // FZScreen::checkEvents();
+        l->release();
+        #ifdef DEBUG
+          printf("getFullPath copy %s\n", fnCpy.c_str());
+        #endif
+        #ifdef DEBUG
+          printf("BKLogo Created\n");
+          printf("Pre Document::create\n");
+        #endif
+        #ifdef DEBUG
+          printf("getFullPath %s\n", fileName.c_str());
+        #endif
 
-          const char *error;
-          // detect file type and add a new display layer
-          try {
-            #ifdef DEBUG
-              printf("getFullPath %s\n", fileName.c_str());
-            #endif
-            documentLayer = BKDocument::create(fnCpy.c_str());
-          }
-          catch (const char* e) {
-            error = e;
-            documentLayer = nullptr;
-          }
-          // specific create BKPDF::create
-          //   init mupdf vars
-          //   b->redrawBuffer(); sets bouncebuffer
+        const char *error;
+        // detect file type and add a new display layer
+        try {
           #ifdef DEBUG
-            printf("Post Document::create\n");
+            printf("getFullPath %s\n", fileName.c_str());
           #endif
-          if (documentLayer == nullptr) {
-            // error, back to logo screen
-            BKLogo* l = BKLogo::create();
-            l->setError(true, error);
-            // Still no way of getting exact error during file opening
-            // or during class init... maybe throw string and try and catch
-            layers.push_back(l);
-          } else {
-            // file loads ok, add the layer
-            layers.push_back(documentLayer);
-          }
+          documentLayer = BKDocument::create(fnCpy.c_str());
+        }
+        catch (const char* e) {
+          error = e;
+          documentLayer = nullptr;
+        }
+        // specific create BKPDF::create
+        //   init mupdf vars
+        //   b->redrawBuffer(); sets bouncebuffer
+        #ifdef DEBUG
+          printf("Post Document::create\n");
+        #endif
+        if (documentLayer == nullptr) {
+          // error, back to logo screen
+          BKLogo* l = BKLogo::create();
+          l->setError(true, error);
+          // Still no way of getting exact error during file opening
+          // or during class init... maybe throw string and try and catch
+          layers.push_back(l);
+        } else {
+          // file loads ok, add the layer
+          layers.push_back(documentLayer);
+        }
 
-          // render document
-          // render filetype content i.e. bouncebuffer with FZScreen::copyImage
-          // wait for event, redraw bouncebuffer responding to events
+        // render document
+        // render filetype content i.e. bouncebuffer with FZScreen::copyImage
+        // wait for event, redraw bouncebuffer responding to events
 
-          // FZScreen::setSpeed(BKUser::options.pspSpeed);
+        // FZScreen::setSpeed(BKUser::options.pspSpeed);
 
-          dirty = true;
-          break;
+        dirty = true;
+        break;
       }
     }
 
@@ -267,6 +264,7 @@ int main(int argc, char* argv[]) {
         break;
     #endif
     #ifdef DEBUG
+      // printf("powerResumed %i\n", FZScreen::getSuspendSerial());
       // Quick close
       if ((buttons == (FZ_CTRL_LTRIGGER | FZ_CTRL_CIRCLE)) ||
           FZScreen::isClosing())
