@@ -1,6 +1,6 @@
 ## bookr-mod-vita
 
-A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita#source-and-forks).  
+A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita/blob/master/forks.md).  
 You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md).
 
 ## Building
@@ -19,7 +19,7 @@ export PSVITAIP=IP-HERE
 cd build && make send
 ```
 
-See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md) for desktop dev. version.
+See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md) for OpenGL version.
 
 ## Installation and Usage
 
@@ -46,17 +46,16 @@ Start - Show/Hide Menu
 ```
 
 
-## Credits
+## Thanks
 
 - [Original and Forks](https://github.com/pathway27/bookr-mod-vita/blob/master/forks.md)
-- Team Molecule (yifan, xyzz, DaveeFTW, xerpi)
-- TheFlow
+- Team Molecule
+- VITA hacking/dev. scene
 - libvita2d - xerpi
 - [learnopengl.com](learnopengl.com)
-- peeps on #vitasdk on freenode
+- peeps on vitasdk/henkaku on freenode and discord
 - people that read
 
-All of the VITA hacking/dev. scene.
 
 ## License
 
