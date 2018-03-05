@@ -19,7 +19,7 @@ export PSVITAIP=IP-HERE
 cd build && make send
 ```
 
-See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md) for OpenGL version.
+See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/BUILDING.md) for OpenGL version.
 
 ## Installation and Usage
 
