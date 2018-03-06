@@ -92,7 +92,7 @@ public:
 	virtual void renderContent() = 0;
 
 	// Factory with file detection
-	static BKDocument* create(string& filePath);
+	static BKDocument* create(string filePath);
 
 	// Document metadata
 	virtual void getFileName(string&) = 0;
