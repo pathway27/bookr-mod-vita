@@ -257,7 +257,7 @@ int BKMUDocument::updateContent() {
 int BKMUDocument::resume() {
   // mupdf leaves open file descriptors around. they don't survive a suspend.
   // Is this still the case? yes
-  // pdfReopenFile();
+  // TODO: Don't need to reload for epub/html based docs, all kept in memory and retained
   return BK_CMD_RELOAD;
 }
 
