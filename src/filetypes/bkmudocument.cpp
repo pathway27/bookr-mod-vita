@@ -52,6 +52,8 @@ extern "C" {
 
 using namespace std;
 
+extern int _newlib_heap_size_user;
+
 // make sure only one document is open, do we need this?
 // vita can probably do multiple.
 static BKMUDocument* mudoc_singleton = nullptr;
@@ -61,21 +63,23 @@ static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f,
   1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
 BKMUDocument::BKMUDocument(string& f) : 
-  filename(f), m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
+  m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
   m_pageText(nullptr), m_links(nullptr), panX(0), panY(0), m_current_page(0),
   m_curPageLoaded(false), m_fitWidth(true), zoomLevel(8)
 {
   #ifdef DEBUG
-    printf("BKMUDocument::BKMUDocument\n");
+    printf("BKMUDocument::BKMUDocument f: %s, filename: %s\n", f.c_str(), filename.c_str());
   #endif
 
+  filename = string(f);
   m_scale = zoomLevels[zoomLevel];
   m_rotate = 0.0f;
   m_width = FZ_SCREEN_WIDTH;
   m_height = FZ_SCREEN_HEIGHT;
 
   // Initalize fitz context
-  m_ctx = fz_new_context(nullptr, nullptr, FZ_STORE_UNLIMITED);
+  m_ctx = fz_new_context(nullptr, nullptr, _newlib_heap_size_user);
+
   if (m_ctx)
     fz_register_document_handlers(m_ctx);
   else
@@ -99,6 +103,7 @@ BKMUDocument::BKMUDocument(string& f) :
     fz_drop_context(m_ctx);
     fz_throw(m_ctx, FZ_ERROR_GENERIC, "opening error:");
   }
+
 
   m_pdf = pdf_specifics(m_ctx, m_doc);
 
@@ -251,9 +256,9 @@ int BKMUDocument::updateContent() {
 
 int BKMUDocument::resume() {
   // mupdf leaves open file descriptors around. they don't survive a suspend.
-  // Is this still the case?
+  // Is this still the case? yes
   // pdfReopenFile();
-  return 0;
+  return BK_CMD_RELOAD;
 }
 
 void BKMUDocument::renderContent() {
@@ -304,24 +309,27 @@ bool BKMUDocument::isMUDocument(string& file) {
   char header[4];
   memset((void*)header, 0, 4);
   
-  // int fd = sceIoOpen(file.c_str(), SCE_O_RDONLY, 0777);
-  // if(fd == NULL) {
-  //   printf("fopen fail: %d, %s\n", errno, strerror(errno));
-  //   return false;
-  // }
-  FILE* f = fopen(file.c_str(), "r");
-  if(f == NULL) {
-    #ifdef DEBUG
-      printf("fopen fail: %d, %s\n", errno, strerror(errno));
-    #endif
-    throw "failed opening file; try again";
-  }
+  #ifdef __vita__
+    int fd = sceIoOpen(file.c_str(), SCE_O_RDONLY, 0777);
+    if (fd < 0) {
+      printf("sceIoOpen fail: %d, %s\n", errno, strerror(errno));
+      return false;
+    }
 
-  // sceIoRead(fd, header, 4);
-  // sceIoClose(fd);
+    sceIoRead(fd, header, 4);
+    sceIoClose(fd);
+  #else
+    FILE* f = fopen(file.c_str(), "r");
+    if(f == NULL) {
+      #ifdef DEBUG
+        printf("fopen fail: %d, %s\n", errno, strerror(errno));
+      #endif
+      throw "failed opening file; try again";
+    }
 
-  fread(header, 4, 1, f);
-  fclose(f);
+    fread(header, 4, 1, f);
+    fclose(f);
+  #endif
 
   const char* ext = get_ext(file.c_str());
 

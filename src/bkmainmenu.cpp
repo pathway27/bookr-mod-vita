@@ -297,19 +297,20 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 		if (selItem == MAIN_MENU_ITEM_ABOUT) {
 			popupText = "\
 			Bookr Mod Vita (" + std::string(GIT_VERSION) + ") - by pathway27 (Sreekara C.)\n\n\
-			IS A MODIFICATION OF THE ORIGINAL AND VARIOUS OTHER FORKS\n\
+			IS A MODIFICATION OF THE ORIGINAL\n\
 			Bookr and bookr-mod - a document viewer for the Sony PSP\n\
 			  by Carlos and Edward\n\
 			  V8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\n\
-			Modified for Official Firmware by the HomebrewStore Development Team.\n\n\
+			  Modified for Official Firmware by the HomebrewStore Development Team\n\
+			AND VARIOUS OTHER FORKS\n\n\
 			This program is licensed under the terms of the GNU GPLv3+.\n\n\
 			This program uses the following libraries/projects:\n\
 			  vita2d by xerpi under MIT.\n\
-			  MuPDF under AGPL v3.\n\n\
+			  MuPDF by ArtifexSoftware under AGPL v3.\n\n\
 			Thanks to:\n\
 			  Team Molecule for Henkaku\n\
 			  VITA SDK Contibutors\n\
-			  People on freenode #vitasdk\n\
+			  People on freenode#vitasdk#henkaku and Discord\n\
 			  ebraminio for help with harbuzz\n";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;

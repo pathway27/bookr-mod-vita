@@ -49,14 +49,72 @@ int exit_callback(int arg1, int arg2, void *common) {
 static volatile int powerResumed = 0;
 
 /* Power Callback */
-int power_callback(int unknown, int pwrflags, void *common) {
+int power_callback(int notifyId, int notifyCount, int powerInfo, void *common) {
+  #ifdef DEBUG
+    // very hard to debug power callback messages without file
+    // psp2shell disconnects during
+    FILE *fd = fopen("ux0:data/Bookr/test_power_cb.txt", "a");
+    printf("notifyId %i, notifyCount %i, powerInfo 0x%08X\n", notifyId, notifyCount, powerInfo);
+  #endif
+  
+  if (powerInfo & SCE_POWER_CB_SUSPENDING) {
+    powerResumed++;
+  } else if (powerInfo & SCE_POWER_CB_RESUMING) {
+    powerResumed++;
+  } else if (powerInfo & SCE_POWER_CB_RESUME_COMPLETE) {
+    powerResumed++;
+  }
+
+  #ifdef DEBUG
+    printf("powerResumed %i\n", powerResumed);
+
+    if (fd == NULL)
+      return 0;
+
+    SceDateTime time;
+    sceRtcGetCurrentClockLocalTime(&time);
+    fprintf(fd, "%04d/%02d/%02d %02d:%02d:%02d:%i notifyId %i, notifyCount %i, powerInfo 0x%08X\n", 
+      sceRtcGetYear(&time), sceRtcGetMonth(&time), sceRtcGetDay(&time),
+      sceRtcGetHour(&time), sceRtcGetMinute(&time), sceRtcGetSecond(&time), sceRtcGetMicrosecond(&time),
+      notifyId, notifyCount, powerInfo);
+    fclose(fd);
+  #endif
 }
 
 int CallbackThread(SceSize args, void *argp) {
+  int cbid;
+  cbid = sceKernelCreateCallback("Power Callback", 0, power_callback, NULL);
+
+  #ifdef DEBUG
+    printf("cbid %i,", cbid);
+  #endif
+
+  int registered = scePowerRegisterCallback(cbid);
+
+  #ifdef DEBUG
+    printf(" registered %i\n", registered);
+  #endif
+
+  while (1) {
+    sceKernelDelayThreadCB(10 * 1000 * 1000);
+  }
+
+  return 0;
 }
 
 /* Sets up the callback thread and returns its thread id */
 int FZScreen::setupCallbacks(void) {
+  int thid = 0;
+
+  thid = sceKernelCreateThread("update_thread", CallbackThread, 0x10000100, 0x10000, 0, 0, NULL);
+  if (thid >= 0)
+    sceKernelStartThread(thid, 0, 0);
+
+  #ifdef DEBUG
+    printf("thread created %i\n", thid);
+  #endif
+
+  return thid;
 }
 
 // from pspgl
@@ -97,6 +155,8 @@ static void initalDraw() {
 
 // Move this to constructor?
 void FZScreen::open(int argc, char** argv) {
+  setupCallbacks();
+
   vita2d_init();
   vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
 
