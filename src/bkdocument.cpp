@@ -28,12 +28,13 @@
 // #include "filetypes/bkpalmdoc.h"
 #include "filetypes/bkplaintext.h"
 
-BKDocument* BKDocument::create(string& filePath) {
+BKDocument* BKDocument::create(string filePath) {
   #ifdef DEBUG
-    printf("BKDocument::create\n");
+    printf("BKDocument::create %s\n", filePath.c_str());
   #endif
   BKDocument* doc = nullptr;
 
+  // TODO(refactor): open file handle only once and send
   if (BKMUDocument::isMUDocument(filePath)) {
       doc = BKMUDocument::create(filePath);
   // } else if (BKDJVU::isDJVU(filePath)) {
@@ -76,7 +77,10 @@ BKDocument* BKDocument::create(string& filePath) {
   return doc;
 }
 
-BKDocument::BKDocument() : 	mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	tipFrames(120), toolbarSelMenu(0), toolbarSelMenuItem(0), frames(0) {
+BKDocument::BKDocument() : 
+  mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	tipFrames(120), toolbarSelMenu(0),
+  toolbarSelMenuItem(0), frames(0)
+{
   lastSuspendSerial = FZScreen::getSuspendSerial();
 }
 
@@ -110,6 +114,9 @@ int BKDocument::update(unsigned int buttons) {
     printf("BKDocument::update\n");
   #endif
   if (lastSuspendSerial != FZScreen::getSuspendSerial()) {
+    #ifdef DEBUG_RENDER
+      printf("lastSuspendSerial != FZScreen::getSuspendSerial()\n");
+    #endif
     lastSuspendSerial = FZScreen::getSuspendSerial();
     int r = resume();
     if (r != 0)
