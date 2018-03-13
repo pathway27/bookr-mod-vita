@@ -123,13 +123,16 @@ else()
   add_resources(bk_resources ${res_files})
 
 
+  # Huge 62MB with lots of submodules
+  # TODO: add to vitasdk/packages
+  #       similar to http://www.linuxfromscratch.org/blfs/view/cvs/pst/mupdf.html
   ExternalProject_Add(mupdf_lib
     PREFIX "${CMAKE_SOURCE_DIR}/ext/mupdf"
     GIT_REPOSITORY https://github.com/pathway27/mupdf
     GIT_TAG origin/1.12.0-vita
     GIT_PROGRESS 1
     #--Configure step-------------
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
+    # SOURCE_SUBDIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
     CONFIGURE_COMMAND make generate
     UPDATE_COMMAND ""
     #--Build step-----------------
@@ -138,6 +141,7 @@ else()
     #--Install step---------------
     INSTALL_COMMAND ""
   )
+  ExternalProject_Get_Property(mupdf_lib SOURCE_DIR)
 
   # Add any additional include paths here
   include_directories(
@@ -145,7 +149,7 @@ else()
     ${CMAKE_SOURCE_DIR}/ext/psp2shell/psp2shell_m/include
     ${CMAKE_SOURCE_DIR}/ext/psp2shell/common
     $ENV{VITASDK}/arm-vita-eabi/include/freetype2
-    "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
+    "${SOURCE_DIR}/include"
   )
 
   # Debug CMAKE/ENV variables
@@ -172,7 +176,7 @@ else()
   # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
   link_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
-    "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
+    "${SOURCE_DIR}/build/release"
   )
 
 

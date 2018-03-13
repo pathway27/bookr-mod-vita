@@ -113,17 +113,17 @@ int FZScreen::speedValues[14] = {
 	333, 166
 };
 
-char* FZScreen::browserTextSizes[3] =
+const char* const FZScreen::browserTextSizes[] =
 {
 	"Large", "Normal", "Small"
 };
 
-char* FZScreen::browserDisplayModes[3] =
+const char* const FZScreen::browserDisplayModes[] =
 {
 	"Normal", "Fit", "Smart-Fit"
 };
 
-char* FZScreen::browserInterfaceModes[3] =
+const char* const FZScreen::browserInterfaceModes[3] =
 {
 	"Full", "Limited", "None"
 };

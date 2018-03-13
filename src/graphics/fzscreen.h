@@ -98,7 +98,7 @@ using namespace std;
 #define FZ_DEPTH_TEST           1
 #define FZ_SCISSOR_TEST         2
 #define FZ_STENCIL_TEST         3
-#define FZ_BLEND                4
+#define FZ_GL_BLEND             4
 #define FZ_CULL_FACE            5
 #define FZ_DITHER               6
 #define FZ_FOG                  7
@@ -362,9 +362,9 @@ public:
   static int getUsedMemory();
   static void setBrightness(int);
 
-	static char* browserTextSizes[];
-	static char* browserDisplayModes[];
-	static char* browserInterfaceModes[];
+	static const char* const browserTextSizes[];
+	static const char* const browserDisplayModes[];
+	static const char* const browserInterfaceModes[];
 };
 
 #ifdef MAC
