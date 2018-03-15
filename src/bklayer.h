@@ -163,9 +163,9 @@ class BKLayer : public FZRefCounted {
     int width;
     BKMenuItem() : flags(0), tex(0) { }
     BKMenuItem(string& l, string& cl, int f) : label(l), circleLabel(cl), flags(f), tex(0) { }
-    BKMenuItem(char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
-    BKMenuItem(string& l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
-    BKMenuItem(char* l, char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+    BKMenuItem(const char* l, string& cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+    BKMenuItem(string& l, const char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
+    BKMenuItem(const char* l, const char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
     ~BKMenuItem(){if(tex) tex->release();}
   };
   #define BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL 16

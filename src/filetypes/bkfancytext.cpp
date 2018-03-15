@@ -510,7 +510,7 @@ void BKFancyText::renderContent() {
     FZScreen::color(0xffffffff);
     FZScreen::matricesFor2D(rotation);
     FZScreen::enable(FZ_TEXTURE_2D);
-    FZScreen::enable(FZ_BLEND);
+    FZScreen::enable(FZ_GL_BLEND);
     FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
 
     #ifdef PSP

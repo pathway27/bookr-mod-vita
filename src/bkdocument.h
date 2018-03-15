@@ -116,7 +116,7 @@ public:
 	struct ZoomLevel {
 		int type;
 		string label;
-		ZoomLevel(int t, char* l) : type(t), label(l) { }
+		ZoomLevel(int t, const char* l) : type(t), label(l) { }
 	};
 	virtual bool isZoomable() = 0;
 	virtual void getZoomLevels(vector<BKDocument::ZoomLevel>& v) = 0;
