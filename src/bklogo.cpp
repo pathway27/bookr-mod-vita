@@ -79,8 +79,8 @@ void BKLogo::render() {
 
   FZScreen::matricesFor2D(); // remove
   FZScreen::enable(FZ_TEXTURE_2D); // remove
-  FZScreen::disable(FZ_BLEND); // remove
-  
+  FZScreen::disable(FZ_GL_BLEND); // remove
+
   #ifdef __vita__
     vita2d_draw_texture(texLogo->vita_texture, 350, 150);
     vita2d_font_draw_text(fontBig->v_font, 260, 440, RGBA8(0,0,0,255), TITLE_FONT_SIZE, "TXT - PDF - CBZ - HTML - EPUB - FB2");
