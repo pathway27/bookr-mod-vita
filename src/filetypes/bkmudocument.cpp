@@ -60,7 +60,9 @@ static BKMUDocument* mudoc_singleton = nullptr;
 // texture of current pixmap, TODO: generic fztexture
 static vita2d_texture *texture;
 static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
-  1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
+  1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f };
+  // These will crash...
+  //, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
 
 BKMUDocument::BKMUDocument(string& f) : 
   m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
@@ -72,7 +74,6 @@ BKMUDocument::BKMUDocument(string& f) :
   #endif
 
   filename = string(f);
-  m_scale = zoomLevels[zoomLevel];
   m_rotate = 0.0f;
   m_width = FZ_SCREEN_WIDTH;
   m_height = FZ_SCREEN_HEIGHT;
@@ -177,9 +178,13 @@ bool BKMUDocument::redrawBuffer() {
 
   // bounds for inital window size
   fz_bound_page(m_ctx, m_page, &m_bounds);
-  if (m_fitWidth)
+  if (m_fitWidth) {
     m_scale = m_width / (m_bounds.x1 - m_bounds.x0);
-    // m_scale = 0.90f;
+    vector<float> vec(std::begin(zoomLevels), std::end(zoomLevels));
+    auto const it = std::lower_bound(vec.begin(), vec.end(), m_scale);
+    if (it != vec.end())
+      zoomLevel = it - vec.begin();
+  }
 
   #ifdef DEBUG
     printf("bound_page; m_scale: %2.3gx, zoomLevel: %i\n", m_scale, zoomLevel);
