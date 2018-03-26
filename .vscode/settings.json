@@ -23,7 +23,10 @@
     "exception": "cpp",
     "iostream": "cpp",
     "chrono": "cpp",
-    "string": "cpp"
+    "string": "cpp",
+    "ratio": "cpp",
+    "xstddef": "cpp",
+    "xtr1common": "cpp"
   },
   "cmake.cmakePath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
 }
