@@ -206,22 +206,20 @@ int BKDocument::processEventsForView() {
   }
 
   // button handling - zoom
-  /*
-    if (isZoomable()) {
-      vector<ZoomLevel> zooms;
-      getZoomLevels(zooms);
-      int z = getCurrentZoomLevel();
-      if (b[BKUser::controls.zoomIn] == 1) {
-        z++;
-      }
-      if (b[BKUser::controls.zoomOut] == 1) {
-        z--;
-      }
-      int r = setZoomLevel(z);
-      if (r != 0)
-        return r;
+  if (isZoomable()) {
+    vector<ZoomLevel> zooms;
+    getZoomLevels(zooms);
+    int z = getCurrentZoomLevel();
+    if (b[BKUser::controls.zoomIn] == 1) {
+      z++;
     }
-  */
+    if (b[BKUser::controls.zoomOut] == 1) {
+      z--;
+    }
+    int r = setZoomLevel(z);
+    if (r != 0)
+      return r;
+  }
 
   // button handling - analog pad panning
   {

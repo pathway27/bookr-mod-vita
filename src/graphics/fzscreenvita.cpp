@@ -48,24 +48,17 @@ int exit_callback(int arg1, int arg2, void *common) {
 // yeah yeah yeah no mutex whatever whatever whatever
 static volatile int powerResumed = 0;
 
+#define VITA_RESUMING 0x00A00000
+
 /* Power Callback */
 int power_callback(int notifyId, int notifyCount, int powerInfo, void *common) {
+  // callback doesn't get called without a file handle...?
+  FILE *fd = fopen("ux0:data/Bookr/test_power_cb.txt", "a");
+
   #ifdef DEBUG
     // very hard to debug power callback messages without file
     // psp2shell disconnects during
-    FILE *fd = fopen("ux0:data/Bookr/test_power_cb.txt", "a");
     printf("notifyId %i, notifyCount %i, powerInfo 0x%08X\n", notifyId, notifyCount, powerInfo);
-  #endif
-  
-  if (powerInfo & SCE_POWER_CB_SUSPENDING) {
-    powerResumed++;
-  } else if (powerInfo & SCE_POWER_CB_RESUMING) {
-    powerResumed++;
-  } else if (powerInfo & SCE_POWER_CB_RESUME_COMPLETE) {
-    powerResumed++;
-  }
-
-  #ifdef DEBUG
     printf("powerResumed %i\n", powerResumed);
 
     if (fd == NULL)
@@ -77,8 +70,15 @@ int power_callback(int notifyId, int notifyCount, int powerInfo, void *common) {
       sceRtcGetYear(&time), sceRtcGetMonth(&time), sceRtcGetDay(&time),
       sceRtcGetHour(&time), sceRtcGetMinute(&time), sceRtcGetSecond(&time), sceRtcGetMicrosecond(&time),
       notifyId, notifyCount, powerInfo);
-    fclose(fd);
   #endif
+
+  
+  // TODO: add some indication of re-loading file
+  if (powerInfo & VITA_RESUMING) {
+    powerResumed++;
+  }
+  
+  fclose(fd);
 }
 
 int CallbackThread(SceSize args, void *argp) {
