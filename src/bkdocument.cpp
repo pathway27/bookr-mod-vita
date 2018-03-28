@@ -606,18 +606,43 @@ int BKDocument::processEventsForToolbar() {
   return 0;
 }
 
+#define MENU_TOOLTIP_WIDTH 150
+#define MENU_TOOLTIP_PADDING 10
+#define MENU_TOOLTIP_ITEM_WIDTH 60
+#define MENU_TOOLTIP_HEIGHT 50
 void BKDocument::render() {
   // content
   renderContent();
 
   // // flash tip for menu/toolbar on load
-  /*
-    if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
-      int alpha = 0xff;
-      if (tipFrames <= 32) {
-        alpha = tipFrames*(256/32) - 8;
-      }
-      if (alpha > 0) {
+  if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
+    int alpha = 0xff;
+    if (tipFrames <= 32) {
+      alpha = tipFrames*(256/32) - 8;
+    }
+
+    if (alpha > 0) {
+      #ifdef __vita__
+        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH, 
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT,
+          MENU_TOOLTIP_WIDTH,
+          MENU_TOOLTIP_HEIGHT, 0x1D1616 | (alpha << 24));
+        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + MENU_TOOLTIP_PADDING,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
+           MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
+        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - (MENU_TOOLTIP_WIDTH/2) + (MENU_TOOLTIP_PADDING/2),
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
+          MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
+
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 3,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 2, (0xffffff | (alpha << 24)), 1.0f, "TOOLS");
+        // FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 5 + 17,
+        //   FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT, (0xffffff | (alpha << 24)), 1.0f, "MENU");
+        // FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 5,
+        //   FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2), (0xffffff | (alpha << 24)), 1.0f, "SELECT");
+        // FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 5 + 17,
+        //   FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2), (0xffffff | (alpha << 24)), 1.0f, "START");
+      #elif defined(PSP)
         texUI->bindForDisplay();
         FZScreen::ambientColor(0x222222 | (alpha << 24));
         drawPill(480 - 37 - 37 - 8, 272 - 18 - 4,
@@ -631,9 +656,9 @@ void BKDocument::render() {
         drawImage(480 - 37 - 2 - 2 - 37, 272 - 18,
           37, 18,
           75, 39);
-      }
+      #endif
     }
-  */
+  }
 
   // banner that shows page loading and current page number / number of pages
   if (bannerFrames > 0 && BKUser::options.displayLabels) {
