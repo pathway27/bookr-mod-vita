@@ -634,14 +634,14 @@ void BKDocument::render() {
           FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
           MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
 
-        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 3,
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 2, (0xffffff | (alpha << 24)), 1.0f, "TOOLS");
-        // FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 5 + 17,
-        //   FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT, (0xffffff | (alpha << 24)), 1.0f, "MENU");
-        // FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 5,
-        //   FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2), (0xffffff | (alpha << 24)), 1.0f, "SELECT");
-        // FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 5 + 17,
-        //   FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2), (0xffffff | (alpha << 24)), 1.0f, "START");
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Tools");
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10 + 72,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Menu");
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Select");
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15 + 75,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Start");
       #elif defined(PSP)
         texUI->bindForDisplay();
         FZScreen::ambientColor(0x222222 | (alpha << 24));
