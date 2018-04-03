@@ -686,8 +686,8 @@ void BKDocument::render() {
     }
   }
 
-  // if (mode != BKDOC_TOOLBAR)
-  // 	return;
+  if (mode != BKDOC_TOOLBAR)
+    return;
 
   // // all of the icons menus must have at least one item
 
@@ -706,26 +706,22 @@ void BKDocument::render() {
   // const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
 
   // // background
-  /*
-    #ifdef PSP
-      texUI->bindForDisplay();
-      FZScreen::ambientColor(0xf0222222);
-      drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
-    #elif defined(__vita__)
-      vita2d_draw_rectangle(20, 544 - 75, 960 - 46, 544, 0xf0222222);
-    #endif
-  */
+  #ifdef PSP
+    texUI->bindForDisplay();
+    FZScreen::ambientColor(0xf0222222);
+    drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(40, 544 - 150, 960 - 92, 544, 0xf0222222);
+  #endif
 
   // // context label
-  /*
-    #ifdef PSP
-      FZScreen::ambientColor(0xff555555);
-      //drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
-      drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
-    #elif defined(__vita__)
-      vita2d_draw_rectangle(25, 544 - 30, 960 - 57, 30, 0xff555555);
-    #endif
-  */
+  #ifdef PSP
+    FZScreen::ambientColor(0xff555555);
+    //drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
+    drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(96, 494, 768, 50, 0xff555555);
+  #endif
 
   // // selected column - decide if it overflows
   /*
