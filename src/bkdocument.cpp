@@ -610,6 +610,8 @@ int BKDocument::processEventsForToolbar() {
 #define MENU_TOOLTIP_PADDING 10
 #define MENU_TOOLTIP_ITEM_WIDTH 60
 #define MENU_TOOLTIP_HEIGHT 50
+#define DIALOG_ICON_SCALE 1.0f
+#define MENU_ICONS_Y_OFFSET 544 - 150 + 10
 void BKDocument::render() {
   // content
   renderContent();
@@ -787,11 +789,25 @@ void BKDocument::render() {
   // texUI2->bindForDisplay();
   // FZScreen::ambientColor(0xffffffff);
 
-  // // menu row
-  // drawImage(38 + 0*55, 205, 18, 26, 0, 0);
-  // drawImage(38 + 1*55, 205, 18, 26, 19, 53);
-  // drawImage(38 + 2*55, 205, 18, 26, 38, 53);
-  // drawImage(38 + 3*55, 205, 19, 26, 19, 79);
+  // menu row
+  #ifdef PSP
+    drawImage(38 + 0*55, 205, 18, 26, 0, 0);
+    drawImage(38 + 1*55, 205, 18, 26, 19, 53);
+    drawImage(38 + 2*55, 205, 18, 26, 38, 53);
+    drawImage(38 + 3*55, 205, 19, 26, 19, 79);
+  #elif defined(__vita__)
+    vita2d_draw_texture_scale(bk_bookmark_icon->vita_texture, 60, MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+
+    vita2d_draw_texture_scale(bk_copy_icon->vita_texture, 60 + 75, MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+
+    vita2d_draw_texture_scale(bk_search_icon->vita_texture, 60 + 75 + 75 , MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+
+    vita2d_draw_texture_scale(bk_rotate_left_icon->vita_texture, 60 + 75 + 75 + 75, MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+  #endif
 
   // // selected column
   /*
@@ -831,7 +847,6 @@ void BKDocument::render() {
       drawText("...", fontBig, 43 + toolbarSelMenu*55, 272 - 92);
     }
   */
-
 
   // string t;
   // if (isPaginated()) {

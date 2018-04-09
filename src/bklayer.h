@@ -131,6 +131,18 @@ class BKLayer : public FZRefCounted {
   
   static FZTexture* texLogo;
 
+  static FZTexture* bk_memory_icon;
+  static FZTexture* bk_battery_icon;
+  static FZTexture* bk_clock_icon;
+  static FZTexture* bk_circle_icon;
+  static FZTexture* bk_cross_icon;
+  static FZTexture* bk_triangle_icon;
+  static FZTexture* bk_bookmark_icon;
+  static FZTexture* bk_copy_icon;
+  static FZTexture* bk_search_icon;
+  static FZTexture* bk_rotate_left_icon;
+
+
   int textW(char* t, FZFont* font);
   int textWidthRange(char* t, int n, FZFont* font);
   void drawRect(int x, int y, int w, int h, int r, int tx, int ty);
