@@ -36,12 +36,16 @@ FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
 
-static FZTexture* bk_memory_icon;
-static FZTexture* bk_battery_icon;
-static FZTexture* bk_clock_icon;
-static FZTexture* bk_circle_icon;
-static FZTexture* bk_cross_icon;
-static FZTexture* bk_triangle_icon;
+FZTexture* BKLayer::bk_memory_icon = 0;
+FZTexture* BKLayer::bk_battery_icon = 0;
+FZTexture* BKLayer::bk_clock_icon = 0;
+FZTexture* BKLayer::bk_circle_icon = 0;
+FZTexture* BKLayer::bk_cross_icon = 0;
+FZTexture* BKLayer::bk_triangle_icon = 0;
+FZTexture* BKLayer::bk_bookmark_icon = 0;
+FZTexture* BKLayer::bk_copy_icon = 0;
+FZTexture* BKLayer::bk_search_icon = 0;
+FZTexture* BKLayer::bk_rotate_left_icon = 0;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
 
@@ -61,9 +65,15 @@ extern "C" {
   extern unsigned char _binary_data_icons_memory_png_start;
   extern unsigned char _binary_data_icons_battery_outline_png_start;
   extern unsigned char _binary_data_icons_clock_png_start;
+
   extern unsigned char _binary_data_icons_circle_outline_png_start;
   extern unsigned char _binary_data_icons_close_box_outline_png_start;
   extern unsigned char _binary_data_icons_triangle_outline_png_start;
+
+  extern unsigned char _binary_data_icons_collections_bookmark_white_png_start;
+  extern unsigned char _binary_data_icons_content_copy_white_png_start;
+  extern unsigned char _binary_data_icons_search_white_png_start;
+  extern unsigned char _binary_data_icons_rotate_left_white_png_start;
   
   extern unsigned char _binary_sce_sys_icon0_t_png_start;
   extern unsigned int _binary_sce_sys_icon0_t_png_size;
@@ -73,6 +83,7 @@ void BKLayer::load() {
   #ifdef DEBUG
     printf("bklayer load\n");
   #endif
+  // TODO: fix serious uglyness
   texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_sce_sys_icon0_t_png_start));
 
   bk_memory_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_memory_png_start));
@@ -82,6 +93,11 @@ void BKLayer::load() {
   bk_circle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_circle_outline_png_start));
   bk_cross_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_close_box_outline_png_start));
   bk_triangle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_triangle_outline_png_start));
+
+  bk_bookmark_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_collections_bookmark_white_png_start));
+  bk_copy_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_content_copy_white_png_start));
+  bk_search_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_search_white_png_start));
+  bk_rotate_left_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_rotate_left_white_png_start));
 
   if (!fontBig){
     fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
@@ -96,6 +112,12 @@ void BKLayer::unload(){
   bk_clock_icon->release();
   bk_circle_icon->release();
   bk_cross_icon->release();
+
+  bk_bookmark_icon->release();
+  bk_copy_icon->release();
+  bk_search_icon->release();
+  bk_rotate_left_icon->release();
+
   fontBig->release();
 }
 
