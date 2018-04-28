@@ -393,7 +393,9 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 
 void BKLayer::drawClockAndBattery(string& extra) {
   int ew = textW((char*)extra.c_str(), fontSmall);
-  // drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);
+  vita2d_font_draw_text(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
+    DIALOG_ICON_TEXT_OFFSET_Y - 45,
+    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, extra.c_str());
 
   // cpu speed
   vita2d_font_draw_textf(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 255,
