@@ -726,20 +726,18 @@ void BKDocument::render() {
   #endif
 
   // // selected column - decide if it overflows
-  /*
-    int ts = toolbarMenus[toolbarSelMenu].size();
-    int init = 0;
-    bool overflow = false;
-    int cs = ts;
-    if (ts > 5) {		// overflow mode
-      overflow = true;
-      init = toolbarSelMenuItem - 4;
-      if (init < 0)
-        init = 0;
-      ts = 5 + init;
-      cs = 5;
-    }
-  */
+  int ts = toolbarMenus[toolbarSelMenu].size();
+  int init = 0;
+  bool overflow = false;
+  int cs = ts;
+  if (ts > 5) {		// overflow mode
+    overflow = true;
+    init = toolbarSelMenuItem - 4;
+    if (init < 0)
+      init = 0;
+    ts = 5 + init;
+    cs = 5;
+  }
 
   // // highlight icon column
   /*
@@ -756,22 +754,20 @@ void BKDocument::render() {
   */
 
   // // selected icon item row
-  /*
-    FZScreen::ambientColor(0xf0cccccc);
-    int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
-    int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
-    if (iw < mw)
-      iw = mw;
-    int selItemI = overflow ?
-      toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
-      : toolbarSelMenuItem;
-    drawPill(
-      30 + toolbarSelMenu*55,
-      272 - 156 - selItemI*35+40,
-      iw + 10 + 35,
-      30,
-      6, 31, 1);
-  */
+  // FZScreen::ambientColor(0xf0cccccc);
+  // int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
+  // int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
+  // if (iw < mw)
+  //   iw = mw;
+  // int selItemI = overflow ?
+  //   toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+  //   : toolbarSelMenuItem;
+  // drawPill(
+  //   30 + toolbarSelMenu*55,
+  //   272 - 156 - selItemI*35+40,
+  //   iw + 10 + 35,
+  //   30,
+  //   6, 31, 1);
 
   // // button icons
   /*
@@ -848,11 +844,12 @@ void BKDocument::render() {
     }
   */
 
-  // string t;
-  // if (isPaginated()) {
-  // 	char tp[256];
-  // 	snprintf(tp, 256, "Page %d of %d", getCurrentPage(), getTotalPages());
-  // 	t = tp;
-  // }
-  // drawClockAndBattery(t);
+  string t;
+  if (isPaginated()) {
+    char tp[256];
+    snprintf(tp, 256, "Page %d of %d", getCurrentPage() + 1, getTotalPages());
+    t = tp;
+  }
+  
+  drawClockAndBattery(t);
 }
