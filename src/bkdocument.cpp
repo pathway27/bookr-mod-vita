@@ -694,18 +694,16 @@ void BKDocument::render() {
   // // all of the icons menus must have at least one item
 
   // // wrap menu indexes
-  /*
-    if (toolbarSelMenu >= 4)
-      toolbarSelMenu = 0;
-    if (toolbarSelMenu < 0)
-      toolbarSelMenu = 3;
-    if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
-      toolbarSelMenuItem = 0;
-    if (toolbarSelMenuItem < 0)
-      toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
-  */
+  if (toolbarSelMenu >= 4)
+    toolbarSelMenu = 0;
+  if (toolbarSelMenu < 0)
+    toolbarSelMenu = 3;
+  if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
+    toolbarSelMenuItem = 0;
+  if (toolbarSelMenuItem < 0)
+    toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
 
-  // const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
+  const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
 
   // // background
   #ifdef PSP
@@ -730,7 +728,7 @@ void BKDocument::render() {
   int init = 0;
   bool overflow = false;
   int cs = ts;
-  if (ts > 5) {		// overflow mode
+  if (ts > 5) { // overflow mode
     overflow = true;
     init = toolbarSelMenuItem - 4;
     if (init < 0)
@@ -740,44 +738,62 @@ void BKDocument::render() {
   }
 
   // // highlight icon column
+  #ifdef PSP
+    FZScreen::ambientColor(0xf0555555);
+    drawPill(25 + toolbarSelMenu*55,
+      272 - 156 - cs*35+70,
+      40, cs*35+45,
+      6, 31, 1
+    );
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(40 + toolbarSelMenu*75, (544 - 80 - (cs*55+70)), 85, (cs*35)+65, 0xf0555555);
+  #endif
+
+  // // selected icon item row
   /*
+    FZScreen::ambientColor(0xf0cccccc);
+    int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
+    int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
+    if (iw < mw)
+      iw = mw;
+    int selItemI = overflow ?
+      toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+      : toolbarSelMenuItem;
     #ifdef PSP
-      FZScreen::ambientColor(0xf0555555);
-      drawPill(25 + toolbarSelMenu*55,
-        272 - 156 - cs*35+70,
-        40, cs*35+45,
-        6, 31, 1
-      );
+      drawPill(
+        30 + toolbarSelMenu*55,
+        272 - 156 - selItemI*35+40,
+        iw + 10 + 35,
+        30,
+        6, 31, 1);
     #elif defined(__vita__)
-      vita2d_draw_rectangle(25 + toolbarSelMenu*55, (544 - 156 - (cs*35+70)), 40, (cs*35)+45, 0xf0555555);
+      vita2d_draw_rectangle(
+        30 + toolbarSelMenu*55,
+        272 - 156 - selItemI*35+40,
+        iw + 10 + 35,
+        30,
+        0xf0555555);
     #endif
   */
 
-  // // selected icon item row
-  // FZScreen::ambientColor(0xf0cccccc);
-  // int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
-  // int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
-  // if (iw < mw)
-  //   iw = mw;
-  // int selItemI = overflow ?
-  //   toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
-  //   : toolbarSelMenuItem;
-  // drawPill(
-  //   30 + toolbarSelMenu*55,
-  //   272 - 156 - selItemI*35+40,
-  //   iw + 10 + 35,
-  //   30,
-  //   6, 31, 1);
-
   // // button icons
   /*
-    FZScreen::ambientColor(0xffcccccc);
-    int tw = textW((char*)it.circleLabel.c_str(), fontBig);
     if (it.circleLabel.size() > 0) {
-      drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+      #ifdef PSP
+        FZScreen::ambientColor(0xffcccccc);
+        int tw = textW((char*)it.circleLabel.c_str(), fontBig);
+        drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+      #elif defined(__vita__)
+        printf("here");
+        // vita2d_draw_texture(bk_bookmark_icon->vita_texture, 480 - 65, 248);
+      #endif
     }
+
     if (it.triangleLabel.size() > 0) {
-      drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+      #ifdef PSP
+        drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+      #elif defined(__vita__)
+      #endif
     }
   */
 
@@ -821,10 +837,15 @@ void BKDocument::render() {
     }
   */
 
-  // fontBig->bindForDisplay();
+  
   // // item label for selected item
-  // FZScreen::ambientColor(0xff000000);
-  // drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
+  #ifdef PSP
+    fontBig->bindForDisplay();
+    FZScreen::ambientColor(0xff000000);
+    drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
+  #elif defined(__vita__)
+    vita2d_font_draw_text(fontBig->v_font, 768 - 20 - 70, 544 - 50 + 35, 0xff000000, 28, "basfdsf");
+  #endif
 
   // // button labels
   // FZScreen::ambientColor(0xffcccccc);
