@@ -140,17 +140,8 @@ static void initalDraw() {
 
     vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
 
-    #ifdef GENKIHEN
-      vita2d_draw_texture(genLogo->vita_texture, 0, 0);
-    #endif
-
     vita2d_end_drawing();
     vita2d_swap_buffers();
-
-    // Show Genkihen splash for 2 seconds.
-    #ifdef GENKIHEN
-      sceKernelDelayThread(2*1000000);
-    #endif
 }
 
 // Move this to constructor?
