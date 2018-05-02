@@ -202,7 +202,7 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-                  unsigned char* image = SOIL_load_image("image.png", &width, &height, 0, SOIL_LOAD_RGB);
+                  unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
                   glClearColor(0.0, 0.0, 0.0, 0.0);
                   glClear(GL_COLOR_BUFFER_BIT);
 

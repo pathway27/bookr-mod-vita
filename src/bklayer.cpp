@@ -78,7 +78,6 @@ void BKLayer::load() {
         14, false);
     }
   #elif defined(MAC) || defined(WIN32)
-    // genLogo = FZTexture::createFromSOIL("image.png");
     texLogo = FZTexture::createFromSOIL("sce_sys/icon0_t.png");
   #elif defined(PSP)
 
@@ -192,7 +191,7 @@ void BKLayer::drawImage(int x, int y, int w, int h, int tx, int ty) {
   //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   //   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-  //   unsigned char* image = SOIL_load_image("image.png", &width, &height, 0, SOIL_LOAD_RGB);
+  //   unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
   //   glClearColor(0.0, 0.0, 0.0, 0.0);
   //   glClear(GL_COLOR_BUFFER_BIT);
 
