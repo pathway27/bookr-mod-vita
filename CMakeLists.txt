@@ -114,7 +114,6 @@ else()
 
   file(GLOB res_files RELATIVE
     ${CMAKE_SOURCE_DIR}
-    image.png
     sce_sys/icon0_t.png
 
     # data/fonts/URW Gothic L Demi.ttf
