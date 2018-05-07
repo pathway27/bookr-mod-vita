@@ -59,7 +59,8 @@ BKDocument* BKDocument::create(string filePath) {
   #ifdef DEBUG
     printf("doc != 0 \n");
   #endif
-  // doc->buildToolbarMenus();
+  
+  doc->buildToolbarMenus();
 
   if (doc->isBookmarkable()) {
     BKBookmark b;
@@ -750,31 +751,29 @@ void BKDocument::render() {
   #endif
 
   // // selected icon item row
-  /*
-    FZScreen::ambientColor(0xf0cccccc);
-    int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
-    int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
-    if (iw < mw)
-      iw = mw;
-    int selItemI = overflow ?
-      toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
-      : toolbarSelMenuItem;
-    #ifdef PSP
-      drawPill(
-        30 + toolbarSelMenu*55,
-        272 - 156 - selItemI*35+40,
-        iw + 10 + 35,
-        30,
-        6, 31, 1);
-    #elif defined(__vita__)
-      vita2d_draw_rectangle(
-        30 + toolbarSelMenu*55,
-        272 - 156 - selItemI*35+40,
-        iw + 10 + 35,
-        30,
-        0xf0555555);
-    #endif
-  */
+  //FZScreen::ambientColor();
+  int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
+  int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
+  if (iw < mw)
+    iw = mw;
+  int selItemI = overflow ?
+    toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+    : toolbarSelMenuItem;
+  #ifdef PSP
+    drawPill(
+      30 + toolbarSelMenu*55,
+      272 - 156 - selItemI*35+40,
+      iw + 10 + 35,
+      30,
+      6, 31, 1);
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(
+      30 + toolbarSelMenu*55,
+      272 - 156 - selItemI*35+40,
+      iw + 10 + 35,
+      30,
+      0xf0cccccc);
+  #endif
 
   // // button icons
   /*
@@ -848,13 +847,15 @@ void BKDocument::render() {
   #endif
 
   // // button labels
-  // FZScreen::ambientColor(0xffcccccc);
-  // if (it.triangleLabel.size() > 0) {
-  // 	drawText((char*)it.triangleLabel.c_str(), fontBig, 37 + 25, 248);
-  // }
-  // if (it.circleLabel.size() > 0) {
-  // 	drawText((char*)it.circleLabel.c_str(), fontBig, 480 - tw - 40, 248);
-  // }
+  /*
+    FZScreen::ambientColor(0xffcccccc);
+    if (it.triangleLabel.size() > 0) {
+      drawText((char*)it.triangleLabel.c_str(), fontBig, 37 + 25, 248);
+    }
+    if (it.circleLabel.size() > 0) {
+      drawText((char*)it.circleLabel.c_str(), fontBig, 480 - tw - 40, 248);
+    }
+  */
 
   // // overflow indicators
   /*
