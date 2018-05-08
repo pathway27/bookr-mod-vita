@@ -747,7 +747,7 @@ void BKDocument::render() {
       6, 31, 1
     );
   #elif defined(__vita__)
-    vita2d_draw_rectangle(40 + toolbarSelMenu*75, (544 - 80 - (cs*55+70)), 85, (cs*35)+65, 0xf0555555);
+    vita2d_draw_rectangle(40 + toolbarSelMenu*75, 544 - 150 - cs*55, 85, cs*35+65, 0xf0555555);
   #endif
 
   // // selected icon item row
@@ -769,7 +769,7 @@ void BKDocument::render() {
   #elif defined(__vita__)
     vita2d_draw_rectangle(
       30 + toolbarSelMenu*55,
-      272 - 156 - selItemI*35+40,
+      544 - 150 - selItemI*35+40,
       iw + 10 + 35,
       30,
       0xf0cccccc);
@@ -796,10 +796,6 @@ void BKDocument::render() {
     }
   */
 
-  // // icon bar
-  // texUI2->bindForDisplay();
-  // FZScreen::ambientColor(0xffffffff);
-
   // menu row
   #ifdef PSP
     drawImage(38 + 0*55, 205, 18, 26, 0, 0);
@@ -821,20 +817,24 @@ void BKDocument::render() {
   #endif
 
   // // selected column
-  /*
-    for (int i = init, j = 0; i < ts; i++, j++) {
-      const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
-      if (i == toolbarSelMenuItem)
-        FZScreen::ambientColor(0xff000000);
-      else
-        FZScreen::ambientColor(0xffffffff);
-      if (it2.iconW > 0)
+  for (int i = init, j = 0; i < ts; i++, j++) {
+    const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
+    unsigned int color;
+    if (i == toolbarSelMenuItem)
+      color = 0xff000000;
+    else
+      color = 0xffffffff;
+    if (it2.iconW > 0) 
+      #ifdef PSP
         drawImage(
           40 + toolbarSelMenu*55,
           272 - 156 - j*35+45,
           it2.iconW, it2.iconH, it2.iconX, it2.iconY);
-    }
-  */
+      #elif defined(__vita__)
+        vita2d_draw_texture_scale(bk_rotate_left_icon->vita_texture, 40 + toolbarSelMenu*55, 544 - 150 - j*35+45,
+          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+      #endif
+  }
 
   
   // // item label for selected item
