@@ -747,8 +747,8 @@ void BKDocument::render() {
       6, 31, 1
     );
   #elif defined(__vita__)
-    vita2d_draw_rectangle(40 + toolbarSelMenu*75, 544 - 140 - (cs*55), 
-      85, (cs*55) + 55, 0xf0555555);
+    vita2d_draw_rectangle(40 + toolbarSelMenu*75, 544 - 150 - (cs*55), 
+      85, (cs*55) + 65, 0xf0555555);
   #endif
 
   // // selected icon item row
@@ -768,14 +768,12 @@ void BKDocument::render() {
       30,
       6, 31, 1);
   #elif defined(__vita__)
-  /*
     vita2d_draw_rectangle(
-      30 + toolbarSelMenu*55,
-      544 - 150 - selItemI*35+40,
+      60 + toolbarSelMenu*75 - 10,
+      544 - 140 - (selItemI*55) - 55,
       iw + 10 + 35,
-      30,
+      50,
       0xf0cccccc);
-  */
   #endif
 
   // // button icons
@@ -834,8 +832,8 @@ void BKDocument::render() {
           272 - 156 - j*35+45,
           it2.iconW, it2.iconH, it2.iconX, it2.iconY);
       #elif defined(__vita__)
-        vita2d_draw_texture_scale(bk_rotate_left_icon->vita_texture, 40 + toolbarSelMenu*75, 544 - 140 - (j*55) - 65,
-          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+        vita2d_draw_texture_tint_scale(bk_rotate_left_icon->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
       #endif
   }
   
