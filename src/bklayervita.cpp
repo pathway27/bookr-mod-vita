@@ -36,16 +36,7 @@ FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
 
-FZTexture* BKLayer::bk_memory_icon = 0;
-FZTexture* BKLayer::bk_battery_icon = 0;
-FZTexture* BKLayer::bk_clock_icon = 0;
-FZTexture* BKLayer::bk_circle_icon = 0;
-FZTexture* BKLayer::bk_cross_icon = 0;
-FZTexture* BKLayer::bk_triangle_icon = 0;
-FZTexture* BKLayer::bk_bookmark_icon = 0;
-FZTexture* BKLayer::bk_copy_icon = 0;
-FZTexture* BKLayer::bk_search_icon = 0;
-FZTexture* BKLayer::bk_rotate_left_icon = 0;
+map<string, FZTexture*> BKLayer::bk_icons;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
 
@@ -86,18 +77,18 @@ void BKLayer::load() {
   // TODO: fix serious uglyness
   texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_sce_sys_icon0_t_png_start));
 
-  bk_memory_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_memory_png_start));
-  bk_battery_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_battery_outline_png_start));
-  bk_clock_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_clock_png_start));
+  bk_icons.insert(make_pair("bk_memory_icon", FZTexture::createFromBuffer(&_binary_data_icons_memory_png_start)));
+  bk_icons.insert(make_pair("bk_battery_icon", FZTexture::createFromBuffer(&_binary_data_icons_battery_outline_png_start)));
+  bk_icons.insert(make_pair("bk_clock_icon", FZTexture::createFromBuffer(&_binary_data_icons_clock_png_start)));
 
-  bk_circle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_circle_outline_png_start));
-  bk_cross_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_close_box_outline_png_start));
-  bk_triangle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_triangle_outline_png_start));
+  bk_icons.insert(make_pair("bk_circle_icon", FZTexture::createFromBuffer(&_binary_data_icons_circle_outline_png_start)));
+  bk_icons.insert(make_pair("bk_cross_icon", FZTexture::createFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
+  bk_icons.insert(make_pair("bk_triangle_icon", FZTexture::createFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
 
-  bk_bookmark_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_collections_bookmark_white_png_start));
-  bk_copy_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_content_copy_white_png_start));
-  bk_search_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_search_white_png_start));
-  bk_rotate_left_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_rotate_left_white_png_start));
+  bk_icons.insert(make_pair("bk_bookmark_icon", FZTexture::createFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
+  bk_icons.insert(make_pair("bk_copy_icon", FZTexture::createFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
+  bk_icons.insert(make_pair("bk_search_icon", FZTexture::createFromBuffer(&_binary_data_icons_search_white_png_start)));
+  bk_icons.insert(make_pair("bk_rotate_left_icon", FZTexture::createFromBuffer(&_binary_data_icons_rotate_left_white_png_start)));
 
   if (!fontBig){
     fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
@@ -107,16 +98,12 @@ void BKLayer::load() {
 void BKLayer::unload(){
   // do i need to do this?
   texLogo->release();
-  bk_memory_icon->release();
-  bk_battery_icon->release();
-  bk_clock_icon->release();
-  bk_circle_icon->release();
-  bk_cross_icon->release();
 
-  bk_bookmark_icon->release();
-  bk_copy_icon->release();
-  bk_search_icon->release();
-  bk_rotate_left_icon->release();
+  map<string, FZTexture*>::iterator it = bk_icons.begin();
+  while(it != bk_icons.end()) {
+    it->second->release();
+    it++;
+  }
 
   fontBig->release();
 }
@@ -213,11 +200,11 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 
   switch(BKUser::controls.select) {
     case FZ_REPS_CROSS:
-      vita2d_draw_texture_scale(bk_cross_icon->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
+      vita2d_draw_texture_scale(bk_icons["bk_cross_icon"]->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
       break;
     case FZ_REPS_CIRCLE:
-      vita2d_draw_texture_scale(bk_circle_icon->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
+      vita2d_draw_texture_scale(bk_icons["bk_circle_icon"]->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
     default:
       break;
@@ -229,7 +216,7 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 
   // triangle labels
   if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL)) {
-    vita2d_draw_texture_scale(bk_triangle_icon->vita_texture, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
+    vita2d_draw_texture_scale(bk_icons["bk_triangle_icon"]->vita_texture, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
     vita2d_font_draw_text(fontBig->v_font, DIALOG_TITLE_TEXT_OFFSET_X + 60,
       DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, triangleLabel.c_str());
@@ -403,7 +390,7 @@ void BKLayer::drawClockAndBattery(string& extra) {
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dMHz", FZScreen::getSpeed());
 
   // cpu icon
-  vita2d_draw_texture_tint_scale(bk_memory_icon->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 345, 
+  vita2d_draw_texture_tint_scale(bk_icons["bk_memory_icon"]->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 345, 
     DIALOG_ICON_OFFSET_Y, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // memory usage
@@ -412,7 +399,7 @@ void BKLayer::drawClockAndBattery(string& extra) {
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", FZScreen::getUsedMemory() / 1024);
 
   // battery icon
-  vita2d_draw_texture_tint_scale_rotate(bk_battery_icon->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 485,
+  vita2d_draw_texture_tint_scale_rotate(bk_icons["bk_battery_icon"]->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 485,
     DIALOG_ICON_OFFSET_Y + 17, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE,
     DEG_TO_RAD(90), DIALOG_ICON_COLOR);
 
@@ -422,7 +409,7 @@ void BKLayer::drawClockAndBattery(string& extra) {
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%d%%", FZScreen::getBattery());
 
   // clock icon
-  vita2d_draw_texture_tint_scale(bk_clock_icon->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
+  vita2d_draw_texture_tint_scale(bk_icons["bk_clock_icon"]->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_OFFSET_Y + 5, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // time text

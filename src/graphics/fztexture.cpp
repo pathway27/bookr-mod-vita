@@ -223,6 +223,12 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
       //psp2shell_print("%p\n", (void *) &(texture->vita_texture));
       return texture;
   }
+
+  FZTexture* FZTexture::createFromBuffer(const void * buffer) {
+    FZTexture* texture = new FZTexture();
+    texture->vita_texture = vita2d_load_PNG_buffer(buffer);
+    return texture;
+  }
 #endif
 
 #if defined(MAC) || defined(WIN32)
