@@ -116,6 +116,7 @@ public:
 	//refactor
 	#ifdef __vita__
 		static FZTexture* createFromVitaTexture(vita2d_texture * texture);
+		static FZTexture* createFromBuffer(const void * buffer);
 	#endif
 
 	static FZTexture* createFromSOIL(char* imagePath);

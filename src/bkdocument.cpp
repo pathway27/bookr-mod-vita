@@ -804,16 +804,16 @@ void BKDocument::render() {
     drawImage(38 + 2*55, 205, 18, 26, 38, 53);
     drawImage(38 + 3*55, 205, 19, 26, 19, 79);
   #elif defined(__vita__)
-    vita2d_draw_texture_scale(bk_bookmark_icon->vita_texture, 60, MENU_ICONS_Y_OFFSET, 
+    vita2d_draw_texture_scale(bk_icons["bk_bookmark_icon"]->vita_texture, 60, MENU_ICONS_Y_OFFSET, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-    vita2d_draw_texture_scale(bk_copy_icon->vita_texture, 60 + 75, MENU_ICONS_Y_OFFSET, 
+    vita2d_draw_texture_scale(bk_icons["bk_copy_icon"]->vita_texture, 60 + 75, MENU_ICONS_Y_OFFSET, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-    vita2d_draw_texture_scale(bk_search_icon->vita_texture, 60 + 75 + 75 , MENU_ICONS_Y_OFFSET, 
+    vita2d_draw_texture_scale(bk_icons["bk_search_icon"]->vita_texture, 60 + 75 + 75 , MENU_ICONS_Y_OFFSET, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-    vita2d_draw_texture_scale(bk_rotate_left_icon->vita_texture, 60 + 75 + 75 + 75, MENU_ICONS_Y_OFFSET, 
+    vita2d_draw_texture_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + 75 + 75 + 75, MENU_ICONS_Y_OFFSET, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
   #endif
 
@@ -832,7 +832,7 @@ void BKDocument::render() {
           272 - 156 - j*35+45,
           it2.iconW, it2.iconH, it2.iconX, it2.iconY);
       #elif defined(__vita__)
-        vita2d_draw_texture_tint_scale(bk_rotate_left_icon->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+        vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
           DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
       #endif
   }
