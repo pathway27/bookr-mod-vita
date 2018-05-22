@@ -2,7 +2,30 @@
 cmake_minimum_required(VERSION 2.8)
 include(ExternalProject)
 
-if (NOT DESKTOP)
+# SET DESKTOP if
+# CMAKE_BINARY_DIR=/home/sree/bookr/vita-Debug
+IF(CMAKE_BINARY_DIR MATCHES vita)
+  set(VITA ON)
+ENDIF()
+
+IF(CMAKE_BINARY_DIR MATCHES desktop)
+  set(DESKTOP ON)
+ENDIF()
+
+IF(CMAKE_BINARY_DIR MATCHES switch)
+  set(SWITCH ON)
+ENDIF()
+
+# TODO: This is bad apparently?
+IF(CMAKE_BINARY_DIR MATCHES Debug)
+  set(CMAKE_BUILD_TYPE Debug)
+ENDIF()
+
+IF(CMAKE_BINARY_DIR MATCHES Release)
+  set(CMAKE_BUILD_TYPE Release)
+ENDIF()
+
+if (VITA)
   ## This includes the Vita toolchain, must go before project definition
   # It is a convenience so you do not have to type
   # -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake for cmake. It is
@@ -14,13 +37,13 @@ if (NOT DESKTOP)
       message(FATAL_ERROR "Please define VITASDK to point to your SDK path!")
     endif()
   endif()
-endif(NOT DESKTOP)
+endif(VITA)
 
 ## Define project parameters here
 # Name of the project
 project(bookr-mod-vita)
 
-if (NOT DESKTOP)
+if (VITA)
   # This line adds Vita helper macros, must go after project definition in order
   # to build Vita specific artifacts (self/vpk).
   include("${VITASDK}/share/vita.cmake" REQUIRED)
@@ -31,7 +54,7 @@ if (NOT DESKTOP)
   # Unique ID must be exactly 9 characters. Recommended: XXXXYYYYY where X =
   # unique string of developer and Y = a unique number for this app
   set(VITA_TITLEID  "PATH00027")
-endif(NOT DESKTOP)
+endif(VITA)
 
 execute_process(COMMAND git describe --long
   OUTPUT_VARIABLE GIT_VERSION)
@@ -90,7 +113,9 @@ set(COMMON_SRCS
 
 if (WIN32)
   include(CMakeWindows)
-else()
+elseif(SWITCH)
+  include(switch)
+elseif(VITA)
   # turn images to binary with
   # https://beesbuzz.biz/blog/e/2014/07/31-embedding_binary_resources_with_cmake_and_c11.php
   FUNCTION(ADD_RESOURCES out_var)

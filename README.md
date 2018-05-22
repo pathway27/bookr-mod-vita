@@ -1,6 +1,6 @@
 ## bookr-mod-vita
 
-A document reader for the PSVita ported from the PSP application bookr-mod.  
+A document reader for the PSVita ported from the PSP application bookr-mod, canonically based on the [HBS](https://github.com/pathway27/bookr-mod-vita/tree/bookr-hbs) version.  
 You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md).
 
 ## Installation and Usage
@@ -35,12 +35,13 @@ Start - Show/Hide Menu
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # run pngquant on all your png images if not done already
-./build.sh # Creates a build folder with vpk
+mkdir vita-Debug && cd vita-Debug
+make
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
 export PSVITAIP=IP-HERE
-cd build && make send
+make send
 ```
 
 See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/BUILDING.md) for OpenGL version.
@@ -59,5 +60,5 @@ See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/BUILDI
 
 ## License
 
-Licensed under GNU GPLv3+, see [LICENSE](https://github.com/pathway27/bookr-mod-vita/blob/master/LICENSE).  
+Licensed under GNU GPLv3+, see [LICENSE.md](https://github.com/pathway27/bookr-mod-vita/blob/master/LICENSE).  
 Third party libraries have their own licenses can be found in their own directories under `ext`.
