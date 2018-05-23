@@ -35,7 +35,7 @@ Start - Show/Hide Menu
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # run pngquant on all your png images if not done already
-mkdir vita-Debug && cd vita-Debug
+mkdir -p vita/Release && cd vita/Release
 make
 # Install .vpk
 

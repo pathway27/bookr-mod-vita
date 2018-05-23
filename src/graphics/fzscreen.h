@@ -52,7 +52,6 @@
   #include <psp2/power.h>
   #include <psp2/rtc.h>
 
-  #include <psp2kern/kernel/cpu.h>
   #include <psp2/pvf.h>
   #include <psp2/pgf.h>
   #include <psp2/io/dirent.h>

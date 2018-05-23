@@ -368,7 +368,7 @@ void FZScreen::disable(int m) {
 }
 
 void FZScreen::dcacheWritebackAll() {
-  ksceKernelCpuDcacheWritebackAll();
+  // ksceKernelCpuDcacheWritebackAll();
 }
 
 string FZScreen::basePath() {
