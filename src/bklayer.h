@@ -122,6 +122,12 @@ using namespace std;
 #define BK_IMG_FOLDER_XSIZE 20
 #define BK_IMG_FOLDER_YSIZE 20
 
+/*! \brief Base class for any GUI item.
+ *
+ *  Has more specific draw methods, using native screen methods.
+ *  Manages textures and fonts for use within the app.
+ *  TODO: Should be platform independant.
+ */
 class BKLayer : public FZRefCounted {
   protected:
   static FZFont* fontBig;

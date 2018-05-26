@@ -825,7 +825,7 @@ void BKDocument::render() {
       color = 0xff000000;
     else
       color = 0xffffffff;
-    if (it2.iconW > 0) 
+    if (it2.iconW > 0)
       #ifdef PSP
         drawImage(
           40 + toolbarSelMenu*55,
@@ -834,6 +834,8 @@ void BKDocument::render() {
       #elif defined(__vita__)
         vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
           DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
+      #else
+        printf("test");
       #endif
   }
   

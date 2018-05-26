@@ -21,38 +21,9 @@ set(VITA_VERSION "${VITA_VERSION}")
 # Optional. You can specify more param.sfo flags this way.
 set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
-# turn images to binary with
-# https://beesbuzz.biz/blog/e/2014/07/31-embedding_binary_resources_with_cmake_and_c11.php
-FUNCTION(ADD_RESOURCES out_var)
-  SET(result)
-  FOREACH(in_f ${ARGN})
-    GET_FILENAME_COMPONENT(out_fn ${in_f} NAME_WE)
-    SET(out_f "${CMAKE_CURRENT_BINARY_DIR}/${out_fn}.o")
-    GET_FILENAME_COMPONENT(out_dir ${out_f} DIRECTORY)
-    ADD_CUSTOM_COMMAND(OUTPUT ${out_f}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${out_dir}
-      COMMAND ${CMAKE_LINKER} -r -b binary -o ${out_f} ${in_f}
-      DEPENDS ${in_f}
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      COMMENT "Building resource ${out_f}"
-      VERBATIM
-      )
-    LIST(APPEND result ${out_f})
-  ENDFOREACH()
-  SET(${out_var} "${result}" PARENT_SCOPE)
-ENDFUNCTION()
-
-file(GLOB res_files RELATIVE
-  ${CMAKE_SOURCE_DIR}
-  sce_sys/icon0_t.png
-
-  # data/fonts/URW Gothic L Demi.ttf
-  data/icons/*.png
-)
-add_resources(bk_resources ${res_files})
-
 
 # Huge 62MB with lots of submodules
+# TODO: add to ext/CMakeLists.txt
 # TODO: add to vitasdk/packages
 #       similar to http://www.linuxfromscratch.org/blfs/view/cvs/pst/mupdf.html
 ExternalProject_Add(mupdf_lib
@@ -100,7 +71,6 @@ add_executable(bookr-mod-vita
 
   src/graphics/fzscreenvita.cpp
 
-  src/bklayervita.cpp
   src/filetypes/bkmudocument.cpp
   src/graphics/fzfontvita.cpp
 )

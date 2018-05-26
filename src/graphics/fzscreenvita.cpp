@@ -304,6 +304,28 @@ void FZScreen::setBoundTexture(FZTexture *t) {
     boundTexture = t;
 }
 
+void FZScreen::drawRectangle(float x, float y, float w, float h, unsigned int color) {
+  vita2d_draw_rectangle(x, y, w, h, color);
+}
+
+void FZScreen::drawFontText(FZFont *font, int x, int y, unsigned int color, unsigned int size, const char *text) {
+  vita2d_font_draw_text(font->v_font, x, y, color, size, text);
+}
+
+void FZScreen::drawTextureScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale) {
+  vita2d_draw_texture_scale(texture->vita_texture, x, y, x_scale, y_scale);
+}
+
+void FZScreen::drawTextureTintScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale, unsigned int color) {
+  vita2d_draw_texture_tint_scale(texture->vita_texture, x, y, x_scale, y_scale, color);
+}
+
+void FZScreen::drawTextureTintScaleRotate(const FZTexture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color) {
+  vita2d_draw_texture_tint_scale_rotate(texture->vita_texture, x, y, x_scale, y_scale, rad, color);
+}
+
+
+
 /*  Active Shader
     bind correct vertex array
   */

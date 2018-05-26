@@ -33,9 +33,10 @@
   #include <pspdebug.h>
   #include <pspgu.h>
   #define printf  pspDebugScreenPrintf
-#elif __vita__
+#elif defined(__vita__)
   #include <psp2/display.h>
   #include <vita2d.h>
+#elif defined(SWITCH)
 #else
   #include <stdio.h>
   #define GLEW_STATIC
@@ -50,7 +51,7 @@
 #include "fztexture.h"
 #include "fzscreen.h"
 
-#if defined(PSP) || defined(__vita__)
+#if defined(PSP) || defined(__vita__) || defined(SWITCH)
   FZTexture::FZTexture() : texImage(0) {
   }
 
@@ -59,10 +60,12 @@
         printf("~FZTexture\n");
       #endif
 
+    #ifdef __vita__
       if (vita_texture != NULL) {
         vita2d_free_texture(vita_texture);
         vita_texture = NULL;
       }
+    #endif
   }
 
   void FZTexture::bind() {
@@ -160,7 +163,7 @@ static bool validatePow2(unsigned int x, unsigned int maxPow) {
         }
         return true;
     }
-#elif __vita__
+#elif __vita__ || defined(SWITCH)
     bool FZTexture::validateFormat(FZImage* image) {
         FZImage::Format imageFormat = image->getFormat();
         return true;
@@ -227,6 +230,11 @@ FZTexture* FZTexture::createFromImage(FZImage* image, bool buildMipmaps) {
   FZTexture* FZTexture::createFromBuffer(const void * buffer) {
     FZTexture* texture = new FZTexture();
     texture->vita_texture = vita2d_load_PNG_buffer(buffer);
+    return texture;
+  }
+#elif defined(SWITCH)
+  FZTexture* FZTexture::createFromBuffer(const void * buffer) {
+    FZTexture* texture = new FZTexture();
     return texture;
   }
 #endif
@@ -323,7 +331,7 @@ bool FZTexture::initFromImage(FZTexture* texture, FZImage* image, bool buildMipm
 }
 
 void FZTexture::texEnv(int op) {
-  #if defined(PSP) || defined(__vita__)
+  #if defined(PSP) || defined(__vita__) || defined(SWITCH)
     texenv = op;
   #else
     texenv = GL_REPLACE;
@@ -337,7 +345,7 @@ void FZTexture::texEnv(int op) {
 }
 
 void FZTexture::filter(int min, int mag) {
-  #if defined(PSP) || defined(__vita__)
+  #if defined(PSP) || defined(__vita__) || defined(SWITCH)
     texMin = min;
     texMag = mag;
   #else
