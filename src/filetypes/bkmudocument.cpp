@@ -40,11 +40,10 @@
 #include <malloc.h>
 #include <errno.h>
 
-#include <psp2/io/fcntl.h>
-
-extern "C" {
-  #include <mupdf/fitz.h>
-}
+#ifdef __vita__
+  #include <psp2/io/fcntl.h>
+  extern int _newlib_heap_size_user;
+#endif
 
 #include "bkmudocument.h"
 #include "../bkbookmark.h"
@@ -52,13 +51,14 @@ extern "C" {
 
 using namespace std;
 
-extern int _newlib_heap_size_user;
-
 // make sure only one document is open, do we need this?
 // vita can probably do multiple.
 static BKMUDocument* mudoc_singleton = nullptr;
 // texture of current pixmap, TODO: generic fztexture
+#ifdef __vita__
 static vita2d_texture *texture;
+#elif defined(SWITCH)
+#endif
 static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
   1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f };
   // These will crash...
@@ -79,7 +79,13 @@ BKMUDocument::BKMUDocument(string& f) :
   m_height = FZ_SCREEN_HEIGHT;
 
   // Initalize fitz context
-  m_ctx = fz_new_context(nullptr, nullptr, _newlib_heap_size_user);
+  m_ctx = fz_new_context(nullptr, nullptr,
+#ifdef __vita__
+    _newlib_heap_size_user
+#elif defined(SWITCH)
+    FZ_STORE_DEFAULT
+#endif
+  );
 
   if (m_ctx)
     fz_register_document_handlers(m_ctx);
@@ -211,14 +217,17 @@ bool BKMUDocument::redrawBuffer() {
     printf("new_pixmap n: %i \n", m_pix->n);
   #endif
 
-  // Crashes due to GPU memory use without this.
-  vita2d_free_texture(texture);
+  #ifdef __vita__
+    // Crashes due to GPU memory use without this.
+    vita2d_free_texture(texture);
 
-  #ifdef DEBUG
-    printf("post vita2d_free_texture\n");
+    #ifdef DEBUG
+      printf("post vita2d_free_texture\n");
+    #endif
+
+    texture = _vita2d_load_pixmap_generic(m_pix);
+
   #endif
-
-  texture = _vita2d_load_pixmap_generic(m_pix);
 
   #ifdef DEBUG
     printf("post _vita2d_load_pixmap_generic\n");
@@ -272,7 +281,9 @@ void BKMUDocument::renderContent() {
   #endif
 
   FZScreen::clear(0xefefef, FZ_COLOR_BUFFER);
-  vita2d_draw_texture(texture, panX, panY);
+  #ifdef __vita__
+    vita2d_draw_texture(texture, panX, panY);
+  #endif
 
   // TODO: Show Page Error, don"t draw texture then.
   // if (pageError) {

@@ -7,6 +7,8 @@ include(ExternalProject)
 IF(CMAKE_BINARY_DIR MATCHES desktop)
   set(DESKTOP ON)
 ELSEIF(CMAKE_BINARY_DIR MATCHES switch)
+  # TODO: move to toolchain file
+  add_definitions(-DSWITCH)
   if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     if(DEFINED ENV{DEVKITPRO})
       set(CMAKE_TOOLCHAIN_FILE "switch.toolchain.cmake" CACHE PATH "toolchain file")
@@ -76,6 +78,36 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 # TODO: Move to ext folder?
 add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
 
+# turn images to binary with
+# https://beesbuzz.biz/blog/e/2014/07/31-embedding_binary_resources_with_cmake_and_c11.php
+FUNCTION(ADD_RESOURCES out_var)
+  SET(result)
+  FOREACH(in_f ${ARGN})
+    GET_FILENAME_COMPONENT(out_fn ${in_f} NAME_WE)
+    SET(out_f "${CMAKE_CURRENT_BINARY_DIR}/${out_fn}.o")
+    GET_FILENAME_COMPONENT(out_dir ${out_f} DIRECTORY)
+    ADD_CUSTOM_COMMAND(OUTPUT ${out_f}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${out_dir}
+      COMMAND ${CMAKE_LINKER} -r -b binary -o ${out_f} ${in_f}
+      DEPENDS ${in_f}
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      COMMENT "Building resource ${out_f}"
+      VERBATIM
+      )
+    LIST(APPEND result ${out_f})
+  ENDFOREACH()
+  SET(${out_var} "${result}" PARENT_SCOPE)
+ENDFUNCTION()
+
+file(GLOB res_files RELATIVE
+  ${CMAKE_SOURCE_DIR}
+  sce_sys/icon0_t.png
+
+  # data/fonts/URW Gothic L Demi.ttf
+  data/icons/*.png
+)
+add_resources(bk_resources ${res_files})
+
 set(COMMON_SRCS
   src/bookr.cpp
   src/utils.cpp
@@ -89,11 +121,14 @@ set(COMMON_SRCS
   src/graphics/fztexture.cpp
 
   src/graphics/fzinstreammem.cpp
+  
+  src/bklayervita.cpp
   src/bklogo.cpp
   src/bkmainmenu.cpp
   src/bkpopup.cpp
   src/bkfilechooser.cpp
 
+  
   src/bkdocument.cpp
   src/bkbookmark.cpp
   src/filetypes/bkfancytext.cpp

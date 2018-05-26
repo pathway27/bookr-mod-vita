@@ -27,8 +27,8 @@ set(CMAKE_OBJDUMP        "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-objdump${T
 set(CMAKE_RANLIB         "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-ranlib${TOOL_OS_SUFFIX}"  CACHE PATH "ranlib" )
 
 # cache flags
-set( CMAKE_CXX_FLAGS           ""                        CACHE STRING "c++ flags" )
-set( CMAKE_C_FLAGS             ""                        CACHE STRING "c flags" )
+set( CMAKE_CXX_FLAGS           "-DSWITCH"                        CACHE STRING "c++ flags" )
+set( CMAKE_C_FLAGS             "-DSWITCH"                        CACHE STRING "c flags" )
 set( CMAKE_CXX_FLAGS_RELEASE   "-O3 -DNDEBUG"            CACHE STRING "c++ Release flags" )
 set( CMAKE_C_FLAGS_RELEASE     "-O3 -DNDEBUG"            CACHE STRING "c Release flags" )
 set( CMAKE_CXX_FLAGS_DEBUG     "-O0 -g -DDEBUG -D_DEBUG" CACHE STRING "c++ Debug flags" )

@@ -123,7 +123,7 @@ void BKFancyText::reflow(int width) {
       FZCharMetrics* fontChars = font->getMetrics();
       const int spaceWidthC = fontChars[32].xadvance;
       const float spaceWidthCF = float(spaceWidthC);
-    #elif defined(__vita__) || defined(MAC) || defined(WIN32)
+    #elif defined(__vita__) || defined(MAC) || defined(WIN32) || defined(SWITCH)
       const int spaceWidthC = 10;
       const float spaceWidthCF = 10;
     #endif
