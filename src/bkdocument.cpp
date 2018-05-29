@@ -280,13 +280,7 @@ int BKDocument::processEventsForView() {
 void BKDocument::buildToolbarMenus() {
   toolbarMenus[0].clear();
   if (isBookmarkable()) {
-    ToolbarItem i;
-    i.label = "Add bookmark";
-    i.iconX = 19;
-    i.iconY = 0;
-    i.iconW = 22;
-    i.iconH = 26;
-    i.circleLabel = "Select";
+    ToolbarItem i("Add bookmark", "bk_add_bookmark_icon", "Select");
     toolbarMenus[0].push_back(i);
 
     string fn;
@@ -299,70 +293,34 @@ void BKDocument::buildToolbarMenus() {
       const BKBookmark& b = *it;
       snprintf(t, 256, "Page %d", b.page);
       i.label = t;
-      i.iconX = 0;
-      i.iconY = 0;
-      i.iconW = 18;
-      i.iconH = 26;
       i.circleLabel = "Jump to";
       i.triangleLabel = "Delete";
       toolbarMenus[0].push_back(i);
       ++it;
     }
   } else {
-    ToolbarItem i;
-    i.label = "No bookmark support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No bookmark support");
     toolbarMenus[0].push_back(i);
   }
 
   toolbarMenus[1].clear();
   if (isPaginated()) {
-    ToolbarItem i;
-    i.label = "First page";
-    i.iconX = 0;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
-    i.circleLabel = "Select";
+    auto i = ToolbarItem("First page", "Select");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Last page";
-    i.iconX = 19;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Last page");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Previous 10 pages";
-    i.iconX = 95;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Previous 10 pages");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Next 10 pages";
-    i.iconX = 76;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Next 10 pages");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Go to page";
-    i.iconX = 0;
-    i.iconY = 53;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Go to page");
     toolbarMenus[1].push_back(i);
   } else {
-    ToolbarItem i;
-    i.label = "No pagination support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No pagination support");
     toolbarMenus[1].push_back(i);
   }
 
@@ -373,67 +331,35 @@ void BKDocument::buildToolbarMenus() {
 
     if (hasZoomToFit()) {
       i.label = "Fit height";
-      i.iconX = 0;
-      i.iconY = 78;
-      i.iconW = 18;
-      i.iconH = 26;
       toolbarMenus[2].push_back(i);
 
       i.label = "Fit width";
-      i.iconX = 95;
-      i.iconY = 53;
-      i.iconW = 18;
-      i.iconH = 26;
       toolbarMenus[2].push_back(i);
     }
 
     i.label = "Zoom out";
-    i.iconX = 76;
-    i.iconY = 53;
-    i.iconW = 18;
-    i.iconH = 26;
     toolbarMenus[2].push_back(i);
 
     i.label = "Zoom in";
-    i.iconX = 57;
-    i.iconY = 53;
-    i.iconW = 18;
-    i.iconH = 26;
     toolbarMenus[2].push_back(i);
   } else {
-    ToolbarItem i;
-    i.label = "No zoom support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No zoom support");
     toolbarMenus[2].push_back(i);
   }
 
   toolbarMenus[3].clear();
   if (isRotable()) {
     ToolbarItem i;
-    i.circleLabel = "Select";
     i.label = "Rotate 90� clockwise";
-    i.iconX = 39;
-    i.iconY = 79;
-    i.iconW = 17;
-    i.iconH = 26;
+    i.circleLabel = "Select";
+    i.iconName = "bk_rotate_left_icon";
     toolbarMenus[3].push_back(i);
 
     i.label = "Rotate 90� counterclockwise";
-    i.iconX = 57;
-    i.iconY = 79;
-    i.iconW = 17;
-    i.iconH = 26;
+    i.iconName = "bk_rotate_right_icon";
     toolbarMenus[3].push_back(i);
   } else {
-    ToolbarItem i;
-    i.label = "No rotation support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No rotation support");
     toolbarMenus[3].push_back(i);
   }
 }
@@ -825,18 +751,13 @@ void BKDocument::render() {
       color = 0xff000000;
     else
       color = 0xffffffff;
-    if (it2.iconW > 0)
-      #ifdef PSP
-        drawImage(
-          40 + toolbarSelMenu*55,
-          272 - 156 - j*35+45,
-          it2.iconW, it2.iconH, it2.iconX, it2.iconY);
-      #elif defined(__vita__)
-        vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+    if (it2.iconName.size() > 0) {
+      vita2d_draw_texture_tint_scale(bk_icons[it2.iconName]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
           DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
-      #else
-        printf("test");
-      #endif
+    } else {
+      vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
+    }
   }
   
   // // item label for selected item
@@ -845,7 +766,10 @@ void BKDocument::render() {
     FZScreen::ambientColor(0xff000000);
     drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
   #elif defined(__vita__)
-    vita2d_font_draw_text(fontBig->v_font, 768 - 20 - 70, 544 - 50 + 35, 0xff000000, 28, "basfdsf");
+    vita2d_font_draw_text(fontBig->v_font, 
+      60 + toolbarSelMenu*75 - 10 + 55,
+      544 - 140 - (selItemI*55) - 55 + 25,
+      0xff000000, 28, it.label.c_str());
   #endif
 
   // // button labels
