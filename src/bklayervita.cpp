@@ -43,6 +43,7 @@ FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
 
+const auto& createTexFromBuffer = FZTexture::createFromBuffer;
 map<string, FZTexture*> BKLayer::bk_icons;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
@@ -72,6 +73,15 @@ extern "C" {
   extern unsigned char _binary_data_icons_content_copy_white_png_start;
   extern unsigned char _binary_data_icons_search_white_png_start;
   extern unsigned char _binary_data_icons_rotate_left_white_png_start;
+  extern unsigned char _binary_data_icons_rotate_right_white_png_start;
+
+  extern unsigned char _binary_data_icons_bookmark_add_white_png_start;
+  extern unsigned char _binary_data_icons_first_page_png_start;
+  extern unsigned char _binary_data_icons_last_page_png_start;
+  extern unsigned char _binary_data_icons_previous_ten_png_start;
+  extern unsigned char _binary_data_icons_next_ten_png_start;
+  extern unsigned char _binary_data_icons_go_to_page_png_start;
+
   
   extern unsigned char _binary_sce_sys_icon0_t_png_start;
   extern unsigned int _binary_sce_sys_icon0_t_png_size;
@@ -81,22 +91,27 @@ void BKLayer::load() {
   #ifdef DEBUG
     printf("bklayer load\n");
   #endif
-  // TODO: fix serious uglyness
+  
   texLogo = FZTexture::createFromBuffer(&_binary_sce_sys_icon0_t_png_start);
 
+  // TODO: fix serious uglyness
+  bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));
+  bk_icons.insert(make_pair("bk_battery_icon", createTexFromBuffer(&_binary_data_icons_battery_outline_png_start)));
+  bk_icons.insert(make_pair("bk_clock_icon", createTexFromBuffer(&_binary_data_icons_clock_png_start)));
 
-  bk_icons.insert(make_pair("bk_memory_icon", FZTexture::createFromBuffer(&_binary_data_icons_memory_png_start)));
-  bk_icons.insert(make_pair("bk_battery_icon", FZTexture::createFromBuffer(&_binary_data_icons_battery_outline_png_start)));
-  bk_icons.insert(make_pair("bk_clock_icon", FZTexture::createFromBuffer(&_binary_data_icons_clock_png_start)));
+  bk_icons.insert(make_pair("bk_circle_icon", createTexFromBuffer(&_binary_data_icons_circle_outline_png_start)));
+  bk_icons.insert(make_pair("bk_cross_icon", createTexFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
+  bk_icons.insert(make_pair("bk_triangle_icon", createTexFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
 
-  bk_icons.insert(make_pair("bk_circle_icon", FZTexture::createFromBuffer(&_binary_data_icons_circle_outline_png_start)));
-  bk_icons.insert(make_pair("bk_cross_icon", FZTexture::createFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
-  bk_icons.insert(make_pair("bk_triangle_icon", FZTexture::createFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
+  bk_icons.insert(make_pair("bk_bookmark_icon", createTexFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
+  bk_icons.insert(make_pair("bk_copy_icon", createTexFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
+  bk_icons.insert(make_pair("bk_search_icon", createTexFromBuffer(&_binary_data_icons_search_white_png_start)));
+  bk_icons.insert(make_pair("bk_rotate_left_icon", createTexFromBuffer(&_binary_data_icons_rotate_left_white_png_start)));
+  bk_icons.insert(make_pair("bk_rotate_right_icon", createTexFromBuffer(&_binary_data_icons_rotate_right_white_png_start)));
 
-  bk_icons.insert(make_pair("bk_bookmark_icon", FZTexture::createFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
-  bk_icons.insert(make_pair("bk_copy_icon", FZTexture::createFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
-  bk_icons.insert(make_pair("bk_search_icon", FZTexture::createFromBuffer(&_binary_data_icons_search_white_png_start)));
-  bk_icons.insert(make_pair("bk_rotate_left_icon", FZTexture::createFromBuffer(&_binary_data_icons_rotate_left_white_png_start)));
+  bk_icons.insert(make_pair("bk_add_bookmark_icon", createTexFromBuffer(&_binary_data_icons_bookmark_add_white_png_start)));
+  bk_icons.insert(make_pair("bk_first_page_icon", createTexFromBuffer(&_binary_data_icons_first_page_png_start)));
+  bk_icons.insert(make_pair("bk_last_page_icon", createTexFromBuffer(&_binary_data_icons_last_page_png_start)));
 
   if (!fontBig){
     fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
