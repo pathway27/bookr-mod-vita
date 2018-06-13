@@ -59,6 +59,7 @@ private:
   bool zooming;
   
   int zoomLevel;
+  int rotateLevel;
   float m_scale;
   float m_rotate;
   int m_width;

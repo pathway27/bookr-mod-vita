@@ -65,7 +65,9 @@
                     "${workspaceRoot}/ext/libvita2d/libvita2d/include"
                 ]
             },
-            "intelliSenseMode": "msvc-x64"
+            "intelliSenseMode": "msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
     "clang_format": {
@@ -73,5 +75,5 @@
         "fallback-style": "LLVM",
         "sort-includes": false
     },
-    "version": 3
+    "version": 4
 }

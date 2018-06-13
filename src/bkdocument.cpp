@@ -305,19 +305,19 @@ void BKDocument::buildToolbarMenus() {
 
   toolbarMenus[1].clear();
   if (isPaginated()) {
-    auto i = ToolbarItem("First page", "Select");
+    ToolbarItem i = ToolbarItem("First page", "bk_first_page_icon", "Select");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Last page");
+    i = ToolbarItem("Last page", "bk_last_page_icon");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Previous 10 pages");
+    i = ToolbarItem("Previous 10 pages", "bk_prev_ten_icon");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Next 10 pages");
+    i = ToolbarItem("Next 10 pages", "bk_next_ten_icon");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Go to page");
+    i = ToolbarItem("Go to page", "bk_go_to_page_icon");
     toolbarMenus[1].push_back(i);
   } else {
     ToolbarItem i("No pagination support");
@@ -338,9 +338,11 @@ void BKDocument::buildToolbarMenus() {
     }
 
     i.label = "Zoom out";
+    i.iconName = "bk_zoom_out_icon";
     toolbarMenus[2].push_back(i);
 
     i.label = "Zoom in";
+    i.iconName = "bk_zoom_in_icon";
     toolbarMenus[2].push_back(i);
   } else {
     ToolbarItem i("No zoom support");
@@ -752,6 +754,7 @@ void BKDocument::render() {
     else
       color = 0xffffffff;
     if (it2.iconName.size() > 0) {
+      // check map existance, just in case.
       vita2d_draw_texture_tint_scale(bk_icons[it2.iconName]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
           DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
     } else {

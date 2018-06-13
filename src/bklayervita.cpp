@@ -81,6 +81,8 @@ extern "C" {
   extern unsigned char _binary_data_icons_previous_ten_png_start;
   extern unsigned char _binary_data_icons_next_ten_png_start;
   extern unsigned char _binary_data_icons_go_to_page_png_start;
+  extern unsigned char _binary_data_icons_zoom_out_white_png_start;
+  extern unsigned char _binary_data_icons_zoom_in_white_png_start;
 
   
   extern unsigned char _binary_sce_sys_icon0_t_png_start;
@@ -94,7 +96,7 @@ void BKLayer::load() {
   
   texLogo = FZTexture::createFromBuffer(&_binary_sce_sys_icon0_t_png_start);
 
-  // TODO: fix serious uglyness
+  // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
   bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));
   bk_icons.insert(make_pair("bk_battery_icon", createTexFromBuffer(&_binary_data_icons_battery_outline_png_start)));
   bk_icons.insert(make_pair("bk_clock_icon", createTexFromBuffer(&_binary_data_icons_clock_png_start)));
@@ -112,10 +114,13 @@ void BKLayer::load() {
   bk_icons.insert(make_pair("bk_add_bookmark_icon", createTexFromBuffer(&_binary_data_icons_bookmark_add_white_png_start)));
   bk_icons.insert(make_pair("bk_first_page_icon", createTexFromBuffer(&_binary_data_icons_first_page_png_start)));
   bk_icons.insert(make_pair("bk_last_page_icon", createTexFromBuffer(&_binary_data_icons_last_page_png_start)));
+  bk_icons.insert(make_pair("bk_prev_ten_icon", createTexFromBuffer(&_binary_data_icons_previous_ten_png_start)));
+  bk_icons.insert(make_pair("bk_next_ten_icon", createTexFromBuffer(&_binary_data_icons_next_ten_png_start)));
+  bk_icons.insert(make_pair("bk_go_to_page_icon", createTexFromBuffer(&_binary_data_icons_go_to_page_png_start)));
+  bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
+  bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
 
-  if (!fontBig){
-    fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
-  }
+  fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
 }
 
 void BKLayer::unload(){
@@ -127,8 +132,14 @@ void BKLayer::unload(){
     it->second->release();
     it++;
   }
+  #ifdef DEBUG
+    printf("finish icons unload\n");
+  #endif
 
   fontBig->release();
+  #ifdef DEBUG
+    printf("finish fontbig unload\n");
+  #endif
 }
 
 void BKLayer::drawImage(int x, int y) {
