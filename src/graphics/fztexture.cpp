@@ -61,10 +61,10 @@
       #endif
 
     #ifdef __vita__
-      if (vita_texture != NULL) {
+    if (vita_texture != NULL) {
         vita2d_free_texture(vita_texture);
-        vita_texture = NULL;
-      }
+        // vita_texture = NULL;
+    }
     #endif
   }
 

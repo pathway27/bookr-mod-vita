@@ -59,10 +59,14 @@ static BKMUDocument* mudoc_singleton = nullptr;
 static vita2d_texture *texture;
 #elif defined(SWITCH)
 #endif
+
+// These will crash...
+//, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
+
 static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
   1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f };
-  // These will crash...
-  //, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
+static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
+
 
 BKMUDocument::BKMUDocument(string& f) : 
   m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
@@ -75,16 +79,17 @@ BKMUDocument::BKMUDocument(string& f) :
 
   filename = string(f);
   m_rotate = 0.0f;
+  rotateLevel = 0;
   m_width = FZ_SCREEN_WIDTH;
   m_height = FZ_SCREEN_HEIGHT;
 
   // Initalize fitz context
   m_ctx = fz_new_context(nullptr, nullptr,
-#ifdef __vita__
+  #ifdef __vita__
     _newlib_heap_size_user
-#elif defined(SWITCH)
+  #elif defined(SWITCH)
     FZ_STORE_DEFAULT
-#endif
+  #endif
   );
 
   if (m_ctx)
@@ -535,14 +540,50 @@ int BKMUDocument::screenRight() {
 }
 
 bool BKMUDocument::isRotable() {
-  return false;
+  return true;
 }
 
 int BKMUDocument::getRotation() {
-  return 0;
+  return rotateLevel;
 }
 
 int BKMUDocument::setRotation(int r, bool bForce) {
+  #ifdef DEBUG
+
+  #endif
+
+  if (r == rotateLevel)
+    return 0;
+
+  if (r < 0)
+    r = 3;
+  if (r >= 4)
+    r = 0;
+
+  rotateLevel = r;
+  m_rotate = rotateLevels[rotateLevel];
+
+  // reset zoom?
+  // float nx = float(panX);
+  // float ny = float(panY);
+  // clipCoords(nx, ny);
+  // panX = int(nx);
+  // panY = int(ny);
+
+  char t[256];
+  snprintf(t, 256, "Rotate to %3.3g°", m_rotate);
+  setBanner(t);
+
+  // if (BKUser::options.pdfFastScroll) {
+  // //pdfRenderFullPage(ctx);
+  //   loadNewPage = true;
+  //   return BK_CMD_MARK_DIRTY;
+  // }
+
+  // redrawBuffer();
+  // return BK_CMD_MARK_DIRTY;
+  redrawBuffer();
+
   return 0;
 }
 
