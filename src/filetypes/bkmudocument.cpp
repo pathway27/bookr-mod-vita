@@ -574,6 +574,15 @@ int BKMUDocument::setRotation(int r, bool bForce) {
   snprintf(t, 256, "Rotate to %3.3g°", m_rotate);
   setBanner(t);
 
+  panX = 0;
+  panY = 0;
+  if (m_width == FZ_SCREEN_WIDTH) {
+    m_height = FZ_SCREEN_WIDTH;
+    m_width = FZ_SCREEN_HEIGHT;
+  } else {
+    
+  }
+
   // if (BKUser::options.pdfFastScroll) {
   // //pdfRenderFullPage(ctx);
   //   loadNewPage = true;
