@@ -186,7 +186,7 @@ bool BKMUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("fz_load\n");
   #endif
-
+  
   // bounds for inital window size
   fz_bound_page(m_ctx, m_page, &m_bounds);
   if (m_fitWidth) {
@@ -200,9 +200,18 @@ bool BKMUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("bound_page; m_scale: %2.3gx, zoomLevel: %i\n", m_scale, zoomLevel);
   #endif
+  
+  fz_rect rect = m_bounds;
+  fz_matrix matrix;
 
   fz_scale(&m_transform, m_scale, m_scale);
   fz_pre_rotate(&m_transform, m_rotate);
+  
+  // fix the page origin at 0,0 after rotation
+  fz_transform_rect(&rect, &m_transform);
+  fz_translate(&matrix, -rect.x0, -rect.y0);
+  fz_concat(&m_transform, &m_transform, &matrix);
+
   fz_transform_rect(&m_bounds, &m_transform);
 
   #ifdef DEBUG
@@ -419,12 +428,13 @@ int BKMUDocument::pan(int x, int y) {
     printf("INPUT x %i y %i\n", x, y);
   #endif
   
-  // printf("%f %f %f %f\n", m_bounds.x0, m_bounds.x1, m_bounds.y0, m_bounds.y1);
-  
   if (abs(x) <= FZ_ANALOG_THRESHOLD &&
       abs(y) <= FZ_ANALOG_THRESHOLD)
     return 0;
 
+  #ifdef DEBUG
+    printf("panX: %f panY: %f\n x1:%f y1:%f\n x0:%f y0:%f\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
+  #endif
   // TODO: Choose invert analog settings
   // if settings.invertAnalog
   // x = -x
@@ -576,12 +586,6 @@ int BKMUDocument::setRotation(int r, bool bForce) {
 
   panX = 0;
   panY = 0;
-  if (m_width == FZ_SCREEN_WIDTH) {
-    m_height = FZ_SCREEN_WIDTH;
-    m_width = FZ_SCREEN_HEIGHT;
-  } else {
-    
-  }
 
   // if (BKUser::options.pdfFastScroll) {
   // //pdfRenderFullPage(ctx);
