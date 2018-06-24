@@ -118,6 +118,7 @@ public:
 		static FZTexture* createFromVitaTexture(vita2d_texture * texture);
 	#endif
 
+	static FZTexture* createFromBuffer(const void * buffer);
 	static FZTexture* createFromSOIL(char* imagePath);
 
 	unsigned int getWidth() const { return width; }

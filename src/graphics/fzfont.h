@@ -38,7 +38,7 @@ struct FZCharMetrics {
 /**
  * Represents a font.
  */
-class FZFont : public FZTexture {
+class FZFont : public FZRefCounted {
   FZCharMetrics* metrics;
   int lineHeight;
   int maxAscent;

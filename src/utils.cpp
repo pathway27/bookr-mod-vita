@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __vita__
 vita2d_texture* _vita2d_load_pixmap_generic(fz_pixmap *pixmap)
 {
   srand(time(NULL));
@@ -47,6 +48,7 @@ vita2d_texture* _vita2d_load_pixmap_generic(fz_pixmap *pixmap)
   #endif
   return texture;
 }
+#endif
 
 const char *get_ext (const char *fspec) {
     char *e = strrchr (fspec, '.');
