@@ -36,6 +36,7 @@
 #include <cstring>
 #include <map>
 
+// TODO: Move these includes to implementation
 #if defined(MAC) || defined(WIN32)
   #define GLEW_STATIC
   #include <GL/glew.h>
@@ -52,7 +53,6 @@
   #include <psp2/power.h>
   #include <psp2/rtc.h>
 
-  #include <psp2kern/kernel/cpu.h>
   #include <psp2/pvf.h>
   #include <psp2/pgf.h>
   #include <psp2/io/dirent.h>
@@ -65,7 +65,11 @@
   #include <sys/types.h>
   #include <sys/stat.h>
   #include <unistd.h>
+#elif defined(SWITCH)
+  #include <switch.h>
 #endif
+
+#include "fzfont.h"
 
 using namespace std;
 
@@ -78,6 +82,7 @@ using namespace std;
 // 100% replaceable with pure C, kinda sucks right now, but does
 // its job of isolating libGU and GL
 
+// TODO: Move these to fz graphics header
 #define FZ_COLOR_BUFFER          1
 #define FZ_DEPTH_BUFFER          2
 
@@ -117,6 +122,7 @@ using namespace std;
 #define FZ_PATCH_FACE           20
 #define FZ_FRAGMENT_2X          21
 
+// TODO: Move these to fz controls header
 #define FZ_CTRL_SELECT          0x000001
 #define FZ_CTRL_START           0x000008
 #define FZ_CTRL_UP              0x000010
@@ -252,6 +258,11 @@ struct FZDirent {
   FZDirent(string n, string sn, int st, int s) : name(n), sname(sn), stat(st), size(s) { }
 };
 
+/*! \brief An abstraction over a platform's basic functionality and graphics.
+ *
+ *  Each platform will have it's own implementation file.
+ *  TODO: Convert to namespace; add simple draw methods.
+ */
 class FZScreen {
 protected:
   FZScreen();
@@ -325,6 +336,18 @@ public:
     int dx, int dy, int destw, void *dest);
 
   static void drawPixel(float x, float y, unsigned int color);
+  static void drawRectangle(float x, float y, float w, float h, unsigned int color);
+
+  // TODO: Refactor to FZFont?
+  static void drawFontText(FZFont *font, int x, int y, unsigned int color, unsigned int size, const char *text);
+  static void drawFontTextf(FZFont *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...);
+
+  // TODO: Refactor to FZTexture
+
+  static void drawTextureScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale);
+  static void drawTextureTintScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale, unsigned int color);
+  static void drawTextureTintScaleRotate(const FZTexture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color);
+
   static void* framebuffer();
 
   static void blendFunc(int op, int src, int dst);

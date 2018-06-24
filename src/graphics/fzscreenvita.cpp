@@ -140,17 +140,8 @@ static void initalDraw() {
 
     vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
 
-    #ifdef GENKIHEN
-      vita2d_draw_texture(genLogo->vita_texture, 0, 0);
-    #endif
-
     vita2d_end_drawing();
     vita2d_swap_buffers();
-
-    // Show Genkihen splash for 2 seconds.
-    #ifdef GENKIHEN
-      sceKernelDelayThread(2*1000000);
-    #endif
 }
 
 // Move this to constructor?
@@ -313,6 +304,28 @@ void FZScreen::setBoundTexture(FZTexture *t) {
     boundTexture = t;
 }
 
+void FZScreen::drawRectangle(float x, float y, float w, float h, unsigned int color) {
+  vita2d_draw_rectangle(x, y, w, h, color);
+}
+
+void FZScreen::drawFontText(FZFont *font, int x, int y, unsigned int color, unsigned int size, const char *text) {
+  vita2d_font_draw_text(font->v_font, x, y, color, size, text);
+}
+
+void FZScreen::drawTextureScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale) {
+  vita2d_draw_texture_scale(texture->vita_texture, x, y, x_scale, y_scale);
+}
+
+void FZScreen::drawTextureTintScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale, unsigned int color) {
+  vita2d_draw_texture_tint_scale(texture->vita_texture, x, y, x_scale, y_scale, color);
+}
+
+void FZScreen::drawTextureTintScaleRotate(const FZTexture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color) {
+  vita2d_draw_texture_tint_scale_rotate(texture->vita_texture, x, y, x_scale, y_scale, rad, color);
+}
+
+
+
 /*  Active Shader
     bind correct vertex array
   */
@@ -377,7 +390,7 @@ void FZScreen::disable(int m) {
 }
 
 void FZScreen::dcacheWritebackAll() {
-  ksceKernelCpuDcacheWritebackAll();
+  // ksceKernelCpuDcacheWritebackAll();
 }
 
 string FZScreen::basePath() {

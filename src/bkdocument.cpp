@@ -59,7 +59,8 @@ BKDocument* BKDocument::create(string filePath) {
   #ifdef DEBUG
     printf("doc != 0 \n");
   #endif
-  // doc->buildToolbarMenus();
+  
+  doc->buildToolbarMenus();
 
   if (doc->isBookmarkable()) {
     BKBookmark b;
@@ -279,13 +280,7 @@ int BKDocument::processEventsForView() {
 void BKDocument::buildToolbarMenus() {
   toolbarMenus[0].clear();
   if (isBookmarkable()) {
-    ToolbarItem i;
-    i.label = "Add bookmark";
-    i.iconX = 19;
-    i.iconY = 0;
-    i.iconW = 22;
-    i.iconH = 26;
-    i.circleLabel = "Select";
+    ToolbarItem i("Add bookmark", "bk_add_bookmark_icon", "Select");
     toolbarMenus[0].push_back(i);
 
     string fn;
@@ -298,70 +293,34 @@ void BKDocument::buildToolbarMenus() {
       const BKBookmark& b = *it;
       snprintf(t, 256, "Page %d", b.page);
       i.label = t;
-      i.iconX = 0;
-      i.iconY = 0;
-      i.iconW = 18;
-      i.iconH = 26;
       i.circleLabel = "Jump to";
       i.triangleLabel = "Delete";
       toolbarMenus[0].push_back(i);
       ++it;
     }
   } else {
-    ToolbarItem i;
-    i.label = "No bookmark support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No bookmark support");
     toolbarMenus[0].push_back(i);
   }
 
   toolbarMenus[1].clear();
   if (isPaginated()) {
-    ToolbarItem i;
-    i.label = "First page";
-    i.iconX = 0;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
-    i.circleLabel = "Select";
+    ToolbarItem i = ToolbarItem("First page", "bk_first_page_icon", "Select");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Last page";
-    i.iconX = 19;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Last page", "bk_last_page_icon");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Previous 10 pages";
-    i.iconX = 95;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Previous 10 pages", "bk_prev_ten_icon");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Next 10 pages";
-    i.iconX = 76;
-    i.iconY = 26;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Next 10 pages", "bk_next_ten_icon");
     toolbarMenus[1].push_back(i);
 
-    i.label = "Go to page";
-    i.iconX = 0;
-    i.iconY = 53;
-    i.iconW = 18;
-    i.iconH = 26;
+    i = ToolbarItem("Go to page", "bk_go_to_page_icon");
     toolbarMenus[1].push_back(i);
   } else {
-    ToolbarItem i;
-    i.label = "No pagination support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No pagination support");
     toolbarMenus[1].push_back(i);
   }
 
@@ -372,67 +331,37 @@ void BKDocument::buildToolbarMenus() {
 
     if (hasZoomToFit()) {
       i.label = "Fit height";
-      i.iconX = 0;
-      i.iconY = 78;
-      i.iconW = 18;
-      i.iconH = 26;
       toolbarMenus[2].push_back(i);
 
       i.label = "Fit width";
-      i.iconX = 95;
-      i.iconY = 53;
-      i.iconW = 18;
-      i.iconH = 26;
       toolbarMenus[2].push_back(i);
     }
 
     i.label = "Zoom out";
-    i.iconX = 76;
-    i.iconY = 53;
-    i.iconW = 18;
-    i.iconH = 26;
+    i.iconName = "bk_zoom_out_icon";
     toolbarMenus[2].push_back(i);
 
     i.label = "Zoom in";
-    i.iconX = 57;
-    i.iconY = 53;
-    i.iconW = 18;
-    i.iconH = 26;
+    i.iconName = "bk_zoom_in_icon";
     toolbarMenus[2].push_back(i);
   } else {
-    ToolbarItem i;
-    i.label = "No zoom support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No zoom support");
     toolbarMenus[2].push_back(i);
   }
 
   toolbarMenus[3].clear();
   if (isRotable()) {
     ToolbarItem i;
-    i.circleLabel = "Select";
     i.label = "Rotate 90� clockwise";
-    i.iconX = 39;
-    i.iconY = 79;
-    i.iconW = 17;
-    i.iconH = 26;
+    i.circleLabel = "Select";
+    i.iconName = "bk_rotate_left_icon";
     toolbarMenus[3].push_back(i);
 
     i.label = "Rotate 90� counterclockwise";
-    i.iconX = 57;
-    i.iconY = 79;
-    i.iconW = 17;
-    i.iconH = 26;
+    i.iconName = "bk_rotate_right_icon";
     toolbarMenus[3].push_back(i);
   } else {
-    ToolbarItem i;
-    i.label = "No rotation support";
-    i.iconX = 57;
-    i.iconY = 0;
-    i.iconW = 18;
-    i.iconH = 26;
+    ToolbarItem i("No rotation support");
     toolbarMenus[3].push_back(i);
   }
 }
@@ -606,18 +535,45 @@ int BKDocument::processEventsForToolbar() {
   return 0;
 }
 
+#define MENU_TOOLTIP_WIDTH 150
+#define MENU_TOOLTIP_PADDING 10
+#define MENU_TOOLTIP_ITEM_WIDTH 60
+#define MENU_TOOLTIP_HEIGHT 50
+#define DIALOG_ICON_SCALE 1.0f
+#define MENU_ICONS_Y_OFFSET 544 - 150 + 10
 void BKDocument::render() {
   // content
   renderContent();
 
   // // flash tip for menu/toolbar on load
-  /*
-    if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
-      int alpha = 0xff;
-      if (tipFrames <= 32) {
-        alpha = tipFrames*(256/32) - 8;
-      }
-      if (alpha > 0) {
+  if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
+    int alpha = 0xff;
+    if (tipFrames <= 32) {
+      alpha = tipFrames*(256/32) - 8;
+    }
+
+    if (alpha > 0) {
+      #ifdef __vita__
+        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH, 
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT,
+          MENU_TOOLTIP_WIDTH,
+          MENU_TOOLTIP_HEIGHT, 0x1D1616 | (alpha << 24));
+        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + MENU_TOOLTIP_PADDING,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
+           MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
+        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - (MENU_TOOLTIP_WIDTH/2) + (MENU_TOOLTIP_PADDING/2),
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
+          MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
+
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Tools");
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10 + 72,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Menu");
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Select");
+        FZScreen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15 + 75,
+          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Start");
+      #elif defined(PSP)
         texUI->bindForDisplay();
         FZScreen::ambientColor(0x222222 | (alpha << 24));
         drawPill(480 - 37 - 37 - 8, 272 - 18 - 4,
@@ -631,9 +587,9 @@ void BKDocument::render() {
         drawImage(480 - 37 - 2 - 2 - 37, 272 - 18,
           37, 18,
           75, 39);
-      }
+      #endif
     }
-  */
+  }
 
   // banner that shows page loading and current page number / number of pages
   if (bannerFrames > 0 && BKUser::options.displayLabels) {
@@ -661,146 +617,174 @@ void BKDocument::render() {
     }
   }
 
-  // if (mode != BKDOC_TOOLBAR)
-  // 	return;
+  if (mode != BKDOC_TOOLBAR)
+    return;
 
   // // all of the icons menus must have at least one item
 
   // // wrap menu indexes
-  /*
-    if (toolbarSelMenu >= 4)
-      toolbarSelMenu = 0;
-    if (toolbarSelMenu < 0)
-      toolbarSelMenu = 3;
-    if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
-      toolbarSelMenuItem = 0;
-    if (toolbarSelMenuItem < 0)
-      toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
-  */
+  if (toolbarSelMenu >= 4)
+    toolbarSelMenu = 0;
+  if (toolbarSelMenu < 0)
+    toolbarSelMenu = 3;
+  if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
+    toolbarSelMenuItem = 0;
+  if (toolbarSelMenuItem < 0)
+    toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
 
-  // const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
+  const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
 
   // // background
-  /*
-    #ifdef PSP
-      texUI->bindForDisplay();
-      FZScreen::ambientColor(0xf0222222);
-      drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
-    #elif defined(__vita__)
-      vita2d_draw_rectangle(20, 544 - 75, 960 - 46, 544, 0xf0222222);
-    #endif
-  */
+  #ifdef PSP
+    texUI->bindForDisplay();
+    FZScreen::ambientColor(0xf0222222);
+    drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(40, 544 - 150, 960 - 92, 544, 0xf0222222);
+  #endif
 
   // // context label
-  /*
-    #ifdef PSP
-      FZScreen::ambientColor(0xff555555);
-      //drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
-      drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
-    #elif defined(__vita__)
-      vita2d_draw_rectangle(25, 544 - 30, 960 - 57, 30, 0xff555555);
-    #endif
-  */
+  #ifdef PSP
+    FZScreen::ambientColor(0xff555555);
+    //drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
+    drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(96, 494, 768, 50, 0xff555555);
+  #endif
 
   // // selected column - decide if it overflows
-  /*
-    int ts = toolbarMenus[toolbarSelMenu].size();
-    int init = 0;
-    bool overflow = false;
-    int cs = ts;
-    if (ts > 5) {		// overflow mode
-      overflow = true;
-      init = toolbarSelMenuItem - 4;
-      if (init < 0)
-        init = 0;
-      ts = 5 + init;
-      cs = 5;
-    }
-  */
+  int ts = toolbarMenus[toolbarSelMenu].size();
+  int init = 0;
+  bool overflow = false;
+  int cs = ts;
+  if (ts > 5) { // overflow mode
+    overflow = true;
+    init = toolbarSelMenuItem - 4;
+    if (init < 0)
+      init = 0;
+    ts = 5 + init;
+    cs = 5;
+  }
 
   // // highlight icon column
-  /*
-    #ifdef PSP
-      FZScreen::ambientColor(0xf0555555);
-      drawPill(25 + toolbarSelMenu*55,
-        272 - 156 - cs*35+70,
-        40, cs*35+45,
-        6, 31, 1
-      );
-    #elif defined(__vita__)
-      vita2d_draw_rectangle(25 + toolbarSelMenu*55, (544 - 156 - (cs*35+70)), 40, (cs*35)+45, 0xf0555555);
-    #endif
-  */
+  #ifdef PSP
+    FZScreen::ambientColor(0xf0555555);
+    drawPill(25 + toolbarSelMenu*55,
+      272 - 156 - cs*35+70,
+      40, cs*35+45,
+      6, 31, 1
+    );
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(40 + toolbarSelMenu*75, 544 - 150 - (cs*55), 
+      85, (cs*55) + 65, 0xf0555555);
+  #endif
 
   // // selected icon item row
-  /*
-    FZScreen::ambientColor(0xf0cccccc);
-    int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
-    int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
-    if (iw < mw)
-      iw = mw;
-    int selItemI = overflow ?
-      toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
-      : toolbarSelMenuItem;
+  //FZScreen::ambientColor();
+  int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
+  int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
+  if (iw < mw)
+    iw = mw;
+  int selItemI = overflow ?
+    toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+    : toolbarSelMenuItem;
+  #ifdef PSP
     drawPill(
       30 + toolbarSelMenu*55,
       272 - 156 - selItemI*35+40,
       iw + 10 + 35,
       30,
       6, 31, 1);
-  */
+  #elif defined(__vita__)
+    vita2d_draw_rectangle(
+      60 + toolbarSelMenu*75 - 10,
+      544 - 140 - (selItemI*55) - 55,
+      iw + 10 + 35,
+      50,
+      0xf0cccccc);
+  #endif
 
   // // button icons
   /*
-    FZScreen::ambientColor(0xffcccccc);
-    int tw = textW((char*)it.circleLabel.c_str(), fontBig);
     if (it.circleLabel.size() > 0) {
-      drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+      #ifdef PSP
+        FZScreen::ambientColor(0xffcccccc);
+        int tw = textW((char*)it.circleLabel.c_str(), fontBig);
+        drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+      #elif defined(__vita__)
+        printf("here");
+        // vita2d_draw_texture(bk_bookmark_icon->vita_texture, 480 - 65, 248);
+      #endif
     }
+
     if (it.triangleLabel.size() > 0) {
-      drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+      #ifdef PSP
+        drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+      #elif defined(__vita__)
+      #endif
     }
   */
 
-  // // icon bar
-  // texUI2->bindForDisplay();
-  // FZScreen::ambientColor(0xffffffff);
+  // menu row
+  #ifdef PSP
+    drawImage(38 + 0*55, 205, 18, 26, 0, 0);
+    drawImage(38 + 1*55, 205, 18, 26, 19, 53);
+    drawImage(38 + 2*55, 205, 18, 26, 38, 53);
+    drawImage(38 + 3*55, 205, 19, 26, 19, 79);
+  #elif defined(__vita__)
+    vita2d_draw_texture_scale(bk_icons["bk_bookmark_icon"]->vita_texture, 60, MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-  // // menu row
-  // drawImage(38 + 0*55, 205, 18, 26, 0, 0);
-  // drawImage(38 + 1*55, 205, 18, 26, 19, 53);
-  // drawImage(38 + 2*55, 205, 18, 26, 38, 53);
-  // drawImage(38 + 3*55, 205, 19, 26, 19, 79);
+    vita2d_draw_texture_scale(bk_icons["bk_copy_icon"]->vita_texture, 60 + 75, MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+
+    vita2d_draw_texture_scale(bk_icons["bk_search_icon"]->vita_texture, 60 + 75 + 75 , MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+
+    vita2d_draw_texture_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + 75 + 75 + 75, MENU_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+  #endif
 
   // // selected column
-  /*
-    for (int i = init, j = 0; i < ts; i++, j++) {
-      const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
-      if (i == toolbarSelMenuItem)
-        FZScreen::ambientColor(0xff000000);
-      else
-        FZScreen::ambientColor(0xffffffff);
-      if (it2.iconW > 0)
-        drawImage(
-          40 + toolbarSelMenu*55,
-          272 - 156 - j*35+45,
-          it2.iconW, it2.iconH, it2.iconX, it2.iconY);
+  for (int i = init, j = 0; i < ts; i++, j++) {
+    const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
+    unsigned int color;
+    if (i == toolbarSelMenuItem)
+      color = 0xff000000;
+    else
+      color = 0xffffffff;
+    if (it2.iconName.size() > 0) {
+      // check map existance, just in case.
+      vita2d_draw_texture_tint_scale(bk_icons[it2.iconName]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
+    } else {
+      vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
     }
-  */
-
-  // fontBig->bindForDisplay();
+  }
+  
   // // item label for selected item
-  // FZScreen::ambientColor(0xff000000);
-  // drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
+  #ifdef PSP
+    fontBig->bindForDisplay();
+    FZScreen::ambientColor(0xff000000);
+    drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
+  #elif defined(__vita__)
+    vita2d_font_draw_text(fontBig->v_font, 
+      60 + toolbarSelMenu*75 - 10 + 55,
+      544 - 140 - (selItemI*55) - 55 + 25,
+      0xff000000, 28, it.label.c_str());
+  #endif
 
   // // button labels
-  // FZScreen::ambientColor(0xffcccccc);
-  // if (it.triangleLabel.size() > 0) {
-  // 	drawText((char*)it.triangleLabel.c_str(), fontBig, 37 + 25, 248);
-  // }
-  // if (it.circleLabel.size() > 0) {
-  // 	drawText((char*)it.circleLabel.c_str(), fontBig, 480 - tw - 40, 248);
-  // }
+  /*
+    FZScreen::ambientColor(0xffcccccc);
+    if (it.triangleLabel.size() > 0) {
+      drawText((char*)it.triangleLabel.c_str(), fontBig, 37 + 25, 248);
+    }
+    if (it.circleLabel.size() > 0) {
+      drawText((char*)it.circleLabel.c_str(), fontBig, 480 - tw - 40, 248);
+    }
+  */
 
   // // overflow indicators
   /*
@@ -811,12 +795,12 @@ void BKDocument::render() {
     }
   */
 
-
-  // string t;
-  // if (isPaginated()) {
-  // 	char tp[256];
-  // 	snprintf(tp, 256, "Page %d of %d", getCurrentPage(), getTotalPages());
-  // 	t = tp;
-  // }
-  // drawClockAndBattery(t);
+  string t;
+  if (isPaginated()) {
+    char tp[256];
+    snprintf(tp, 256, "Page %d of %d", getCurrentPage() + 1, getTotalPages());
+    t = tp;
+  }
+  
+  drawClockAndBattery(t);
 }

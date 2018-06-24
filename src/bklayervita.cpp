@@ -28,6 +28,13 @@
 
 #include "bklayer.h"
 
+// Yeah, ok.
+#ifdef __vita__
+  #define drawFontTextf(font, x, y, color, size, text, ...) vita2d_font_draw_textf(font->v_font, x, y, color, size, text, __VA_ARGS__)
+#else
+  #define drawFontTextf FZScreen::drawFontTextf
+#endif
+
 // need only one - UI font
 FZFont* BKLayer::fontBig = 0;
 FZFont* BKLayer::fontSmall = 0;
@@ -36,12 +43,8 @@ FZTexture* BKLayer::texUI = 0;
 FZTexture* BKLayer::texUI2 = 0;
 FZTexture* BKLayer::texLogo = 0;
 
-static FZTexture* bk_memory_icon;
-static FZTexture* bk_battery_icon;
-static FZTexture* bk_clock_icon;
-static FZTexture* bk_circle_icon;
-static FZTexture* bk_cross_icon;
-static FZTexture* bk_triangle_icon;
+const auto& createTexFromBuffer = FZTexture::createFromBuffer;
+map<string, FZTexture*> BKLayer::bk_icons;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
 
@@ -61,9 +64,26 @@ extern "C" {
   extern unsigned char _binary_data_icons_memory_png_start;
   extern unsigned char _binary_data_icons_battery_outline_png_start;
   extern unsigned char _binary_data_icons_clock_png_start;
+
   extern unsigned char _binary_data_icons_circle_outline_png_start;
   extern unsigned char _binary_data_icons_close_box_outline_png_start;
   extern unsigned char _binary_data_icons_triangle_outline_png_start;
+
+  extern unsigned char _binary_data_icons_collections_bookmark_white_png_start;
+  extern unsigned char _binary_data_icons_content_copy_white_png_start;
+  extern unsigned char _binary_data_icons_search_white_png_start;
+  extern unsigned char _binary_data_icons_rotate_left_white_png_start;
+  extern unsigned char _binary_data_icons_rotate_right_white_png_start;
+
+  extern unsigned char _binary_data_icons_bookmark_add_white_png_start;
+  extern unsigned char _binary_data_icons_first_page_png_start;
+  extern unsigned char _binary_data_icons_last_page_png_start;
+  extern unsigned char _binary_data_icons_previous_ten_png_start;
+  extern unsigned char _binary_data_icons_next_ten_png_start;
+  extern unsigned char _binary_data_icons_go_to_page_png_start;
+  extern unsigned char _binary_data_icons_zoom_out_white_png_start;
+  extern unsigned char _binary_data_icons_zoom_in_white_png_start;
+
   
   extern unsigned char _binary_sce_sys_icon0_t_png_start;
   extern unsigned int _binary_sce_sys_icon0_t_png_size;
@@ -73,30 +93,53 @@ void BKLayer::load() {
   #ifdef DEBUG
     printf("bklayer load\n");
   #endif
-  texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_sce_sys_icon0_t_png_start));
+  
+  texLogo = FZTexture::createFromBuffer(&_binary_sce_sys_icon0_t_png_start);
 
-  bk_memory_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_memory_png_start));
-  bk_battery_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_battery_outline_png_start));
-  bk_clock_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_clock_png_start));
+  // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
+  bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));
+  bk_icons.insert(make_pair("bk_battery_icon", createTexFromBuffer(&_binary_data_icons_battery_outline_png_start)));
+  bk_icons.insert(make_pair("bk_clock_icon", createTexFromBuffer(&_binary_data_icons_clock_png_start)));
 
-  bk_circle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_circle_outline_png_start));
-  bk_cross_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_close_box_outline_png_start));
-  bk_triangle_icon = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_data_icons_triangle_outline_png_start));
+  bk_icons.insert(make_pair("bk_circle_icon", createTexFromBuffer(&_binary_data_icons_circle_outline_png_start)));
+  bk_icons.insert(make_pair("bk_cross_icon", createTexFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
+  bk_icons.insert(make_pair("bk_triangle_icon", createTexFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
 
-  if (!fontBig){
-    fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
-  }
+  bk_icons.insert(make_pair("bk_bookmark_icon", createTexFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
+  bk_icons.insert(make_pair("bk_copy_icon", createTexFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
+  bk_icons.insert(make_pair("bk_search_icon", createTexFromBuffer(&_binary_data_icons_search_white_png_start)));
+  bk_icons.insert(make_pair("bk_rotate_left_icon", createTexFromBuffer(&_binary_data_icons_rotate_left_white_png_start)));
+  bk_icons.insert(make_pair("bk_rotate_right_icon", createTexFromBuffer(&_binary_data_icons_rotate_right_white_png_start)));
+
+  bk_icons.insert(make_pair("bk_add_bookmark_icon", createTexFromBuffer(&_binary_data_icons_bookmark_add_white_png_start)));
+  bk_icons.insert(make_pair("bk_first_page_icon", createTexFromBuffer(&_binary_data_icons_first_page_png_start)));
+  bk_icons.insert(make_pair("bk_last_page_icon", createTexFromBuffer(&_binary_data_icons_last_page_png_start)));
+  bk_icons.insert(make_pair("bk_prev_ten_icon", createTexFromBuffer(&_binary_data_icons_previous_ten_png_start)));
+  bk_icons.insert(make_pair("bk_next_ten_icon", createTexFromBuffer(&_binary_data_icons_next_ten_png_start)));
+  bk_icons.insert(make_pair("bk_go_to_page_icon", createTexFromBuffer(&_binary_data_icons_go_to_page_png_start)));
+  bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
+  bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
+
+  fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
 }
 
 void BKLayer::unload(){
   // do i need to do this?
   texLogo->release();
-  bk_memory_icon->release();
-  bk_battery_icon->release();
-  bk_clock_icon->release();
-  bk_circle_icon->release();
-  bk_cross_icon->release();
+
+  map<string, FZTexture*>::iterator it = bk_icons.begin();
+  while(it != bk_icons.end()) {
+    it->second->release();
+    it++;
+  }
+  #ifdef DEBUG
+    printf("finish icons unload\n");
+  #endif
+
   fontBig->release();
+  #ifdef DEBUG
+    printf("finish fontbig unload\n");
+  #endif
 }
 
 void BKLayer::drawImage(int x, int y) {
@@ -176,26 +219,26 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
   // 920
   // 544
   // backs
-  vita2d_draw_rectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR); // my cheapo drawTPill
+  FZScreen::drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR); // my cheapo drawTPill
 
   //title
-  vita2d_draw_rectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
+  FZScreen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
 
   //context label
-  vita2d_draw_rectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
+  FZScreen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
 
   //circle or other context
   // circleLabel
-  vita2d_font_draw_text(fontBig->v_font, DIALOG_ITEM_WIDTH - 70,
+  FZScreen::drawFontText(fontBig, DIALOG_ITEM_WIDTH - 70,
     DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, t);
 
   switch(BKUser::controls.select) {
     case FZ_REPS_CROSS:
-      vita2d_draw_texture_scale(bk_cross_icon->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
+      FZScreen::drawTextureScale(bk_icons["bk_cross_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
       break;
     case FZ_REPS_CIRCLE:
-      vita2d_draw_texture_scale(bk_circle_icon->vita_texture, DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
+      FZScreen::drawTextureScale(bk_icons["bk_circle_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
     default:
       break;
@@ -203,13 +246,13 @@ void BKLayer::drawDialogFrame(string& title, string& triangleLabel, string& circ
 
   //title
   // (255, 255, 255, 255)
-  vita2d_font_draw_text(fontBig->v_font, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
+  FZScreen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
 
   // triangle labels
   if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL)) {
-    vita2d_draw_texture_scale(bk_triangle_icon->vita_texture, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
+    FZScreen::drawTextureScale(bk_icons["bk_triangle_icon"], DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
-    vita2d_font_draw_text(fontBig->v_font, DIALOG_TITLE_TEXT_OFFSET_X + 60,
+    FZScreen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X + 60,
       DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, triangleLabel.c_str());
   }
 }
@@ -256,7 +299,7 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
 
   // selectedItem
   int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
-  vita2d_draw_rectangle(DIALOG_ITEM_OFFSET_X,
+  FZScreen::drawRectangle(DIALOG_ITEM_OFFSET_X,
     (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOG_MENU_ITEM_HEIGHT)),
     wSelBox, DIALOG_MENU_ITEM_HEIGHT, COLOR_WHITE);
 
@@ -271,13 +314,13 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
     float trel = float(topItem) / float(items.size());
     trel *= 73.0f;
 
-    vita2d_draw_rectangle(DIALOG_OFFSET_X + wSelBox + 20,
+    FZScreen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
       DIALOG_MENU_FIRST_ITEM_OFFSET_Y,
       40,
       DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - 30,
     0xff555555);
 
-    vita2d_draw_rectangle(DIALOG_OFFSET_X + wSelBox + 20,
+    FZScreen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
       DIALOG_MENU_FIRST_ITEM_OFFSET_Y + int(trel),
       40,
       DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - int(barh),
@@ -290,11 +333,11 @@ void BKLayer::drawMenu(string& title, string& triangleLabel, vector<BKMenuItem>&
       break;
 
     if ((i + topItem) == selItem)
-      vita2d_font_draw_text(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
+      FZScreen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
         (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
         COLOR_BLACK, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
     else
-      vita2d_font_draw_text(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
+      FZScreen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
         (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
         COLOR_WHITE, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
   }
@@ -328,10 +371,10 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
     y = (544 - h) / 2;
 
   // back
-  vita2d_draw_rectangle(80, y, 960 - 156, h, bg1);
+  FZScreen::drawRectangle(80, y, 960 - 156, h, bg1);
 
   // title
-  vita2d_draw_rectangle(90, 10 + y, 960 - 176, 30, bg2);
+  FZScreen::drawRectangle(90, 10 + y, 960 - 176, 30, bg2);
 
 
   // // icons
@@ -371,40 +414,42 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 
 void BKLayer::drawClockAndBattery(string& extra) {
   int ew = textW((char*)extra.c_str(), fontSmall);
-  // drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);
+  FZScreen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
+    DIALOG_ICON_TEXT_OFFSET_Y - 45,
+    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, extra.c_str());
 
   // cpu speed
-  vita2d_font_draw_textf(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 255,
+  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 255,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dMHz", FZScreen::getSpeed());
 
   // cpu icon
-  vita2d_draw_texture_tint_scale(bk_memory_icon->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 345, 
+  FZScreen::drawTextureTintScale(bk_icons["bk_memory_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 345, 
     DIALOG_ICON_OFFSET_Y, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // memory usage
-  vita2d_font_draw_textf(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 395,
+  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 395,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", FZScreen::getUsedMemory() / 1024);
 
   // battery icon
-  vita2d_draw_texture_tint_scale_rotate(bk_battery_icon->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 485,
+  FZScreen::drawTextureTintScaleRotate(bk_icons["bk_battery_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 485,
     DIALOG_ICON_OFFSET_Y + 17, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE,
     DEG_TO_RAD(90), DIALOG_ICON_COLOR);
 
   // battery %
-  vita2d_font_draw_textf(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 510,
+  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 510,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%d%%", FZScreen::getBattery());
 
   // clock icon
-  vita2d_draw_texture_tint_scale(bk_clock_icon->vita_texture, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
+  FZScreen::drawTextureTintScale(bk_icons["bk_clock_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_OFFSET_Y + 5, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // time text
   int h = 0, m = 0;
   FZScreen::getTime(h, m);
-  vita2d_font_draw_textf(fontBig->v_font, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 600,
+  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 600,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%02d:%02d", h, m);
 }

@@ -15,3 +15,5 @@ bookr.glfw
 src/bookrconfig.h
 
 ext/
+html/
+latex/

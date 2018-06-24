@@ -27,12 +27,24 @@
 */
 
 #include "fzfont.h"
+// TODO: Figure out how to remove this.
+#if defined(__vita__) && defined(DEBUG)
+  #include <psp2/kernel/clib.h>
+  #define printf sceClibPrintf
+#endif
 
 FZFont::FZFont() : metrics(0),isUTF(false),ftlib(0),ftface(0) {
+  printf("FZFont()\n");
 }
 
+#ifdef __vita__
 FZFont::~FZFont() {
-  vita2d_free_font(v_font);
+  #ifdef DEBUG
+    printf("~FZFont()\n");
+  #endif
+
+  if (v_font != NULL)
+    vita2d_free_font(v_font);
 }
 
 FZFont* FZFont::createFromFile(char* fileName, int fontSize) {
@@ -42,7 +54,24 @@ FZFont* FZFont::createFromFile(char* fileName, int fontSize) {
 }
 
 FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize) {
+  #ifdef DEBUG
+    printf("FZFont::createFromMemory()\n");
+  #endif
   FZFont* font = new FZFont();
   font->v_font = vita2d_load_font_mem(buffer, bufferSize);
   return font;
 }
+#elif defined(SWITCH)
+FZFont::~FZFont() {
+}
+
+FZFont* FZFont::createFromFile(char* fileName, int fontSize) {
+  FZFont* font = new FZFont();
+  return font;
+}
+
+FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize) {
+  FZFont* font = new FZFont();
+  return font;
+}
+#endif

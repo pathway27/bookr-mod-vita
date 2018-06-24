@@ -49,12 +49,15 @@ private:
 		int lines;
 		int minWidth;
 		string label;
-		string botLabelLeft;
-		string botLabelRight;
+		string iconName;
 		string circleLabel;
 		string triangleLabel;
+		string botLabelLeft;
+		string botLabelRight;
 		int iconX, iconY, iconW, iconH;
-		ToolbarItem() : lines(1), minWidth(100) { }
+		ToolbarItem(string label = "", string iconName = "", string circleLabel = "", string triangleLabel = "")
+		 : lines(1), minWidth(100),
+		 label(label), iconName(iconName), circleLabel(circleLabel), triangleLabel(triangleLabel) { }
 	};
 
 	int toolbarSelMenu;

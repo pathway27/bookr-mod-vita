@@ -40,11 +40,10 @@
 #include <malloc.h>
 #include <errno.h>
 
-#include <psp2/io/fcntl.h>
-
-extern "C" {
-  #include <mupdf/fitz.h>
-}
+#ifdef __vita__
+  #include <psp2/io/fcntl.h>
+  extern int _newlib_heap_size_user;
+#endif
 
 #include "bkmudocument.h"
 #include "../bkbookmark.h"
@@ -52,17 +51,22 @@ extern "C" {
 
 using namespace std;
 
-extern int _newlib_heap_size_user;
-
 // make sure only one document is open, do we need this?
 // vita can probably do multiple.
 static BKMUDocument* mudoc_singleton = nullptr;
 // texture of current pixmap, TODO: generic fztexture
+#ifdef __vita__
 static vita2d_texture *texture;
+#elif defined(SWITCH)
+#endif
+
+// These will crash...
+//, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
+
 static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
   1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f };
-  // These will crash...
-  //, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
+static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
+
 
 BKMUDocument::BKMUDocument(string& f) : 
   m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
@@ -75,11 +79,18 @@ BKMUDocument::BKMUDocument(string& f) :
 
   filename = string(f);
   m_rotate = 0.0f;
+  rotateLevel = 0;
   m_width = FZ_SCREEN_WIDTH;
   m_height = FZ_SCREEN_HEIGHT;
 
   // Initalize fitz context
-  m_ctx = fz_new_context(nullptr, nullptr, _newlib_heap_size_user);
+  m_ctx = fz_new_context(nullptr, nullptr,
+  #ifdef __vita__
+    _newlib_heap_size_user
+  #elif defined(SWITCH)
+    FZ_STORE_DEFAULT
+  #endif
+  );
 
   if (m_ctx)
     fz_register_document_handlers(m_ctx);
@@ -175,7 +186,7 @@ bool BKMUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("fz_load\n");
   #endif
-
+  
   // bounds for inital window size
   fz_bound_page(m_ctx, m_page, &m_bounds);
   if (m_fitWidth) {
@@ -189,9 +200,18 @@ bool BKMUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("bound_page; m_scale: %2.3gx, zoomLevel: %i\n", m_scale, zoomLevel);
   #endif
+  
+  fz_rect rect = m_bounds;
+  fz_matrix matrix;
 
   fz_scale(&m_transform, m_scale, m_scale);
   fz_pre_rotate(&m_transform, m_rotate);
+  
+  // fix the page origin at 0,0 after rotation
+  fz_transform_rect(&rect, &m_transform);
+  fz_translate(&matrix, -rect.x0, -rect.y0);
+  fz_concat(&m_transform, &m_transform, &matrix);
+
   fz_transform_rect(&m_bounds, &m_transform);
 
   #ifdef DEBUG
@@ -211,14 +231,17 @@ bool BKMUDocument::redrawBuffer() {
     printf("new_pixmap n: %i \n", m_pix->n);
   #endif
 
-  // Crashes due to GPU memory use without this.
-  vita2d_free_texture(texture);
+  #ifdef __vita__
+    // Crashes due to GPU memory use without this.
+    vita2d_free_texture(texture);
 
-  #ifdef DEBUG
-    printf("post vita2d_free_texture\n");
+    #ifdef DEBUG
+      printf("post vita2d_free_texture\n");
+    #endif
+
+    texture = _vita2d_load_pixmap_generic(m_pix);
+
   #endif
-
-  texture = _vita2d_load_pixmap_generic(m_pix);
 
   #ifdef DEBUG
     printf("post _vita2d_load_pixmap_generic\n");
@@ -272,7 +295,9 @@ void BKMUDocument::renderContent() {
   #endif
 
   FZScreen::clear(0xefefef, FZ_COLOR_BUFFER);
-  vita2d_draw_texture(texture, panX, panY);
+  #ifdef __vita__
+    vita2d_draw_texture(texture, panX, panY);
+  #endif
 
   // TODO: Show Page Error, don"t draw texture then.
   // if (pageError) {
@@ -403,12 +428,13 @@ int BKMUDocument::pan(int x, int y) {
     printf("INPUT x %i y %i\n", x, y);
   #endif
   
-  // printf("%f %f %f %f\n", m_bounds.x0, m_bounds.x1, m_bounds.y0, m_bounds.y1);
-  
   if (abs(x) <= FZ_ANALOG_THRESHOLD &&
       abs(y) <= FZ_ANALOG_THRESHOLD)
     return 0;
 
+  #ifdef DEBUG
+    printf("panX: %f panY: %f\n x1:%f y1:%f\n x0:%f y0:%f\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
+  #endif
   // TODO: Choose invert analog settings
   // if settings.invertAnalog
   // x = -x
@@ -524,14 +550,53 @@ int BKMUDocument::screenRight() {
 }
 
 bool BKMUDocument::isRotable() {
-  return false;
+  return true;
 }
 
 int BKMUDocument::getRotation() {
-  return 0;
+  return rotateLevel;
 }
 
 int BKMUDocument::setRotation(int r, bool bForce) {
+  #ifdef DEBUG
+
+  #endif
+
+  if (r == rotateLevel)
+    return 0;
+
+  if (r < 0)
+    r = 3;
+  if (r >= 4)
+    r = 0;
+
+  rotateLevel = r;
+  m_rotate = rotateLevels[rotateLevel];
+
+  // reset zoom?
+  // float nx = float(panX);
+  // float ny = float(panY);
+  // clipCoords(nx, ny);
+  // panX = int(nx);
+  // panY = int(ny);
+
+  char t[256];
+  snprintf(t, 256, "Rotate to %3.3g°", m_rotate);
+  setBanner(t);
+
+  panX = 0;
+  panY = 0;
+
+  // if (BKUser::options.pdfFastScroll) {
+  // //pdfRenderFullPage(ctx);
+  //   loadNewPage = true;
+  //   return BK_CMD_MARK_DIRTY;
+  // }
+
+  // redrawBuffer();
+  // return BK_CMD_MARK_DIRTY;
+  redrawBuffer();
+
   return 0;
 }
 

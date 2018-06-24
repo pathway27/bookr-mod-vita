@@ -1,25 +1,7 @@
 ## bookr-mod-vita
 
-A document reader for the PSVita ported from the amalgamation of the PSP application bookr and its' various [forks](https://github.com/pathway27/bookr-mod-vita/blob/master/forks.md).  
+A document reader for the PSVita ported from the PSP application bookr-mod, canonically based on the [HBS](https://github.com/pathway27/bookr-mod-vita/tree/bookr-hbs) version.  
 You can find some [notes here](https://github.com/pathway27/bookr-mod-vita/blob/master/notes.md).
-
-## Building
-
-### For VITA (on *nix)
-
-```sh
-# Setup VITA development evironment: https://henkaku.xyz/developer/
-git clone --recursive https://github.com/pathway27/bookr-mod-vita
-# run pngquant on all your png images if not done already
-./build.sh # Creates a build folder with vpk
-# Install .vpk
-
-# For devs - replace with your VITA ftp ip (assumes vpk was installed once)
-export PSVITAIP=IP-HERE
-cd build && make send
-```
-
-See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/BUILDING.md) for OpenGL version.
 
 ## Installation and Usage
 
@@ -45,19 +27,38 @@ Left Analog Stick - Free Pan with Bounds
 Start - Show/Hide Menu
 ```
 
+## Building
+
+### For VITA (on *nix)
+
+```sh
+# Setup VITA development evironment: https://henkaku.xyz/developer/
+git clone --recursive https://github.com/pathway27/bookr-mod-vita
+# run pngquant on all your png images if not done already
+mkdir -p vita/Release && cd vita/Release
+make
+# Install .vpk
+
+# For devs - replace with your VITA ftp ip (assumes vpk was installed once)
+export PSVITAIP=IP-HERE
+make send
+```
+
+See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/BUILDING.md) for OpenGL version.
+
 
 ## Thanks
 
 - [Original and Forks](https://github.com/pathway27/bookr-mod-vita/blob/master/forks.md)
 - Team Molecule
-- VITA hacking/dev. scene
+- VITA Hacking/Dev. Scene
 - libvita2d - xerpi
 - [learnopengl.com](learnopengl.com)
-- peeps on vitasdk/henkaku on freenode and discord
-- people that read
+- People on vitasdk/henkaku on freenode and discord
+- People that read
 
 
 ## License
 
-Licensed under GNU GPLv3+, see [LICENSE](https://github.com/pathway27/bookr-mod-vita/blob/master/LICENSE).  
+Licensed under GNU GPLv3+, see [LICENSE.md](https://github.com/pathway27/bookr-mod-vita/blob/master/LICENSE).  
 Third party libraries have their own licenses can be found in their own directories under `ext`.
