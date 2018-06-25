@@ -164,7 +164,7 @@ int BKLayer::textWidthRange(char* t, int n, FZFont* font) {
 }
 
 int BKLayer::textW(char* t, FZFont* font) {
-  return 0;
+  return 20 * strlen(t);
 }
 
 void BKLayer::drawTextHC(char* t, FZFont* font, int y) {

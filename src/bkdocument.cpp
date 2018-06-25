@@ -699,7 +699,7 @@ void BKDocument::render() {
     vita2d_draw_rectangle(
       60 + toolbarSelMenu*75 - 10,
       544 - 140 - (selItemI*55) - 55,
-      iw + 10 + 35,
+      iw,
       50,
       0xf0cccccc);
   #endif
@@ -770,8 +770,8 @@ void BKDocument::render() {
     drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
   #elif defined(__vita__)
     vita2d_font_draw_text(fontBig->v_font, 
-      60 + toolbarSelMenu*75 - 10 + 55,
-      544 - 140 - (selItemI*55) - 55 + 25,
+      60 + toolbarSelMenu*75 - 10 + 70,
+      544 - 140 - (selItemI*55) - 55 + 33,
       0xff000000, 28, it.label.c_str());
   #endif
 
