@@ -331,9 +331,11 @@ void BKDocument::buildToolbarMenus() {
 
     if (hasZoomToFit()) {
       i.label = "Fit height";
+      i.iconName = "bk_fit_height_icon";
       toolbarMenus[2].push_back(i);
 
       i.label = "Fit width";
+      i.iconName = "bk_fit_width_icon";
       toolbarMenus[2].push_back(i);
     }
 
@@ -394,11 +396,14 @@ int BKDocument::processEventsForToolbar() {
 
   if (b[BKUser::controls.alternate] == 1) {
     // delete bookmark
+    // TODO: deleting first bookmark when there's more than one = crash
+    //       deletes all bookmarks...?
     if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
       string fn;
       getFileName(fn);
       BKBookmarkListIt it(bookmarkList.begin());
-      int di =  toolbarSelMenuItem - 1;
+      int di = toolbarSelMenuItem - 1;
+      printf("delete bookmark: %i\n", di);
       for (int i = 0; i < di; i++, it++);
       bookmarkList.erase(it);
       BKBookmarksManager::setBookmarks(fn, bookmarkList);
