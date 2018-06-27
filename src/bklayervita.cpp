@@ -81,6 +81,9 @@ extern "C" {
   extern unsigned char _binary_data_icons_previous_ten_png_start;
   extern unsigned char _binary_data_icons_next_ten_png_start;
   extern unsigned char _binary_data_icons_go_to_page_png_start;
+
+  extern unsigned char _binary_data_icons_fit_height_png_start;
+  extern unsigned char _binary_data_icons_fit_width_png_start;
   extern unsigned char _binary_data_icons_zoom_out_white_png_start;
   extern unsigned char _binary_data_icons_zoom_in_white_png_start;
 
@@ -117,6 +120,9 @@ void BKLayer::load() {
   bk_icons.insert(make_pair("bk_prev_ten_icon", createTexFromBuffer(&_binary_data_icons_previous_ten_png_start)));
   bk_icons.insert(make_pair("bk_next_ten_icon", createTexFromBuffer(&_binary_data_icons_next_ten_png_start)));
   bk_icons.insert(make_pair("bk_go_to_page_icon", createTexFromBuffer(&_binary_data_icons_go_to_page_png_start)));
+  
+  bk_icons.insert(make_pair("bk_fit_height_icon", createTexFromBuffer(&_binary_data_icons_fit_height_png_start)));
+  bk_icons.insert(make_pair("bk_fit_width_icon", createTexFromBuffer(&_binary_data_icons_fit_width_png_start)));
   bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
   bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
 

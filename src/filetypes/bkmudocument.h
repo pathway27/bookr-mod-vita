@@ -54,6 +54,7 @@ private:
   int m_pages;
   bool m_curPageLoaded;
   bool m_fitWidth;
+  bool m_fitHeight;
 
   bool loadNewPage;
   bool zooming;

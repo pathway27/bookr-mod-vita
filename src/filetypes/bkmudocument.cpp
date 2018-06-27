@@ -71,7 +71,7 @@ static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
 BKMUDocument::BKMUDocument(string& f) : 
   m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
   m_pageText(nullptr), m_links(nullptr), panX(0), panY(0), m_current_page(0),
-  m_curPageLoaded(false), m_fitWidth(true), zoomLevel(8)
+  m_curPageLoaded(false), m_fitWidth(true), m_fitHeight(false), zoomLevel(8)
 {
   #ifdef DEBUG
     printf("BKMUDocument::BKMUDocument f: %s, filename: %s\n", f.c_str(), filename.c_str());
@@ -195,6 +195,12 @@ bool BKMUDocument::redrawBuffer() {
     auto const it = std::lower_bound(vec.begin(), vec.end(), m_scale);
     if (it != vec.end())
       zoomLevel = it - vec.begin();
+  } else if (m_fitHeight) {
+    m_scale = m_height / (m_bounds.y1 - m_bounds.y0);
+    vector<float> vec(std::begin(zoomLevels), std::end(zoomLevels));
+    auto const it = std::lower_bound(vec.begin(), vec.end(), m_scale);
+    if (it != vec.end())
+      zoomLevel = it - vec.begin();
   }
 
   #ifdef DEBUG
@@ -311,7 +317,7 @@ void BKMUDocument::renderContent() {
 }
 
 int BKMUDocument::getTotalPages() {
-  return m_pages;
+  return m_pages - 1;
 }
 
 int BKMUDocument::getCurrentPage() {
@@ -319,9 +325,10 @@ int BKMUDocument::getCurrentPage() {
 }
 
 int BKMUDocument::setCurrentPage(int page_number) {
+  // TOOD: Don't change page if changing to same page we'r on.
   if (page_number < 0 || page_number >= m_pages)
     // TODO(UI): Some visual notice of start or end
-    return 1;
+    setBanner("Invalid");
   else {
     loadNewPage = true;
     m_current_page = page_number;
@@ -330,8 +337,9 @@ int BKMUDocument::setCurrentPage(int page_number) {
     snprintf(t, 256, "Loading page %d", m_current_page + 1);
     setBanner(t);
     
-    return 0;
+    
   }
+  return 0;
 }
 
 bool BKMUDocument::isMUDocument(string& file) {
@@ -496,6 +504,7 @@ int BKMUDocument::setZoomLevel(int z) {
     return 0;
 
   m_fitWidth = false;
+  m_fitHeight = false;
   zooming = true;
   int n = sizeof(zoomLevels)/sizeof(float);
   zoomLevel = z;
@@ -527,14 +536,20 @@ int BKMUDocument::setZoomLevel(int z) {
 }
 
 bool BKMUDocument::hasZoomToFit() {
-  return false;
+  return true;
 }
 
 int BKMUDocument::setZoomToFitWidth() {
+  m_fitWidth = true;
+  m_fitHeight = false;
+  redrawBuffer();
   return 0;
 }
 
 int BKMUDocument::setZoomToFitHeight() {
+  m_fitWidth = false;
+  m_fitHeight = true;
+  redrawBuffer();
   return 0;
 }
 
@@ -623,5 +638,10 @@ int BKMUDocument::setBookmarkPosition(map<string, int>& m) {
   return BK_CMD_MARK_DIRTY;
 }
 
-void BKMUDocument::getTitle(string&) {}
-void BKMUDocument::getType(string&) {}
+void BKMUDocument::getTitle(string& t) {
+  t = "title";
+}
+
+void BKMUDocument::getType(string& t) {
+  t = "MUDoc";
+}
