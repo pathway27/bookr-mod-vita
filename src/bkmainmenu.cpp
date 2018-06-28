@@ -306,6 +306,7 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			This program is licensed under the terms of the GNU GPLv3+.\n\n\
 			This program uses the following libraries/projects:\n\
 			  vita2d by xerpi under MIT.\n\
+				psp2shell by Cpasjuste under GPLv3 \n\
 			  MuPDF by ArtifexSoftware under AGPL v3.\n\n\
 			Thanks to:\n\
 			  Team Molecule for Henkaku\n\
