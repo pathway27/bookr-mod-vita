@@ -20,6 +20,8 @@
  */
 
 #include <string.h>
+#include <mupdf/fitz/version.h>
+
 #include "graphics/fzscreen.h"
 
 #include "bkmainmenu.h"
@@ -305,9 +307,9 @@ int BKMainMenu::updateMain(unsigned int buttons) {
 			AND VARIOUS OTHER FORKS\n\n\
 			This program is licensed under the terms of the GNU GPLv3+.\n\n\
 			This program uses the following libraries/projects:\n\
-			  vita2d by xerpi under MIT.\n\
-				psp2shell by Cpasjuste under GPLv3 \n\
-			  MuPDF by ArtifexSoftware under AGPL v3.\n\n\
+			  MuPDF v" + FZ_VERSION + " by ArtifexSoftware under AGPL v3\n\
+			  vita2d by xerpi under MIT\n\
+			  psp2shell by Cpasjuste under GPLv3\n\n\
 			Thanks to:\n\
 			  Team Molecule for Henkaku\n\
 			  VITA SDK Contibutors\n\
