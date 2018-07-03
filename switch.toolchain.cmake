@@ -73,25 +73,27 @@ macro(switch_create_pfs0 target source)
 
   add_custom_target(create-exefs ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory exefs
+    DEPENDS ${source}.nso
   )
 
   add_custom_target(exefs-main
     COMMAND ${CMAKE_COMMAND} -E copy
     "${source}.nso"
     "${CMAKE_BINARY_DIR}/exefs/main"
+    DEPENDS create-exefs
   )
 
   add_custom_target(${target} ALL
     COMMAND ${SWITCH_BUILD_PFS0} exefs ${target}
-    DEPENDS ${source}.nso
+    DEPENDS exefs-main
     COMMENT "Building ${target}"
   )
-  add_dependencies(${target} create-exefs exefs-main)
 endmacro(switch_create_pfs0)
 
-macro(switch_create_nacp target)
+macro(switch_create_nacp target source)
   add_custom_target(${target} ALL
     COMMAND ${SWITCH_NACPTOOL} --create ${SWITCH_APP_TITLE} ${SWITCH_AUTHOR} ${SWITCH_VERSION} ${target}
+    DEPENDS ${source}
     COMMENT "Building ${target}"
   )
 endmacro(switch_create_nacp)
@@ -100,7 +102,6 @@ macro(switch_create_nro target source)
   add_custom_target(${target} ALL
     COMMAND ${SWITCH_ELF2NRO} ${source} ${target}
     DEPENDS ${source}
-    COMMENT "Building ${target}.nro"
+    COMMENT "Building ${target}"
   )
-  add_dependencies(${target} ${source})
 endmacro(switch_create_nro)

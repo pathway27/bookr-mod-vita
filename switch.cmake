@@ -49,6 +49,6 @@ target_link_libraries(bookr-modern
   tinyxml2
 )
 
-switch_create_pfs0(helloworld.pfs0 bookr-modern)
-switch_create_nacp(helloworld.nacp)
-switch_create_nro(helloworld.nro bookr-modern)
+switch_create_pfs0(bookr-modern.pfs0 bookr-modern)
+switch_create_nacp(bookr-modern.nacp bookr-modern.pfs0)
+switch_create_nro(bookr-modern.nro bookr-modern)
