@@ -29,16 +29,17 @@
 #include "fzscreen.h"
 #include "fztexture.h"
 
+// Move this to constructor?
+void FZScreen::open(int argc, char** argv) {
+  
+}
+
+
 int FZScreen::setupCallbacks(void) {
   return 0;
 }
 
 static void initalDraw() {
-
-}
-
-// Move this to constructor?
-void FZScreen::open(int argc, char** argv) {
 
 }
 

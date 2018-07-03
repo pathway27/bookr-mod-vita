@@ -26,8 +26,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <switch.h>
+
 #include "fzscreen.h"
 #include "fztexture.h"
+
+
+static string sw_full_path;
+static void initalDraw();
+// Move this to constructor?
+void FZScreen::open(int argc, char** argv) {
+  // INIT GRAPHICS
+  gfxInitDefault();
+
+  consoleInit(NULL);
+  printf("\x1b[16;20HHello World!");
+
+  sw_full_path = "/";
+
+  struct stat st = {0};
+  if (stat("/data/Bookr", &st) == -1) {
+    mkdir("/data/Bookr", 0700);
+  }
+
+  #ifdef DEBUG
+    initalDraw();
+  #endif
+}
+
+static void initalDraw() {
+  while(appletMainLoop()) {
+    //Scan all the inputs. This should be done once for each frame
+    hidScanInput();
+
+    //hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
+    u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+
+    if (kDown & KEY_PLUS) break; // break in order to return to hbmenu
+
+    gfxFlushBuffers();
+    gfxSwapBuffers();
+    gfxWaitForVsync();
+  }
+
+  gfxExit();
+}
+
+
+
 
 static bool closing = false;
 
@@ -126,44 +172,7 @@ static void * ptr_align64_uncached(unsigned long ptr) {
 }
 
 
-static string psv_full_path;
-static vita2d_pgf *pgf;
-static void initalDraw() {
-    vita2d_start_drawing();
-    vita2d_clear_screen();
 
-    vita2d_pgf_draw_text(pgf, 700, 30, RGBA8(255,255,255,255), 1.0f, "Hello in PGF");
-    #ifdef __vita__
-      vita2d_pgf_draw_text(pgf, 700, 207, RGBA8(255,255,255,255), 1.0f, "UTF-8 しません");
-      //vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
-    #endif
-
-    vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
-
-    vita2d_end_drawing();
-    vita2d_swap_buffers();
-}
-
-// Move this to constructor?
-void FZScreen::open(int argc, char** argv) {
-  setupCallbacks();
-
-  vita2d_init();
-  vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
-
-  pgf = vita2d_load_default_pgf();
-
-  psv_full_path = "ux0:";
-
-  struct stat st = {0};
-  if (stat("ux0:data/Bookr", &st) == -1) {
-      sceIoMkdir("ux0:data/Bookr", 0700);
-  }
-
-  #ifdef DEBUG
-      initalDraw();
-  #endif
-}
 
 void FZScreen::close() {
   vita2d_fini();
