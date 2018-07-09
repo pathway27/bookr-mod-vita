@@ -321,6 +321,7 @@ void BKBookmarksManager::setBookmarks(string& filename, BKBookmarkList &bl) {
 		++it;
 	}
 	saveXML();
+	doc = 0;
 }
 
 void BKBookmarksManager::clear() {
