@@ -60,6 +60,8 @@ class BKBookmarksManager {
 	static void setBookmarks(string& filename, BKBookmarkList&);
 	// add a new bookmark for a file
 	static void addBookmark(string& filename, BKBookmark& b);
+	// remove a bookmark for a file
+	static void removeBookmark(string& filename, int index);
 	// clears everything
 	static void clear();
 };

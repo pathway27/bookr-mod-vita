@@ -284,15 +284,44 @@ void BKBookmarksManager::addBookmark(string& filename, BKBookmark& b) {
 	saveXML();
 }
 
+void BKBookmarksManager::removeBookmark(string& filename, int index) {
+	#ifdef DEBUG
+		printf("BKBookmarksManager::removeBookmark\n");
+	#endif
+
+	XMLNode* file = loadOrAddFileNode(filename);
+	#ifdef DEBUG
+		printf("BKBookmarksManager::removeBookmark - loadOrAddFileNode\n");
+	#endif
+	XMLNode* nodeToDelete = file->FirstChildElement("bookmark");
+	#ifdef DEBUG
+		printf("BKBookmarksManager::removeBookmark - FirstChildElement\n");
+	#endif
+	int count = 0;
+	while(count != index) {
+		nodeToDelete = nodeToDelete->NextSibling();
+		count++;
+	}
+	doc->DeleteNode(nodeToDelete);
+	saveXML();
+}
+
 // load all the bookmarks for a given file
 void BKBookmarksManager::getBookmarks(string& filename, BKBookmarkList &bl) {
 	#ifdef DEBUG
 		printf("BKBookmarksManager::getBookmarks\n");
 	#endif
 
-	XMLNode* file = fileNode(filename);
-	if (file == 0)
+	XMLNode* file = loadOrAddFileNode(filename);
+	#ifdef DEBUG
+		printf("BKBookmarksManager::getBookmarks - post filenode\n");
+	#endif
+	if (file == 0){
+		#ifdef DEBUG
+			printf("BKBookmarksManager::getBookmarks - file == 0 %i\n", file);
+		#endif
 		return;
+	}
 	XMLElement* bookmark = file->FirstChildElement();
 	while (bookmark != 0) {
 		if (strncmp(bookmark->Value(), "bookmark", 1024) == 0) {

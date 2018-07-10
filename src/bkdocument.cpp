@@ -401,12 +401,9 @@ int BKDocument::processEventsForToolbar() {
     if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
       string fn;
       getFileName(fn);
-      BKBookmarkListIt it(bookmarkList.begin());
       int di = toolbarSelMenuItem - 1;
       printf("delete bookmark: %i\n", di);
-      for (int i = 0; i < di; i++, it++);
-      bookmarkList.erase(it);
-      BKBookmarksManager::setBookmarks(fn, bookmarkList);
+      BKBookmarksManager::removeBookmark(fn, di);
       buildToolbarMenus();
       return BK_CMD_MARK_DIRTY;
     }
