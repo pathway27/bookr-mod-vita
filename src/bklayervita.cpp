@@ -170,7 +170,7 @@ int BKLayer::textWidthRange(char* t, int n, FZFont* font) {
 }
 
 int BKLayer::textW(char* t, FZFont* font) {
-  return 20 * strlen(t);
+  return font->fontTextWidth(t);
 }
 
 void BKLayer::drawTextHC(char* t, FZFont* font, int y) {
@@ -419,7 +419,7 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 
 
 void BKLayer::drawClockAndBattery(string& extra) {
-  int ew = textW((char*)extra.c_str(), fontSmall);
+  // int ew = textW((char*)extra.c_str(), fontSmall);
   FZScreen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_TEXT_OFFSET_Y - 45,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, extra.c_str());
