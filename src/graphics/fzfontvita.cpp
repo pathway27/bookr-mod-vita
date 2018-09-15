@@ -59,7 +59,16 @@ FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize) {
   #endif
   FZFont* font = new FZFont();
   font->v_font = vita2d_load_font_mem(buffer, bufferSize);
+  font->fontSize = 28;
   return font;
+}
+
+int FZFont::fontTextWidth(const char *text)
+{
+  #ifdef DEBUG
+    printf("FZFont::fontTextWidth() - %i\n", vita2d_font_text_width(v_font, fontSize, text));
+  #endif
+  return vita2d_font_text_width(v_font, fontSize, text);
 }
 #elif defined(SWITCH)
 FZFont::~FZFont() {

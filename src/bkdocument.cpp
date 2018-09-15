@@ -278,6 +278,10 @@ int BKDocument::processEventsForView() {
 }
 
 void BKDocument::buildToolbarMenus() {
+  #ifdef DEBUG
+		printf("BKBookmarksManager::buildToolbarMenus\n");
+	#endif
+
   toolbarMenus[0].clear();
   if (isBookmarkable()) {
     ToolbarItem i("Add bookmark", "bk_add_bookmark_icon", "Select");
@@ -701,7 +705,7 @@ void BKDocument::render() {
     vita2d_draw_rectangle(
       60 + toolbarSelMenu*75 - 10,
       544 - 140 - (selItemI*55) - 55,
-      iw,
+      60 + 20 + iw,
       50,
       0xf0cccccc);
   #endif

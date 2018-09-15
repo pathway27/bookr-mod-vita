@@ -37,6 +37,13 @@
 			<viewdata key="" value=""/>
 			...
 		</bookmark>
+		<bookmark ... >
+			<viewdata key="" value=""/>
+			<viewdata key="" value=""/>
+			<viewdata key="" value=""/>
+			<viewdata key="" value=""/>
+			...
+		</bookmark>
 	</file>
 	<lastfile filename=""/>
 </bookmarks>
@@ -66,7 +73,6 @@ static void clearXML() {
 	#else
 		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
 	#endif
-	
 
 	doc->SaveFile(xmlfilename);
 }
@@ -92,6 +98,7 @@ static void loadXML() {
 
 	if(doc->Error()) {
 		// probably file not found, create an empty one
+		printf("doc Error\n");
 		clearXML();
 	}
 
@@ -128,14 +135,27 @@ static void saveXML() {
 
 static XMLNode* fileNode(string& filename) {
 	#ifdef DEBUG
-		printf("fileNode\n");
+		printf("fileNode(%s)\n", filename.c_str());
 	#endif
 
+	#ifdef DEBUG
+		printf("fileNode - pre load xml\n");
+	#endif
 	if (doc == 0)
 		loadXML();
+
+	#ifdef DEBUG
+		printf("fileNode - post load xml\n");
+	#endif
 	XMLElement* file = root->FirstChildElement("file");
+	#ifdef DEBUG
+		printf("fileNode - file ass. xml\n");
+	#endif
 	while (file) {
 		const char* name = file->Attribute("filename");
+		#ifdef DEBUG
+			printf("fileNode - %s\n", name);
+		#endif
 		if (name != 0) {
 			if (strncmp(filename.c_str(), name, 1024) == 0)
 				return file;
@@ -258,6 +278,9 @@ static void addBookmarkProto(string& filename, BKBookmark& b, XMLNode* file) {
 	//bookmark->SetAttribute("zoomvalue", b.zoom);
 	//bookmark.SetAttribute("thumbnail", );
 	map<string, int>::iterator it(b.viewData.begin());
+	#ifdef DEBUG
+		printf("addBookmarkProto: title: %s page: %i\n", b.title.c_str(), b.page);
+	#endif
 	while (it != b.viewData.end()) {
 		XMLElement *vd = doc->NewElement("viewdata");
 		vd->SetAttribute("key", (*it).first.c_str());

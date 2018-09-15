@@ -79,6 +79,7 @@ public:
   void doneUTFFont();
   static int get_next_utf8_char(unsigned long*, const char*, int);
   FZTexture* getTextureFromString(const char* t,int char_gap);
+  int fontTextWidth(const char *text);
   
   /**
    * Create a new font texture with Freetype.
