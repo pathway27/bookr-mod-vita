@@ -65,7 +65,7 @@ FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize) {
 
 int FZFont::fontTextWidth(const char *text)
 {
-  #ifdef DEBUG
+  #ifdef DEBUG_BUTTONS
     printf("FZFont::fontTextWidth() - %i\n", vita2d_font_text_width(v_font, fontSize, text));
   #endif
   return vita2d_font_text_width(v_font, fontSize, text);

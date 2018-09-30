@@ -186,16 +186,33 @@ bool BKMUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("fz_load\n");
   #endif
-  
+
   // bounds for inital window size
   fz_bound_page(m_ctx, m_page, &m_bounds);
+  #ifdef DEBUG
+    printf("bound_page; (%f, %f) - (%f, %f)\n", m_bounds.x0, m_bounds.y0, m_bounds.y0, m_bounds.y1);
+  #endif
+
+  fz_matrix rotation_matrix;
+  fz_matrix scaling_matrix;
+  fz_matrix translation_matrix;
+
+  // Rotate first since co-ords can be negative
+  fz_rotate(&rotation_matrix, m_rotate); // m_t = rotate * scaling_matrix
+  fz_transform_rect(&m_bounds, &rotation_matrix);
+
+  // Translate to positive coords to figure out fit to width/height scale easily
+  fz_translate(&translation_matrix, -m_bounds.x0, -m_bounds.y0); // matrix = translation matrix (for rect)
+  fz_transform_rect(&m_bounds, &translation_matrix);
+
   if (m_fitWidth) {
     m_scale = m_width / (m_bounds.x1 - m_bounds.x0);
     vector<float> vec(std::begin(zoomLevels), std::end(zoomLevels));
     auto const it = std::lower_bound(vec.begin(), vec.end(), m_scale);
     if (it != vec.end())
       zoomLevel = it - vec.begin();
-  } else if (m_fitHeight) {
+  }
+  else if (m_fitHeight) {
     m_scale = m_height / (m_bounds.y1 - m_bounds.y0);
     vector<float> vec(std::begin(zoomLevels), std::end(zoomLevels));
     auto const it = std::lower_bound(vec.begin(), vec.end(), m_scale);
@@ -206,19 +223,18 @@ bool BKMUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("bound_page; m_scale: %2.3gx, zoomLevel: %i\n", m_scale, zoomLevel);
   #endif
-  
-  fz_rect rect = m_bounds;
-  fz_matrix matrix;
 
-  fz_scale(&m_transform, m_scale, m_scale);
-  fz_pre_rotate(&m_transform, m_rotate);
-  
-  // fix the page origin at 0,0 after rotation
-  fz_transform_rect(&rect, &m_transform);
-  fz_translate(&matrix, -rect.x0, -rect.y0);
-  fz_concat(&m_transform, &m_transform, &matrix);
+  // Scaling is then always positive so do it last
+  fz_scale(&scaling_matrix, m_scale, m_scale);
+  fz_transform_rect(&m_bounds, &scaling_matrix);
 
-  fz_transform_rect(&m_bounds, &m_transform);
+  // Create final transformation matrix in the correct order (Rotation x Scaling x Translation)
+  fz_concat(&m_transform, &rotation_matrix, &scaling_matrix);
+  // fz_concat(&m_transform, &m_transform, &translation_matrix); // dont really need to translate the page...?
+
+  #ifdef DEBUG
+    printf("bound_page; (%f, %f) - (%f, %f)\n", m_bounds.x0, m_bounds.y0, m_bounds.y0, m_bounds.y1);
+  #endif
 
   #ifdef DEBUG
     printf("scale/transform\n");
