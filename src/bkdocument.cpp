@@ -312,17 +312,17 @@ void BKDocument::buildToolbarMenus() {
     ToolbarItem i = ToolbarItem("First page", "bk_first_page_icon", "Select");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Last page", "bk_last_page_icon");
+    i = ToolbarItem("Last page", "bk_last_page_icon", "Select");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Previous 10 pages", "bk_prev_ten_icon");
+    i = ToolbarItem("Previous 10 pages", "bk_prev_ten_icon", "Select");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Next 10 pages", "bk_next_ten_icon");
+    i = ToolbarItem("Next 10 pages", "bk_next_ten_icon", "Select");
     toolbarMenus[1].push_back(i);
 
-    i = ToolbarItem("Go to page", "bk_go_to_page_icon");
-    toolbarMenus[1].push_back(i);
+    // i = ToolbarItem("Go to page", "bk_go_to_page_icon", "Select");
+    // toolbarMenus[1].push_back(i);
   } else {
     ToolbarItem i("No pagination support");
     toolbarMenus[1].push_back(i);
@@ -358,13 +358,13 @@ void BKDocument::buildToolbarMenus() {
   toolbarMenus[3].clear();
   if (isRotable()) {
     ToolbarItem i;
-    i.label = "Rotate 90� clockwise";
+    i.label = "Rotate 90° clockwise";
     i.circleLabel = "Select";
-    i.iconName = "bk_rotate_left_icon";
+    i.iconName = "bk_rotate_right_icon";
     toolbarMenus[3].push_back(i);
 
-    i.label = "Rotate 90� counterclockwise";
-    i.iconName = "bk_rotate_right_icon";
+    i.label = "Rotate 90° counterclockwise";
+    i.iconName = "bk_rotate_left_icon";
     toolbarMenus[3].push_back(i);
   } else {
     ToolbarItem i("No rotation support");
@@ -711,25 +711,36 @@ void BKDocument::render() {
   #endif
 
   // // button icons
-  /*
-    if (it.circleLabel.size() > 0) {
-      #ifdef PSP
-        FZScreen::ambientColor(0xffcccccc);
-        int tw = textW((char*)it.circleLabel.c_str(), fontBig);
-        drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-      #elif defined(__vita__)
-        printf("here");
-        // vita2d_draw_texture(bk_bookmark_icon->vita_texture, 480 - 65, 248);
-      #endif
-    }
+  if (it.circleLabel.size() > 0) {
+    #ifdef PSP
+      FZScreen::ambientColor(0xffcccccc);
+      int tw = textW((char*)it.circleLabel.c_str(), fontBig);
+      drawImage(480 - tw - 65, 248, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
+    #elif defined(__vita__)
+      // printf("here");
+      switch (BKUser::controls.select)  {
+        case FZ_REPS_CROSS:
+          vita2d_draw_texture_scale(bk_icons["bk_cross_icon"]->vita_texture, 768 - 20 - 130, FZ_SCREEN_HEIGHT - 50 + 7,
+                                    DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+          break;
+        case FZ_REPS_CIRCLE:
+          vita2d_draw_texture_scale(bk_icons["bk_circle_icon"]->vita_texture, 768 - 20 - 130, FZ_SCREEN_HEIGHT - 50 + 7,
+                                    DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+        default:
+          break;
+      }
+    #endif
+  }
 
-    if (it.triangleLabel.size() > 0) {
-      #ifdef PSP
-        drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
-      #elif defined(__vita__)
-      #endif
-    }
-  */
+  if (it.triangleLabel.size() > 0) {
+    #ifdef PSP
+      drawImage(37, 248, 20, 18, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
+    #elif defined(__vita__)
+      vita2d_draw_texture_scale(bk_icons["bk_triangle_icon"]->vita_texture, 20 + 130, FZ_SCREEN_HEIGHT - 50 + 7,
+                                DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+    #endif
+  }
+
 
   // menu row
   #ifdef PSP
@@ -782,15 +793,12 @@ void BKDocument::render() {
   #endif
 
   // // button labels
-  /*
-    FZScreen::ambientColor(0xffcccccc);
-    if (it.triangleLabel.size() > 0) {
-      drawText((char*)it.triangleLabel.c_str(), fontBig, 37 + 25, 248);
-    }
-    if (it.circleLabel.size() > 0) {
-      drawText((char*)it.circleLabel.c_str(), fontBig, 480 - tw - 40, 248);
-    }
-  */
+  if (it.triangleLabel.size() > 0) {
+    vita2d_font_draw_text(fontBig->v_font, 20 + 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.triangleLabel.c_str());
+  }
+  if (it.circleLabel.size() > 0) {
+    vita2d_font_draw_text(fontBig->v_font, 768 - 20 - 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.circleLabel.c_str());
+  }
 
   // // overflow indicators
   /*

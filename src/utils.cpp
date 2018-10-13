@@ -57,6 +57,7 @@ const char *get_ext (const char *fspec) {
     return e;
 }
 
+// Put this in bookmark class?
 float get_or(std::map<std::string, float> m, std::string key, float default_value) {
   auto it = m.find(key);
   if (it == m.end())
