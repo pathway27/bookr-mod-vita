@@ -146,8 +146,8 @@ public:
 	// Bookmark support. The returned map is a black box
 	// for the bookmarking system.
 	virtual bool isBookmarkable() = 0;
-	virtual void getBookmarkPosition(map<string, int>&) = 0;
-	virtual int setBookmarkPosition(map<string, int>&) = 0;
+	virtual void getBookmarkPosition(map<string, float>&) = 0;
+	virtual int setBookmarkPosition(map<string, float>&) = 0;
 
 	// banners
 	void setBanner(char*);

@@ -632,14 +632,19 @@ int BKMUDocument::setRotation(int r, bool bForce) {
 }
 
 
-void BKMUDocument::getBookmarkPosition(map<string, int>& m) {
+void BKMUDocument::getBookmarkPosition(map<string, float>& m) {
   m["page"] = m_current_page;
   
   m["panX"] = panX;
   m["panY"] = panY;
+
+  m["scale"] = m_scale;
+  m["fitWidth"] = m_fitWidth; 
+  m["fitHeight"] = m_fitHeight;
+  m["rotate"] = m_rotate;
 }
 
-int BKMUDocument::setBookmarkPosition(map<string, int>& m) {
+int BKMUDocument::setBookmarkPosition(map<string, float>& m) {
   #ifdef DEBUG
     printf("setBookmarkPosition: page %i, panX %i, panY %i", m["page"], m["panX"], m["panY"]);
   #endif
@@ -648,6 +653,12 @@ int BKMUDocument::setBookmarkPosition(map<string, int>& m) {
 
   panX = m["panX"];
   panY = m["panY"];
+
+  // Can't be sure these exist in XML
+  m_scale = get_or(m, "scale", 1);
+  m_fitWidth = get_or(m, "fitWidth", true);
+  m_fitHeight = get_or(m, "fitHeight", false);
+  m_rotate = get_or(m, "rotate", 0);
 
   redrawBuffer();
 

@@ -208,7 +208,7 @@ static void loadBookmark(XMLNode* _bn, BKBookmark& b) {
 	b.page = p;
 	b.createdOn = bn->Attribute("createdon");
 	//int *thumbnail;
-	map<string, int> viewData;
+	map<string, float> viewData;
 	XMLElement* vd = bn->FirstChildElement("viewdata");
 	while (vd) {
 		const char* key = vd->Attribute("key");
@@ -277,7 +277,7 @@ static void addBookmarkProto(string& filename, BKBookmark& b, XMLNode* file) {
 	bookmark->SetAttribute("createdon", b.createdOn.c_str());
 	//bookmark->SetAttribute("zoomvalue", b.zoom);
 	//bookmark.SetAttribute("thumbnail", );
-	map<string, int>::iterator it(b.viewData.begin());
+	map<string, float>::iterator it(b.viewData.begin());
 	#ifdef DEBUG
 		printf("addBookmarkProto: title: %s page: %i\n", b.title.c_str(), b.page);
 	#endif

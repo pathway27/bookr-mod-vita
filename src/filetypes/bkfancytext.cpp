@@ -704,13 +704,13 @@ bool BKFancyText::isBookmarkable() {
     return true;
 }
 
-void BKFancyText::getBookmarkPosition(map<string, int>& m) {
+void BKFancyText::getBookmarkPosition(map<string, float>& m) {
     m["topLineFirstRun"] = runForLine(topLine);
     m["zoom"] = 0;
     m["rotation"] = rotation;
 }
 
-int BKFancyText::setBookmarkPosition(map<string, int>& m) {
+int BKFancyText::setBookmarkPosition(map<string, float>& m) {
     setRotation(m["rotation"]);
     setLine(lineForRun(m["topLineFirstRun"]));
     return BK_CMD_MARK_DIRTY;

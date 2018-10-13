@@ -441,7 +441,7 @@ bool BKDJVU::isBookmarkable() {
 	return true;
 }
 
-void BKDJVU::getBookmarkPosition(map<string, int>& m) {
+void BKDJVU::getBookmarkPosition(map<string, float>& m) {
 	m["page"] = ctx->pageno;
 	m["zoom"] = ctx->zoomLevel;
 	m["panX"] = panX;
@@ -453,7 +453,7 @@ void BKDJVU::getBookmarkPosition(map<string, int>& m) {
 
 }
 
-int BKDJVU::setBookmarkPosition(map<string, int>& m) {
+int BKDJVU::setBookmarkPosition(map<string, float>& m) {
 	setCurrentPage(m["page"]);
 	setZoomLevel2(m["zoom"]);
 	setRotation2(m["rotation"]);
@@ -604,7 +604,7 @@ int BKDJVU::setRotation(int z, bool bForce) {
 // 	panX = int(nx);
 // 	panY = int(ny);
 	char t[256];
-	snprintf(t, 256, "Rotate to %3.3g°", 90.0f * ctx->rotateLevel );
+	snprintf(t, 256, "Rotate to %3.3gï¿½", 90.0f * ctx->rotateLevel );
   setBanner(t);
 
 	redrawBuffer();

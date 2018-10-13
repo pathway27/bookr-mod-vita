@@ -33,7 +33,7 @@ struct BKBookmark {
 	int *thumbnail;
 	bool lastView;
 	// the view-specific data. this is a black box for the bookmarks manager
-	map<string, int> viewData;
+	map<string, float> viewData;
 	BKBookmark() : page(0), thumbnail(0), lastView(false) { }
 };
 

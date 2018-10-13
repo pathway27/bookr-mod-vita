@@ -56,3 +56,12 @@ const char *get_ext (const char *fspec) {
         e = (char *)""; // fast method, could also use &(fspec[strlen(fspec)]).
     return e;
 }
+
+float get_or(std::map<std::string, float> m, std::string key, float default_value) {
+  auto it = m.find(key);
+  if (it == m.end())
+  {
+    return default_value;
+  }
+  return it->second;
+}

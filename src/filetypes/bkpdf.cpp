@@ -342,11 +342,11 @@ bool BKPDF::isBookmarkable() {
 	return true;
 }
 
-void BKPDF::getBookmarkPosition(map<string, int>& m) {
+void BKPDF::getBookmarkPosition(map<string, float>& m) {
 	return;
 }
 
-int BKPDF::setBookmarkPosition(map<string, int>& m) {
+int BKPDF::setBookmarkPosition(map<string, float>& m) {
 	return 0;
 }
 
