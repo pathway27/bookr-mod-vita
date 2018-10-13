@@ -133,8 +133,8 @@ class BKFancyText : public BKDocument {
   virtual int setRotation(int, bool bForce=false);
 
   virtual bool isBookmarkable();
-  virtual void getBookmarkPosition(map<string, int>&);
-  virtual int setBookmarkPosition(map<string, int>&);
+  virtual void getBookmarkPosition(map<string, float>&);
+  virtual int setBookmarkPosition(map<string, float>&);
 };
 
 #endif
