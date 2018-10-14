@@ -127,6 +127,7 @@ void BKLayer::load() {
   bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
 
   fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
+  fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont);
 }
 
 void BKLayer::unload(){
@@ -146,6 +147,8 @@ void BKLayer::unload(){
   #ifdef DEBUG
     printf("finish fontbig unload\n");
   #endif
+  fontBig->release();
+  fontSmall->release();
 }
 
 void BKLayer::drawImage(int x, int y) {
@@ -420,12 +423,12 @@ void BKLayer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 
 void BKLayer::drawClockAndBattery(string& extra) {
   // int ew = textW((char*)extra.c_str(), fontSmall);
-  FZScreen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
+  FZScreen::drawFontText(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_TEXT_OFFSET_Y - 45,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, extra.c_str());
 
   // cpu speed
-  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 255,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 255,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dMHz", FZScreen::getSpeed());
 
@@ -434,7 +437,7 @@ void BKLayer::drawClockAndBattery(string& extra) {
     DIALOG_ICON_OFFSET_Y, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // memory usage
-  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 395,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 395,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", FZScreen::getUsedMemory() / 1024);
 
@@ -444,7 +447,7 @@ void BKLayer::drawClockAndBattery(string& extra) {
     DEG_TO_RAD(90), DIALOG_ICON_COLOR);
 
   // battery %
-  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 510,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 510,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%d%%", FZScreen::getBattery());
 
@@ -455,7 +458,7 @@ void BKLayer::drawClockAndBattery(string& extra) {
   // time text
   int h = 0, m = 0;
   FZScreen::getTime(h, m);
-  drawFontTextf(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 600,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 600,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%02d:%02d", h, m);
 }
