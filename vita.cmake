@@ -29,7 +29,7 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 ExternalProject_Add(mupdf_lib
   PREFIX "${CMAKE_SOURCE_DIR}/ext/mupdf"
   GIT_REPOSITORY https://github.com/pathway27/mupdf
-  GIT_TAG origin/1.13.0-vg-console
+  GIT_TAG origin/1.14.0-vg-console
   GIT_PROGRESS 1
   #--Configure step-------------
   # SOURCE_SUBDIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
@@ -81,7 +81,7 @@ add_executable(bookr-mod-vita
 target_link_libraries(bookr-mod-vita
   vita2d
   mupdf
-  mupdfthird
+  mupdf-third
   pthread
   freetype
   SceDisplay_stub
