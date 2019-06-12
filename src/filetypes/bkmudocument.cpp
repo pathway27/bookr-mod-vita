@@ -242,7 +242,7 @@ bool BKMUDocument::redrawBuffer() {
 
   // TODO: Is display list or bbox better?
   // This is currently the longest operation
-  fz_annot *annot;
+  pdf_annot *annot;
   fz_try(m_ctx)
     m_pix = fz_new_pixmap_from_page_contents(m_ctx, m_page, m_transform, fz_device_rgb(m_ctx), 0);
   fz_catch(m_ctx) {
