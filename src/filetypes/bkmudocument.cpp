@@ -195,15 +195,15 @@ bool BKMUDocument::redrawBuffer() {
 
   fz_matrix rotation_matrix;
   fz_matrix scaling_matrix;
-  fz_matrix translation_matrix;
+  // fz_matrix translation_matrix;
 
   // Rotate first since co-ords can be negative
   rotation_matrix = fz_rotate(m_rotate); // m_t = rotate * scaling_matrix
   fz_transform_rect(m_bounds, rotation_matrix);
 
   // Translate to positive coords to figure out fit to width/height scale easily
-  translation_matrix = fz_translate(-m_bounds.x0, -m_bounds.y0); // matrix = translation matrix (for rect)
-  fz_transform_rect(m_bounds, translation_matrix);
+  // translation_matrix = fz_translate(-m_bounds.x0, -m_bounds.y0); // matrix = translation matrix (for rect)
+  // fz_transform_rect(m_bounds, translation_matrix);
 
   if (m_fitWidth) {
     m_scale = m_width / (m_bounds.x1 - m_bounds.x0);
@@ -430,6 +430,7 @@ int BKMUDocument::screenUp() {
     panY = potentialY;
 }
 
+static int SCREEN_FURNITURE_H = 40;
 int BKMUDocument::screenDown() {
   float potentialY = panY - D_PAD_SPEED;
   
@@ -438,7 +439,7 @@ int BKMUDocument::screenDown() {
     printf("panY: %f potentialY: %f\n", panY, potentialY);
   #endif
 
-  int bottomBounds = (m_bounds.y1 - FZ_SCREEN_HEIGHT);
+  int bottomBounds = (m_bounds.y1 + (SCREEN_FURNITURE_H * 2));
   if (-potentialY >= bottomBounds)
     panY = -bottomBounds;
   else
@@ -477,7 +478,7 @@ int BKMUDocument::pan(int x, int y) {
   if (abs(y) > FZ_ANALOG_THRESHOLD) {
     if (panY > m_bounds.y0) {
       if (y > 0) panY -= y/10;
-    } else if (-panY > m_bounds.y1 - m_height) {
+    } else if (-panY > m_bounds.y1 + SCREEN_FURNITURE_H*2) {
       if (y < 0) panY -= y/10;
     } else {
       panY -= y/10;
