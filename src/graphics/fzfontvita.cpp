@@ -79,6 +79,11 @@ FZFont* FZFont::createFromFile(char* fileName, int fontSize) {
   return font;
 }
 
+int FZFont::fontTextWidth(const char *text)
+{
+  return 1;
+}
+
 FZFont* FZFont::createFromMemory(unsigned char* buffer, int bufferSize) {
   FZFont* font = new FZFont();
   return font;

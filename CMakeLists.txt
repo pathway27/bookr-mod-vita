@@ -109,6 +109,7 @@ file(GLOB res_files RELATIVE
 add_resources(bk_resources ${res_files})
 
 set(COMMON_SRCS
+  src/main.cpp
   src/bookr.cpp
   src/utils.cpp
   src/graphics/fzscreencommon.cpp

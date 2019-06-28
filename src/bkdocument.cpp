@@ -772,11 +772,15 @@ void BKDocument::render() {
       color = 0xffffffff;
     if (it2.iconName.size() > 0) {
       // check map existance, just in case.
-      vita2d_draw_texture_tint_scale(bk_icons[it2.iconName]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+      #ifdef __vita__
+        vita2d_draw_texture_tint_scale(bk_icons[it2.iconName]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
           DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
+      #endif
     } else {
-      vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+      #ifdef __vita__
+        vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
           DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
+      #endif
     }
   }
   
@@ -794,10 +798,14 @@ void BKDocument::render() {
 
   // // button labels
   if (it.triangleLabel.size() > 0) {
-    vita2d_font_draw_text(fontBig->v_font, 20 + 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.triangleLabel.c_str());
+    #ifdef __vita__
+      vita2d_font_draw_text(fontBig->v_font, 20 + 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.triangleLabel.c_str());
+    #endif
   }
   if (it.circleLabel.size() > 0) {
-    vita2d_font_draw_text(fontBig->v_font, 768 - 20 - 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.circleLabel.c_str());
+    #ifdef __vita__
+      vita2d_font_draw_text(fontBig->v_font, 768 - 20 - 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.circleLabel.c_str());
+    #endif
   }
 
   // // overflow indicators

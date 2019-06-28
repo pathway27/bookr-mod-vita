@@ -25,7 +25,7 @@
   #ifdef PSP
     #include <pspdebug.h>
     #define printf pspDebugScreenPrintf
-  #elif defined(__vita__)
+  #else
   	#include <stdio.h>
   #endif
 #endif

@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <mupdf/fitz.h>
-
 #ifdef __vita__
 #include <vita2d.h>
 
