@@ -25,10 +25,10 @@ add_executable(bookr-modern
   data/fonts/res_txtfont.c
   data/fonts/res_uifont.c
 
-  src/graphics/fzscreen_switch.cpp
+  src/graphics/screen_switch.cpp
 
-  src/graphics/fzfontvita.cpp
-  src/filetypes/bkmudocument.cpp
+  src/graphics/font_vita.cpp
+  src/filetypes/mudocument.cpp
 )
 
 set(OPENGL_opengl_LIBRARY EGL glapi drm_nouveau)

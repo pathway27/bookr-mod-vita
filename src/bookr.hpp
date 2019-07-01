@@ -29,12 +29,12 @@
 #ifndef BOOKR_HPP
 #define BOOKR_HPP
 
-#include "bkdocument.h"
-#include "bkmainmenu.h"
-#include "bkfilechooser.h"
+//#include "document.h"
+//#include "mainmenu.h"
+//#include "filechooser.h"
 
 namespace bookr {
-  extern BKDocument *documentLayer;
+  //extern BKDocument *documentLayer;
   // bkLayers layers;                   // iterator over all gui obj. that are initalsed
   // BKMainMenu *mm;                    // Main Menu, only opens when pressed start on opening screen
   // BKFileChooser *fs;                 // file chooser, only opens when Open File in mainmenu

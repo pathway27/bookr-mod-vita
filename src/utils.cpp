@@ -1,6 +1,6 @@
 // TODO: Find a place for this
 
-#include "graphics/fzscreen.h"
+#include "graphics/screen.hpp"
 #include "utils.h"
 
 #include <stdio.h>

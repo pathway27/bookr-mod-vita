@@ -2,9 +2,11 @@
 cmake_minimum_required(VERSION 2.8)
 include(ExternalProject)
 
+message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+
 # Use CMAKE_BINARY_DIR to determine target platform
-# Defaults to building for Vita
-IF(CMAKE_BINARY_DIR MATCHES desktop)
+# Defaults to building for Vita on *nix
+IF(CMAKE_BINARY_DIR MATCHES desktop OR CMAKE_BINARY_DIR MATCHES CMakeBuild)
   set(DESKTOP ON)
 ELSEIF(CMAKE_BINARY_DIR MATCHES switch)
   # TODO: move to toolchain file
@@ -43,8 +45,11 @@ ENDIF()
 # Name of the project
 project(bookr-mod-vita)
 
-execute_process(COMMAND git describe --long
-  OUTPUT_VARIABLE GIT_VERSION)
+execute_process(
+  COMMAND git describe --long
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_VERSION
+)
 string(REGEX REPLACE "\n$" "" GIT_VERSION "${GIT_VERSION}")
 
 configure_file(
@@ -111,29 +116,31 @@ add_resources(bk_resources ${res_files})
 set(COMMON_SRCS
   src/main.cpp
   src/bookr.cpp
-  src/utils.cpp
-  src/graphics/fzscreencommon.cpp
+  
+  #src/utils.cpp
+  #src/graphics/screen_common.cpp
 
-  src/bkuser.cpp
+  #src/user.cpp
 
   #texture image refcounted
-  src/graphics/fzrefcount.cpp
-  src/graphics/fzimage.cpp
-  src/graphics/fztexture.cpp
+  #src/graphics/refcount.cpp
+  #src/graphics/image.cpp
+  #src/graphics/texture.cpp
 
-  src/graphics/fzinstreammem.cpp
+  #src/graphics/instreammem.cpp
   
-  src/bklayervita.cpp
-  src/bklogo.cpp
-  src/bkmainmenu.cpp
-  src/bkpopup.cpp
-  src/bkfilechooser.cpp
+  #src/layer_vita.cpp
+  #src/logo.cpp
+  #src/mainmenu.cpp
+  #src/popup.cpp
+  #src/filechooser.cpp
 
   
-  src/bkdocument.cpp
-  src/bkbookmark.cpp
-  src/filetypes/bkfancytext.cpp
-  src/filetypes/bkplaintext.cpp
+  #src/document.cpp
+  #src/bookmark.cpp
+  #src/filetypes/fancytext.cpp
+  #src/filetypes/plaintext.cpp
+  
 )
 
 if (WIN32)

@@ -40,18 +40,18 @@ ExternalProject_Add(glfw
   INSTALL_COMMAND ""
 )
 
-ExternalProject_Add(freetype2
-  URL https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.6.5.zip
-  URL_MD5 ab9e0e387b93daec8c486e5432cb8362
-  #--Configure step-------------
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/freetype"
-  CONFIGURE_COMMAND ""
-  #--Build step-----------------
-  BUILD_COMMAND ""
-  #--Install step---------------
-  UPDATE_COMMAND "" # Skip annoying updates for every build
-  INSTALL_COMMAND ""
-)
+#ExternalProject_Add(freetype2
+#  URL https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.6.5.zip
+#  URL_MD5 ab9e0e387b93daec8c486e5432cb8362
+#  #--Configure step-------------
+#  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/freetype"
+#  CONFIGURE_COMMAND ""
+#  #--Build step-----------------
+#  BUILD_COMMAND ""
+#  #--Install step---------------
+#  UPDATE_COMMAND "" # Skip annoying updates for every build
+#  INSTALL_COMMAND ""
+#)
 
 include_directories(
   ${CMAKE_BINARY_DIR}
@@ -60,7 +60,6 @@ include_directories(
   "${CMAKE_SOURCE_DIR}/ext/glfw/include"
   "${CMAKE_SOURCE_DIR}/ext/glew/include"
   "${CMAKE_SOURCE_DIR}/ext/glm"
-  "${CMAKE_SOURCE_DIR}/ext/freetype/include/freetype2"
   "${CMAKE_SOURCE_DIR}/ext/freetype/include"
   "${CMAKE_SOURCE_DIR}/ext/SOIL/src"
 )
@@ -81,7 +80,7 @@ link_directories(
 add_executable(bookr-mod-vita
   ${COMMON_SRCS}
   src/graphics/shaders/shader.cpp
-  src/graphics/fzscreenglfw.cpp
+  src/graphics/screen_glfw.cpp
 )
 
 

@@ -69,10 +69,10 @@ add_executable(bookr-mod-vita
   data/fonts/res_txtfont.c
   data/fonts/res_uifont.c
 
-  src/graphics/fzscreenvita.cpp
+  src/graphics/screen_vita.cpp
 
-  src/filetypes/bkmudocument.cpp
-  src/graphics/fzfontvita.cpp
+  src/filetypes/mudocument.cpp
+  src/graphics/font_vita.cpp
 )
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
