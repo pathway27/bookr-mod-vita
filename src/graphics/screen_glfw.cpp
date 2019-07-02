@@ -26,9 +26,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+#ifdef WIN32
 #include <gl/gl.h>
+#else
+#include <OpenGL/gl.h>
+#endif
 
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <cstdlib>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "controls.hpp"
+#include "resolutions.hpp"
+#include "shaders/shader.hpp"
 #include "screen.hpp"
+#include "SOIL.h"
+
+using std::cout;
+using std::endl;
 
 namespace bookr { namespace Screen {
 
@@ -228,7 +248,7 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
         cout << keyState << endl;
         switch (key) {
             case 27:
-                exit(0);
+                std::exit(0);
             break;
             case GLFW_KEY_W: keyState &= ~FZ_CTRL_UP; break;
             case GLFW_KEY_S: keyState &= ~FZ_CTRL_DOWN; break;

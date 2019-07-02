@@ -40,7 +40,7 @@ namespace bookr {
 void initalise(int argc, char *argv[])
 {
   Screen::open(argc, argv);    // GPU init and initalDraw
-  Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
+  // Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
 
   #ifdef DEBUG
     printf("Debug Started: in bookr::initalise\n");

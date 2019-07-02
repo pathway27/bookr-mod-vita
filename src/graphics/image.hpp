@@ -20,8 +20,8 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include "refcount.h"
-#include "inputstream.h"
+#include "refcount.hpp"
+#include "inputstream.hpp"
 
 namespace bookr {
 
@@ -31,6 +31,17 @@ namespace bookr {
  * and represents an image.
  */
 class Image : public RefCounted {
+public:
+	enum Format
+	{
+		rgba32,
+		rgb32,
+		rgb24,
+		dual16,
+		mono16,
+		mono8
+	};
+
 private:
 	char* data;
 	unsigned int* clut;
@@ -44,16 +55,6 @@ protected:
 	~Image();
 
 public:
-	enum Format
-	{
-		rgba32,
-		rgb32,
-		rgb24,
-		dual16,
-		mono16,
-		mono8
-	};
-
 	/**
 	 * Get the image logical format.
 	 */

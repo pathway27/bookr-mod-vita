@@ -41,14 +41,14 @@ class FZTexture;
 
 #define FZ_STAT_IFDIR 0x1000
 #define FZ_STAT_IFREG 0x2000
-struct FZDirent {
+struct Dirent {
   string name;
   string sname;
   int stat;
   int size;
-  FZDirent(string n, int st, int s) : name(n), stat(st), size(s) { }
-  FZDirent() : name(""), sname(""), stat(0), size(0) { }
-  FZDirent(string n, string sn, int st, int s) : name(n), sname(sn), stat(st), size(s) { }
+  Dirent(string n, int st, int s) : name(n), stat(st), size(s) { }
+  Dirent() : name(""), sname(""), stat(0), size(0) { }
+  Dirent(string n, string sn, int st, int s) : name(n), sname(sn), stat(st), size(s) { }
 };
 
 /*! \brief An abstraction over a platform's basic functionality and graphics.
@@ -64,7 +64,7 @@ namespace Screen {
   /**
    * Open the screen for rendering.
    */
-  static void open(int argc, char** argv);
+  void open(int argc, char** argv);
 
   /**
    * Close the screen for rendering.
@@ -129,8 +129,8 @@ namespace Screen {
   static void drawRectangle(float x, float y, float w, float h, unsigned int color);
 
   // TODO: Refactor to FZFont?
-  static void drawFontText(FZFont *font, int x, int y, unsigned int color, unsigned int size, const char *text);
-  static void drawFontTextf(FZFont *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...);
+  static void drawFontText(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text);
+  static void drawFontTextf(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...);
 
   // TODO: Refactor to FZTexture
 
@@ -161,7 +161,7 @@ namespace Screen {
   static void setBoundTexture(FZTexture *);
 
   static string basePath();
-  static int dirContents(const char* path, vector<FZDirent>& a);
+  static int dirContents(const char* path, vector<Dirent>& a);
 
   static int getSuspendSerial();
 
