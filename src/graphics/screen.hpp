@@ -37,7 +37,7 @@
 
 using namespace std;
 
-class FZTexture;
+class Texture;
 
 #define FZ_STAT_IFDIR 0x1000
 #define FZ_STAT_IFREG 0x2000
@@ -132,11 +132,11 @@ namespace Screen {
   static void drawFontText(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text);
   static void drawFontTextf(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...);
 
-  // TODO: Refactor to FZTexture
+  // TODO: Refactor to Texture
 
-  static void drawTextureScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale);
-  static void drawTextureTintScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale, unsigned int color);
-  static void drawTextureTintScaleRotate(const FZTexture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color);
+  static void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale);
+  static void drawTextureTintScale(const Texture *texture, float x, float y, float x_scale, float y_scale, unsigned int color);
+  static void drawTextureTintScaleRotate(const Texture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color);
 
   static void* framebuffer();
 
@@ -158,26 +158,26 @@ namespace Screen {
 
   static void dcacheWritebackAll();
 
-  static void setBoundTexture(FZTexture *);
+  static void setBoundTexture(Texture *);
 
   static string basePath();
   static int dirContents(const char* path, vector<Dirent>& a);
 
   static int getSuspendSerial();
 
-  // extern char *speedLabels[7];
-  // static int speedValues;
-  // static void setSpeed(int v);
-  // static int getSpeed();
+  static char *speedLabels[14];
+  static int speedValues;
+  static void setSpeed(int v);
+  static int getSpeed();
 
   static void getTime(int &h, int &m);
   static int getBattery();
   static int getUsedMemory();
   static void setBrightness(int);
 
-	// static const char* browserTextSizes;
-	// static const char* browserDisplayModes;
-	// static const char* browserInterfaceModes;
+	static const char* browserTextSizes;
+	static const char* browserDisplayModes;
+	static const char* browserInterfaceModes;
 } // Screen
 
 #ifdef MAC

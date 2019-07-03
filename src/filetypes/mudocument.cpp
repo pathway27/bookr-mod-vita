@@ -26,6 +26,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef __vita__
+#include <psp2/io/fcntl.h>
+#endif
+
 #include <map>
 #include <fstream>
 #include <chrono>
@@ -36,12 +40,16 @@
 #include <cmath>
 #include <cstring>
 #include <ctime>
-#include <cmalloc>
 #include <cerrno>
 
 #include "mudocument.hpp"
-#include "../bookmark.h"
+#include "../graphics/resolutions.hpp"
+#include "../bookmark.hpp"
 #include "../utils.h"
+#include "../graphics/fzscreen_defs.h"
+#include "../graphics/controls.hpp"
+
+extern int _newlib_heap_size_user;
 
 namespace bookr {
 
@@ -281,7 +289,7 @@ int MUDocument::updateContent() {
     snprintf(t, 256, "Page %d of %d", m_current_page + 1, m_pages);
     setBanner(t);
     
-    return _CMD_MARK_DIRTY;
+    return BK_CMD_MARK_DIRTY;
   } else if (zooming) {
     panX = 0;
     panY = 0;
@@ -293,7 +301,7 @@ int MUDocument::updateContent() {
     snprintf(t, 256, "Zoomed...");
     setBanner(t);
     
-    return _CMD_MARK_DIRTY;
+    return BK_CMD_MARK_DIRTY;
   }
   return 0;
 }
@@ -302,7 +310,7 @@ int MUDocument::resume() {
   // mupdf leaves open file descriptors around. they don't survive a suspend.
   // Is this still the case? yes
   // TODO: Don't need to reload for epub/html based docs, all kept in memory and retained
-  return _CMD_RELOAD;
+  return BK_CMD_RELOAD;
 }
 
 void MUDocument::renderContent() {
@@ -482,7 +490,7 @@ int MUDocument::pan(int x, int y) {
   #ifdef DEBUG_BUTTONS
     printf("OUTPUT x %i y %i\n", panX, panY);
   #endif
-  return _CMD_MARK_DIRTY;
+  return BK_CMD_MARK_DIRTY;
 }
 
 bool MUDocument::isBookmarkable() {
@@ -498,7 +506,7 @@ bool MUDocument::isZoomable() {
 void MUDocument::getZoomLevels(vector<Document::ZoomLevel>& v) {
   int n = User::options.pdfFastScroll ? 15 : sizeof(zoomLevels)/sizeof(float);
   for (int i = 0; i < n; ++i)
-    v.push_back(Document::ZoomLevel(DOCUMENT_ZOOMTYPE_ABSOLUTE, "FIX ZOOM LABELS"));
+    v.push_back(Document::ZoomLevel(BKDOCUMENT_ZOOMTYPE_ABSOLUTE, "FIX ZOOM LABELS"));
 }
 
 int MUDocument::getCurrentZoomLevel() {
@@ -615,11 +623,11 @@ int MUDocument::setRotation(int r, bool bForce) {
   // if (User::options.pdfFastScroll) {
   // //pdfRenderFullPage(ctx);
   //   loadNewPage = true;
-  //   return _CMD_MARK_DIRTY;
+  //   return BK_CMD_MARK_DIRTY;
   // }
 
   // redrawBuffer();
-  // return _CMD_MARK_DIRTY;
+  // return BK_CMD_MARK_DIRTY;
   redrawBuffer();
 
   return 0;
@@ -656,7 +664,7 @@ int MUDocument::setBookmarkPosition(map<string, float>& m) {
 
   redrawBuffer();
 
-  return _CMD_MARK_DIRTY;
+  return BK_CMD_MARK_DIRTY;
 }
 
 void MUDocument::getTitle(string& t) {

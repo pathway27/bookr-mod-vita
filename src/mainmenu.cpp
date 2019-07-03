@@ -23,11 +23,12 @@
 #include <mupdf/fitz/version.h>
 
 #include "graphics/screen.hpp"
+#include "graphics/controls.hpp"
 #include "mainmenu.hpp"
 #include "document.hpp"
 #include "bookmark.hpp"
 #include "popup.hpp"
-#include "bookrconfig.hpp"
+#include "bookrconfig.h"
 
 // Main menu layout
 #define MAIN_MENU_ITEM_OPEN_FILE				0

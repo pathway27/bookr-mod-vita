@@ -26,8 +26,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <psp2/kernel/processmgr.h>
+#include <psp2/kernel/threadmgr.h>
+#include <psp2/io/dirent.h> 
+#include <psp2/io/stat.h>
+#include <psp2/ctrl.h>
+#include <psp2/power.h> 
+#include <psp2/rtc.h>
+
+#include <malloc.h>
+
 #include "screen.hpp"
 #include "texture.hpp"
+#include "controls.hpp"
 
 namespace bookr { namespace Screen {
 
@@ -40,7 +51,7 @@ static unsigned int* list;
 
 /* Exit callback */
 int exit_callback(int arg1, int arg2, void *common) {
-  sceKernelExitProcess(0);
+  return sceKernelExitProcess(0);
 }
 
 
@@ -77,7 +88,7 @@ int power_callback(int notifyId, int notifyCount, int powerInfo, void *common) {
     powerResumed++;
   }
   
-  fclose(fd);
+  return fclose(fd);
 }
 
 int CallbackThread(SceSize args, void *argp) {
@@ -102,7 +113,7 @@ int CallbackThread(SceSize args, void *argp) {
 }
 
 /* Sets up the callback thread and returns its thread id */
-int Screen::setupCallbacks(void) {
+int setupCallbacks(void) {
   int thid = 0;
 
   thid = sceKernelCreateThread("update_thread", CallbackThread, 0x10000100, 0x10000, 0, 0, NULL);
@@ -144,7 +155,7 @@ static void initalDraw() {
 }
 
 // Move this to constructor?
-void Screen::open(int argc, char** argv) {
+void open(int argc, char** argv) {
   setupCallbacks();
 
   vita2d_init();
@@ -154,8 +165,8 @@ void Screen::open(int argc, char** argv) {
 
   psv_full_path = "ux0:";
 
-  struct stat st = {0};
-  if (stat("ux0:data/Bookr", &st) == -1) {
+  struct SceIoStat st = {0};
+  if (sceIoGetstat("ux0:data/Bookr", &st) == -1) {
       sceIoMkdir("ux0:data/Bookr", 0700);
   }
 
@@ -164,20 +175,20 @@ void Screen::open(int argc, char** argv) {
   #endif
 }
 
-void Screen::close() {
+void close() {
   vita2d_fini();
   vita2d_free_pgf(pgf);
 }
 
-void Screen::exit() {
+void exit() {
   sceKernelExitProcess(0);
 }
 
-void Screen::drawText(int x, int y, unsigned int color, float scale, const char *text) {
+void drawText(int x, int y, unsigned int color, float scale, const char *text) {
   vita2d_pgf_draw_text(pgf, x, y, color, scale, text);
 }
 
-void Screen::setTextSize(float x, float y) {
+void setTextSize(float x, float y) {
 
 }
 
@@ -210,22 +221,22 @@ static void updateReps(int keyState) {
 }
 
 
-void Screen::resetReps() {
+void resetReps() {
   stickyKeys = true;
 }
 
-int* Screen::ctrlReps() {
+int* ctrlReps() {
   return breps;
 }
 
-void Screen::setupCtrl() {
+void setupCtrl() {
   sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
   resetReps();
 }
 
 static volatile int lastAnalogX = 0;
 static volatile int lastAnalogY = 0;
-int Screen::readCtrl() {
+int readCtrl() {
   SceCtrlData pad;
   sceCtrlPeekBufferPositive(0, &pad, 1);
   updateReps(pad.buttons);
@@ -234,19 +245,19 @@ int Screen::readCtrl() {
   return pad.buttons;
 }
 
-void Screen::getAnalogPad(int& x, int& y) {
+void getAnalogPad(int& x, int& y) {
   x = lastAnalogX - FZ_ANALOG_CENTER;
   y = lastAnalogY - FZ_ANALOG_CENTER;
 }
 
-void Screen::startDirectList() {
+void startDirectList() {
   #ifdef DEBUG_RENDER
     printf("start drawing");
   #endif
   vita2d_start_drawing();
 }
 
-void Screen::endAndDisplayList() {
+void endAndDisplayList() {
   #ifdef DEBUG_RENDER
     printf("end drawing\n");
   #endif
@@ -254,43 +265,43 @@ void Screen::endAndDisplayList() {
 }
 
 static void* lastFramebuffer = NULL;
-void Screen::swapBuffers() {
+void swapBuffers() {
     lastFramebuffer = vita2d_get_current_fb();
   #ifdef DEBUG_RENDER
-    printf("Screen::swapBuffers\n");
+    printf("swapBuffers\n");
   #endif
     vita2d_swap_buffers();
 }
 
-void Screen::waitVblankStart() {
+void waitVblankStart() {
   // vita2d_wait_rendering_done();
 }
 
-void* Screen::getListMemory(int s) {
-  //return sceGuGetMemory(s);
-}
+// void* getListMemory(int s) {
+//   //return sceGuGetMemory(s);
+// }
 
-void Screen::shadeModel(int mode) {
+void shadeModel(int mode) {
   //sceGuShadeModel(mode);
 }
 
-void Screen::color(unsigned int c) {
+void color(unsigned int c) {
   //sceGuColor(c);
 }
 
-void Screen::ambientColor(unsigned int c) {
+void ambientColor(unsigned int c) {
   //sceGuAmbientColor(c);
 }
 
-void Screen::clear(unsigned int color, int b) {
+void clear(unsigned int color, int b) {
   vita2d_set_clear_color(color);
   vita2d_clear_screen();
 }
 
-void Screen::checkEvents(int buttons) {
+void checkEvents(int buttons) {
 }
 
-void Screen::matricesFor2D(int rotation) {
+void matricesFor2D(int rotation) {
 }
 
 struct T32FV32F2D {
@@ -298,28 +309,28 @@ struct T32FV32F2D {
     float x,y,z;
 };
 
-static FZTexture* boundTexture = 0;
-void Screen::setBoundTexture(FZTexture *t) {
+static Texture* boundTexture = 0;
+void setBoundTexture(Texture *t) {
     boundTexture = t;
 }
 
-void Screen::drawRectangle(float x, float y, float w, float h, unsigned int color) {
+void drawRectangle(float x, float y, float w, float h, unsigned int color) {
   vita2d_draw_rectangle(x, y, w, h, color);
 }
 
-void Screen::drawFontText(FZFont *font, int x, int y, unsigned int color, unsigned int size, const char *text) {
+void drawFontText(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text) {
   vita2d_font_draw_text(font->v_font, x, y, color, size, text);
 }
 
-void Screen::drawTextureScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale) {
+void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale) {
   vita2d_draw_texture_scale(texture->vita_texture, x, y, x_scale, y_scale);
 }
 
-void Screen::drawTextureTintScale(const FZTexture *texture, float x, float y, float x_scale, float y_scale, unsigned int color) {
+void drawTextureTintScale(const Texture *texture, float x, float y, float x_scale, float y_scale, unsigned int color) {
   vita2d_draw_texture_tint_scale(texture->vita_texture, x, y, x_scale, y_scale, color);
 }
 
-void Screen::drawTextureTintScaleRotate(const FZTexture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color) {
+void drawTextureTintScaleRotate(const Texture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color) {
   vita2d_draw_texture_tint_scale_rotate(texture->vita_texture, x, y, x_scale, y_scale, rad, color);
 }
 
@@ -328,7 +339,7 @@ void Screen::drawTextureTintScaleRotate(const FZTexture *texture, float x, float
 /*  Active Shader
     bind correct vertex array
   */
-void Screen::drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
+void drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
   // vita2d_color_vertex *vertices = (vita2d_color_vertex *)vita2d_pool_memalign(
   // 	2 * sizeof(vita2d_color_vertex), // 2 vertices
   // 	sizeof(vita2d_color_vertex));
@@ -363,41 +374,41 @@ void Screen::drawArray(int prim, int vtype, int count, void* indices, void* vert
   // sceGxmSetFrontPolygonMode(_vita2d_context, SCE_GXM_POLYGON_MODE_TRIANGLE_FILL);
 }
 
-void Screen::copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
+void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
     int dx, int dy, int destw, void *dest) {
   //sceGuCopyImage(psm, sx, sy, width, height, srcw, src, dx, dy, destw, dest);
 }
 
-void Screen::drawPixel(float x, float y, unsigned int color) {
+void drawPixel(float x, float y, unsigned int color) {
   vita2d_draw_pixel(x, y, color);
 }
 
-void* Screen::framebuffer() {
+void* framebuffer() {
   return lastFramebuffer;
 }
 
-void Screen::blendFunc(int op, int src, int dst) {
+void blendFunc(int op, int src, int dst) {
   //sceGuBlendFunc(op, src, dst, 0, 0);
 }
 
-void Screen::enable(int m) {
+void enable(int m) {
   //sceGuEnable(m);
 }
 
-void Screen::disable(int m) {
+void disable(int m) {
   //sceGuDisable(m);
 }
 
-void Screen::dcacheWritebackAll() {
+void dcacheWritebackAll() {
   // ksceKernelCpuDcacheWritebackAll();
 }
 
-string Screen::basePath() {
+string basePath() {
   return psv_full_path;
 }
 
 struct CompareDirent {
-  bool operator()(const FZDirent& a, const FZDirent& b) {
+  bool operator()(const Dirent& a, const Dirent& b) {
       if ((a.stat & FZ_STAT_IFDIR) == (b.stat & FZ_STAT_IFDIR))
           return a.name < b.name;
       if (b.stat & FZ_STAT_IFDIR)
@@ -406,19 +417,19 @@ struct CompareDirent {
   }
 };
 
-int Screen::dirContents(const char* path, vector<FZDirent>& a) {
+int dirContents(const char* path, vector<Dirent>& a) {
   SceUID fd;
   SceIoDirent *findData;
   findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent));	// dont ask me WHY...
   memset((void*)findData, 0, sizeof(SceIoDirent));
-  //a.push_back(FZDirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
-  //a.push_back(FZDirent("books/1984.txt", FZ_STAT_IFREG, 587083));
+  //a.push_back(Dirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
+  //a.push_back(Dirent("books/1984.txt", FZ_STAT_IFREG, 587083));
   fd = sceIoDopen(path);
   if (fd < 0)
       return -1;
   while (sceIoDread(fd, findData) > 0) {
       if (findData->d_name[0] != 0 && findData->d_name[0] != '.') {
-          a.push_back(FZDirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
+          a.push_back(Dirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
       }
   }
   sceIoDclose(fd);
@@ -427,27 +438,36 @@ int Screen::dirContents(const char* path, vector<FZDirent>& a) {
   return 1;
 }
 
-int Screen::getSuspendSerial() {
+int getSuspendSerial() {
   return powerResumed;
 }
 
-void Screen::setSpeed(int v) {
+// static int speedValues[14] = {
+//  0, 0,
+//  10, 5,
+//  25, 12,
+//  50, 25,
+//  111, 55, 
+//  222, 111,
+//  333, 166
+// };
+void setSpeed(int v) {
   if (v <= 0 || v > 6)
       return;
 
   //scePowerSetClockFrequency(speedValues[v*2], speedValues[v*2], speedValues[v*2+1]);
 
-  scePowerSetArmClockFrequency(speedValues[v*2]);
+  // scePowerSetArmClockFrequency(speedValues[v*2]);
   //scePowerSetCpuClockFrequency(speedValues[v*2]);
 
-  scePowerSetBusClockFrequency(speedValues[v*2+1]);
+  // scePowerSetBusClockFrequency(speedValues[v*2+1]);
 }
 
-int Screen::getSpeed() {
+int getSpeed() {
   return scePowerGetArmClockFrequency();
 }
 
-void Screen::getTime(int &h, int &m) {
+void getTime(int &h, int &m) {
   SceDateTime time;
   // same
   if (sceRtcGetCurrentClockLocalTime(&time) >= 0) {
@@ -456,21 +476,21 @@ void Screen::getTime(int &h, int &m) {
   }
 }
 
-int Screen::getBattery() {
+int getBattery() {
   return scePowerGetBatteryLifePercent();
 }
 
-int Screen::getUsedMemory() {
+int getUsedMemory() {
   struct mallinfo mi = mallinfo();
   return mi.uordblks;
   //return mi.arena;
 }
 
-void Screen::setBrightness(int b){
+void setBrightness(int b){
   return;
 }
 
-bool Screen::isClosing() {
+bool isClosing() {
   return closing;
 }
 

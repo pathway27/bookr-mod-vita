@@ -27,7 +27,7 @@ using std::string;
 
 namespace bookr {
 
-class BKMainMenu : public BKLayer {
+class MainMenu : public Layer {
 	#define BKMM_MAIN 0
 	#define BKMM_CONTROLS 1
 	#define BKMM_OPTIONS 2

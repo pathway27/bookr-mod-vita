@@ -23,6 +23,8 @@
 
 #include <vector>
 
+using std::vector;
+
 namespace bookr {
 
 class User {

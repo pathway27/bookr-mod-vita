@@ -100,15 +100,17 @@
 #define FZ_PSM_T4 (4)   /* Texture */
 #define FZ_PSM_T8 (5)   /* Texture */
 
-// #define FZ_TEX_MODULATE  0
-// #define FZ_TEX_DECAL     1
-// #define FZ_TEX_BLEND     2
-// #define FZ_TEX_REPLACE   3
-// #define FZ_TEX_ADD       4
+#ifdef DESKTOP
+#define FZ_TEX_MODULATE  0
+#define FZ_TEX_DECAL     1
+#define FZ_TEX_BLEND     2
+#define FZ_TEX_REPLACE   3
+#define FZ_TEX_ADD       4
 
-// #define FZ_NEAREST                 0
-// #define FZ_LINEAR                  1
-// #define FZ_NEAREST_MIPMAP_NEAREST  4
-// #define FZ_LINEAR_MIPMAP_NEAREST   5
-// #define FZ_NEAREST_MIPMAP_LINEAR   6
-// #define FZ_LINEAR_MIPMAP_LINEAR    7
+#define FZ_NEAREST                 0
+#define FZ_LINEAR                  1
+#define FZ_NEAREST_MIPMAP_NEAREST  4
+#define FZ_LINEAR_MIPMAP_NEAREST   5
+#define FZ_NEAREST_MIPMAP_LINEAR   6
+#define FZ_LINEAR_MIPMAP_LINEAR    7
+#endif

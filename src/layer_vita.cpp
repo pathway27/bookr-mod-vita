@@ -27,6 +27,8 @@
 */
 
 #include "layer.hpp"
+#include "graphics/resolutions.hpp"
+#include "graphics/controls.hpp"
 
 namespace bookr {
 
@@ -34,19 +36,19 @@ namespace bookr {
 #ifdef __vita__
   #define drawFontTextf(font, x, y, color, size, text, ...) vita2d_font_draw_textf(font->v_font, x, y, color, size, text, __VA_ARGS__)
 #else
-  #define drawFontTextf FZScreen::drawFontTextf
+  #define drawFontTextf Screen::drawFontTextf
 #endif
 
 // need only one - UI font
-FZFont* Layer::fontBig = 0;
-FZFont* Layer::fontSmall = 0;
-FZFont* Layer::fontUTF = 0;
-FZTexture* Layer::texUI = 0;
-FZTexture* Layer::texUI2 = 0;
-FZTexture* Layer::texLogo = 0;
+Font* Layer::fontBig = 0;
+Font* Layer::fontSmall = 0;
+Font* Layer::fontUTF = 0;
+Texture* Layer::texUI = 0;
+Texture* Layer::texUI2 = 0;
+Texture* Layer::texLogo = 0;
 
-const auto& createTexFromBuffer = FZTexture::createFromBuffer;
-map<string, FZTexture*> Layer::bk_icons;
+const auto& createTexFromBuffer = Texture::createFromBuffer;
+map<string, Texture*> Layer::bk_icons;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
 
@@ -99,7 +101,7 @@ void Layer::load() {
     printf("bklayer load\n");
   #endif
   
-  texLogo = FZTexture::createFromBuffer(&_binary_sce_sys_icon0_t_png_start);
+  texLogo = Texture::createFromBuffer(&_binary_sce_sys_icon0_t_png_start);
 
   // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
   bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));
@@ -128,15 +130,15 @@ void Layer::load() {
   bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
   bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
 
-  fontBig = FZFont::createFromMemory(res_uifont, size_res_uifont);
-  fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont);
+  fontBig = Font::createFromMemory(res_uifont, size_res_uifont);
+  fontSmall = Font::createFromMemory(res_uifont, size_res_uifont);
 }
 
 void Layer::unload(){
   // do i need to do this?
   texLogo->release();
 
-  map<string, FZTexture*>::iterator it = bk_icons.begin();
+  map<string, Texture*>::iterator it = bk_icons.begin();
   while(it != bk_icons.end()) {
     it->second->release();
     it++;
@@ -170,29 +172,29 @@ void Layer::drawTPill(int x, int y, int w, int h, int r, int tx, int ty) {
 void Layer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
 }
 
-int Layer::textWidthRange(char* t, int n, FZFont* font) {
+int Layer::textWidthRange(char* t, int n, Font* font) {
   return 0;
 }
 
-int Layer::textW(char* t, FZFont* font) {
+int Layer::textW(char* t, Font* font) {
   return font->fontTextWidth(t);
 }
 
-void Layer::drawTextHC(char* t, FZFont* font, int y) {
+void Layer::drawTextHC(char* t, Font* font, int y) {
   int w = textW(t, font);
   drawText(t, font, (480 - w) / 2, y);
 }
 
 
-int Layer::drawUTFText(const char* t, FZFont* font, int x, int y, int skipUTFChars, int maxWidth) {
+int Layer::drawUTFText(const char* t, Font* font, int x, int y, int skipUTFChars, int maxWidth) {
   return 0;
 }
 
-int Layer::drawUTFMenuItem(MenuItem* item, FZFont* font, int x, int y, int skipPixels, int maxWidth) {
+int Layer::drawUTFMenuItem(MenuItem* item, Font* font, int x, int y, int skipPixels, int maxWidth) {
   return 0;
 }
 
-int Layer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
+int Layer::drawText(char* t, Font* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
   return 0;
 }
 
@@ -230,26 +232,26 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // 920
   // 544
   // backs
-  FZScreen::drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR); // my cheapo drawTPill
+  Screen::drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR); // my cheapo drawTPill
 
   //title
-  FZScreen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
+  Screen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
 
   //context label
-  FZScreen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
+  Screen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
 
   //circle or other context
   // circleLabel
-  FZScreen::drawFontText(fontBig, DIALOG_ITEM_WIDTH - 70,
+  Screen::drawFontText(fontBig, DIALOG_ITEM_WIDTH - 70,
     DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, t);
 
   switch(User::controls.select) {
     case FZ_REPS_CROSS:
-      FZScreen::drawTextureScale(bk_icons["bk_cross_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
+      Screen::drawTextureScale(bk_icons["bk_cross_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
       break;
     case FZ_REPS_CIRCLE:
-      FZScreen::drawTextureScale(bk_icons["bk_circle_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
+      Screen::drawTextureScale(bk_icons["bk_circle_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
     default:
       break;
@@ -257,13 +259,13 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
 
   //title
   // (255, 255, 255, 255)
-  FZScreen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
+  Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
 
   // triangle labels
-  if (triangleLabel.size() > 0 || (flags & _MENU_ITEM_OPTIONAL_TRIANGLE_LABEL)) {
-    FZScreen::drawTextureScale(bk_icons["bk_triangle_icon"], DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
+  if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL)) {
+    Screen::drawTextureScale(bk_icons["bk_triangle_icon"], DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
-    FZScreen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X + 60,
+    Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X + 60,
       DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, triangleLabel.c_str());
   }
 }
@@ -274,17 +276,17 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
   drawMenu(title, triangleLabel, items, false);
-  FZScreen::drawText(300, 83, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
+  Screen::drawText(300, 83, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
 }
 
-#define DIALOG_MENU_FIRST_ITEM_OFFSET_Y DIALOG_TITLE_OFFSET_Y + DIALOG_ITEM_HEIGHT + 15
-#define DIALOG_MENU_ITEM_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
-#define DIALOG_MENU_ITEM_HEIGHT 40
+#define DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y DIALOG_TITLE_OFFSET_Y + DIALOG_ITEM_HEIGHT + 15
+#define DIALOGBK_MENU_ITEM_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
+#define DIALOGBK_MENU_ITEM_HEIGHT 40
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
   int maxItemNum = 8;
   int selPos = selItem - topItem;
-  FZFont* itemFont;
+  Font* itemFont;
   itemFont = fontBig;
 
   if (selPos < 0) {
@@ -300,7 +302,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   bool scrollbar = items.size() > maxItemNum;
 
   string tl(triangleLabel);
-  if (items[selItem].flags & _MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
+  if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
     tl = items[selItem].triangleLabel;
   }
   #ifdef DEBUG_RENDER
@@ -310,9 +312,9 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 
   // selectedItem
   int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
-  FZScreen::drawRectangle(DIALOG_ITEM_OFFSET_X,
-    (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOG_MENU_ITEM_HEIGHT)),
-    wSelBox, DIALOG_MENU_ITEM_HEIGHT, COLOR_WHITE);
+  Screen::drawRectangle(DIALOG_ITEM_OFFSET_X,
+    (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOGBK_MENU_ITEM_HEIGHT)),
+    wSelBox, DIALOGBK_MENU_ITEM_HEIGHT, COLOR_WHITE);
 
   // check if folder
 
@@ -325,16 +327,16 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     float trel = float(topItem) / float(items.size());
     trel *= 73.0f;
 
-    FZScreen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
-      DIALOG_MENU_FIRST_ITEM_OFFSET_Y,
+    Screen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
+      DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y,
       40,
-      DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - 30,
+      DIALOG_CONTEXT_OFFSET_Y - DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y - 200 - 30,
     0xff555555);
 
-    FZScreen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
-      DIALOG_MENU_FIRST_ITEM_OFFSET_Y + int(trel),
+    Screen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
+      DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + int(trel),
       40,
-      DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - int(barh),
+      DIALOG_CONTEXT_OFFSET_Y - DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y - 200 - int(barh),
     0xffaaaaaa);
   }
 
@@ -344,12 +346,12 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
       break;
 
     if ((i + topItem) == selItem)
-      FZScreen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
-        (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
+      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X,
+        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_HEIGHT) - 10),
         COLOR_BLACK, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
     else
-      FZScreen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
-        (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
+      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X,
+        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_HEIGHT) - 10),
         COLOR_WHITE, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
   }
 }
@@ -382,14 +384,14 @@ void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
     y = (544 - h) / 2;
 
   // back
-  FZScreen::drawRectangle(80, y, 960 - 156, h, bg1);
+  Screen::drawRectangle(80, y, 960 - 156, h, bg1);
 
   // title
-  FZScreen::drawRectangle(90, 10 + y, 960 - 176, 30, bg2);
+  Screen::drawRectangle(90, 10 + y, 960 - 176, 30, bg2);
 
 
   // // icons
-  // FZScreen::ambientColor(bg1|0xff000000);
+  // Screen::ambientColor(bg1|0xff000000);
   // // drawImage(410, 9 + y, _IMG_CIRCLE_XSIZE, _IMG_CIRCLE_YSIZE, _IMG_CIRCLE_X, _IMG_CIRCLE_Y);
   // switch (User::controls.select) {
   // case FZ_REPS_CIRCLE:
@@ -404,8 +406,8 @@ void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
   //fontBig->bindForDisplay();
 
 
-  FZScreen::drawText(102, y + 30, fg, 1.0f, title.c_str());
-  FZScreen::drawText(102, y + 65, fg, 1.0f, text.c_str());
+  Screen::drawText(102, y + 30, fg, 1.0f, title.c_str());
+  Screen::drawText(102, y + 65, fg, 1.0f, text.c_str());
 }
 
 #define _PI_OVER_180 0.0174532925199432957692369076849f
@@ -425,48 +427,48 @@ void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 
 void Layer::drawClockAndBattery(string& extra) {
   // int ew = textW((char*)extra.c_str(), fontSmall);
-  FZScreen::drawFontText(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
+  Screen::drawFontText(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_TEXT_OFFSET_Y - 45,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, extra.c_str());
 
   // cpu speed
-  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 255,
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 255,
     DIALOG_ICON_TEXT_OFFSET_Y,
-    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dMHz", FZScreen::getSpeed());
+    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dMHz", Screen::getSpeed());
 
   // cpu icon
-  FZScreen::drawTextureTintScale(bk_icons["bk_memory_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 345, 
+  Screen::drawTextureTintScale(bk_icons["bk_memory_icon"], DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 345, 
     DIALOG_ICON_OFFSET_Y, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // memory usage
-  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 395,
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 395,
     DIALOG_ICON_TEXT_OFFSET_Y,
-    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", FZScreen::getUsedMemory() / 1024);
+    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", Screen::getUsedMemory() / 1024);
 
   // battery icon
-  FZScreen::drawTextureTintScaleRotate(bk_icons["bk_battery_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 485,
+  Screen::drawTextureTintScaleRotate(bk_icons["bk_battery_icon"], DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 485,
     DIALOG_ICON_OFFSET_Y + 17, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE,
     DEG_TO_RAD(90), DIALOG_ICON_COLOR);
 
   // battery %
-  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 510,
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 510,
     DIALOG_ICON_TEXT_OFFSET_Y,
-    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%d%%", FZScreen::getBattery());
+    DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%d%%", Screen::getBattery());
 
   // clock icon
-  FZScreen::drawTextureTintScale(bk_icons["bk_clock_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
+  Screen::drawTextureTintScale(bk_icons["bk_clock_icon"], DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_OFFSET_Y + 5, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // time text
   int h = 0, m = 0;
-  FZScreen::getTime(h, m);
-  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 600,
+  Screen::getTime(h, m);
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 600,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%02d:%02d", h, m);
 }
 
 void Layer::menuCursorUpdate(unsigned int buttons, int max) {
-  int* b = FZScreen::ctrlReps();
+  int* b = Screen::ctrlReps();
   if (b[User::controls.menuUp] == 1 || (b[User::controls.menuUp] > 10 && b[User::controls.menuUp] % 5 == 0)) {
     selItem--;
     if (selItem < 0) {

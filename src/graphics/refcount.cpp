@@ -17,7 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "refcount.h"
+#include "refcount.hpp"
+
 #ifdef DEBUG_REFCOUNT
   #ifdef PSP
     #include <pspdebug.h>

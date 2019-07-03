@@ -24,7 +24,7 @@
 #include <vector>
 
 #include "../graphics/screen.hpp"
-#include "../bkdocument.h"
+#include "../document.hpp"
 
 using std::string;
 

@@ -49,6 +49,7 @@
 
 using std::string;
 
+#define RGBA8(r,g,b,a) ((((a)&0xFF)<<24) | (((b)&0xFF)<<16) | (((g)&0xFF)<<8) | (((r)&0xFF)<<0))
 #define BK_CMD_CLOSE_TOP_LAYER 1
 #define BK_CMD_MARK_DIRTY 2
 #define BK_CMD_EXIT 3
@@ -147,9 +148,9 @@ class Layer : public RefCounted {
   void drawRect(int x, int y, int w, int h, int r, int tx, int ty);
   void drawPill(int x, int y, int w, int h, int r, int tx, int ty);
   void drawTPill(int x, int y, int w, int h, int r, int tx, int ty);
-  int drawText(char* t, FZFont* font, int x, int y, int n = -1, bool useLF = true, bool usePS = false, float ps = 0.0f, bool use3D = false);
-  int drawUTFText(const char*, FZFont*, int, int, int, int);
-  void drawTextHC(char* t, FZFont* font, int y);
+  int drawText(char* t, Font* font, int x, int y, int n = -1, bool useLF = true, bool usePS = false, float ps = 0.0f, bool use3D = false);
+  int drawUTFText(const char*, Font*, int, int, int, int);
+  void drawTextHC(char* t, Font* font, int y);
   void drawImage(int x, int y, int w, int h, int tx, int ty);
   void drawImage(int x, int y);
   void drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th);
@@ -205,7 +206,7 @@ class Layer : public RefCounted {
   void drawPopup(string& text, string& title, int bg1, int bg2, int fg);
 
   void drawClockAndBattery(string& extra);
-  int drawUTFMenuItem(MenuItem*, FZFont*, int, int, int, int);
+  int drawUTFMenuItem(MenuItem*, Font*, int, int, int, int);
 
   public:
   virtual int update(unsigned int buttons) = 0;
