@@ -2,7 +2,7 @@
 
 // WHERE TO PUT THIS?! Only for Vita newlib?
 #ifdef __vita__
-int _newlib_heap_size_user = 192 * 1024 * 1024;
+extern int _newlib_heap_size_user = 192 * 1024 * 1024;
 #endif
 
 // extern "C"

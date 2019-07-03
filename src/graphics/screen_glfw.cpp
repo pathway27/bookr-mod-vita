@@ -26,14 +26,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#ifdef WIN32
-#include <gl/gl.h>
-#else
-#include <OpenGL/gl.h>
-#endif
-
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cstdlib>
@@ -264,8 +257,25 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
             case GLFW_KEY_C: keyState &= ~FZ_CTRL_RTRIGGER; break;
             case GLFW_KEY_H: keyState &= ~FZ_CTRL_HOLD; break;
             //case '6': powerSerial++; break;
-	    }
+      }
     }
+}
+
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ---------------------------------------------------------------------------------------------------------
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
+
+// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// ---------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
 }
 
 static Shader* texture_shader;
@@ -292,7 +302,7 @@ static void loadShaders() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     //VBOs["texture"] = VBO;
-	//VAOs["texture"] = VAO;
+    //VAOs["texture"] = VAO;
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -307,41 +317,46 @@ static void loadShaders() {
 static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
 void open(int argc, char** argv) {
-    //getcwd(psp_full_path, 1024);
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-  #ifdef MAC
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  //getcwd(psp_full_path, 1024);
+  glfwInit();
+  if (!glfwInit()) {
+      cout << "Failed to init GLFW" << endl;
+  }
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  #ifdef __APPLE__
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   #endif
 
-    window = glfwCreateWindow(FZ_SCREEN_WIDTH, FZ_SCREEN_HEIGHT, "Bookr GLFW", nullptr, nullptr);
-    if (window == nullptr) {
-        cout << "Failed to create GLFW window" << endl;
-        glfwTerminate();
-    }
-    glfwMakeContextCurrent(window);
+  // glfw window creation
+  // --------------------
+  GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+  if (window == NULL)
+  {
+      std::cout << "Failed to create GLFW window" << std::endl;
+      glfwTerminate();
+  }
+  glfwMakeContextCurrent(window);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK)
-        cout << "Failed to initialize GLEW" << endl;
-    if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
-      cout << "Failed to initialize GLEW_VERSION_2_1" << endl;
+  // glad: load all OpenGL function pointers
+  // ---------------------------------------
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  {
+      std::cout << "Failed to initialize GLAD" << std::endl;
+  }    
 
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
+  int width, height;
+  glfwGetFramebufferSize(window, &width, &height);
+  glViewport(0, 0, width, height);
 
-    glfwSetKeyCallback(window, keyboard);
+  glfwSetKeyCallback(window, keyboard);
 
-    glfwSwapInterval(0);
+  glfwSwapInterval(0);
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    //loadShaders();
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void close() {
@@ -363,8 +378,8 @@ int readCtrl() {
 }
 
 void getAnalogPad(int& x, int& y) {
-	x = 128;
-	y = 128;
+  x = 128;
+  y = 128;
 }
 
 void swapBuffers() {
@@ -380,8 +395,8 @@ void matricesFor2D(int rotation) {
 }
 
 
-static FZTexture* boundTexture = 0;
-void setBoundTexture(FZTexture *t) {
+static Texture* boundTexture = 0;
+void setBoundTexture(Texture *t) {
     boundTexture = t;
 }
 
@@ -465,12 +480,12 @@ struct CompareDirent {
 };
 
 int dirContents(const char* path, vector<Dirent>& a) {
-	return 0;
+  return 0;
 }
 
 int getSuspendSerial() {
     //return powerResumed;
-	return 0;
+  return 0;
 }
 
 void setSpeed(int v) {
@@ -486,26 +501,26 @@ void setSpeed(int v) {
 }
 
 int getSpeed() {
-	return 0;
+  return 0;
 }
 
 void getTime(int &h, int &m) {
 }
 
 int getBattery() {
-	return 0;
+  return 0;
 }
 
 int getUsedMemory() {
     //struct mallinfo mi = mallinfo();
     //return mi.uordblks;
     //return mi.arena;
-	return 0;
+  return 0;
 }
 
 void* getListMemory(int s) {
     //return sceGuGetMemory(s);
-	return 0;
+  return 0;
 }
 
 

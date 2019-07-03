@@ -39,7 +39,7 @@ FileChooser::~FileChooser() {
 		User::save();
 }
 
-void FileChooser::getCurrentDirent(FZDirent& de) {
+void FileChooser::getCurrentDirent(Dirent& de) {
 	de = dirFiles[selItem];
 }
 
@@ -57,13 +57,13 @@ bool FileChooser::isConvertToVN() {
 
 void FileChooser::updateDirFiles() {
 	dirFiles.clear();
-	int err = FZScreen::dirContents((char*)path.c_str(), dirFiles);
+	int err = Screen::dirContents((char*)path.c_str(), dirFiles);
 	if (err < 0) {
-		path = FZScreen::basePath();
-		FZScreen::dirContents((char*)path.c_str(), dirFiles);
+		path = Screen::basePath();
+		Screen::dirContents((char*)path.c_str(), dirFiles);
 	}
 	if (dirFiles.size() == 0)
-		dirFiles.push_back(FZDirent("<Empty folder>", 0, 0));
+		dirFiles.push_back(Dirent("<Empty folder>", 0, 0));
 	if( ret == BK_CMD_SET_FONT )
 		User::options.lastFontFolder = path;
 	else
@@ -72,7 +72,7 @@ void FileChooser::updateDirFiles() {
 
 int FileChooser::update(unsigned int buttons) {
 	menuCursorUpdate(buttons, (int)dirFiles.size());
-	int* b = FZScreen::ctrlReps();
+	int* b = Screen::ctrlReps();
 	if (b[User::controls.select] == 1) {
 		//printf("selected %s\n", dirFiles[selItem].name.c_str());
 		//psp2shell_print("File Info: %i\n", dirFiles[selItem].stat);
@@ -139,7 +139,7 @@ void FileChooser::render() {
 
 FileChooser* FileChooser::create(string& t, int r) {
 	FileChooser* f = new FileChooser(t, r);
-	FZScreen::resetReps();
+	Screen::resetReps();
 	return f;
 }
 

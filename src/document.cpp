@@ -22,6 +22,8 @@
   #include <vita2d.h>
 #endif
 
+#include "graphics/resolutions.hpp"
+#include "graphics/controls.hpp"
 #include "document.hpp"
 #include "filetypes/mudocument.hpp"
 // #include "filetypes/bkdjvu.h"
@@ -81,7 +83,7 @@ Document* Document::create(string filePath) {
 }
 
 Document::Document() : 
-  mode(DOC_VIEW), bannerFrames(0), banner(""), 	tipFrames(120), toolbarSelMenu(0),
+  mode(BKDOC_VIEW), bannerFrames(0), banner(""), 	tipFrames(120), toolbarSelMenu(0),
   toolbarSelMenuItem(0), frames(0)
 {
   lastSuspendSerial = Screen::getSuspendSerial();
@@ -146,24 +148,24 @@ int Document::update(unsigned int buttons) {
 
   // banner fade - this blocks event input during the fade
   //if (bannerFrames > 0)
-  //	return _CMD_MARK_DIRTY;
+  //	return BK_CMD_MARK_DIRTY;
 
   r = 0;
-  if (mode == DOC_VIEW)
+  if (mode == BKDOC_VIEW)
     r = processEventsForView();
   else
     r = processEventsForToolbar();
 
   // banner fade - this allows events during the fade
   if (bannerFrames > 0 && r == 0)
-    r = _CMD_MARK_DIRTY;
+    r = BK_CMD_MARK_DIRTY;
   if (tipFrames > 0 && r == 0)
-    r = _CMD_MARK_DIRTY;
+    r = BK_CMD_MARK_DIRTY;
 
   // clock tick
   frames++;
-  if (frames % 60 == 0 && r == 0 && mode != DOC_VIEW)
-    r = _CMD_MARK_DIRTY;
+  if (frames % 60 == 0 && r == 0 && mode != BKDOC_VIEW)
+    r = BK_CMD_MARK_DIRTY;
 
   #ifdef DEBUG_RENDER
     printf("Document::updateContent - done\n");
@@ -264,13 +266,13 @@ int Document::processEventsForView() {
 
   // main menu
   if (b[User::controls.showMainMenu] == 1) {
-    return _CMD_INVOKE_MENU;
+    return BK_CMD_INVOKE_MENU;
   }
 
   // toolbar
   if (b[User::controls.showToolbar] == 1) {
-    mode = DOC_TOOLBAR;
-    return _CMD_MARK_DIRTY;
+    mode = BKDOC_TOOLBAR;
+    return BK_CMD_MARK_DIRTY;
   }
 
   #ifdef DEBUG_RENDER
@@ -411,7 +413,7 @@ int Document::processEventsForToolbar() {
       printf("delete bookmark: %i\n", di);
       BookmarksManager::removeBookmark(fn, di);
       buildToolbarMenus();
-      return _CMD_MARK_DIRTY;
+      return BK_CMD_MARK_DIRTY;
     }
   }
 
@@ -428,7 +430,7 @@ int Document::processEventsForToolbar() {
       getBookmarkPosition(b.viewData);
       BookmarksManager::addBookmark(fn, b);
       buildToolbarMenus();
-      return _CMD_MARK_DIRTY;
+      return BK_CMD_MARK_DIRTY;
     }
     // jump to bookmark
     if (toolbarSelMenu == 0 && toolbarSelMenuItem > 0 && isBookmarkable()) {
@@ -466,7 +468,7 @@ int Document::processEventsForToolbar() {
     }
     // go to page
     if (toolbarSelMenu == 1 && toolbarSelMenuItem == 4 && isPaginated()) {
-      return _CMD_INVOKE_PAGE_CHOOSER;
+      return BK_CMD_INVOKE_PAGE_CHOOSER;
     }
     int zi = 3;
     int zo = 2;
@@ -509,21 +511,21 @@ int Document::processEventsForToolbar() {
 
     // rotate cw
     if (toolbarSelMenu == 3 && toolbarSelMenuItem == 0 && isRotable()) {
-      Screen::setSpeed(User::options.pspMenuSpeed);
+      // Screen::setSpeed(User::options.pspMenuSpeed);
       int z = getRotation();
       z++;
       int r = setRotation(z);
-      Screen::setSpeed(User::options.pspSpeed);
+      // Screen::setSpeed(User::options.pspSpeed);
       if (r != 0)
         return r;
     }
     // rotate ccw
     if (toolbarSelMenu == 3 && toolbarSelMenuItem == 1 && isRotable()) {
-      Screen::setSpeed(User::options.pspMenuSpeed);
+      // Screen::setSpeed(User::options.pspMenuSpeed);
       int z = getRotation();
       z--;
       int r = setRotation(z);
-      Screen::setSpeed(User::options.pspSpeed);
+      // Screen::setSpeed(User::options.pspSpeed);
       if (r != 0)
         return r;
     }
@@ -531,13 +533,13 @@ int Document::processEventsForToolbar() {
 
   // main menu
   if (b[User::controls.showMainMenu] == 1) {
-    return _CMD_INVOKE_MENU;
+    return BK_CMD_INVOKE_MENU;
   }
 
   // view
   if (b[User::controls.showToolbar] == 1) {
-    mode = DOC_VIEW;
-    return _CMD_MARK_DIRTY;
+    mode = BKDOC_VIEW;
+    return BK_CMD_MARK_DIRTY;
   }
 
   return 0;
@@ -554,7 +556,7 @@ void Document::render() {
   renderContent();
 
   // // flash tip for menu/toolbar on load
-  if (tipFrames > 0 && mode != DOC_TOOLBAR) {
+  if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
     int alpha = 0xff;
     if (tipFrames <= 32) {
       alpha = tipFrames*(256/32) - 8;
@@ -602,9 +604,9 @@ void Document::render() {
   // banner that shows page loading and current page number / number of pages
   if (bannerFrames > 0 && User::options.displayLabels) {
     #ifdef __vita__
-      int y = mode == DOC_TOOLBAR ? 10 : FZ_SCREEN_HEIGHT - 50;
+      int y = mode == BKDOC_TOOLBAR ? 10 : FZ_SCREEN_HEIGHT - 50;
     #elif defined(PSP)
-      int y = mode == DOC_TOOLBAR ? 10 : 240;
+      int y = mode == BKDOC_TOOLBAR ? 10 : 240;
     #endif
     int alpha = 0xff;
     if (bannerFrames <= 32) {
@@ -625,7 +627,7 @@ void Document::render() {
     }
   }
 
-  if (mode != DOC_TOOLBAR)
+  if (mode != BKDOC_TOOLBAR)
     return;
 
   // // all of the icons menus must have at least one item
