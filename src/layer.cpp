@@ -39,12 +39,12 @@
 
 namespace bookr {
 
-FZFont* Layer::fontBig = 0;
-FZFont* Layer::fontSmall = 0;
-FZFont* Layer::fontUTF = 0;
-FZTexture* Layer::texUI = 0;
-FZTexture* Layer::texUI2 = 0;
-FZTexture* Layer::texLogo = 0;
+Font* Layer::fontBig = 0;
+Font* Layer::fontSmall = 0;
+Font* Layer::fontUTF = 0;
+Texture* Layer::texUI = 0;
+Texture* Layer::texUI2 = 0;
+Texture* Layer::texLogo = 0;
 
 extern "C" {
   extern unsigned int size_res_logo;
@@ -69,30 +69,30 @@ void Layer::load() {
     #ifdef DEBUG
       printf("bklayer load\n");
     #endif
-    texLogo = FZTexture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
+    texLogo = Texture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
 
     if (!fontBig){
-      fontBig = FZFont::createFromMemory(fz_resources_fonts_urw_NimbusSans_Regular_cff, fz_resources_fonts_urw_NimbusSans_Regular_cff_size, 
+      fontBig = Font::createFromMemory(fz_resources_fonts_urw_NimbusSans_Regular_cff, fz_resources_fonts_urw_NimbusSans_Regular_cff_size, 
         14, false);
     }
   #elif defined(MAC) || defined(WIN32)
-    texLogo = FZTexture::createFromSOIL("sce_sys/icon0_t.png");
+    texLogo = Texture::createFromSOIL("sce_sys/icon0_t.png");
   #elif defined(PSP)
 
     // if (!fontUTF){
-    //   fontUTF = FZFont::createUTFFromFile("utf.font",14,false);
+    //   fontUTF = Font::createUTFFromFile("utf.font",14,false);
     //   if(!fontUTF)
     //     if(pdf_font_DroidSansFallback_ttf_len)
-    // fontUTF = FZFont::createUTFFromMemory(pdf_font_DroidSansFallback_ttf_buf, pdf_font_DroidSansFallback_ttf_len, 14, false);
+    // fontUTF = Font::createUTFFromMemory(pdf_font_DroidSansFallback_ttf_buf, pdf_font_DroidSansFallback_ttf_len, 14, false);
     //     else
-    // fontUTF = FZFont::createUTFFromFile("data.fnt",14,false);
+    // fontUTF = Font::createUTFFromFile("data.fnt",14,false);
     //   if(fontUTF){
     //     fontUTF->texEnv(FZ_TEX_MODULATE);
     //     fontUTF->filter(FZ_NEAREST, FZ_NEAREST);
     //   }
     // }
     // if (!fontSmall){
-    // fontSmall = FZFont::createFromMemory(res_uifont, size_res_uifont, 11, false);
+    // fontSmall = Font::createFromMemory(res_uifont, size_res_uifont, 11, false);
     // fontSmall->texEnv(FZ_TEX_MODULATE);
     // fontSmall->filter(FZ_NEAREST, FZ_NEAREST);
     // }
@@ -101,7 +101,7 @@ void Layer::load() {
     // FZImage* image = FZImage::createFromPNG(ins);
     // ins->release();
     // ins = 0;
-    // texUI = FZTexture::createFromImage(image, false);
+    // texUI = Texture::createFromImage(image, false);
     // texUI->texEnv(FZ_TEX_MODULATE);
     // texUI->filter(FZ_NEAREST, FZ_NEAREST);
     // image->release();
@@ -111,7 +111,7 @@ void Layer::load() {
     // FZImage* image = FZImage::createFromPNG(ins);
     // ins->release();
     // ins = 0;
-    // texUI2 = FZTexture::createFromImage(image, false);
+    // texUI2 = Texture::createFromImage(image, false);
     // texUI2->texEnv(FZ_TEX_MODULATE);
     // texUI2->filter(FZ_NEAREST, FZ_NEAREST);
     // image->release();
@@ -221,104 +221,44 @@ void Layer::drawImage(int x, int y, int w, int h, int tx, int ty) {
 }
 
 void Layer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
-  struct T32FV32F2D vertices[2] = {
-    { tx, ty, x, y, 0 },
-    { tx + tw, ty + th, x + w, y + h, 0 }
-  };
-  T32FV32F2D* verts = (T32FV32F2D*)Screen::getListMemory(2*sizeof(struct T32FV32F2D));
-  memcpy(verts, vertices, 2 * sizeof(struct T32FV32F2D));
-  Screen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
+
 }
 
 void Layer::drawPill(int x, int y, int w, int h, int r, int tx, int ty) {
-  struct T32FV32F2D vertices[7*2] = {
-    { tx, ty, x, y, 0 },
-    { tx + r, ty + r, x + r, y + r, 0 },
 
-    { tx + r, ty, x + w, y, 0 },
-    { tx, ty + r, x + w + r, y + r, 0 },
-
-    { tx, ty + r, x, y + h, 0 },
-    { tx + r, ty, x + r, y + h + r, 0 },
-
-    { tx + r, ty + r, x + w, y + h, 0 },
-    { tx, ty, x + w + r, y + h + r, 0 },
-
-    { tx + r, ty + r, x + r, y, 0 },
-    { tx + r, ty + r, x + w, y + h + r, 0 },
-
-    { tx + r, ty + r, x, y + r, 0 },
-    { tx + r, ty + r, x + r, y + h, 0 },
-
-    { tx + r, ty + r, x + w, y + r, 0 },
-    { tx + r, ty + r, x + r + w, y + h, 0 }
-  };
-  T32FV32F2D* verts = (T32FV32F2D*)Screen::getListMemory(2 * 7 * sizeof(struct T32FV32F2D));
-  memcpy(verts, vertices, 2 * 7 * sizeof(struct T32FV32F2D));
-  Screen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,14,0,verts);
 }
 
 void Layer::drawTPill(int x, int y, int w, int h, int r, int tx, int ty) {
-  struct T32FV32F2D vertices[5*2] = {
-    { tx, ty, x, y, 0 },
-    { tx + r, ty + r, x + r, y + r, 0 },
-
-    { tx + r, ty, x + w, y, 0 },
-    { tx, ty + r, x + w + r, y + r, 0 },
-
-    /*{ tx, ty + r, x, y + h, 0 },
-    { tx + r, ty, x + r, y + h + r, 0 },
-
-    { tx + r, ty + r, x + w, y + h, 0 },
-    { tx, ty, x + w + r, y + h + r, 0 },*/
-
-    { tx + r, ty + r, x + r, y, 0 },
-    { tx + r, ty + r, x + w, y + h + r, 0 },
-
-    { tx + r, ty + r, x, y + r, 0 },
-    { tx + r, ty + r, x + r, y + h, 0 },
-
-    { tx + r, ty + r, x + w, y + r, 0 },
-    { tx + r, ty + r, x + r + w, y + h, 0 }
-  };
-  T32FV32F2D* verts = (T32FV32F2D*)Screen::getListMemory(2 * 5 * sizeof(struct T32FV32F2D));
-  memcpy(verts, vertices, 2 * 5 * sizeof(struct T32FV32F2D));
-  Screen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,10,0,verts);
+  
 }
 
 void Layer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
-  struct T32FV32F2D vertices[1*2] = {
-    { tx + r, ty + r, x, y, 0 },
-    { tx + r, ty + r, x + w, y + h, 0 }
-  };
-  T32FV32F2D* verts = (T32FV32F2D*)Screen::getListMemory(2 * 1 * sizeof(struct T32FV32F2D));
-  memcpy(verts, vertices, 2 * 1 * sizeof(struct T32FV32F2D));
-  Screen::drawArray(FZ_SPRITES,FZ_TEXTURE_32BITF|FZ_VERTEX_32BITF|FZ_TRANSFORM_2D,2,0,verts);
+  
 }
 
-int Layer::textWidthRange(char* t, int n, FZFont* font) {
+int Layer::textWidthRange(char* t, int n, Font* font) {
   return 0;
 }
 
-int Layer::textW(char* t, FZFont* font) {
+int Layer::textW(char* t, Font* font) {
   return 0;
 }
 
-void Layer::drawTextHC(char* t, FZFont* font, int y) {
+void Layer::drawTextHC(char* t, Font* font, int y) {
   int w = textW(t, font);
   drawText(t, font, (480 - w) / 2, y);
 }
 
 
-int Layer::drawUTFText(const char* t, FZFont* font, int x, int y, int skipUTFChars, int maxWidth) {
+int Layer::drawUTFText(const char* t, Font* font, int x, int y, int skipUTFChars, int maxWidth) {
   return 0;
 }
 
-int Layer::drawUTFMenuItem(MenuItem* item, FZFont* font, int x, int y, int skipPixels, int maxWidth) {
+int Layer::drawUTFMenuItem(MenuItem* item, Font* font, int x, int y, int skipPixels, int maxWidth) {
   return 0;
 }
 
-int Layer::drawText(char* t, FZFont* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
+int Layer::drawText(char* t, Font* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
   return 0;
 }
 
@@ -436,7 +376,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   int maxItemNum = 8;
   int selPos = selItem - topItem;
   int scrY = 0;
-  FZFont* itemFont;
+  Font* itemFont;
   if(useUTFFont&&fontUTF){
     itemFont = fontUTF;
     maxItemNum = 9;
@@ -643,7 +583,7 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   int maxItemNum = 8;
   int selPos = selItem - topItem;
   int scrY = 0;
-  FZFont* itemFont;
+  Font* itemFont;
   bool hasOutline = true;
   //Screen::ambientColor(0xFF0000FF);
   //drawOutlinePrefix("1",0,0,20,20);
@@ -693,7 +633,7 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
     texUI->bindForDisplay();
     Screen::ambientColor(0xffcccccc);
     drawImage(190, 248, BK_IMG_SQUARE_XSIZE, BK_IMG_SQUARE_YSIZE, BK_IMG_SQUARE_X, BK_IMG_SQUARE_Y);
-    fontBig->bindForDisplay();
+    // fontBig->bindForDisplay();
     if (User::options.t_ignore_x)
       drawText("Goto (ignore zoom&X)", fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
     else
@@ -744,7 +684,7 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   // 	}
   // }
 
-  itemFont->bindForDisplay();
+  // itemFont->bindForDisplay();
 
   Screen::ambientColor(0xffffffff);
   // contents
@@ -879,7 +819,7 @@ void Layer::drawClockAndBattery(string& extra) {
   drawImage(350, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
   drawImage(405, 222, BK_IMG_CLOCK_XSIZE, BK_IMG_CLOCK_YSIZE, BK_IMG_CLOCK_X, BK_IMG_CLOCK_Y);
   drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
-  fontSmall->bindForDisplay();
+  // fontSmall->bindForDisplay();
   Screen::ambientColor(0xffbbbbbb);
   int ew = textW((char*)extra.c_str(), fontSmall);
   drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);

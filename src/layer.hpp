@@ -48,6 +48,7 @@
 #endif
 
 using std::string;
+using std::map;
 
 #define RGBA8(r,g,b,a) ((((a)&0xFF)<<24) | (((b)&0xFF)<<16) | (((g)&0xFF)<<8) | (((r)&0xFF)<<0))
 #define BK_CMD_CLOSE_TOP_LAYER 1

@@ -20,16 +20,16 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
-#if defined(MAC) || defined(WIN32)
+#if defined(__APPLE__) || defined(WIN32)
 static void* memalign(int t, int s) {
 	return malloc(s);
 }
 #else
-#include <cmalloc>
+#include <malloc.h>
 #endif
 
 #include "font.hpp"
-#include "user.hpp"
+#include "../user.hpp"
 
 namespace bookr {
 
@@ -249,15 +249,15 @@ Font* Font::createProto(FT_Library& library, FT_Face& face, int fontSize, bool a
 
 	FT_Done_FreeType(library);
 	Font* font = new Font();
-	if (!initFromImage(font, image, false)) {
-		font->release();
-		font = 0;
-	}
-	else{
-	  font->metrics = fontMetrics;
-	  font->lineHeight = fontLineHeight;
-	  font->maxAscent = max_ascent;
-	}
+	// if (!initFromImage(font, image, false)) {
+	// 	font->release();
+	// 	font = 0;
+	// }
+	// else{
+	//   font->metrics = fontMetrics;
+	//   font->lineHeight = fontLineHeight;
+	//   font->maxAscent = max_ascent;
+	// }
 	image->release();
 
 	return font;
@@ -269,6 +269,11 @@ int Font::getLineHeight() {
 
 CharMetrics* Font::getMetrics() {
 	return metrics;
+}
+
+int Font::fontTextWidth(const char *text)
+{
+  return 1;
 }
 
 int Font::initUTFFont(){
@@ -313,7 +318,7 @@ int Font::getSingleMetrics(unsigned long idx, CharMetrics* met, Texture** textur
     met->yoffset = metrics[idx].yoffset;
     met->xadvance = metrics[idx].xadvance;
     this->retain();
-    *texturepp = this;
+    // *texturepp = this;
     return 1;
   }
 
@@ -396,36 +401,37 @@ int Font::getSingleMetrics(unsigned long idx, CharMetrics* met, Texture** textur
       }
     }
     
-    *texturepp = new Font();
+ //    *texturepp = new Font();
 
-    if( *texturepp == 0 || !initFromImage(*texturepp,image,false)){
-      if (*texturepp){
-	((Font*)(*texturepp)) -> release();
-	*texturepp = 0;
-      }
-      image->release();
-      return 0;
-    }
-    else {
-       ((Font*)(*texturepp))->metrics = 0;
-       ((Font*)(*texturepp))->metrics = (CharMetrics*)memalign(16,sizeof(CharMetrics));
-       if (((Font*)(*texturepp))->metrics){
- 	memset(((Font*)(*texturepp))->metrics, 0, sizeof(CharMetrics));
- 	((Font*)(*texturepp))->metrics->width = met->width;
- 	((Font*)(*texturepp))->metrics->height = met->height;
- 	((Font*)(*texturepp))->metrics->xoffset = met->xoffset;
- 	((Font*)(*texturepp))->metrics->yoffset = met->yoffset;
- 	((Font*)(*texturepp))->metrics->x = met->x;
- 	((Font*)(*texturepp))->metrics->y = met->y;
- 	((Font*)(*texturepp))->metrics->xadvance = met->xadvance;
-       }
-       ((Font*)(*texturepp))->lineHeight = this->lineHeight;
-       ((Font*)(*texturepp))->maxAscent = this->maxAscent;
-      (*texturepp)->texEnv(_TEX_MODULATE);
-      (*texturepp)->filter(_NEAREST, _NEAREST);
-      image->release();
-      return 1;
-    }
+ //    if( *texturepp == 0 ) {
+ //      if (*texturepp){
+	// ((Font*)(*texturepp)) -> release();
+	// *texturepp = 0;
+ //      }
+ //      image->release();
+ //      return 0;
+ //    }
+ //    else {
+ //       ((Font*)(*texturepp))->metrics = 0;
+ //       ((Font*)(*texturepp))->metrics = (CharMetrics*)memalign(16,sizeof(CharMetrics));
+ //       if (((Font*)(*texturepp))->metrics){
+ // 	memset(((Font*)(*texturepp))->metrics, 0, sizeof(CharMetrics));
+ // 	((Font*)(*texturepp))->metrics->width = met->width;
+ // 	((Font*)(*texturepp))->metrics->height = met->height;
+ // 	((Font*)(*texturepp))->metrics->xoffset = met->xoffset;
+ // 	((Font*)(*texturepp))->metrics->yoffset = met->yoffset;
+ // 	((Font*)(*texturepp))->metrics->x = met->x;
+ // 	((Font*)(*texturepp))->metrics->y = met->y;
+ // 	((Font*)(*texturepp))->metrics->xadvance = met->xadvance;
+ //       }
+ //       ((Font*)(*texturepp))->lineHeight = this->lineHeight;
+ //       ((Font*)(*texturepp))->maxAscent = this->maxAscent;
+ //      (*texturepp)->texEnv(_TEX_MODULATE);
+ //      (*texturepp)->filter(_NEAREST, _NEAREST);
+ //      image->release();
+ //      
+ //    }
+    return 1;
 }
 
 int Font::get_next_utf8_char(unsigned long* ucs, const char* s, int n) {
@@ -483,168 +489,6 @@ int Font::get_next_utf8_char(unsigned long* ucs, const char* s, int n) {
 	}
 	*ucs = result;
 	return src - s;
-}
-
-Texture* Font::getTextureFromString(const char* t,int cgap){
-  int margin=3;
-  //int cgap = 1; /* gap between adjust chars */
-  int image_height = 16;
-  int image_width = 16;
-  int needed_width = margin; 
-  int needed_height;
-  int max_descent = 0, max_ascent = 0;
-  
-  if(!initUTFFont())
-    return 0;
-  
-  if (!(ftface->face_flags & FT_FACE_FLAG_SCALABLE) or !(ftface->face_flags & FT_FACE_FLAG_HORIZONTAL)) {
-    return 0;
-  }
-
-  FT_Set_Pixel_Sizes(ftface, fontSize, 0);
-  int loadMode = FT_LOAD_DEFAULT;
-  if (autohint)
-    loadMode |= FT_LOAD_FORCE_AUTOHINT;
-  
-  int length = strlen(t);
-  int nextUTFIndex = 0;
-  int nextUTFLength = 0;
-  unsigned long utf = 0;
-
-  // run once to get image width and height.
-  while ((nextUTFLength = get_next_utf8_char(&utf, t+nextUTFIndex, length - nextUTFIndex)) > 0){
-    nextUTFIndex += nextUTFLength;
-    if (utf < 32){
-      utf = 32;
-    }
-    unsigned int char_index = FT_Get_Char_Index(ftface,utf);
-    FT_Load_Glyph(ftface,char_index, loadMode);
-    FT_Render_Glyph(ftface->glyph,FT_RENDER_MODE_NORMAL);
-    
-    needed_width += (ftface->glyph->metrics.horiAdvance >>6)+cgap;
-
-    int t = ftface->glyph->bitmap_top;
-    if (t > max_ascent)
-      max_ascent = t;
-    t = ftface->glyph->bitmap.rows - ftface->glyph->bitmap_top;
-    if (t > max_descent)
-      max_descent = t;
-  }
-
-  needed_width = needed_width - cgap + margin;
-  needed_height = max_descent + max_ascent + 2* margin;
-
-  while (image_width < needed_width)
-    image_width *= 2;
-  while (image_height < needed_height)
-    image_height *= 2;
-
-  int needed_lines = (image_width-1)/ IMAGE_MAX_WIDTH + 1;
-  int single_line_height = image_height;
-  if(needed_lines > 1){
-    // we have to break this long text into multiple lines manually.
-    image_width = IMAGE_MAX_WIDTH;
-    image_height *= needed_lines;
-  }
-
-  int clutSize = 256;
-  Image* image = Image::createEmpty(image_width, image_height, clutSize, Image::mono8);
-  if(!image)
-    return 0;
-  unsigned char* fontTexture = (unsigned char*)image->getData();
-  // add clut to texture
-  unsigned int* clut = image->getCLUT();
-  for (int i = 0; i < clutSize; i++) {
-    clut[i] = 0xffffff | (i << 24);
-  }
-
-  struct CharMetrics* fontMetrics = (CharMetrics*)memalign(16, 1 * sizeof(CharMetrics));
-  if(!fontMetrics)
-    return 0;
-  memset(fontMetrics, 0, 1 * sizeof(CharMetrics));
-  
-  nextUTFIndex = 0;
-  nextUTFLength = 0;
-  utf = 0;
-  int x = margin;
-  // draw chars into image
-  if (needed_lines == 1 ){
-    while ((nextUTFLength = get_next_utf8_char(&utf, t+nextUTFIndex, length - nextUTFIndex)) > 0){
-      nextUTFIndex += nextUTFLength;
-      if (utf<32){
-	utf = 32;
-      }
-      unsigned int char_index = FT_Get_Char_Index(ftface,utf);
-      FT_Load_Glyph(ftface,char_index, loadMode);
-      FT_Render_Glyph(ftface->glyph,FT_RENDER_MODE_NORMAL);
-      
-      for (int row = 0; row < ftface->glyph->bitmap.rows; ++row){
-	for (int pixel = 0; pixel < ftface->glyph->bitmap.width; ++pixel){
-	  fontTexture[(x + ftface->glyph->bitmap_left + pixel) +
-		      (margin + max_ascent - ftface->glyph->bitmap_top + row) * image_width] |=
-	    ftface->glyph->bitmap.buffer[pixel + row * ftface->glyph->bitmap.pitch];
-	}
-      }
-      
-      x += (ftface->glyph->metrics.horiAdvance >>6)+cgap;
-    }
-  }
-  else{
-    int virt_x, virt_y, cur_line_no, real_x, real_y;
-    while ((nextUTFLength = get_next_utf8_char(&utf, t+nextUTFIndex, length - nextUTFIndex)) > 0){
-      nextUTFIndex += nextUTFLength;
-      
-      unsigned int char_index = FT_Get_Char_Index(ftface,utf);
-      FT_Load_Glyph(ftface,char_index, loadMode);
-      FT_Render_Glyph(ftface->glyph,FT_RENDER_MODE_NORMAL);
-      
-      for (int row = 0; row < ftface->glyph->bitmap.rows; ++row){
-	for (int pixel = 0; pixel < ftface->glyph->bitmap.width; ++pixel){
-
-	  virt_x = x + ftface->glyph->bitmap_left + pixel;
-	  virt_y = margin + max_ascent - ftface->glyph->bitmap_top + row;
-	  cur_line_no = virt_x / IMAGE_MAX_WIDTH;
-	  
-	  real_x = virt_x % IMAGE_MAX_WIDTH;
-	  real_y = virt_y + cur_line_no * single_line_height; 
-
-	  fontTexture[real_x +
-		      real_y * IMAGE_MAX_WIDTH] |=
-	    ftface->glyph->bitmap.buffer[pixel + row * ftface->glyph->bitmap.pitch];
-	}
-      }
-      
-      x += (ftface->glyph->metrics.horiAdvance >>6)+cgap;
-    }
-    
-  }
-
-  fontMetrics[0].width = needed_width - 2* margin;
-  fontMetrics[0].xadvance = fontMetrics[0].width;
-  fontMetrics[0].xoffset = 0;
-  fontMetrics[0].yoffset = this->maxAscent-max_ascent;
-  fontMetrics[0].height = max_ascent + max_descent;
-  fontMetrics[0].x = margin;
-  fontMetrics[0].y = margin;
-
-  Font* font = new Font();
-  if (!initFromImage(font, image, false)) {
-    font->release();
-    font = 0;
-  }
-  else{
-    font->metrics = fontMetrics;
-    //font->lineHeight = max_ascent + max_descent + margin;
-    font->lineHeight = single_line_height;
-    font->maxAscent = max_ascent;
-    font->texEnv(_TEX_MODULATE);
-    font->filter(_NEAREST, _NEAREST);
-
-  }
-  image->release();
-  
-  return font;
-	
 }
 
 }
