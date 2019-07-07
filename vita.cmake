@@ -70,6 +70,7 @@ add_executable(bookr-mod-vita
   data/fonts/res_uifont.c
 
   src/graphics/screen_vita.cpp
+  src/layer_vita.cpp
 
   src/filetypes/mudocument.cpp
   src/graphics/font_vita.cpp

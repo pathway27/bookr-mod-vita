@@ -35,7 +35,8 @@
 
 #include "font.hpp"
 
-using namespace std;
+using std::string;
+using std::vector;
 
 class Texture;
 
@@ -59,7 +60,7 @@ struct Dirent {
 namespace bookr {
 
 namespace Screen {
-  static int setupCallbacks();
+  int setupCallbacks();
 
   /**
    * Open the screen for rendering.
@@ -69,111 +70,111 @@ namespace Screen {
   /**
    * Close the screen for rendering.
    */
-  static void close();
+  void close();
 
-  static void exit();
+  void exit();
 
   /**
    * Start list for inmediate display.
    */
-  static void startDirectList();
+  void startDirectList();
 
   /**
    * End list and display it.
    */
-  static void endAndDisplayList();
+  void endAndDisplayList();
 
   /**
    * Commit dirty cache.
    */
 
-  static void commitAll();
+  void commitAll();
 
-  static void commitRange(const void* p, unsigned int size);
+  void commitRange(const void* p, unsigned int size);
 
   /**
    * Swap frame and draw buffer.
    */
-  static void swapBuffers();
-  static void waitVblankStart();
+  void swapBuffers();
+  void waitVblankStart();
 
-  static void* getListMemory(int s);
+  void* getListMemory(int s);
 
-  static void enable(int m);
+  void enable(int m);
 
-  static void disable(int m);
+  void disable(int m);
 
-  static void checkEvents(int buttons);
+  void checkEvents(int buttons);
 
-  static void color(unsigned int c);
+  void color(unsigned int c);
 
-  static void ambientColor(unsigned int c);
+  void ambientColor(unsigned int c);
 
-  static void clear(unsigned int c, int b);
+  void clear(unsigned int c, int b);
 
-  static void matricesFor2D(int rotation = 0);
+  void matricesFor2D(int rotation = 0);
 
-  static void drawArray(int prim, int vtype, int count, void* indices, void* vertices);
+  void drawArray(int prim, int vtype, int count, void* indices, void* vertices);
 
-  static void drawArray(int prim, int count, void* indices, void* vertices);
+  void drawArray(int prim, int count, void* indices, void* vertices);
 
-  static void drawArray();
+  void drawArray();
 
-  static void setTextSize(float x, float y);
-  static void drawText(int x, int y, unsigned int color, float scale, const char *text);
+  void setTextSize(float x, float y);
+  void drawText(int x, int y, unsigned int color, float scale, const char *text);
 
-  static void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
+  void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
     int dx, int dy, int destw, void *dest);
 
-  static void drawPixel(float x, float y, unsigned int color);
-  static void drawRectangle(float x, float y, float w, float h, unsigned int color);
+  void drawPixel(float x, float y, unsigned int color);
+  void drawRectangle(float x, float y, float w, float h, unsigned int color);
 
   // TODO: Refactor to FZFont?
-  static void drawFontText(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text);
-  static void drawFontTextf(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...);
+  void drawFontText(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text);
+  void drawFontTextf(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...);
 
   // TODO: Refactor to Texture
 
-  static void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale);
-  static void drawTextureTintScale(const Texture *texture, float x, float y, float x_scale, float y_scale, unsigned int color);
-  static void drawTextureTintScaleRotate(const Texture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color);
+  void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale);
+  void drawTextureTintScale(const Texture *texture, float x, float y, float x_scale, float y_scale, unsigned int color);
+  void drawTextureTintScaleRotate(const Texture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color);
 
-  static void* framebuffer();
+  void* framebuffer();
 
-  static void blendFunc(int op, int src, int dst);
-  static void shadeModel(int mode);
+  void blendFunc(int op, int src, int dst);
+  void shadeModel(int mode);
 
-  static void setupCtrl();
+  void setupCtrl();
 
-  static int readCtrl();
+  int readCtrl();
 
-  static bool isClosing();
+  bool isClosing();
 
-  static void getAnalogPad(int& x, int& y);
-  static void resetReps();
-  static int* ctrlReps();
-  static const char* nameForButton(int mask);
-  static const char* nameForButtonReps(int button);
-  static int repsForButtonMask(int mask);
+  void getAnalogPad(int& x, int& y);
+  void resetReps();
+  int* ctrlReps();
+  const char* nameForButton(int mask);
+  const char* nameForButtonReps(int button);
+  int repsForButtonMask(int mask);
 
-  static void dcacheWritebackAll();
+  void dcacheWritebackAll();
 
-  static void setBoundTexture(Texture *);
+  void setBoundTexture(Texture *);
 
-  static string basePath();
-  static int dirContents(const char* path, vector<Dirent>& a);
+  string basePath();
+  int dirContents(const char* path, vector<Dirent>& a);
 
-  static int getSuspendSerial();
+  int getSuspendSerial();
 
   static char *speedLabels[14];
   static int speedValues;
-  static void setSpeed(int v);
-  static int getSpeed();
+  void setSpeed(int v);
+  int getSpeed();
 
-  static void getTime(int &h, int &m);
-  static int getBattery();
-  static int getUsedMemory();
-  static void setBrightness(int);
+  void getTime(int &h, int &m);
+  int getBattery();
+  int getUsedMemory();
+  void setBrightness(int);
 
 	static const char* browserTextSizes;
 	static const char* browserDisplayModes;
@@ -182,7 +183,8 @@ namespace Screen {
 
 #ifdef MAC
   #include <map>
-  static map<string, GLuint> VBOs, VAOs, EBOs, textures;
+  using std::map;
+  map<string, GLuint> VBOs, VAOs, EBOs, textures;
 #endif
 
 } // ::bookr
