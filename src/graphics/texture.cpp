@@ -47,6 +47,7 @@
 #include <cstddef>
 #include <iostream>
 
+#include "fzscreen_defs.h"
 #include "texture.hpp"
 #include "screen.hpp"
 
@@ -70,7 +71,7 @@ namespace bookr {
   }
 
   void Texture::bind() {
-      FZScreen::setBoundTexture((Texture*)this);
+      Screen::setBoundTexture((Texture*)this);
   }
 
   void Texture::bindForDisplay() {
@@ -96,7 +97,7 @@ namespace bookr {
       //vita2d_load_PNG_buffer(texImage->getData());
       //sceGxmSetFragmentTexture(_vita2d_context, 0, &vita_texture->gxm_tex);
     #endif
-      FZScreen::setBoundTexture((Texture*)this);
+      Screen::setBoundTexture((Texture*)this);
   }
 
 #else
@@ -110,7 +111,7 @@ namespace bookr {
 
     void Texture::bind() {
         glBindTexture(GL_TEXTURE_2D, textureObject);
-        FZScreen::setBoundTexture((Texture*)this);
+        Screen::setBoundTexture((Texture*)this);
     }
 
     void Texture::bindForDisplay() {
@@ -135,28 +136,28 @@ static bool validatePow2(unsigned int x, unsigned int maxPow) {
 }
 
 #ifdef PSP
-    bool Texture::validateFormat(FZImage* image) {
-        FZImage::Format imageFormat = image->getFormat();
+    bool Texture::validateFormat(Image* image) {
+        Image::Format imageFormat = image->getFormat();
         pixelFormat = GU_PSM_T8;
         pixelComponent = GU_TCC_RGBA;
         switch (imageFormat) {
-            case FZImage::mono8:
+            case Image::mono8:
             break;
       #if 0
-            case FZImage::mono16:
+            case Image::mono16:
             break;
-            case FZImage::dual16:
+            case Image::dual16:
             break;
       #endif
-            case FZImage::rgb24:
+            case Image::rgb24:
                 pixelFormat = GU_PSM_T8;		// not
                 pixelComponent = GU_TCC_RGB;
             break;
-            case FZImage::rgb32:
+            case Image::rgb32:
                 pixelFormat = GU_PSM_8888;
                 pixelComponent = GU_TCC_RGB;
             break;
-            case FZImage::rgba32:
+            case Image::rgba32:
                 pixelFormat = GU_PSM_8888;
             break;
             default:
@@ -165,38 +166,38 @@ static bool validatePow2(unsigned int x, unsigned int maxPow) {
         return true;
     }
 #elif __vita__ || defined(SWITCH)
-    bool Texture::validateFormat(FZImage* image) {
-        FZImage::Format imageFormat = image->getFormat();
+    bool Texture::validateFormat(Image* image) {
+        Image::Format imageFormat = image->getFormat();
         return true;
     }
 #else
-    bool Texture::validateFormat(FZImage* image) {
-        FZImage::Format imageFormat = image->getFormat();
+    bool Texture::validateFormat(Image* image) {
+        Image::Format imageFormat = image->getFormat();
         internalFormat = GL_ALPHA8;
         textureFormat = GL_ALPHA;
         textureType = GL_UNSIGNED_BYTE;
         switch (imageFormat) {
-            case FZImage::mono8:
+            case Image::mono8:
             break;
       #if 0
-            case FZImage::mono16:
+            case Image::mono16:
                 internalFormat = GL_ALPHA16;
                 textureType = GL_UNSIGNED_SHORT;
             break;
-            case FZImage::dual16:
+            case Image::dual16:
                 internalFormat = GL_LUMINANCE8_ALPHA8;
                 textureFormat = GL_LUMINANCE_ALPHA;
             break;
       #endif
-            case FZImage::rgb24:
+            case Image::rgb24:
                 internalFormat = GL_RGB8;
                 textureFormat = GL_RGB;
             break;
-            case FZImage::rgb32:
+            case Image::rgb32:
                 internalFormat = GL_RGB8;
                 textureFormat = GL_RGB;
             break;
-            case FZImage::rgba32:
+            case Image::rgba32:
                 internalFormat = GL_RGBA8;
                 textureFormat = GL_RGBA;
             break;
@@ -208,7 +209,7 @@ static bool validatePow2(unsigned int x, unsigned int maxPow) {
     }
 #endif
 
-Texture* Texture::createFromImage(FZImage* image, bool buildMipmaps) {
+Texture* Texture::createFromImage(Image* image, bool buildMipmaps) {
     Texture* texture = new Texture();
     if (!initFromImage(texture, image, buildMipmaps)) {
         texture->release();
@@ -246,7 +247,7 @@ Texture* Texture::createFromImage(FZImage* image, bool buildMipmaps) {
       int width, height;
       char* soil_image = (char *) SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGB);
 
-      FZImage* image = FZImage::createWithData(width, height, soil_image);
+      Image* image = Image::createWithData(width, height, soil_image);
 
       Texture* texture = new Texture();
       texture->texImage = image;
@@ -266,7 +267,7 @@ Texture* Texture::createFromImage(FZImage* image, bool buildMipmaps) {
   }
 #endif
     
-bool Texture::initFromImage(Texture* texture, FZImage* image, bool buildMipmaps) {
+bool Texture::initFromImage(Texture* texture, Image* image, bool buildMipmaps) {
 
     unsigned int width = 0, height = 0;
 
@@ -288,9 +289,9 @@ bool Texture::initFromImage(Texture* texture, FZImage* image, bool buildMipmaps)
     }
 
     void* data = image->getData();
-    FZImage* buffer = 0;
-    if (image->getFormat() == FZImage::rgb32) { 
-        buffer = FZImage::createRGB24FromRGB32(image);
+    Image* buffer = 0;
+    if (image->getFormat() == Image::rgb32) { 
+        buffer = Image::createRGB24FromRGB32(image);
         data = buffer->getData();
     }
 

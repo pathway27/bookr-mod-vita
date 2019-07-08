@@ -19,11 +19,11 @@
 
 #include <string.h>
 #include <stdlib.h>
-#ifdef MAC
+#ifdef __APPLE__
 	#include <SOIL.h>
 #endif
 #include "image.hpp"
-#ifdef MAC
+#ifdef __APPLE__
 static void* memalign(int t, int s) {
 	return malloc(s);
 }
@@ -153,7 +153,7 @@ Image* Image::createRGB24FromRGB32(Image* from) {
 		fromP = fromQ;
 		toP = toQ;
 		for (unsigned int i = 0; i < w*3; ++i) {
-			if (i & 3 == 2) {
+			if ((i & 3) == 2) {
 				++fromP;
 			}
 			*toP = *fromP;

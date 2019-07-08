@@ -35,13 +35,27 @@ Start - Show/Hide Menu
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # run pngquant on all your png images if not done already
-mkdir -p vita/Release && cd vita/Release
+mkdir -p vita/Release && cd $_
 make
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
 export PSVITAIP=IP-HERE
 make send
+```
+
+### For Switch
+
+```sh
+# Setup devkitpro development evironment: 
+dkp-pacman -S switch-dev
+dkp-pacman -S switch-freetype switch-mesa switch-glad switch-glm
+
+mkdir -p switch/Release && cd $_
+make
+
+# For devs - replace with your switch ftp ip (assumes vpk was installed once)
+
 ```
 
 See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/BUILDING.md) for OpenGL version.

@@ -51,7 +51,7 @@ vita2d_texture* _vita2d_load_pixmap_generic(fz_pixmap *pixmap)
 #endif
 
 const char *get_ext (const char *fspec) {
-    char *e = strrchr (fspec, '.');
+    const char *e = strrchr (fspec, '.');
     if (e == NULL)
         e = (char *)""; // fast method, could also use &(fspec[strlen(fspec)]).
     return e;

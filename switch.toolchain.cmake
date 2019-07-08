@@ -34,6 +34,9 @@ set(CMAKE_OBJDUMP        "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-objdump${T
 set(CMAKE_RANLIB         "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-ranlib${TOOL_OS_SUFFIX}"  CACHE PATH "ranlib" )
 set(PKG_CONFIG_EXECUTABLE "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-pkg-config${TOOL_OS_SUFFIX}"  CACHE PATH "pkg-config")
 
+set(NACP_TOOL "${DEVKITPRO}/tools/bin/nacptool"  CACHE PATH "nacp-tool")
+set(ELF2NRO_TOOL "${DEVKITPRO}/tools/bin/elf2nro"  CACHE PATH "elf2nro")
+
 # cache flags
 set(CMAKE_CXX_FLAGS "-MP -MD -Wall -O2 -ffunction-sections -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE" CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS   "")
@@ -76,19 +79,19 @@ macro(switch_create_nro source)
 
   # LIST
   add_custom_command(OUTPUT ${source}.lst
-    COMMAND aarch64-none-elf-gcc-nm -CSn ${source} > ${source}.lst
+    COMMAND ${CMAKE_NM} -CSn ${source} > ${source}.lst
     DEPENDS ${source}
     COMMENT "Creating list from ELF ${source}" VERBATIM
   )
   # NACP
   add_custom_command(OUTPUT ${source}.nacp
-    COMMAND nacptool --create "APP_TITLE" "SREE" "1.0.0" ${source}.nacp
+    COMMAND ${NACP_TOOL} --create "APP_TITLE" "SREE" "1.0.0" ${source}.nacp
     DEPENDS ${source}
     COMMENT "Creating NACP ${source}"
   )
   # NRO
   add_custom_command(OUTPUT ${source}.nro
-    COMMAND elf2nro ${source} ${source}.nro --icon=/opt/devkitpro/libnx/default_icon.jpg --nacp=${source}.nacp
+    COMMAND ${ELF2NRO_TOOL} ${source} ${source}.nro --icon=/opt/devkitpro/libnx/default_icon.jpg --nacp=${source}.nacp
     DEPENDS ${source}.nacp
     COMMENT "Creating NRO ${source}.nro"
   )

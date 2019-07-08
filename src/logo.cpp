@@ -34,6 +34,7 @@
 #endif
 #include <cstring>
 
+#include "graphics/fzscreen_defs.h"
 #include "logo.hpp"
 
 namespace bookr {

@@ -9,6 +9,7 @@
 
 #ifdef __vita__
 #include <vita2d.h>
+#include <mupdf/fitz.h>
 
 vita2d_texture* _vita2d_load_pixmap_generic(fz_pixmap *pixmap);
 #endif

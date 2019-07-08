@@ -27,7 +27,6 @@
 */
 
 #include "screen.hpp"
-#include "texture.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,11 +37,12 @@
 #include <EGL/eglext.h> // EGL extensions
 #include <glad/glad.h>  // glad library (OpenGL loader)
 
+#include "texture.hpp"
+#include "controls.hpp"
+
 //-----------------------------------------------------------------------------
 // nxlink support
 //-----------------------------------------------------------------------------
-
-namespace bookr { namespace Screen {
 
 #ifndef DEBUG
 #define TRACE(fmt, ...) ((void)0)
@@ -85,6 +85,9 @@ extern "C" void userAppExit()
 }
 
 #endif
+
+
+namespace bookr { namespace Screen {
 
 //-----------------------------------------------------------------------------
 // EGL initialization
@@ -385,21 +388,21 @@ static void updateReps(int keyState) {
     memset((void*)breps, 0, sizeof(int)*16);
     return;
   }
-  if (keyState & _CTRL_SELECT  ) breps[_REPS_SELECT  ]++; else breps[_REPS_SELECT  ] = 0;
-  if (keyState & _CTRL_START   ) breps[_REPS_START   ]++; else breps[_REPS_START   ] = 0;
-  if (keyState & _CTRL_UP      ) breps[_REPS_UP      ]++; else breps[_REPS_UP      ] = 0;
-  if (keyState & _CTRL_RIGHT   ) breps[_REPS_RIGHT   ]++; else breps[_REPS_RIGHT   ] = 0;
-  if (keyState & _CTRL_DOWN    ) breps[_REPS_DOWN    ]++; else breps[_REPS_DOWN    ] = 0;
-  if (keyState & _CTRL_LEFT    ) breps[_REPS_LEFT    ]++; else breps[_REPS_LEFT    ] = 0;
-  if (keyState & _CTRL_LTRIGGER) breps[_REPS_LTRIGGER]++; else breps[_REPS_LTRIGGER] = 0;
-  if (keyState & _CTRL_RTRIGGER) breps[_REPS_RTRIGGER]++; else breps[_REPS_RTRIGGER] = 0;
-  if (keyState & _CTRL_TRIANGLE) breps[_REPS_TRIANGLE]++; else breps[_REPS_TRIANGLE] = 0;
-  if (keyState & _CTRL_CIRCLE  ) breps[_REPS_CIRCLE  ]++; else breps[_REPS_CIRCLE  ] = 0;
-  if (keyState & _CTRL_CROSS   ) breps[_REPS_CROSS   ]++; else breps[_REPS_CROSS   ] = 0;
-  if (keyState & _CTRL_SQUARE  ) breps[_REPS_SQUARE  ]++; else breps[_REPS_SQUARE  ] = 0;
-  if (keyState & _CTRL_HOME    ) breps[_REPS_HOME    ]++; else breps[_REPS_HOME    ] = 0;
-  if (keyState & _CTRL_HOLD    ) breps[_REPS_HOLD    ]++; else breps[_REPS_HOLD    ] = 0;
-  if (keyState & _CTRL_NOTE    ) breps[_REPS_NOTE    ]++; else breps[_REPS_NOTE    ] = 0;
+  if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
+  if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+  if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
+  if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
+  if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
+  if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
+  if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
+  if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
+  if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
+  if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
+  if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
+  if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
+  if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
+  if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
+  if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
 }
 
 
@@ -545,9 +548,9 @@ string basePath() {
 
 struct CompareDirent {
   bool operator()(const Dirent& a, const Dirent& b) {
-      if ((a.stat & _STAT_IFDIR) == (b.stat & _STAT_IFDIR))
+      if ((a.stat & FZ_STAT_IFDIR) == (b.stat & FZ_STAT_IFDIR))
           return a.name < b.name;
-      if (b.stat & _STAT_IFDIR)
+      if (b.stat & FZ_STAT_IFDIR)
           return false;
       return true;
   }

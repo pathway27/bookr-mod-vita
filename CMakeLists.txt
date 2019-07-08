@@ -56,6 +56,7 @@ configure_file(
   "${CMAKE_SOURCE_DIR}/bookrconfig.h.in"
   "${CMAKE_BINARY_DIR}/bookrconfig.h"
 )
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Debug CMAKE/ENV variables
 message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
@@ -117,23 +118,23 @@ set(COMMON_SRCS
   src/main.cpp
   src/bookr.cpp
   
-  #src/utils.cpp
-  #src/graphics/screen_common.cpp
+  src/utils.cpp
+  src/graphics/screen_common.cpp
 
-  #src/user.cpp
+  src/user.cpp
 
   #texture image refcounted
-  #src/graphics/refcount.cpp
-  #src/graphics/image.cpp
-  #src/graphics/texture.cpp
+  src/graphics/refcount.cpp
+  src/graphics/image.cpp
+  src/graphics/texture.cpp
 
-  #src/graphics/instreammem.cpp
+  src/graphics/instreammem.cpp
   
-  #src/layer_vita.cpp
-  #src/logo.cpp
-  #src/mainmenu.cpp
-  #src/popup.cpp
-  #src/filechooser.cpp
+  src/layer_vita.cpp
+  src/logo.cpp
+  src/mainmenu.cpp
+  src/popup.cpp
+  src/filechooser.cpp
 
   
   #src/document.cpp
@@ -144,6 +145,7 @@ set(COMMON_SRCS
 )
 
 if(DESKTOP)
+  add_definitions(-DDESKTOP)
   if(WIN32)
     include(win.cmake)
   elseif(APPLE)
