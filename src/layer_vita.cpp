@@ -30,6 +30,8 @@
 #include "graphics/resolutions.hpp"
 #include "graphics/controls.hpp"
 
+using std::make_pair;
+
 namespace bookr {
 
 // Yeah, ok.

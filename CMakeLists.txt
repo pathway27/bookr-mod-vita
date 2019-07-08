@@ -129,8 +129,7 @@ set(COMMON_SRCS
   src/graphics/texture.cpp
 
   src/graphics/instreammem.cpp
-  
-  src/layer_vita.cpp
+
   src/logo.cpp
   src/mainmenu.cpp
   src/popup.cpp

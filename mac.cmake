@@ -24,7 +24,10 @@ link_directories(
 add_executable(bookr-mod-vita
   ${COMMON_SRCS}
   src/graphics/shaders/shader.cpp
+  src/layer.cpp
+  
   src/graphics/screen_glfw.cpp
+  src/graphics/font.cpp
   "${CMAKE_SOURCE_DIR}/ext/glad/src/glad.c"
 )
 

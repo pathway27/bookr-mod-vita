@@ -81,12 +81,12 @@ int width, height;
 GLuint texture;
 
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
+    cout << key << endl;
     // swap this to some mapping?
     if (action == GLFW_PRESS) {
-        cout << keyState << endl;
         switch (key) {
             case GLFW_KEY_ESCAPE:
-                glfwSetWindowShouldClose(window, GL_TRUE);
+                glfwSetWindowShouldClose(window, true);
                 break;
             case GLFW_KEY_W:
                 keyState |= FZ_CTRL_UP;
@@ -236,9 +236,8 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
             case GLFW_KEY_C: keyState |= FZ_CTRL_RTRIGGER; break;
             case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
         }
-        swapBuffers();
+        // swapBuffers();
     } else if (action == GLFW_RELEASE ) {
-        cout << keyState << endl;
         switch (key) {
             case 27:
                 std::exit(0);
@@ -263,10 +262,11 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    cout << key << endl;
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -317,6 +317,9 @@ static void loadShaders() {
 static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
 void open(int argc, char** argv) {
+  #ifdef DEBUG
+    printf("open\n");
+  #endif
   //getcwd(psp_full_path, 1024);
   glfwInit();
   if (!glfwInit()) {
@@ -324,7 +327,7 @@ void open(int argc, char** argv) {
   }
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
   #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   #endif
@@ -338,25 +341,30 @@ void open(int argc, char** argv) {
       glfwTerminate();
   }
   glfwMakeContextCurrent(window);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  // glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   // glad: load all OpenGL function pointers
   // ---------------------------------------
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
   {
-      std::cout << "Failed to initialize GLAD" << std::endl;
+    std::cout << "Failed to initialize GLAD" << std::endl;
   }    
+
+  std::cout << glGetString(GL_VERSION) << std::endl;
 
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
-  glfwSetKeyCallback(window, keyboard);
+  glfwSetKeyCallback(window, key_callback);
 
-  glfwSwapInterval(0);
+  // glfwSwapInterval(0);
 
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  // glClearColor(0.5f, 0.3f, 0.3f, 1.0f);
+  // glClear(GL_COLOR_BUFFER_BIT);
+  // swapBuffers();
+
+  // glfwWaitEvents();
 }
 
 void close() {
@@ -367,14 +375,15 @@ void exit() {
 }
 
 bool isClosing() {
-    cout << glfwWindowShouldClose(window);
-    return glfwWindowShouldClose(window);
+    cout << "glfwWindowShouldClose(window)" << endl;
+    // return !!glfwWindowShouldClose(window);
+    // return true;
 }
 
 int readCtrl() {
     glfwWaitEvents();
-    updateReps();
-    return keyState;
+    // updateReps();
+    return 0;
 }
 
 void getAnalogPad(int& x, int& y) {
@@ -387,7 +396,7 @@ void swapBuffers() {
 }
 
 void checkEvents(int buttons) {
-    //glfwPollEvents();
+    glfwPollEvents();
     
 }
 
