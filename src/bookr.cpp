@@ -77,8 +77,12 @@ void initalise(int argc, char *argv[])
 void mainloop() {
   // Event Loop
   while (!exitApp) {
+    int buttons = Screen::readCtrl();
+
+
+
     // draw state to back buffer and swap
-    // if (dirty)
+    if (dirty) {
     // {
       // Screen::startDirectList();
       // LayersIt it(layers.begin());
@@ -90,10 +94,10 @@ void mainloop() {
       // }
       // Screen::endAndDisplayList();
       // Screen::swapBuffers();
-    // }
+    }
 
     // Screen::readCtrl();
-    int buttons = Screen::readCtrl();
+    
 
     // dirty = buttons != 0;
 
@@ -131,10 +135,9 @@ void mainloop() {
     // // pusedo message passing
     // command_handler(command);
 
-    std::cout << Screen::isClosing() << std::endl;
-    // if (Screen::isClosing())
-    //   std::cout << "closing\n";
-      // break;
+    // std::cout << std::noboolalpha << Screen::isClosing() << std::endl;
+    if (Screen::isClosing())
+      break;
     #ifdef DEBUG
       // printf("powerResumed %i\n", Screen::getSuspendSerial());
       // Quick close

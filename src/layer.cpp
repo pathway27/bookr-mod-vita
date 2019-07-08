@@ -635,9 +635,9 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
     drawImage(190, 248, BK_IMG_SQUARE_XSIZE, BK_IMG_SQUARE_YSIZE, BK_IMG_SQUARE_X, BK_IMG_SQUARE_Y);
     // fontBig->bindForDisplay();
     if (User::options.t_ignore_x)
-      drawText("Goto (ignore zoom&X)", fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
+      drawText(const_cast<char*>("Goto (ignore zoom&X)"), fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
     else
-      drawText("Goto (ignore zoom)", fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
+      drawText(const_cast<char*>("Goto (ignore zoom)"), fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
   }
   texUI->bindForDisplay();
   int ITEMHEIGHT = 60;

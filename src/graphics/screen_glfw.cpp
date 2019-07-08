@@ -27,6 +27,7 @@
 */
 
 #include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cstdlib>
@@ -81,7 +82,7 @@ int width, height;
 GLuint texture;
 
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    cout << key << endl;
+    // cout << key << endl;
     // swap this to some mapping?
     if (action == GLFW_PRESS) {
         switch (key) {
@@ -264,7 +265,7 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
 // ---------------------------------------------------------------------------------------------------------
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    cout << key << endl;
+    // cout << key << endl;
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
@@ -277,6 +278,18 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
+
+static void error_callback(int error, const char* description)
+{
+  fprintf(stderr, "Error: %s\n", description);
+}
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
+
 
 static Shader* texture_shader;
 static void loadShaders() {
@@ -316,55 +329,39 @@ static void loadShaders() {
 
 static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 void open(int argc, char** argv) {
-  #ifdef DEBUG
-    printf("open\n");
-  #endif
-  //getcwd(psp_full_path, 1024);
-  glfwInit();
-  if (!glfwInit()) {
-      cout << "Failed to init GLFW" << endl;
-  }
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-  #ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  #endif
+  // glfw: initialize and configure
+    // ------------------------------
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  // glfw window creation
-  // --------------------
-  GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-  if (window == NULL)
-  {
-      std::cout << "Failed to create GLFW window" << std::endl;
-      glfwTerminate();
-  }
-  glfwMakeContextCurrent(window);
-  // glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
 
-  // glad: load all OpenGL function pointers
-  // ---------------------------------------
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-  {
-    std::cout << "Failed to initialize GLAD" << std::endl;
-  }    
+    // glfw window creation
+    // --------------------
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Bookr", NULL, NULL);
+    if (window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-  std::cout << glGetString(GL_VERSION) << std::endl;
+    // glad: load all OpenGL function pointers
+    // ---------------------------------------
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+    }
 
-  int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, width, height);
-
-  glfwSetKeyCallback(window, key_callback);
-
-  // glfwSwapInterval(0);
-
-  // glClearColor(0.5f, 0.3f, 0.3f, 1.0f);
-  // glClear(GL_COLOR_BUFFER_BIT);
-  // swapBuffers();
-
-  // glfwWaitEvents();
+    std::cout << glGetString(GL_VERSION) << std::endl;
 }
 
 void close() {
@@ -375,13 +372,21 @@ void exit() {
 }
 
 bool isClosing() {
-    cout << "glfwWindowShouldClose(window)" << endl;
-    // return !!glfwWindowShouldClose(window);
-    // return true;
+  return (bool)glfwWindowShouldClose(window);
 }
 
 int readCtrl() {
-    glfwWaitEvents();
+    processInput(window);
+
+    // render
+    // ------
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+    // -------------------------------------------------------------------------------
+    glfwSwapBuffers(window);
+    glfwPollEvents();
     // updateReps();
     return 0;
 }

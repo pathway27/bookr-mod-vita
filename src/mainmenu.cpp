@@ -215,11 +215,11 @@ void MainMenu::buildOptionMenu() {
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Toggle", 0));*/
 
-	snprintf(txt, 1024, "Browser - Text size: %s", Screen::browserTextSizes[User::options.browserTextSize]);
+	snprintf(txt, 1024, "Browser - Text size: %s", &Screen::browserTextSizes[User::options.browserTextSize]);
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
-	snprintf(txt, 1024, "Browser - Display mode: %s", Screen::browserDisplayModes[User::options.browserDisplayMode]);
+	snprintf(txt, 1024, "Browser - Display mode: %s", &Screen::browserDisplayModes[User::options.browserDisplayMode]);
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
@@ -227,7 +227,7 @@ void MainMenu::buildOptionMenu() {
 	t += User::options.browserEnableFlash ? "Enabled" : "Disabled";
 	optionItems.push_back(MenuItem(t, "Toggle", 0));
 
-	snprintf(txt, 1024, "Browser - Interface mode: %s", Screen::browserInterfaceModes[User::options.browserInterfaceMode]);
+	snprintf(txt, 1024, "Browser - Interface mode: %s", &Screen::browserInterfaceModes[User::options.browserInterfaceMode]);
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
