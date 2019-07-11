@@ -39,7 +39,6 @@
 #include "resolutions.hpp"
 #include "shaders/shader.hpp"
 #include "screen.hpp"
-#include "SOIL.h"
 
 using std::cout;
 using std::endl;
@@ -82,7 +81,7 @@ int width, height;
 GLuint texture;
 
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    // cout << key << endl;
+    cout << key << endl;
     // swap this to some mapping?
     if (action == GLFW_PRESS) {
         switch (key) {
@@ -101,127 +100,11 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 break;
             case GLFW_KEY_A: {
                 keyState |= FZ_CTRL_LEFT;
-                Shader recShader("src/graphics/shaders/rectangle.vert", 
-                                 "src/graphics/shaders/rectangle.frag");
                 
-                GLuint vao;
-                glGenVertexArrays(1, &vao);
-                glBindVertexArray(vao);
-
-                // Create a Vertex Buffer Object and copy the vertex data to it
-                GLuint vbo;
-                glGenBuffers(1, &vbo);
-
-                GLfloat vertices[] = {
-                    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top-left
-                     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top-right
-                     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
-                    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom-left
-                };
-                glBindBuffer(GL_ARRAY_BUFFER, vbo);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-                // Create an element array
-                GLuint ebo;
-                glGenBuffers(1, &ebo);
-
-                GLuint elements[] = {
-                    0, 1, 2,
-                    2, 3, 0
-                };
-
-                recShader.Use();
-                // Specify the layout of the vertex data
-                GLint posAttrib = glGetAttribLocation(recShader.Program, "position");
-                glEnableVertexAttribArray(posAttrib);
-                glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
-
-                GLint colAttrib = glGetAttribLocation(recShader.Program, "color");
-                glEnableVertexAttribArray(colAttrib);
-                glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-                
-
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                 break;
             }
             case GLFW_KEY_D: {
                 keyState |= FZ_CTRL_RIGHT;
-                Shader ourShader("src/graphics/shaders/textures.vert", 
-                                 "src/graphics/shaders/textures.frag");
-                
-                GLfloat vertices[] = {
-                    // Positions          // Colors           // Texture Coords
-                    1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-                    1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-                    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-                    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
-                };
-                GLuint indices[] = {  // Note that we start from 0!
-                    0, 1, 3, // First Triangle
-                    1, 2, 3  // Second Triangle
-                };
-                GLuint VBO, VAO, EBO;
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                glGenBuffers(1, &EBO);
-
-                glBindVertexArray(VAO);
-                  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-                  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-                  // Position attribute
-                  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-                  glEnableVertexAttribArray(0);
-                  // Color attribute
-                  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-                  glEnableVertexAttribArray(1);
-                  // TexCoord attribute
-                  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-                  glEnableVertexAttribArray(2);
-                glBindVertexArray(0); // Unbind VAO
-
-
-                glGenTextures(1, &texture);
-                glBindTexture(GL_TEXTURE_2D, texture);
-                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-                  unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
-                  glClearColor(0.0, 0.0, 0.0, 0.0);
-                  glClear(GL_COLOR_BUFFER_BIT);
-
-                  cout << SOIL_last_result() << endl; 
-                  cout << "null: " << !image << endl;
-                  cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
-                  cout << "Width: " <<  width << endl;
-                  cout << "Height: " << height << endl;
-                  cout << "Obj: " << texture << endl;
-
-                  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
-                  GL_RGB, GL_UNSIGNED_BYTE, image);
-                  glGenerateMipmap(GL_TEXTURE_2D);
-
-                  SOIL_free_image_data(image);
-                glBindTexture(GL_TEXTURE_2D, 0);
-
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                ourShader.Use();
-                glBindTexture(GL_TEXTURE_2D, texture);
-                
-                glBindVertexArray(VAO);
-                  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                glBindVertexArray(0);
-
                 break;
             }
             case GLFW_KEY_K: {
@@ -265,7 +148,7 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
 // ---------------------------------------------------------------------------------------------------------
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    // cout << key << endl;
+    cout << key << endl;
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
@@ -295,8 +178,8 @@ static Shader* texture_shader;
 static void loadShaders() {
     // For textures
     // load shaders
-    texture_shader = new Shader("src/graphics/shaders/textures.vert", 
-                                "src/graphics/shaders/textures.frag");
+    texture_shader = new Shader("shaders/textures.vert", 
+                                "shaders/textures.frag");
 
     //shaders["texture"] = (*)texture_shader;
     // bind vertex buffers' and get id
@@ -361,7 +244,13 @@ void open(int argc, char** argv) {
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
 
+    glfwSetKeyCallback(window, keyboard);
+
+
     std::cout << glGetString(GL_VERSION) << std::endl;
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void close() {
@@ -376,19 +265,9 @@ bool isClosing() {
 }
 
 int readCtrl() {
-    processInput(window);
-
-    // render
-    // ------
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-    // -------------------------------------------------------------------------------
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-    // updateReps();
-    return 0;
+    glfwWaitEvents();
+    updateReps();
+    return keyState;
 }
 
 void getAnalogPad(int& x, int& y) {

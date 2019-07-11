@@ -43,4 +43,12 @@ target_link_libraries(bookr-mod-vita
   "-framework Foundation"
 )
 
+# ??? embed into binary?
+add_custom_command(
+  TARGET bookr-mod-vita POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory              
+     ${CMAKE_SOURCE_DIR}/src/graphics/shaders $<TARGET_FILE_DIR:bookr-mod-vita>/shaders
+  COMMENT "Copying shaders" VERBATIM
+)
+
 # add_dependencies(bookr-mod-vita glew glm freetype)
