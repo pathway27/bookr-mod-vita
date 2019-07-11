@@ -34,21 +34,21 @@
 #include "graphics/controls.hpp"
 
 #include "layer.hpp"
-  //#include "document.h"
-  //#include "mainmenu.h"
-  //#include "filechooser.h"
+  //#include "document.hpp"
+  //#include "mainmenu.hpp"
+  //#include "filechooser.hpp"
 
 //#include "user.hpp"
-//#include "layer.h"
-//#include "logo.h"
-//#include "mainmenu.h"
-//#include "popup.h"
-//#include "filechooser.h"
+//#include "layer.hpp"
+#include "logo.hpp"
+//#include "mainmenu.hpp"
+//#include "popup.hpp"
+//#include "filechooser.hpp"
 
 namespace bookr {
 
 //extern BKDocument *documentLayer;
-// static Layers layers;                 // iterator over all gui obj. that are initalsed
+static Layers layers;                 // iterator over all gui obj. that are initalsed
 // BKMainMenu *mm;                    // Main Menu, only opens when pressed start on opening screen
 // BKFileChooser *fs;                 // file chooser, only opens when Open File in mainmenu
 
@@ -69,7 +69,7 @@ void initalise(int argc, char *argv[])
 
   // Layer::load();                       // make textures
   // mm = BKMainMenu::create(); // Main Menu, only opens when pressed start on opening screen
-  // layers.push_back(BKLogo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
+  layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
   // layers.push_back(mm);                  // Main Menu
 }
 
@@ -77,28 +77,22 @@ void initalise(int argc, char *argv[])
 void mainloop() {
   // Event Loop
   while (!exitApp) {
-    int buttons = Screen::readCtrl();
-
-
-
     // draw state to back buffer and swap
     if (dirty) {
     // {
       // Screen::startDirectList();
-      // LayersIt it(layers.begin());
-      // LayersIt end(layers.end());
-      // while (it != end)
-      // {
-      //   (*it)->render();
-      //   ++it;
-      // }
+      LayersIt it(layers.begin());
+      LayersIt end(layers.end());
+      while (it != end)
+      {
+        (*it)->render();
+        ++it;
+      }
       // Screen::endAndDisplayList();
-      // Screen::swapBuffers();
+      Screen::swapBuffers();
     }
 
-    // Screen::readCtrl();
-    
-
+    int buttons = Screen::readCtrl();
     // dirty = buttons != 0;
 
     // #if defined(MAC) || defined(WIN32)
