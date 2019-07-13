@@ -16,7 +16,41 @@
 
 namespace bookr {
 
-Popup::Popup(int m, string t) : mode(m), text(t) {
+static unsigned int VBO, VAO, EBO;
+static int width, height, nrChannels;
+  
+static float vertices[] = {
+    // positions
+     0.5f,  0.5f, 0.0f, // top right
+     0.5f, -0.5f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f, // bottom left
+    -0.5f,  0.5f, 0.0f  // top left
+};
+static unsigned int indices[] = {
+    0, 1, 3, // first triangle
+    1, 2, 3  // second triangle
+};
+
+
+Popup::Popup(int m, string t) : mode(m), text(t),
+  recShader("shaders/rectangle.vert", "shaders/rectangle.frag") {
+	glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0); 
 }
 
 Popup::~Popup() {
@@ -54,6 +88,15 @@ void Popup::render() {
 		title = "Error";
 	}
 	drawPopup(text, title, bg1, bg2, fg);
+	// glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+ 	// glClear(GL_COLOR_BUFFER_BIT);
+
+    recShader.Use();
+    int vertexColorLocation = glGetUniformLocation(recShader.Program, "ourColor");
+    glUniform4f(vertexColorLocation, 0.0f, 0.33f, 0.0f, 1.0f);
+    
+    glBindVertexArray(VAO);
+  	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 Popup* Popup::create(int m, string t) {
