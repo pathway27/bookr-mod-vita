@@ -15,14 +15,17 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cstdlib>
+#include <map>
+#include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "screen.hpp"
 #include "controls.hpp"
 #include "resolutions.hpp"
-#include "shader.hpp"
-#include "screen.hpp"
+#include "texture.hpp"
+#include "../resource_manager.hpp"
 
 using std::cout;
 using std::endl;
@@ -157,15 +160,29 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
 }
 
-
-static Shader* texture_shader;
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 static void loadShaders() {
+    // ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "texture");
+    ResourceManager::LoadShader("shaders/rectangle.vert", "shaders/rectangle.frag", nullptr, "rectangle");
+    ResourceManager::LoadShader("shaders/polygon_coloured_projected.vert",
+        "shaders/polygon_coloured_projected.frag",
+        nullptr,
+        "polygon"
+    );
+    glm::mat4 projection = glm::ortho(0.0f,
+        static_cast<GLfloat>(SCR_WIDTH),
+        static_cast<GLfloat>(SCR_HEIGHT),
+    0.0f, -1.0f, 1.0f);
+
+    // ResourceManager::GetShader("texture").SetMatrix4("projection", projection);
+    // ResourceManager::GetShader("rectangle").SetMatrix4("projection", projection);
+    ResourceManager::GetShader("polygon").SetMatrix4("projection", projection);
+    
 }
 
 static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
 void open(int argc, char** argv) {
   // glfw: initialize and configure
     // ------------------------------
@@ -203,6 +220,8 @@ void open(int argc, char** argv) {
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    loadShaders();
 }
 
 void close() {
@@ -295,7 +314,7 @@ void dcacheWritebackAll() {
     //sceKernelDcacheWritebackAll();
 }
 
-string basePath() {
+std::string basePath() {
     return psp_full_path;
 }
 
@@ -309,7 +328,7 @@ struct CompareDirent {
     }
 };
 
-int dirContents(const char* path, vector<Dirent>& a) {
+int dirContents(const char* path, std::vector<Dirent>& a) {
   return 0;
 }
 
@@ -393,6 +412,10 @@ void endAndDisplayList() {
     // sceGuFinish();
     // sceKernelDcacheWritebackAll();  
     // sceGuSync(0,0);
+}
+
+void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale) {
+
 }
 
 } }
