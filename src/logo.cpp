@@ -22,7 +22,7 @@
 #include "graphics/fzscreen_defs.h"
 #include "logo.hpp"
 #include "SOIL.h"
-#include "graphics/shader.hpp"
+#include "resource_manager.hpp"
 
 using std::cout;
 using std::endl;
@@ -31,11 +31,9 @@ namespace bookr {
 
 static unsigned int VBO, VAO, EBO, texture;
 static int width, height, nrChannels;
-static Shader recShader;
 
 Logo::Logo() : loading(false), error(false), text("")
 {
-  recShader = Shader::loadShaderFromFile("shaders/textures.vert", "shaders/textures.frag");
   GLfloat vertices[] = {
       // Positions          // Colors           // Texture Coords
       0.75f,  0.75f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
@@ -165,18 +163,17 @@ void Logo::render() {
           "%*s", TEXT_PADDED_WIDTH / 2 + strlen(DEFAULT_TEXT) / 2 , DEFAULT_TEXT);
     }
   #else
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    // glClear(GL_COLOR_BUFFER_BIT);
 
-    recShader.Use();
-    glBindTexture(GL_TEXTURE_2D, texture);
+    // recShader.Use();
+    // ResourceManager::GetShader("texture").Use();
+    // glBindTexture(GL_TEXTURE_2D, texture);
     
-    glBindVertexArray(VAO);
-      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    // glBindVertexArray(VAO);
+    //   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    // glBindVertexArray(0);
   #endif
-
-
 }
 
 Logo* Logo::create() {

@@ -28,6 +28,7 @@ add_executable(bookr-mod-vita
   
   src/graphics/screen_glfw.cpp
   src/graphics/font.cpp
+  src/resource_manager.cpp
   "${CMAKE_SOURCE_DIR}/ext/glad/src/glad.c"
 )
 

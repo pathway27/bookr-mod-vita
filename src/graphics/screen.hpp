@@ -22,6 +22,8 @@
 using std::string;
 using std::vector;
 
+namespace bookr {
+
 class Texture;
 
 #define FZ_STAT_IFDIR 0x1000
@@ -41,8 +43,6 @@ struct Dirent {
  *  Each platform will have it's own implementation file.
  *  TODO: Convert to namespace; add simple draw methods.
  */
-namespace bookr {
-
 namespace Screen {
   int setupCallbacks();
 
@@ -163,13 +163,8 @@ namespace Screen {
 	static const char* browserTextSizes;
 	static const char* browserDisplayModes;
 	static const char* browserInterfaceModes;
-} // Screen
 
-#ifdef MAC
-  #include <map>
-  using std::map;
-  map<string, GLuint> VBOs, VAOs, EBOs, textures;
-#endif
+} // Screen
 
 } // ::bookr
 
