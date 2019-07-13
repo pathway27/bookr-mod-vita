@@ -1,44 +1,31 @@
 /*
- * Bookr % VITA: document reader for the Sony PS Vita
- * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
- *
+ * bookr-modern: a graphics based document reader 
+ * Copyright (C) 2019 pathway27 (Sree)
  * IS A MODIFICATION OF THE ORIGINAL
- *
  * Bookr and bookr-mod for PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
- 
- * AND VARIOUS OTHER FORKS.
- * See Forks in the README for more info
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * AND VARIOUS OTHER FORKS, See Forks in README.md
+ * Licensed under GPLv3+, see LICENSE
 */
 
 #include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cstdlib>
+#include <map>
+#include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "screen.hpp"
 #include "controls.hpp"
 #include "resolutions.hpp"
-#include "shaders/shader.hpp"
-#include "screen.hpp"
-#include "SOIL.h"
+#include "texture.hpp"
+#include "../resource_manager.hpp"
 
 using std::cout;
 using std::endl;
@@ -100,127 +87,11 @@ static void keyboard(GLFWwindow* window, int key, int scancode, int action, int 
                 break;
             case GLFW_KEY_A: {
                 keyState |= FZ_CTRL_LEFT;
-                Shader recShader("src/graphics/shaders/rectangle.vert", 
-                                 "src/graphics/shaders/rectangle.frag");
                 
-                GLuint vao;
-                glGenVertexArrays(1, &vao);
-                glBindVertexArray(vao);
-
-                // Create a Vertex Buffer Object and copy the vertex data to it
-                GLuint vbo;
-                glGenBuffers(1, &vbo);
-
-                GLfloat vertices[] = {
-                    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top-left
-                     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top-right
-                     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
-                    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom-left
-                };
-                glBindBuffer(GL_ARRAY_BUFFER, vbo);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-                // Create an element array
-                GLuint ebo;
-                glGenBuffers(1, &ebo);
-
-                GLuint elements[] = {
-                    0, 1, 2,
-                    2, 3, 0
-                };
-
-                recShader.Use();
-                // Specify the layout of the vertex data
-                GLint posAttrib = glGetAttribLocation(recShader.Program, "position");
-                glEnableVertexAttribArray(posAttrib);
-                glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
-
-                GLint colAttrib = glGetAttribLocation(recShader.Program, "color");
-                glEnableVertexAttribArray(colAttrib);
-                glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-                
-
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                 break;
             }
             case GLFW_KEY_D: {
                 keyState |= FZ_CTRL_RIGHT;
-                Shader ourShader("src/graphics/shaders/textures.vert", 
-                                 "src/graphics/shaders/textures.frag");
-                
-                GLfloat vertices[] = {
-                    // Positions          // Colors           // Texture Coords
-                    1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-                    1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-                    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-                    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
-                };
-                GLuint indices[] = {  // Note that we start from 0!
-                    0, 1, 3, // First Triangle
-                    1, 2, 3  // Second Triangle
-                };
-                GLuint VBO, VAO, EBO;
-                glGenVertexArrays(1, &VAO);
-                glGenBuffers(1, &VBO);
-                glGenBuffers(1, &EBO);
-
-                glBindVertexArray(VAO);
-                  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-                  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-                  // Position attribute
-                  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-                  glEnableVertexAttribArray(0);
-                  // Color attribute
-                  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-                  glEnableVertexAttribArray(1);
-                  // TexCoord attribute
-                  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-                  glEnableVertexAttribArray(2);
-                glBindVertexArray(0); // Unbind VAO
-
-
-                glGenTextures(1, &texture);
-                glBindTexture(GL_TEXTURE_2D, texture);
-                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-                  //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-                  unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
-                  glClearColor(0.0, 0.0, 0.0, 0.0);
-                  glClear(GL_COLOR_BUFFER_BIT);
-
-                  cout << SOIL_last_result() << endl; 
-                  cout << "null: " << !image << endl;
-                  cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
-                  cout << "Width: " <<  width << endl;
-                  cout << "Height: " << height << endl;
-                  cout << "Obj: " << texture << endl;
-
-                  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
-                  GL_RGB, GL_UNSIGNED_BYTE, image);
-                  glGenerateMipmap(GL_TEXTURE_2D);
-
-                  SOIL_free_image_data(image);
-                glBindTexture(GL_TEXTURE_2D, 0);
-
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                ourShader.Use();
-                glBindTexture(GL_TEXTURE_2D, texture);
-                
-                glBindVertexArray(VAO);
-                  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                glBindVertexArray(0);
-
                 break;
             }
             case GLFW_KEY_K: {
@@ -278,85 +149,76 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-static Shader* texture_shader;
+static void error_callback(int error, const char* description)
+{
+  fprintf(stderr, "Error: %s\n", description);
+}
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
+
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 static void loadShaders() {
-    // For textures
-    // load shaders
-    texture_shader = new Shader("src/graphics/shaders/textures.vert", 
-                                "src/graphics/shaders/textures.frag");
+    // ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "texture");
+    ResourceManager::LoadShader("shaders/rectangle.vert", "shaders/rectangle.frag", nullptr, "rectangle");
+    ResourceManager::LoadShader("shaders/polygon_coloured_projected.vert",
+        "shaders/polygon_coloured_projected.frag",
+        nullptr,
+        "polygon"
+    );
+    glm::mat4 projection = glm::ortho(0.0f,
+        static_cast<GLfloat>(SCR_WIDTH),
+        static_cast<GLfloat>(SCR_HEIGHT),
+    0.0f, -1.0f, 1.0f);
 
-    //shaders["texture"] = (*)texture_shader;
-    // bind vertex buffers' and get id
-    // Set up vertex data (and buffer(s)) and attribute pointers
-    GLuint VAO, VBO;
-    GLfloat vertices[] = { 
-        // Pos      // Tex
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 
+    // ResourceManager::GetShader("texture").SetMatrix4("projection", projection);
+    // ResourceManager::GetShader("rectangle").SetMatrix4("projection", projection);
+    ResourceManager::GetShader("polygon").SetMatrix4("projection", projection);
     
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f
-    };
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    //VBOs["texture"] = VBO;
-    //VAOs["texture"] = VAO;
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(VAO);
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }
 
 static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
 void open(int argc, char** argv) {
-  #ifdef DEBUG
-    printf("open\n");
-  #endif
-  //getcwd(psp_full_path, 1024);
-  glfwInit();
-  if (!glfwInit()) {
-      cout << "Failed to init GLFW" << endl;
-  }
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-  #ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  #endif
+  // glfw: initialize and configure
+    // ------------------------------
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  // glfw window creation
-  // --------------------
-  GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-  if (window == NULL)
-  {
-      std::cout << "Failed to create GLFW window" << std::endl;
-      glfwTerminate();
-  }
-  glfwMakeContextCurrent(window);
-  // glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+#endif
 
-  // glad: load all OpenGL function pointers
-  // ---------------------------------------
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-  {
-    std::cout << "Failed to initialize GLAD" << std::endl;
-  }    
+    // glfw window creation
+    // --------------------
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Bookr", NULL, NULL);
+    if (window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-  std::cout << glGetString(GL_VERSION) << std::endl;
+    // glad: load all OpenGL function pointers
+    // ---------------------------------------
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+    }
 
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
 
-  glfwSetKeyCallback(window, key_callback);
+
+    std::cout << glGetString(GL_VERSION) << std::endl;
 
   // glfwSwapInterval(0);
 
@@ -364,7 +226,7 @@ void open(int argc, char** argv) {
   // glClear(GL_COLOR_BUFFER_BIT);
   // swapBuffers();
 
-  // glfwWaitEvents();
+    loadShaders();
 }
 
 void close() {
@@ -375,9 +237,7 @@ void exit() {
 }
 
 bool isClosing() {
-    cout << "glfwWindowShouldClose(window)" << endl;
-    // return !!glfwWindowShouldClose(window);
-    // return true;
+  return (bool)glfwWindowShouldClose(window);
 }
 
 int readCtrl() {
@@ -413,21 +273,6 @@ void setBoundTexture(Texture *t) {
     bind correct vertex array
 */
 void drawArray() {
-    cout << "fzscreen drawArray" << endl;
-    texture_shader->Use();
-    glm::mat4 model;
-    model = glm::translate(model, glm::vec3(glm::vec2(200, 200), 0.0f));
-    glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
-  
-    glUniformMatrix4fv(glGetUniformLocation(texture_shader->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    //glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 1, GL_FALSE, glm::value_ptr(color)); 
-    glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 0.0f, 1.0f, 0.0f);
-
-    //cout << "vao texture id" + VAOs["texture"] << endl;
-
-    //glBindVertexArray(VAOs["texture"]);
-    //glDrawArrays(GL_TRIANGLES, 0, 6);
-    //glBindVertexArray(0);
 }
 
 void drawArray(int prim, int count, void* indices, void* vertices) {
@@ -474,7 +319,7 @@ void dcacheWritebackAll() {
     //sceKernelDcacheWritebackAll();
 }
 
-string basePath() {
+std::string basePath() {
     return psp_full_path;
 }
 
@@ -488,7 +333,7 @@ struct CompareDirent {
     }
 };
 
-int dirContents(const char* path, vector<Dirent>& a) {
+int dirContents(const char* path, std::vector<Dirent>& a) {
   return 0;
 }
 
@@ -572,6 +417,10 @@ void endAndDisplayList() {
     // sceGuFinish();
     // sceKernelDcacheWritebackAll();  
     // sceGuSync(0,0);
+}
+
+void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale) {
+
 }
 
 } }

@@ -1,23 +1,14 @@
 /*
- * Bookr: document reader for the Sony PSP
+ * bookr-modern: a graphics based document reader 
+ * Copyright (C) 2019 pathway27 (Sree)
+ * IS A MODIFICATION OF THE ORIGINAL
+ * Bookr and bookr-mod for PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
- *               2007 Christian Payeur (christian dot payeur at gmail dot com)
- *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com)
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *               2007 Christian Payeur (christian dot payeur at gmail dot com),
+ *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
+ * AND VARIOUS OTHER FORKS, See Forks in README.md
+ * Licensed under GPLv3+, see LICENSE
+*/
 
 #include <cstring>
 #include <mupdf/fitz/version.h>
@@ -215,11 +206,11 @@ void MainMenu::buildOptionMenu() {
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Toggle", 0));*/
 
-	snprintf(txt, 1024, "Browser - Text size: %s", Screen::browserTextSizes[User::options.browserTextSize]);
+	snprintf(txt, 1024, "Browser - Text size: %s", &Screen::browserTextSizes[User::options.browserTextSize]);
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
-	snprintf(txt, 1024, "Browser - Display mode: %s", Screen::browserDisplayModes[User::options.browserDisplayMode]);
+	snprintf(txt, 1024, "Browser - Display mode: %s", &Screen::browserDisplayModes[User::options.browserDisplayMode]);
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
@@ -227,7 +218,7 @@ void MainMenu::buildOptionMenu() {
 	t += User::options.browserEnableFlash ? "Enabled" : "Disabled";
 	optionItems.push_back(MenuItem(t, "Toggle", 0));
 
-	snprintf(txt, 1024, "Browser - Interface mode: %s", Screen::browserInterfaceModes[User::options.browserInterfaceMode]);
+	snprintf(txt, 1024, "Browser - Interface mode: %s", &Screen::browserInterfaceModes[User::options.browserInterfaceMode]);
 	t = txt;
 	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
 
