@@ -15,7 +15,6 @@
 
 #include "layer.hpp"
 #include "graphics/screen.hpp"
-#include "graphics/shaders/shader.hpp"
 
 using std::string;
 
@@ -25,7 +24,6 @@ class Logo : public Layer {
 	bool loading;
 	bool error;
 	string text;
-	Shader recShader;
 
 protected:
 	Logo();

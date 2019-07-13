@@ -13,6 +13,7 @@
 #include <cstring>
 
 #include "popup.hpp"
+#include "graphics/shader.hpp"
 
 namespace bookr {
 
@@ -30,10 +31,11 @@ static unsigned int indices[] = {
     0, 1, 3, // first triangle
     1, 2, 3  // second triangle
 };
+static Shader recShader;
 
-
-Popup::Popup(int m, string t) : mode(m), text(t),
-  recShader("shaders/rectangle.vert", "shaders/rectangle.frag") {
+Popup::Popup(int m, string t) : mode(m), text(t)
+{
+  	recShader = Shader::loadShaderFromFile("shaders/rectangle.vert", "shaders/rectangle.frag");
 	glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -88,15 +90,12 @@ void Popup::render() {
 		title = "Error";
 	}
 	drawPopup(text, title, bg1, bg2, fg);
-	// glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
- 	// glClear(GL_COLOR_BUFFER_BIT);
 
-    recShader.Use();
-    int vertexColorLocation = glGetUniformLocation(recShader.Program, "ourColor");
-    glUniform4f(vertexColorLocation, 0.0f, 0.33f, 0.0f, 1.0f);
+    recShader.SetVector4f("ourColor", 0.0f, 0.33f, 0.0f, 1.0f, true);
     
     glBindVertexArray(VAO);
   	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  	glBindVertexArray(0);
 }
 
 Popup* Popup::create(int m, string t) {
