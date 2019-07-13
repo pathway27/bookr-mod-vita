@@ -1,29 +1,13 @@
 /*
- * Bookr % VITA: document reader for the Sony PS Vita
- * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
- *
+ * bookr-modern: a graphics based document reader 
+ * Copyright (C) 2019 pathway27 (Sree)
  * IS A MODIFICATION OF THE ORIGINAL
- *
  * Bookr and bookr-mod for PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
-
- * AND VARIOUS OTHER FORKS.
- * See Forks in the README for more info
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * AND VARIOUS OTHER FORKS, See Forks in README.md
+ * Licensed under GPLv3+, see LICENSE
 */
 
 #include "screen.hpp"
@@ -326,21 +310,9 @@ void open(int argc, char **argv)
 
   gladLoadGL();
 
-
-  // Main graphics loop
-  while (!isClosing)
-  {
-    // Get and process input
-    hidScanInput();
-    u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-    if (kDown & KEY_PLUS)
-      break;
-
-    // Render stuff!
-    sceneRender();
-  }
-
-  
+ 
+  // Render stuff!
+  // sceneRender();  
 }
 
 int setupCallbacks(void) {
@@ -405,6 +377,46 @@ static void updateReps(int keyState) {
   if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
 }
 
+static void normalizeControls(u64 kDown, u64 kHeld, u64 kUp)
+{
+  switch (key) {
+    case GLFW_KEY_ESCAPE:
+        glfwSetWindowShouldClose(window, true);
+        break;
+    case GLFW_KEY_W:
+        keyState |= FZ_CTRL_UP;
+        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        break;
+    case GLFW_KEY_S:
+        keyState |= FZ_CTRL_DOWN; 
+        glClearColor(0.0f, 1.0f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        break;
+    case GLFW_KEY_A: {
+        keyState |= FZ_CTRL_LEFT;
+        
+        break;
+    }
+    case GLFW_KEY_D: {
+        keyState |= FZ_CTRL_RIGHT;
+        break;
+    }
+    case GLFW_KEY_K: {
+        keyState |= FZ_CTRL_SQUARE; 
+        break;
+    }
+    case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
+    case GLFW_KEY_O: keyState |= FZ_CTRL_TRIANGLE; break;
+    case GLFW_KEY_P: keyState |= FZ_CTRL_CIRCLE; break;
+    case GLFW_KEY_V: keyState |= FZ_CTRL_SELECT; break;
+    case GLFW_KEY_B: keyState |= FZ_CTRL_START; break;
+    case GLFW_KEY_X: keyState |= FZ_CTRL_LTRIGGER; break;
+    case GLFW_KEY_C: keyState |= FZ_CTRL_RTRIGGER; break;
+    case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
+  }
+}
+
 
 void resetReps() {
 
@@ -425,6 +437,8 @@ int readCtrl() {
   u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
   //hidKeysUp returns information about which buttons have been just released
   u64 kUp = hidKeysUp(CONTROLLER_P1_AUTO);
+
+  normalizeControls(kDown, kHeld, kUp);
 }
 
 void getAnalogPad(int& x, int& y) {

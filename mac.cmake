@@ -23,11 +23,12 @@ link_directories(
 # Add all the files needed to compile here
 add_executable(bookr-mod-vita
   ${COMMON_SRCS}
-  src/graphics/shaders/shader.cpp
+  src/graphics/shader.cpp
   src/layer.cpp
   
   src/graphics/screen_glfw.cpp
   src/graphics/font.cpp
+  src/resource_manager.cpp
   "${CMAKE_SOURCE_DIR}/ext/glad/src/glad.c"
 )
 
@@ -41,6 +42,14 @@ target_link_libraries(bookr-mod-vita
   glfw
   ${SOIL}
   "-framework Foundation"
+)
+
+# ??? embed into binary?
+add_custom_command(
+  TARGET bookr-mod-vita POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory              
+     ${CMAKE_SOURCE_DIR}/src/graphics/shaders $<TARGET_FILE_DIR:bookr-mod-vita>/shaders
+  COMMENT "Copying shaders" VERBATIM
 )
 
 # add_dependencies(bookr-mod-vita glew glm freetype)

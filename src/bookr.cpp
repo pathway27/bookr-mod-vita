@@ -1,29 +1,13 @@
 /*
- * Bookr % VITA: document reader for the Sony PS Vita
- * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
- *
+ * bookr-modern: a graphics based document reader 
+ * Copyright (C) 2019 pathway27 (Sree)
  * IS A MODIFICATION OF THE ORIGINAL
- *
  * Bookr and bookr-mod for PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
-
- * AND VARIOUS OTHER FORKS.
- * See Forks in the README for more info
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * AND VARIOUS OTHER FORKS, See Forks in README.md
+ * Licensed under GPLv3+, see LICENSE
 */
 
 #include "bookr.hpp"
@@ -33,22 +17,23 @@
 #include "graphics/screen.hpp"
 #include "graphics/controls.hpp"
 
-#include "layer.hpp"
-  //#include "document.h"
-  //#include "mainmenu.h"
-  //#include "filechooser.h"
+  //#include "document.hpp"
+  //#include "mainmenu.hpp"
+  //#include "filechooser.hpp"
 
 //#include "user.hpp"
-//#include "layer.h"
-//#include "logo.h"
-//#include "mainmenu.h"
-//#include "popup.h"
-//#include "filechooser.h"
+//#include "layer.hpp"
+#include "logo.hpp"
+//#include "mainmenu.hpp"
+#include "popup.hpp"
+//#include "filechooser.hpp"
 
 namespace bookr {
 
+static void command_handler(int command);
+
 //extern BKDocument *documentLayer;
-// static Layers layers;                 // iterator over all gui obj. that are initalsed
+static Layers layers;                 // iterator over all gui obj. that are initalsed
 // BKMainMenu *mm;                    // Main Menu, only opens when pressed start on opening screen
 // BKFileChooser *fs;                 // file chooser, only opens when Open File in mainmenu
 
@@ -69,8 +54,8 @@ void initalise(int argc, char *argv[])
 
   // Layer::load();                       // make textures
   // mm = BKMainMenu::create(); // Main Menu, only opens when pressed start on opening screen
-  // layers.push_back(BKLogo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
-  // layers.push_back(mm);                  // Main Menu
+  layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
+  layers.push_back(Popup::create(0, "test"));                  // Main Menu
 }
 
 
@@ -78,23 +63,21 @@ void mainloop() {
   // Event Loop
   while (!exitApp) {
     // draw state to back buffer and swap
-    // if (dirty)
+    if (dirty) {
     // {
       // Screen::startDirectList();
-      // LayersIt it(layers.begin());
-      // LayersIt end(layers.end());
-      // while (it != end)
-      // {
-      //   (*it)->render();
-      //   ++it;
-      // }
+      LayersIt it(layers.begin());
+      LayersIt end(layers.end());
+      while (it != end)
+      {
+        (*it)->render();
+        ++it;
+      }
       // Screen::endAndDisplayList();
-      // Screen::swapBuffers();
-    // }
+      Screen::swapBuffers();
+    }
 
-    // Screen::readCtrl();
     int buttons = Screen::readCtrl();
-
     // dirty = buttons != 0;
 
     // #if defined(MAC) || defined(WIN32)
@@ -131,10 +114,9 @@ void mainloop() {
     // // pusedo message passing
     // command_handler(command);
 
-    std::cout << Screen::isClosing() << std::endl;
-    // if (Screen::isClosing())
-    //   std::cout << "closing\n";
-      // break;
+    // std::cout << std::noboolalpha << Screen::isClosing() << std::endl;
+    if (Screen::isClosing())
+      break;
     #ifdef DEBUG
       // printf("powerResumed %i\n", Screen::getSuspendSerial());
       // Quick close
