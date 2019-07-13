@@ -55,7 +55,7 @@ void initalise(int argc, char *argv[])
   // Layer::load();                       // make textures
   // mm = BKMainMenu::create(); // Main Menu, only opens when pressed start on opening screen
   layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
-  layers.push_back(Popup::create(0, "test"));                  // Main Menu
+  //layers.push_back(Popup::create(0, "test"));                  // Main Menu
 }
 
 

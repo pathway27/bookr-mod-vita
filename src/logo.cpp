@@ -23,6 +23,9 @@
 #include "logo.hpp"
 #include "SOIL.h"
 #include "resource_manager.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using std::cout;
 using std::endl;
@@ -34,52 +37,39 @@ static int width, height, nrChannels;
 
 Logo::Logo() : loading(false), error(false), text("")
 {
+  // Configure VAO/VBO
   GLfloat vertices[] = {
-      // Positions          // Colors           // Texture Coords
-      0.75f,  0.75f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-      0.75f, -0.75f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-      -0.75f, -0.75f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-      -0.75f,  0.75f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
-  };
-  GLuint indices[] = {  // Note that we start from 0!
-      0, 1, 3, // First Triangle
-      1, 2, 3  // Second Triangle
+    // Pos      // Tex
+    0.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 0.0f,
+
+    0.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 1.0f, 0.0f
   };
 
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-    // Color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-    // TexCoord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(2);
-  glBindVertexArray(0); // Unbind VAO
-
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 
   glGenTextures(1, &texture);
   glBindTexture(GL_TEXTURE_2D, texture);
     //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    
     cout << SOIL_last_result() << endl; 
     cout << "null: " << !image << endl;
     cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
@@ -163,16 +153,27 @@ void Logo::render() {
           "%*s", TEXT_PADDED_WIDTH / 2 + strlen(DEFAULT_TEXT) / 2 , DEFAULT_TEXT);
     }
   #else
-    // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    // glClear(GL_COLOR_BUFFER_BIT);
+    ResourceManager::GetShader("texture").Use();
 
-    // recShader.Use();
-    // ResourceManager::GetShader("texture").Use();
-    // glBindTexture(GL_TEXTURE_2D, texture);
+    //glm::mat4 model = glm::mat4(1.0f);
+    //model = glm::translate(model, glm::vec3(glm::vec2(200, 200), 0.0f));  // First translate (transformations are: scale happens first, then rotation and then finall translation happens; reversed order)
+
+    //glm::vec2 size = glm::vec2(10, 10);
+    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); // Move origin of rotation to center of quad
+    //GLfloat rotate = 0.0f;
+    //model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f)); // Then rotate
+    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f)); // Move origin back
+
+    //model = glm::scale(model, glm::vec3(0.0f, 1.0f, 0.0f)); // Last scale
+    //
+    //
+    //ResourceManager::GetShader("texture_ortho").SetMatrix4("model", model);
+    //ResourceManager::GetShader("texture_ortho").SetVector3f("spriteColor", glm::vec3(1.0f));
+    glBindTexture(GL_TEXTURE_2D, texture);
     
-    // glBindVertexArray(VAO);
-    //   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    // glBindVertexArray(0);
+    glBindVertexArray(VAO);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
   #endif
 }
 

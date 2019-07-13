@@ -163,21 +163,16 @@ void processInput(GLFWwindow *window)
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 static void loadShaders() {
-    // ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "texture");
+    ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "texture");
     ResourceManager::LoadShader("shaders/rectangle.vert", "shaders/rectangle.frag", nullptr, "rectangle");
-    ResourceManager::LoadShader("shaders/polygon_coloured_projected.vert",
-        "shaders/polygon_coloured_projected.frag",
-        nullptr,
-        "polygon"
-    );
-    glm::mat4 projection = glm::ortho(0.0f,
-        static_cast<GLfloat>(SCR_WIDTH),
-        static_cast<GLfloat>(SCR_HEIGHT),
-    0.0f, -1.0f, 1.0f);
+    ResourceManager::LoadShader("shaders/texture_ortho.vert", "shaders/texture_ortho.frag", nullptr, "texture_ortho");
+    // static_cast<GLfloat>(SCR_HEIGHT)
+    glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
 
-    // ResourceManager::GetShader("texture").SetMatrix4("projection", projection);
+    ResourceManager::GetShader("texture_ortho").Use().SetInteger("image", 0);
+    ResourceManager::GetShader("texture_ortho").SetMatrix4("projection", projection);
     // ResourceManager::GetShader("rectangle").SetMatrix4("projection", projection);
-    ResourceManager::GetShader("polygon").SetMatrix4("projection", projection);
+    //ResourceManager::GetShader("polygon").SetMatrix4("projection", projection);
     
 }
 
@@ -185,48 +180,41 @@ static GLFWwindow* window;
 static char psp_full_path[1024 + 1];
 void open(int argc, char** argv) {
   // glfw: initialize and configure
-    // ------------------------------
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  // ------------------------------
+  glfwInit();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-    // glfw window creation
-    // --------------------
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Bookr", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Bookr", NULL, NULL);
+  if (window == NULL)
+  {
+    std::cout << "Failed to create GLFW window" << std::endl;
+    glfwTerminate();
+  }
+  glfwMakeContextCurrent(window);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-    }
+  // glad: load all OpenGL function pointers
+  // ---------------------------------------
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  {
+    std::cout << "Failed to initialize GLAD" << std::endl;
+  }
 
-  int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, width, height);
+  glfwSetKeyCallback(window, key_callback);
 
 
-    std::cout << glGetString(GL_VERSION) << std::endl;
+  std::cout << glGetString(GL_VERSION) << std::endl;
 
-  // glfwSwapInterval(0);
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
 
-  // glClearColor(0.5f, 0.3f, 0.3f, 1.0f);
-  // glClear(GL_COLOR_BUFFER_BIT);
-  // swapBuffers();
-
-    loadShaders();
+  loadShaders();
 }
 
 void close() {

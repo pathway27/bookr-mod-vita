@@ -11,6 +11,9 @@
 */
 
 #include <cstring>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "popup.hpp"
 #include "graphics/shader.hpp"
@@ -90,7 +93,7 @@ void Popup::render() {
 	}
 	drawPopup(text, title, bg1, bg2, fg);
 
-	glm::mat4 model = glm::mat4(1.0f);
+	// glm::mat4 model = glm::mat4(1.0f);
 	// glm::vec2 size = glm::vec2(1.0f);
 	// GLfloat rotate = 0.0f;
 	// model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));  // First translate (transformations are: scale happens first, then rotation and then finall translation happens; reversed order)
@@ -102,8 +105,10 @@ void Popup::render() {
 	// model = glm::scale(model, glm::vec3(1.0f)); // Last scale
 
 	ResourceManager::GetShader("rectangle").Use();
-	// ResourceManager::GetShader("polygon").SetVector4f("model", 0.0f, 0.0f, 0.0f, 1.0f);
-	// ResourceManager::GetShader("polygon").SetVector4f("ourColor", 0.0f, 0.4f, 0.4f, 1.0f);
+
+  //ResourceManager::GetShader("polygon").Use();
+	//ResourceManager::GetShader("polygon").SetVector4f("model", 100.0f, 100.0f, 0.0f, 0.0f);
+	//ResourceManager::GetShader("polygon").SetVector4f("ourColor", 0.0f, 0.4f, 0.4f, 1.0f);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
