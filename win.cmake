@@ -1,6 +1,13 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 include_external_msproject(SOIL_WIN "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/SOIL.vcxproj")
 
+add_custom_command(
+  TARGET bookr-mod-vita POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory              
+     ${CMAKE_SOURCE_DIR}/src/graphics/shaders $<TARGET_FILE_DIR:bookr-mod-vita>/shaders
+  COMMENT "Copying shaders" VERBATIM
+)
+
 ExternalProject_Add(glew
   URL https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
   URL_MD5 32a72e6b43367db8dbea6010cd095355
@@ -56,12 +63,14 @@ ExternalProject_Add(glfw
 include_directories(
   ${CMAKE_BINARY_DIR}
   "${CMAKE_SOURCE_DIR}/src"
-  #"${CMAKE_SOURCE_DIR}/ext/mupdf/include"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
   "${CMAKE_SOURCE_DIR}/ext/glfw/include"
   "${CMAKE_SOURCE_DIR}/ext/glew/include"
   "${CMAKE_SOURCE_DIR}/ext/glm"
   "${CMAKE_SOURCE_DIR}/ext/freetype/include"
+  "${CMAKE_SOURCE_DIR}/ext/freetype/include/freetype2"
   "${CMAKE_SOURCE_DIR}/ext/SOIL/src"
+  "${CMAKE_SOURCE_DIR}/ext/glad/include"
 )
 
 link_directories(
@@ -79,8 +88,13 @@ link_directories(
 # Add all the files needed to compile here
 add_executable(bookr-mod-vita
   ${COMMON_SRCS}
-  src/graphics/shaders/shader.cpp
+  src/graphics/shader.cpp
   src/graphics/screen_glfw.cpp
+  src/layer.cpp
+
+  src/graphics/shader.cpp
+  src/resource_manager.cpp
+  "${CMAKE_SOURCE_DIR}/ext/glad/src/glad.c"
 )
 
 
@@ -95,4 +109,5 @@ target_link_libraries(bookr-mod-vita
   SOIL
 )
 
-add_dependencies(bookr-mod-vita glew glm glfw freetype2 tinyxml2 SOIL_WIN)
+add_dependencies(bookr-mod-vita glew glm glfw tinyxml2 SOIL_WIN)
+#freetype2

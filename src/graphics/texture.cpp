@@ -158,7 +158,7 @@ Texture* Texture::createFromImage(Image* image, bool buildMipmaps) {
 #endif
     
 bool Texture::initFromImage(Texture* texture, Image* image, bool buildMipmaps) {
-
+  return false;
 }
 
 void Texture::texEnv(int op) {
