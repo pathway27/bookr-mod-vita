@@ -21,7 +21,7 @@
 
 #include "controls.hpp"
 #include "resolutions.hpp"
-#include "shaders/shader.hpp"
+#include "shader.hpp"
 #include "screen.hpp"
 
 using std::cout;
@@ -160,38 +160,6 @@ void processInput(GLFWwindow *window)
 
 static Shader* texture_shader;
 static void loadShaders() {
-    // For textures
-    // load shaders
-    texture_shader = new Shader("shaders/textures.vert", 
-                                "shaders/textures.frag");
-
-    //shaders["texture"] = (*)texture_shader;
-    // bind vertex buffers' and get id
-    // Set up vertex data (and buffer(s)) and attribute pointers
-    GLuint VAO, VBO;
-    GLfloat vertices[] = { 
-        // Pos      // Tex
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 
-    
-        0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 0.0f, 1.0f, 0.0f
-    };
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    //VBOs["texture"] = VBO;
-    //VAOs["texture"] = VAO;
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(VAO);
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }
 
 static GLFWwindow* window;
@@ -281,21 +249,6 @@ void setBoundTexture(Texture *t) {
     bind correct vertex array
 */
 void drawArray() {
-    cout << "fzscreen drawArray" << endl;
-    texture_shader->Use();
-    glm::mat4 model;
-    model = glm::translate(model, glm::vec3(glm::vec2(200, 200), 0.0f));
-    glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
-  
-    glUniformMatrix4fv(glGetUniformLocation(texture_shader->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-    //glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 1, GL_FALSE, glm::value_ptr(color)); 
-    glUniform3f(glGetUniformLocation(texture_shader->Program, "spriteColor"), 0.0f, 1.0f, 0.0f);
-
-    //cout << "vao texture id" + VAOs["texture"] << endl;
-
-    //glBindVertexArray(VAOs["texture"]);
-    //glDrawArrays(GL_TRIANGLES, 0, 6);
-    //glBindVertexArray(0);
 }
 
 void drawArray(int prim, int count, void* indices, void* vertices) {

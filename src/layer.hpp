@@ -37,7 +37,7 @@
 
   #include <GLFW/glfw3.h>
   #include <SOIL.h>
-  #include "graphics/shaders/shader.hpp"
+  #include "graphics/shader.hpp"
 #endif
 
 using std::string;

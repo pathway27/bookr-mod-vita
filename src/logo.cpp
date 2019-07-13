@@ -22,6 +22,7 @@
 #include "graphics/fzscreen_defs.h"
 #include "logo.hpp"
 #include "SOIL.h"
+#include "graphics/shader.hpp"
 
 using std::cout;
 using std::endl;
@@ -30,16 +31,17 @@ namespace bookr {
 
 static unsigned int VBO, VAO, EBO, texture;
 static int width, height, nrChannels;
+static Shader recShader;
 
-Logo::Logo() : loading(false), error(false), text(""),
-  recShader("shaders/textures.vert", "shaders/textures.frag")
-{               
+Logo::Logo() : loading(false), error(false), text("")
+{
+  recShader = Shader::loadShaderFromFile("shaders/textures.vert", "shaders/textures.frag");
   GLfloat vertices[] = {
       // Positions          // Colors           // Texture Coords
-      1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-      1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-      -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-      -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
+      0.75f,  0.75f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
+      0.75f, -0.75f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+      -0.75f, -0.75f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+      -0.75f,  0.75f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left 
   };
   GLuint indices[] = {  // Note that we start from 0!
       0, 1, 3, // First Triangle
@@ -87,7 +89,14 @@ Logo::Logo() : loading(false), error(false), text(""),
     cout << "Height: " << height << endl;
     cout << "Obj: " << texture << endl;
 
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
     GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);

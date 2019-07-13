@@ -15,7 +15,7 @@
 
 #include "graphics/screen.hpp"
 #include "layer.hpp"
-#include "graphics/shaders/shader.hpp"
+
 
 using std::string;
 
@@ -28,7 +28,6 @@ namespace bookr {
 class Popup : public Layer {
 	int mode;
 	string text;
-	Shader recShader;
 
 	protected:
 	Popup(int m, string t);	

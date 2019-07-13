@@ -23,7 +23,7 @@ link_directories(
 # Add all the files needed to compile here
 add_executable(bookr-mod-vita
   ${COMMON_SRCS}
-  src/graphics/shaders/shader.cpp
+  src/graphics/shader.cpp
   src/layer.cpp
   
   src/graphics/screen_glfw.cpp
