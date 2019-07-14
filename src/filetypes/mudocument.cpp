@@ -156,7 +156,7 @@ MUDocument* MUDocument::create(string& file) {
 bool MUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("MUDocument::redrawBuffer pp\n");
-    chrono::steady_clock::time_point begin = chrono::steady_clock::now(); 
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now(); 
   #endif
   // fz_scale(&m_transform, m_scale / 72, m_scale / 72);
   // fz_pre_rotate(&m_transform, m_rotate);

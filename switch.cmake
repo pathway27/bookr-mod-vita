@@ -9,6 +9,7 @@ include_directories(
   $ENV{DEVKITPRO}/portlibs/switch/include/freetype2
   ${CMAKE_SOURCE_DIR}/ext/mupdf/include
   ${CMAKE_SOURCE_DIR}/ext/tinyxml2
+  ${CMAKE_SOURCE_DIR}/ext/stb
   "${SOURCE_DIR}/include"
 )
 
@@ -28,6 +29,14 @@ add_executable(bookr-modern
   src/graphics/screen_switch.cpp
 
   src/graphics/font_vita.cpp
+  src/layer_vita.cpp
+
+  src/graphics/shader.cpp
+  src/graphics/texture2d.cpp
+  src/graphics/sprite_renderer.cpp
+  src/graphics/text_renderer.cpp
+  src/resource_manager.cpp
+  
   src/filetypes/mudocument.cpp
 )
 
