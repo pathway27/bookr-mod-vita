@@ -64,9 +64,9 @@ static void clearXML() {
 	
 	char xmlfilename[1024];
 	#ifdef __vita__
-		snprintf(xmlfilename, 1024, "%s%s%s", FZScreen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
+		snprintf(xmlfilename, 1024, "%s%s%s", Screen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
 	#else
-		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, Screen::basePath().c_str(), BOOKMARK_XML);
 	#endif
 
 	doc->SaveFile(xmlfilename);
@@ -80,9 +80,9 @@ static void loadXML() {
 	char xmlfilename[1024];
 	
 	#ifdef __vita__
-		snprintf(xmlfilename, 1024, "%s%s%s", FZScreen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
+		snprintf(xmlfilename, 1024, "%s%s%s", Screen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
 	#else
-		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, Screen::basePath().c_str(), BOOKMARK_XML);
 	#endif
 
 	if (doc != 0)
@@ -118,9 +118,9 @@ static void saveXML() {
 
 	char xmlfilename[1024];
 	#ifdef __vita__
-		snprintf(xmlfilename, 1024, "%s%s%s", FZScreen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
+		snprintf(xmlfilename, 1024, "%s%s%s", Screen::basePath().c_str(), "data/Bookr/", BOOKMARK_XML);
 	#else
-		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, FZScreen::basePath().c_str(), BOOKMARK_XML);
+		snprintf(xmlfilename, 1024, BOOKMARK_XML_BASE, Screen::basePath().c_str(), BOOKMARK_XML);
 	#endif
 
 	if (doc != 0) {
@@ -203,13 +203,13 @@ static void loadBookmark(XMLNode* _bn, Bookmark& b) {
 	b.page = p;
 	b.createdOn = bn->Attribute("createdon");
 	//int *thumbnail;
-	map<string, float> viewData;
+	std::map<string, float> viewData;
 	XMLElement* vd = bn->FirstChildElement("viewdata");
 	while (vd) {
 		const char* key = vd->Attribute("key");
 		int value = 0;
 		vd->QueryIntAttribute("value", &value);
-		b.viewData.insert(pair<string, int>(key, value));
+		b.viewData.insert(std::pair<string, int>(key, value));
 		vd = vd->NextSiblingElement("viewdata");
 	}
 }
@@ -272,7 +272,7 @@ static void addBookmarkProto(string& filename, Bookmark& b, XMLNode* file) {
 	bookmark->SetAttribute("createdon", b.createdOn.c_str());
 	//bookmark->SetAttribute("zoomvalue", b.zoom);
 	//bookmark.SetAttribute("thumbnail", );
-	map<string, float>::iterator it(b.viewData.begin());
+	std::map<string, float>::iterator it(b.viewData.begin());
 	#ifdef DEBUG
 		printf("addBookmarkProto: title: %s page: %i\n", b.title.c_str(), b.page);
 	#endif

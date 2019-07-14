@@ -1,10 +1,10 @@
 // TODO: Find a place for this
 
 #include "graphics/screen.hpp"
-#include "utils.h"
+#include "utils.hpp"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #ifdef __vita__
 vita2d_texture* _vita2d_load_pixmap_generic(fz_pixmap *pixmap)

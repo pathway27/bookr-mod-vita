@@ -683,13 +683,6 @@ void Document::render() {
 
   // // selected icon item row
   //Screen::ambientColor();
-  int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
-  int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
-  if (iw < mw)
-    iw = mw;
-  int selItemI = overflow ?
-    toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
-    : toolbarSelMenuItem;
   #ifdef PSP
     drawPill(
       30 + toolbarSelMenu*55,
@@ -698,6 +691,13 @@ void Document::render() {
       30,
       6, 31, 1);
   #elif defined(__vita__)
+    int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
+    int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
+    if (iw < mw)
+      iw = mw;
+    int selItemI = overflow ?
+      toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+      : toolbarSelMenuItem;
     vita2d_draw_rectangle(
       60 + toolbarSelMenu*75 - 10,
       544 - 140 - (selItemI*55) - 55,

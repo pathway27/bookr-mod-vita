@@ -18,6 +18,8 @@
 
 #include "graphics/screen.hpp"
 
+#include <map>
+
 using std::string;
 
 namespace bookr {
@@ -31,7 +33,7 @@ struct Bookmark {
 	int *thumbnail;
 	bool lastView;
 	// the view-specific data. this is a black box for the bookmarks manager
-	map<string, float> viewData;
+	std::map<string, float> viewData;
 	Bookmark() : page(0), thumbnail(0), lastView(false) { }
 };
 

@@ -1,6 +1,7 @@
 # This line adds Vita helper macros, must go after project definition in order
 # to build Vita specific artifacts (self/vpk).
 include("${VITASDK}/share/vita.cmake" REQUIRED)
+option(BUILD_SHARED_LIBS "build as shared library" ON)
 
 ## Configuration options for this app
 # Display name (under bubble in LiveArea)
@@ -66,8 +67,15 @@ link_directories(
 add_executable(bookr-mod-vita
   ${COMMON_SRCS}
   ${bk_resources}
+  src/document.cpp
+  src/bookmark.cpp
+  src/filetypes/fancytext.cpp
+  src/filetypes/plaintext.cpp
+
   data/fonts/res_txtfont.c
   data/fonts/res_uifont.c
+  
+  src/graphics/texture.cpp
 
   src/graphics/screen_vita.cpp
   src/layer_vita.cpp

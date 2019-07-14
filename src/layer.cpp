@@ -23,12 +23,14 @@
 
 namespace bookr {
 
+#ifdef __vita__
 Font* Layer::fontBig = 0;
 Font* Layer::fontSmall = 0;
 Font* Layer::fontUTF = 0;
 Texture* Layer::texUI = 0;
 Texture* Layer::texUI2 = 0;
 Texture* Layer::texLogo = 0;
+#endif
 
 extern "C" {
   extern unsigned int size_res_logo;
@@ -59,47 +61,6 @@ void Layer::load() {
       fontBig = Font::createFromMemory(fz_resources_fonts_urw_NimbusSans_Regular_cff, fz_resources_fonts_urw_NimbusSans_Regular_cff_size, 
         14, false);
     }
-  #elif defined(MAC) || defined(WIN32)
-    texLogo = Texture::createFromSOIL("sce_sys/icon0_t.png");
-  #elif defined(PSP)
-
-    // if (!fontUTF){
-    //   fontUTF = Font::createUTFFromFile("utf.font",14,false);
-    //   if(!fontUTF)
-    //     if(pdf_font_DroidSansFallback_ttf_len)
-    // fontUTF = Font::createUTFFromMemory(pdf_font_DroidSansFallback_ttf_buf, pdf_font_DroidSansFallback_ttf_len, 14, false);
-    //     else
-    // fontUTF = Font::createUTFFromFile("data.fnt",14,false);
-    //   if(fontUTF){
-    //     fontUTF->texEnv(FZ_TEX_MODULATE);
-    //     fontUTF->filter(FZ_NEAREST, FZ_NEAREST);
-    //   }
-    // }
-    // if (!fontSmall){
-    // fontSmall = Font::createFromMemory(res_uifont, size_res_uifont, 11, false);
-    // fontSmall->texEnv(FZ_TEX_MODULATE);
-    // fontSmall->filter(FZ_NEAREST, FZ_NEAREST);
-    // }
-    // if (!texUI){
-    // FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex, size_res_uitex);
-    // FZImage* image = FZImage::createFromPNG(ins);
-    // ins->release();
-    // ins = 0;
-    // texUI = Texture::createFromImage(image, false);
-    // texUI->texEnv(FZ_TEX_MODULATE);
-    // texUI->filter(FZ_NEAREST, FZ_NEAREST);
-    // image->release();
-    // }
-    // if (!texUI2){
-    // FZInputStreamMem* ins = FZInputStreamMem::create((char*)res_uitex2, size_res_uitex2);
-    // FZImage* image = FZImage::createFromPNG(ins);
-    // ins->release();
-    // ins = 0;
-    // texUI2 = Texture::createFromImage(image, false);
-    // texUI2->texEnv(FZ_TEX_MODULATE);
-    // texUI2->filter(FZ_NEAREST, FZ_NEAREST);
-    // image->release();
-    // }
   #endif
 
 }
@@ -361,15 +322,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   int selPos = selItem - topItem;
   int scrY = 0;
   Font* itemFont;
-  if(useUTFFont&&fontUTF){
-    itemFont = fontUTF;
-    maxItemNum = 9;
-  }
-  else{
-    itemFont = fontBig;
-    maxItemNum = 8;
-    useUTFFont = false;
-  }
 
   if (selPos < 0) {
     topItem += selPos;
@@ -517,7 +469,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 
 void Layer::drawOutlinePrefix(string prefix, int x, int y, int w, int h, int ws){
   for (int i = 0;i<prefix.length();i++){
-    texUI->bindForDisplay();
     switch (prefix[i]){
     case '0':
       break;
@@ -571,15 +522,6 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   bool hasOutline = true;
   //Screen::ambientColor(0xFF0000FF);
   //drawOutlinePrefix("1",0,0,20,20);
-  if(useUTFFont&&fontUTF){
-    itemFont = fontUTF;
-    maxItemNum = 9;
-  }
-  else{
-    itemFont = fontBig;
-    maxItemNum = 8;
-    useUTFFont = false;
-  }
 
   // if (items.size()==0){
   //   string cl = "";
@@ -614,16 +556,14 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   }
   drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
   if (hasOutline){
-    texUI->bindForDisplay();
     Screen::ambientColor(0xffcccccc);
     drawImage(190, 248, BK_IMG_SQUARE_XSIZE, BK_IMG_SQUARE_YSIZE, BK_IMG_SQUARE_X, BK_IMG_SQUARE_Y);
     // fontBig->bindForDisplay();
-    if (User::options.t_ignore_x)
-      drawText(const_cast<char*>("Goto (ignore zoom&X)"), fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
-    else
-      drawText(const_cast<char*>("Goto (ignore zoom)"), fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
+    //if (User::options.t_ignore_x)
+    //  drawText(const_cast<char*>("Goto (ignore zoom&X)"), fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
+    //else
+    //  drawText(const_cast<char*>("Goto (ignore zoom)"), fontBig, 190+BK_IMG_SQUARE_XSIZE+8, 248);
   }
-  texUI->bindForDisplay();
   int ITEMHEIGHT = 60;
   if(useUTFFont)
     ITEMHEIGHT = 62;
@@ -798,15 +738,13 @@ void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 }
 
 void Layer::drawClockAndBattery(string& extra) {
-  texUI->bindForDisplay();
   Screen::ambientColor(0xffbbbbbb);
   drawImage(350, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
   drawImage(405, 222, BK_IMG_CLOCK_XSIZE, BK_IMG_CLOCK_YSIZE, BK_IMG_CLOCK_X, BK_IMG_CLOCK_Y);
   drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
   // fontSmall->bindForDisplay();
   Screen::ambientColor(0xffbbbbbb);
-  int ew = textW((char*)extra.c_str(), fontSmall);
-  drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);
+  // drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);
   int h = 0, m = 0;
   Screen::getTime(h, m);
   int b = Screen::getBattery();
@@ -820,10 +758,6 @@ void Layer::drawClockAndBattery(string& extra) {
   snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
   char t4[20];
   snprintf(t4, 20, "%dMHz", speed);
-  drawText(t1, fontSmall, 425, 224);
-  drawText(t2, fontSmall, 370, 224);
-  drawText(t3, fontSmall, 310, 224);
-  drawText(t4, fontSmall, 240, 224);
 }
 
 void Layer::menuCursorUpdate(unsigned int buttons, int max) {

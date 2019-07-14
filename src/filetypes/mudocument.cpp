@@ -33,7 +33,7 @@
 #include "mudocument.hpp"
 #include "../graphics/resolutions.hpp"
 #include "../bookmark.hpp"
-#include "../utils.h"
+#include "../utils.hpp"
 #include "../graphics/fzscreen_defs.h"
 #include "../graphics/controls.hpp"
 
@@ -74,13 +74,7 @@ MUDocument::MUDocument(string& f) :
   m_height = FZ_SCREEN_HEIGHT;
 
   // Initalize fitz context
-  m_ctx = fz_new_context(nullptr, nullptr,
-  #ifdef __vita__
-    _newlib_heap_size_user
-  #elif defined(SWITCH)
-    FZ_STORE_DEFAULT
-  #endif
-  );
+  m_ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
 
   if (m_ctx)
     fz_register_document_handlers(m_ctx);
@@ -418,6 +412,8 @@ int MUDocument::screenUp() {
     panY = m_bounds.y0;
   else
     panY = potentialY;
+
+  return 0;
 }
 
 int MUDocument::screenDown() {
@@ -433,6 +429,8 @@ int MUDocument::screenDown() {
     panY = -bottomBounds;
   else
     panY = potentialY;
+
+  return 0;
 }
 
 // TODO: Move this to user.
@@ -568,6 +566,8 @@ int MUDocument::screenRight() {
     panX = 0;
     panY = 0;
   #endif
+
+  return 0;
 }
 
 bool MUDocument::isRotable() {

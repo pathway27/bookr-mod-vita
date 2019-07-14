@@ -127,6 +127,7 @@ namespace bookr {
  */
 class Layer : public RefCounted {
   protected:
+#ifdef __vita__
   static Font* fontBig;
   static Font* fontSmall;
   static Font* fontUTF;
@@ -136,6 +137,7 @@ class Layer : public RefCounted {
   static Texture* texLogo;
 
   static map<string, Texture*> bk_icons;
+#endif
 
   int textW(char* t, Font* font);
   int textWidthRange(char* t, int n, Font* font);

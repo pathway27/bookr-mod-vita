@@ -126,7 +126,6 @@ set(COMMON_SRCS
   #texture image refcounted
   src/graphics/refcount.cpp
   src/graphics/image.cpp
-  src/graphics/texture.cpp
 
   src/graphics/instreammem.cpp
 
@@ -134,13 +133,6 @@ set(COMMON_SRCS
   src/mainmenu.cpp
   src/popup.cpp
   src/filechooser.cpp
-
-  
-  #src/document.cpp
-  #src/bookmark.cpp
-  #src/filetypes/fancytext.cpp
-  #src/filetypes/plaintext.cpp
-  
 )
 
 if(DESKTOP)

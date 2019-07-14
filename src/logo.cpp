@@ -10,21 +10,21 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
-#ifdef PSP
-  #include <pspthreadman.h>
-#elif defined(__vita__)
-  #include <psp2/kernel/threadmgr.h> 
-  #include <vita2d.h>
-#endif
-#include <cstring>
-#include <iostream>
-
 #include "graphics/fzscreen_defs.h"
 #include "logo.hpp"
-#include "resource_manager.hpp"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+
+#ifdef __vita__
+  #include <psp2/kernel/threadmgr.h> 
+  #include <vita2d.h>
+#else
+  #include "resource_manager.hpp"
+  #include <glm/glm.hpp>
+  #include <glm/gtc/matrix_transform.hpp>
+  #include <glm/gtc/type_ptr.hpp>
+#endif
+
+#include <cstring>
+#include <iostream>
 
 using std::cout;
 using std::endl;

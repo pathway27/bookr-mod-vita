@@ -18,6 +18,8 @@
 
 #include "fancytext.hpp"
 
+using std::list;
+
 namespace bookr {
 
 FancyText::FancyText() : lines(0), nLines(0), topLine(0), maxY(0), font(0), rotation(0), runs(0), nRuns(0), holdScroll(false) {
@@ -461,7 +463,7 @@ int FancyText::updateContent() {
     || lastFontFace != User::options.txtFont 
     || lastHeightPct != User::options.txtHeightPct // should be able to just resize view here
     || lastWrapCR != User::options.txtWrapCR )
-      return _CMD_RELOAD;
+      return BK_CMD_RELOAD;
     return 0;
 }
 
@@ -488,19 +490,6 @@ static int strpos(string haystack, char needle, int nth)
 }
 
 void FancyText::renderContent() {
-    FZScreen::clear(User::options.colorSchemes[User::options.currentScheme].txtBGColor & 0xffffff, FZ_COLOR_BUFFER);
-    FZScreen::color(0xffffffff);
-    FZScreen::matricesFor2D(rotation);
-    FZScreen::enable(FZ_TEXTURE_2D);
-    FZScreen::enable(FZ_GL_BLEND);
-    FZScreen::blendFunc(FZ_ADD, FZ_SRC_ALPHA, FZ_ONE_MINUS_SRC_ALPHA);
-
-    #ifdef PSP
-      font->bindForDisplay();
-      //bool txtJustify; ??
-      FZScreen::ambientColor(0xff000000 | User::options.colorSchemes[User::options.currentScheme].txtFGColor);
-    #endif
-
     #ifdef __vita__
       // psp2shell_print("sruns size: %i", );
       if (maxPageNumber == 0)
@@ -517,7 +506,7 @@ void FancyText::renderContent() {
       // psp2shell_print("condition :     %i\n", condition);
 
       for (int i = (pageNumber * linesPerPage); i < condition; i++) {
-        FZScreen::drawText(20, 40 + (20 * (i % linesPerPage)), RGBA8(0, 0, 0, 255), 1.0f, sRuns[i].c_str());
+        Screen::drawText(20, 40 + (20 * (i % linesPerPage)), RGBA8(0, 0, 0, 255), 1.0f, sRuns[i].c_str());
       }
 
       
@@ -527,7 +516,7 @@ void FancyText::renderContent() {
     //bool txtJustify; ??
 
     /* Seems to address justification
-      FZScreen::ambientColor(0xff000000 | User::options.colorSchemes[User::options.currentScheme].txtFGColor);
+      Screen::ambientColor(0xff000000 | User::options.colorSchemes[User::options.currentScheme].txtFGColor);
       int y = 10;
       int bn = topLine + linesPerPage;
       if (bn >= nLines) bn = nLines;
@@ -549,7 +538,7 @@ void FancyText::renderContent() {
                 psp2shell_print("run->text[offset] %s\n", &run->text[offset]);
                 psp2shell_print("x,y : %i, %i\n", x, y);
               psp2shell_print("render::content ------- end\n");
-              //FZScreen::drawText(x, y, RGBA8(0, 0, 0, 255), 1.0f, &run->text[offset]);
+              //Screen::drawText(x, y, RGBA8(0, 0, 0, 255), 1.0f, &run->text[offset]);
             #endif
           }
           n -= pn;
@@ -564,8 +553,6 @@ void FancyText::renderContent() {
         //	break;
       }
     */
-
-    FZScreen::matricesFor2D();
 }
 
 int FancyText::setLine(int l) {
@@ -582,7 +569,7 @@ int FancyText::setLine(int l) {
       snprintf(t, 256, "Page %d", cp);
       setBanner(t);
     }
-    return oldTL != topLine ? _CMD_MARK_DIRTY : 0;
+    return oldTL != topLine ? BK_CMD_MARK_DIRTY : 0;
 }
 
 int FancyText::runForLine(int l) {
@@ -679,7 +666,7 @@ int FancyText::setRotation(int r, bool bForce) {
       resizeView(272, 480);
       setLine(lineForRun(run));
     }
-    return _CMD_MARK_DIRTY;
+    return BK_CMD_MARK_DIRTY;
 }
 
 bool FancyText::isBookmarkable() {
@@ -695,7 +682,7 @@ void FancyText::getBookmarkPosition(map<string, float>& m) {
 int FancyText::setBookmarkPosition(map<string, float>& m) {
     setRotation(m["rotation"]);
     setLine(lineForRun(m["topLineFirstRun"]));
-    return _CMD_MARK_DIRTY;
+    return BK_CMD_MARK_DIRTY;
 }
 
 bool FancyText::isZoomable() {
