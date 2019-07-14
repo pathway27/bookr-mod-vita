@@ -10,16 +10,12 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
-#ifdef PSP
-  #include <pspkernel.h>
-  #include <pspdisplay.h>
-  #include <pspdebug.h>
-  #include <pspgu.h>
-  #define printf  pspDebugScreenPrintf
-#elif defined(__vita__)
+
+#if defined(__vita__)
   #include <psp2/display.h>
   #include <vita2d.h>
 #elif defined(SWITCH)
+  #include <glad/glad.h>
 #else
   #include <stdio.h>
   #define GLEW_STATIC
@@ -72,29 +68,6 @@ static bool validatePow2(unsigned int x, unsigned int maxPow) {
 
 
 bool Texture::validateFormat(Image* image) {
-    Image::Format imageFormat = image->getFormat();
-    internalFormat = GL_ALPHA8;
-    textureFormat = GL_ALPHA;
-    textureType = GL_UNSIGNED_BYTE;
-    switch (imageFormat) {
-        case Image::mono8:
-        break;
-        case Image::rgb24:
-            internalFormat = GL_RGB8;
-            textureFormat = GL_RGB;
-        break;
-        case Image::rgb32:
-            internalFormat = GL_RGB8;
-            textureFormat = GL_RGB;
-        break;
-        case Image::rgba32:
-            internalFormat = GL_RGBA8;
-            textureFormat = GL_RGBA;
-        break;
-        default:
-            return false;
-        break;
-    }
     return true;
 }
 

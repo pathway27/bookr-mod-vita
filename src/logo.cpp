@@ -21,7 +21,6 @@
 
 #include "graphics/fzscreen_defs.h"
 #include "logo.hpp"
-#include "SOIL.h"
 #include "resource_manager.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

@@ -379,41 +379,8 @@ static void updateReps(int keyState) {
 
 static void normalizeControls(u64 kDown, u64 kHeld, u64 kUp)
 {
-  switch (key) {
-    case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(window, true);
-        break;
-    case GLFW_KEY_W:
-        keyState |= FZ_CTRL_UP;
-        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        break;
-    case GLFW_KEY_S:
-        keyState |= FZ_CTRL_DOWN; 
-        glClearColor(0.0f, 1.0f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        break;
-    case GLFW_KEY_A: {
-        keyState |= FZ_CTRL_LEFT;
-        
-        break;
-    }
-    case GLFW_KEY_D: {
-        keyState |= FZ_CTRL_RIGHT;
-        break;
-    }
-    case GLFW_KEY_K: {
-        keyState |= FZ_CTRL_SQUARE; 
-        break;
-    }
-    case GLFW_KEY_L: keyState |= FZ_CTRL_CROSS; break;
-    case GLFW_KEY_O: keyState |= FZ_CTRL_TRIANGLE; break;
-    case GLFW_KEY_P: keyState |= FZ_CTRL_CIRCLE; break;
-    case GLFW_KEY_V: keyState |= FZ_CTRL_SELECT; break;
-    case GLFW_KEY_B: keyState |= FZ_CTRL_START; break;
-    case GLFW_KEY_X: keyState |= FZ_CTRL_LTRIGGER; break;
-    case GLFW_KEY_C: keyState |= FZ_CTRL_RTRIGGER; break;
-    case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
+  switch (kDown) {
+    // case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
   }
 }
 
