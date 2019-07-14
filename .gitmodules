@@ -8,3 +8,6 @@
 [submodule "ext/libvita2d"]
 	path = ext/libvita2d
 	url = https://github.com/pathway27/libvita2d
+[submodule "ext/stb"]
+	path = ext/stb
+	url = https://github.com/nothings/stb

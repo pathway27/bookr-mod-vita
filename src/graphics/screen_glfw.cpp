@@ -163,17 +163,19 @@ void processInput(GLFWwindow *window)
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 static void loadShaders() {
-    ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "texture");
-    ResourceManager::LoadShader("shaders/rectangle.vert", "shaders/rectangle.frag", nullptr, "rectangle");
-    ResourceManager::LoadShader("shaders/texture_ortho.vert", "shaders/texture_ortho.frag", nullptr, "texture_ortho");
-    // static_cast<GLfloat>(SCR_HEIGHT)
-    glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+    ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "sprite");
+    ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
 
-    ResourceManager::GetShader("texture_ortho").Use().SetInteger("image", 0);
-    ResourceManager::GetShader("texture_ortho").SetMatrix4("projection", projection);
-    // ResourceManager::GetShader("rectangle").SetMatrix4("projection", projection);
-    //ResourceManager::GetShader("polygon").SetMatrix4("projection", projection);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT), 0.0f, -1.0f, 1.0f);
+    // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
+
+    // ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
+    ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
     
+
+    ResourceManager::LoadTexture("sce_sys/icon0_t.png", GL_TRUE, "logo");
+
+    ResourceManager::CreateTextRenderer(SCR_WIDTH, SCR_HEIGHT);
 }
 
 static GLFWwindow* window;
@@ -208,6 +210,11 @@ void open(int argc, char** argv) {
 
   glfwSetKeyCallback(window, key_callback);
 
+  // OpenGL configuration
+  glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   std::cout << glGetString(GL_VERSION) << std::endl;
 

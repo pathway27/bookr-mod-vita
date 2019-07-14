@@ -13,6 +13,7 @@ include_directories(
   "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
   "${CMAKE_SOURCE_DIR}/ext/SOIL/src"
   "${CMAKE_SOURCE_DIR}/ext/glad/include"
+  "${CMAKE_SOURCE_DIR}/ext/stb"
 )
 
 link_directories(
@@ -29,6 +30,10 @@ add_executable(bookr-mod-vita
   src/graphics/screen_glfw.cpp
   src/graphics/font.cpp
   src/resource_manager.cpp
+
+  src/graphics/texture2d.cpp
+  src/graphics/sprite_renderer.cpp
+  src/graphics/text_renderer.cpp
   "${CMAKE_SOURCE_DIR}/ext/glad/src/glad.c"
 )
 

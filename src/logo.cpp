@@ -37,60 +37,7 @@ static int width, height, nrChannels;
 
 Logo::Logo() : loading(false), error(false), text("")
 {
-  // Configure VAO/VBO
-  GLfloat vertices[] = {
-    // Pos      // Tex
-    0.0f, 1.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 0.0f,
 
-    0.0f, 1.0f, 0.0f, 1.0f,
-    1.0f, 1.0f, 1.0f, 1.0f,
-    1.0f, 0.0f, 1.0f, 0.0f
-  };
-
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glBindVertexArray(VAO);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
-    
-    cout << SOIL_last_result() << endl; 
-    cout << "null: " << !image << endl;
-    cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
-    cout << "Width: " <<  width << endl;
-    cout << "Height: " << height << endl;
-    cout << "Obj: " << texture << endl;
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
-    GL_RGB, GL_UNSIGNED_BYTE, image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    SOIL_free_image_data(image);
-  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Logo::~Logo() {
@@ -153,27 +100,23 @@ void Logo::render() {
           "%*s", TEXT_PADDED_WIDTH / 2 + strlen(DEFAULT_TEXT) / 2 , DEFAULT_TEXT);
     }
   #else
-    ResourceManager::GetShader("texture").Use();
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ResourceManager::getSpriteRenderer()->DrawSprite(
+      ResourceManager::GetTexture("logo"),
+      glm::vec2(380, 150),
+      glm::vec2(128, 128));
+    ResourceManager::getSpriteRenderer()->DrawQuad(
+      glm::vec2(350, 150),
+      glm::vec2(128, 128),
+      0.0f, glm::vec4(47/255.0, 47/255.0, 47/255.0, 240/255.0));
 
-    //glm::mat4 model = glm::mat4(1.0f);
-    //model = glm::translate(model, glm::vec3(glm::vec2(200, 200), 0.0f));  // First translate (transformations are: scale happens first, then rotation and then finall translation happens; reversed order)
+    ResourceManager::getSpriteRenderer()->DrawQuad(
+      glm::vec2(450, 150),
+      glm::vec2(128, 128),
+      0.0f, glm::vec4(170/255.0, 170/255.0, 170/255.0, 255/255.0));
 
-    //glm::vec2 size = glm::vec2(10, 10);
-    //model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); // Move origin of rotation to center of quad
-    //GLfloat rotate = 0.0f;
-    //model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f)); // Then rotate
-    //model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f)); // Move origin back
-
-    //model = glm::scale(model, glm::vec3(0.0f, 1.0f, 0.0f)); // Last scale
-    //
-    //
-    //ResourceManager::GetShader("texture_ortho").SetMatrix4("model", model);
-    //ResourceManager::GetShader("texture_ortho").SetVector3f("spriteColor", glm::vec3(1.0f));
-    glBindTexture(GL_TEXTURE_2D, texture);
-    
-    glBindVertexArray(VAO);
-      glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+    ResourceManager::getTextRenderer()->RenderText("Testing:", 5.0f, 5.0f, 1.0f, glm::vec3(0.0f,0.0f,0.0f));
   #endif
 }
 
