@@ -1,5 +1,4 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-include_external_msproject(SOIL_WIN "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/SOIL.vcxproj")
 
 add_custom_command(
   TARGET bookr-mod-vita POST_BUILD
@@ -69,8 +68,8 @@ include_directories(
   "${CMAKE_SOURCE_DIR}/ext/glm"
   "${CMAKE_SOURCE_DIR}/ext/freetype/include"
   "${CMAKE_SOURCE_DIR}/ext/freetype/include/freetype2"
-  "${CMAKE_SOURCE_DIR}/ext/SOIL/src"
   "${CMAKE_SOURCE_DIR}/ext/glad/include"
+  "${CMAKE_SOURCE_DIR}/ext/stb"
 )
 
 link_directories(
@@ -79,7 +78,6 @@ link_directories(
   "${CMAKE_SOURCE_DIR}/ext/mupdf/libs"
   "${CMAKE_SOURCE_DIR}/ext/glew/lib/Release/Win32"
   "${CMAKE_SOURCE_DIR}/ext/glfw/lib-vc2015"
-  "${CMAKE_SOURCE_DIR}/ext/SOIL/projects/VS2017/Debug"
   "${CMAKE_SOURCE_DIR}/ext/freetype/win32"
   "${CMAKE_SOURCE_DIR}/ext/psp2shell/win32"
 )
@@ -94,6 +92,10 @@ add_executable(bookr-mod-vita
 
   src/graphics/shader.cpp
   src/resource_manager.cpp
+  src/graphics/texture2d.cpp
+  src/graphics/sprite_renderer.cpp
+  src/graphics/text_renderer.cpp
+  #src/filetypes/mudocument.cpp
   "${CMAKE_SOURCE_DIR}/ext/glad/src/glad.c"
 )
 
@@ -106,8 +108,8 @@ target_link_libraries(bookr-mod-vita
   freetype265
   #freetype6.dll
   tinyxml2
-  SOIL
+  #SOIL
 )
 
-add_dependencies(bookr-mod-vita glew glm glfw tinyxml2 SOIL_WIN)
-#freetype2
+add_dependencies(bookr-mod-vita glew glm glfw tinyxml2 freetype2)
+#
