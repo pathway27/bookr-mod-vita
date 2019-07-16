@@ -12,9 +12,10 @@
 
 #include "screen.hpp"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <switch.h>
 
 #include <EGL/egl.h>    // EGL library
@@ -23,6 +24,11 @@
 
 #include "texture.hpp"
 #include "controls.hpp"
+#include "../resource_manager.hpp"
+
+#include "textures_frag.h"
+#include "textures_vert.h"
+#include "icon0_t_png.h"
 
 //-----------------------------------------------------------------------------
 // nxlink support
@@ -302,17 +308,56 @@ static void sceneExit()
   glDeleteProgram(s_program);
 }
 
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+static void loadShaders() {
+    ResourceManager::LoadShader((const char*)textures_vert, (const char*)textures_frag, nullptr, "sprite", false);
+    ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
+
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT), 0.0f, -1.0f, 1.0f);
+    // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
+
+    // ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
+    ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
+    
+
+    ResourceManager::LoadTexture((const char*)icon0_t_png, GL_TRUE, "logo", false, icon0_t_png_size);
+
+    ResourceManager::CreateTextRenderer(SCR_WIDTH, SCR_HEIGHT);
+}
+
 // Move this to constructor?
 void open(int argc, char **argv)
 {
+  #ifdef DEBUG
+    printf("screen::open\n");
+    // Set mesa configuration (useful for debugging)
+    // setMesaConfig();
+  #endif
   // Initialize EGL on the default window
-  if (!initEgl(nwindowGetDefault())) return;
+  if (!initEgl(nwindowGetDefault())) {
+    #ifdef DEBUG
+      printf("!initEgl(nwindowGetDefault())\n");
+    #endif
+    return;
+  }
 
   gladLoadGL();
+  #ifdef DEBUG
+    printf("gladLoadGL()\n");
+  #endif
 
- 
-  // Render stuff!
-  // sceneRender();  
+  glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  std::cout << glGetString(GL_VERSION) << std::endl;
+
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  loadShaders();
 }
 
 int setupCallbacks(void) {

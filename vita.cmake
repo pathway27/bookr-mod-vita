@@ -3,6 +3,29 @@
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 option(BUILD_SHARED_LIBS "build as shared library" ON)
 
+# turn images to binary with
+# https://beesbuzz.biz/blog/e/2014/07/31-embedding_binary_resources_with_cmake_and_c11.php
+FUNCTION(ADD_RESOURCES out_var)
+  SET(result)
+  FOREACH(in_f ${ARGN})
+    GET_FILENAME_COMPONENT(out_fn ${in_f} NAME_WE)
+    SET(out_f "${CMAKE_CURRENT_BINARY_DIR}/${out_fn}.o")
+    GET_FILENAME_COMPONENT(out_dir ${out_f} DIRECTORY)
+    ADD_CUSTOM_COMMAND(OUTPUT ${out_f}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${out_dir}
+      COMMAND ${CMAKE_LINKER} -r -b binary -o ${out_f} ${in_f}
+      DEPENDS ${in_f}
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      COMMENT "Building resource ${out_f}"
+      VERBATIM
+      )
+    LIST(APPEND result ${out_f})
+  ENDFOREACH()
+  SET(${out_var} "${result}" PARENT_SCOPE)
+ENDFUNCTION()
+
+add_resources(bk_resources ${res_files})
+
 ## Configuration options for this app
 # Display name (under bubble in LiveArea)
 set(VITA_APP_NAME "Bookr MOD Vita")

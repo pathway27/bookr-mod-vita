@@ -12,9 +12,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#ifdef __APPLE__
-	#include <SOIL.h>
-#endif
 #include "image.hpp"
 #ifdef __APPLE__
 static void* memalign(int t, int s) {

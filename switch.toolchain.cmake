@@ -29,6 +29,7 @@ set(CMAKE_STRIP          "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-strip${TOO
 set(CMAKE_AR             "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-ar${TOOL_OS_SUFFIX}"      CACHE PATH "archive" )
 set(CMAKE_LINKER         "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-ld${TOOL_OS_SUFFIX}"      CACHE PATH "linker" )
 set(CMAKE_NM             "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-nm${TOOL_OS_SUFFIX}"      CACHE PATH "nm" )
+set(CMAKE_AS             "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-as${TOOL_OS_SUFFIX}"      CACHE PATH "as" )
 set(CMAKE_OBJCOPY        "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-objcopy${TOOL_OS_SUFFIX}" CACHE PATH "objcopy" )
 set(CMAKE_OBJDUMP        "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-objdump${TOOL_OS_SUFFIX}" CACHE PATH "objdump" )
 set(CMAKE_RANLIB         "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-ranlib${TOOL_OS_SUFFIX}"  CACHE PATH "ranlib" )
@@ -36,6 +37,7 @@ set(PKG_CONFIG_EXECUTABLE "${DEVKITPRO}/devkitA64/bin/aarch64-none-elf-pkg-confi
 
 set(NACP_TOOL "${DEVKITPRO}/tools/bin/nacptool"  CACHE PATH "nacp-tool")
 set(ELF2NRO_TOOL "${DEVKITPRO}/tools/bin/elf2nro"  CACHE PATH "elf2nro")
+set(BIN2S_TOOL "${DEVKITPRO}/tools/bin/bin2s"  CACHE PATH "bin2s")
 
 # cache flags
 set(CMAKE_CXX_FLAGS "-MP -MD -Wall -O2 -ffunction-sections -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE" CACHE STRING "" FORCE)

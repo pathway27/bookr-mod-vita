@@ -5,19 +5,17 @@ find_package(freetype REQUIRED)
 find_package(glew REQUIRED)
 find_package(glm REQUIRED)
 find_package(glfw3 REQUIRED)
-find_library(SOIL SOIL ${CMAKE_SOURCE_DIR}/ext/SOIL/lib)
 
 include_directories(
   "${FREETYPE_INCLUDE_DIRS}"
   "${GLM_INCLUDE_DIRS}"
   "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
-  "${CMAKE_SOURCE_DIR}/ext/SOIL/src"
   "${CMAKE_SOURCE_DIR}/ext/glad/include"
   "${CMAKE_SOURCE_DIR}/ext/stb"
 )
 
 link_directories(
-  "${CMAKE_SOURCE_DIR}/ext/SOIL/lib"
+
 )
 
 ## Build and link
@@ -45,7 +43,6 @@ target_link_libraries(bookr-mod-vita
   ${GLEW_LIBRARIES}
   ${GLM_LIBRARIES}
   glfw
-  ${SOIL}
   "-framework Foundation"
 )
 
