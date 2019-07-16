@@ -44,17 +44,16 @@ static int reloadTimer = 0;
 
 void initalise(int argc, char *argv[])
 {
-  Screen::open(argc, argv);    // GPU init and initalDraw
-  // Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
-
   #ifdef DEBUG
     printf("Debug Started: in bookr::initalise\n");
   #endif
+  Screen::open(argc, argv);    // GPU init and initalDraw
+  // Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
   // BKUser::init(); // get app settings from user.xml
 
   // Layer::load();                       // make textures
   // mm = BKMainMenu::create(); // Main Menu, only opens when pressed start on opening screen
-  layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
+  // layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
   // layers.push_back(Popup::create(0, "test"));                  // Main Menu
 }
 

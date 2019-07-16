@@ -35,11 +35,11 @@ public:
     static SpriteRenderer *sprite_renderer;
     static TextRenderer  *ui_text_renderer;
     // Loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
-    static Shader   LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, std::string name);
+    static Shader   LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, std::string name, bool fromFile = true);
     // Retrieves a stored sader
     static Shader   GetShader(std::string name);
     // Loads (and generates) a texture from file
-    static Texture2D LoadTexture(const GLchar *file, GLboolean alpha, std::string name);
+    static Texture2D LoadTexture(const GLchar *file, GLboolean alpha, std::string name, bool fromFile = true, unsigned int size = 0);
     // Retrieves a stored texture
     static Texture2D GetTexture(std::string name);
     // Properly de-allocates all loaded resources
@@ -55,8 +55,10 @@ private:
     ResourceManager() { }
     // Loads and generates a shader from file
     static Shader    loadShaderFromFile(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile = nullptr);
+    static Shader    loadShaderFromBuffer(const GLchar *vertShaderBuffer, const GLchar *fragShaderBuffer, const GLchar *geoShaderBuffer = nullptr);
     // Loads a single texture from file
     static Texture2D loadTextureFromFile(const GLchar *file, GLboolean alpha);
+    static Texture2D loadTextureFromBuffer(const GLchar *file, GLboolean alpha, unsigned int size);
 };
 
 }
