@@ -29,7 +29,9 @@
 #include "textures_frag.h"
 #include "textures_vert.h"
 #include "icon0_t_png.h"
-
+#include "NotoSans-Regular_ttf.h"
+#include "text_vert.h"
+#include "text_frag.h"
 //-----------------------------------------------------------------------------
 // nxlink support
 //-----------------------------------------------------------------------------
@@ -290,15 +292,23 @@ static void sceneInit()
   glBindVertexArray(0);
 }
 
+static TextRenderer* ui_text_renderer;
 static void sceneRender()
 {
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  // draw our first triangle
-  glUseProgram(s_program);
-  glBindVertexArray(s_vao); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+  ResourceManager::getSpriteRenderer()->DrawSprite(
+    ResourceManager::GetTexture("logo"),
+    glm::vec2(380, 150),
+    glm::vec2(128, 128));
+
+  ResourceManager::getSpriteRenderer()->DrawQuad(
+      glm::vec2(450, 150),
+      glm::vec2(128, 128),
+      0.0f, glm::vec4(170/255.0, 170/255.0, 170/255.0, 255/255.0));
+
+  ui_text_renderer->RenderText("Testing:", 5.0f, 5.0f, 1.0f, glm::vec3(0.0f,0.0f,0.0f));
 }
 
 static void sceneExit()
@@ -308,22 +318,31 @@ static void sceneExit()
   glDeleteProgram(s_program);
 }
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 720;
+
 static void loadShaders() {
-    ResourceManager::LoadShader((const char*)textures_vert, (const char*)textures_frag, nullptr, "sprite", false);
+    ResourceManager::LoadShader((const char*)textures_vert, (const char*)textures_frag, nullptr, "sprite", false,
+      textures_vert_size, textures_frag_size);
     ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT), 0.0f, -1.0f, 1.0f);
     // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
 
-    // ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
+    ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
     
-
     ResourceManager::LoadTexture((const char*)icon0_t_png, GL_TRUE, "logo", false, icon0_t_png_size);
 
-    ResourceManager::CreateTextRenderer(SCR_WIDTH, SCR_HEIGHT);
+    // text
+    ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,
+      text_vert_size, text_frag_size);
+    ResourceManager::GetShader("text").Use().SetMatrix4("projection", projection);
+    ResourceManager::GetShader("text").SetInteger("text", 0);
+
+    ui_text_renderer = new TextRenderer(ResourceManager::GetShader("text"), static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT));
+    std::string noto_font( reinterpret_cast<char const*>(NotoSans_Regular_ttf), NotoSans_Regular_ttf_size ) ;
+    ui_text_renderer->Load(noto_font, 24, true);
 }
 
 // Move this to constructor?
@@ -354,10 +373,20 @@ void open(int argc, char **argv)
 
   std::cout << glGetString(GL_VERSION) << std::endl;
 
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
   loadShaders();
+
+  while (appletMainLoop())
+  {
+    // Get and process input
+    hidScanInput();
+    u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+    if (kDown & KEY_PLUS)
+      break;
+
+    // Render stuff!
+    sceneRender();
+    swapBuffers();
+  }
 }
 
 int setupCallbacks(void) {

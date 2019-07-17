@@ -36,7 +36,20 @@ TextRenderer::TextRenderer(GLuint width, GLuint height)
     glBindVertexArray(0);
 }
 
-void TextRenderer::Load(std::string font, GLuint fontSize)
+TextRenderer::TextRenderer(Shader shader, GLuint width, GLuint height)
+{
+    glGenVertexArrays(1, &this->VAO);
+    glGenBuffers(1, &this->VBO);
+    glBindVertexArray(this->VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void TextRenderer::Load(std::string font, GLuint fontSize, bool fromMemory)
 {
     // First clear the previously loaded Characters
     this->Characters.clear();
@@ -46,8 +59,14 @@ void TextRenderer::Load(std::string font, GLuint fontSize)
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
     // Load font as face
     FT_Face face;
-    if (FT_New_Face(ft, font.c_str(), 0, &face))
-        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+    if (fromMemory) {
+        if (FT_New_Memory_Face(ft, (const unsigned char*)font.c_str(), font.length(), 0, &face))
+            std::cout << "ERROR::FREETYPE: Failed to load font from memory" << std::endl;
+    }
+    else {
+        if (FT_New_Face(ft, font.c_str(), 0, &face))
+            std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+    }
     // Set size to load glyphs as
     FT_Set_Pixel_Sizes(face, 0, fontSize);
     // Disable byte-alignment restriction

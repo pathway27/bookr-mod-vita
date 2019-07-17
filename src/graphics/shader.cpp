@@ -60,17 +60,22 @@ Shader Shader::loadShaderFromFile(const GLchar *vShaderFile, const GLchar *fShad
     return shader;
 }
 
-void Shader::Compile(const GLchar* vertexSource, const GLchar* fragmentSource, const GLchar* geometrySource)
+void Shader::Compile(const GLchar* vertexSource, const GLchar* fragmentSource, const GLchar* geometrySource,
+    const int vertLength, const int fragLength)
 {
     GLuint sVertex, sFragment, gShader;
+    #ifdef DEBUG
+        printf("vertex_source: %s", vertexSource);
+        printf("frag_source: %s", fragmentSource);
+    #endif
     // Vertex Shader
     sVertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(sVertex, 1, &vertexSource, NULL);
+    glShaderSource(sVertex, 1, &vertexSource, &vertLength);
     glCompileShader(sVertex);
     checkCompileErrors(sVertex, "VERTEX");
     // Fragment Shader
     sFragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(sFragment, 1, &fragmentSource, NULL);
+    glShaderSource(sFragment, 1, &fragmentSource, &fragLength);
     glCompileShader(sFragment);
     checkCompileErrors(sFragment, "FRAGMENT");
     // If geometry shader source code is given, also compile geometry shader
