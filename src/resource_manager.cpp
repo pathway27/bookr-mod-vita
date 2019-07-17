@@ -23,12 +23,13 @@ std::map<std::string, Shader>       ResourceManager::Shaders;
 SpriteRenderer  *ResourceManager::sprite_renderer;
 TextRenderer    *ResourceManager::ui_text_renderer;
 
-Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, std::string name, bool fromFile)
+Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, std::string name,
+    bool fromFile, const int vertLength, const int fragLength)
 {
     if (fromFile)
         Shaders[name] = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
     else
-        Shaders[name] = loadShaderFromBuffer(vShaderFile, fShaderFile, gShaderFile);
+        Shaders[name] = loadShaderFromBuffer(vShaderFile, fShaderFile, gShaderFile, vertLength, fragLength);
     return Shaders[name];
 }
 
@@ -38,7 +39,7 @@ Shader ResourceManager::GetShader(std::string name)
     return Shaders[name];
 }
 
-Texture2D ResourceManager::LoadTexture(const GLchar *file, GLboolean alpha, std::string name, bool fromFile, unsigned int size)
+Texture2D ResourceManager::LoadTexture(const GLchar *file, GLboolean alpha, std::string name, bool fromFile, int size)
 {
     if (fromFile)
         Textures[name] = loadTextureFromFile(file, alpha);
@@ -109,10 +110,11 @@ Shader ResourceManager::loadShaderFromFile(const GLchar *vShaderFile, const GLch
     return shader;
 }
 
-Shader ResourceManager::loadShaderFromBuffer(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile)
+Shader ResourceManager::loadShaderFromBuffer(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile,
+    const int vertLength, const int fragLength)
 {
     Shader shader;
-    shader.Compile(vShaderFile, fShaderFile, gShaderFile != nullptr ? gShaderFile : nullptr);
+    shader.Compile(vShaderFile, fShaderFile, gShaderFile != nullptr ? gShaderFile : nullptr, vertLength, fragLength);
     return shader;
 }
 
@@ -135,7 +137,7 @@ Texture2D ResourceManager::loadTextureFromFile(const GLchar *file, GLboolean alp
     return texture;
 }
 
-Texture2D ResourceManager::loadTextureFromBuffer(const GLchar *file, GLboolean alpha, unsigned int size)
+Texture2D ResourceManager::loadTextureFromBuffer(const GLchar *file, GLboolean alpha, int size)
 {
     // Create Texture object
     Texture2D texture;
@@ -146,8 +148,6 @@ Texture2D ResourceManager::loadTextureFromBuffer(const GLchar *file, GLboolean a
     }
     // Load image
     int width, height, nrChannels;
-    
-    stbi_set_flip_vertically_on_load(true);
     stbi_uc* image = stbi_load_from_memory((const stbi_uc*)file, size, &width, &height, &nrChannels, 4);
     // Now generate texture
     texture.Generate(width, height, image);

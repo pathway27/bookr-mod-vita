@@ -26,7 +26,8 @@ public:
     // Sets the current shader as active
     Shader  &Use();
     // Compiles the shader from given source code
-    void    Compile(const GLchar *vertexSource, const GLchar *fragmentSource, const GLchar *geometrySource = nullptr); // Note: geometry source code is optional
+    void    Compile(const GLchar *vertexSource, const GLchar *fragmentSource, const GLchar *geometrySource = nullptr,
+        const int vertLength = NULL, const int fragLength = NULL); // Note: geometry source code is optional
     // Utility functions
     static Shader loadShaderFromFile(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *geometrySource = nullptr);
     void    SetFloat    (const GLchar *name, GLfloat value, GLboolean useShader = false);

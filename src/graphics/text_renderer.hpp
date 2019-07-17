@@ -40,8 +40,9 @@ public:
     Shader TextShader;
     // Constructor
     TextRenderer(GLuint width, GLuint height);
+    TextRenderer(Shader shader, GLuint width, GLuint height);
     // Pre-compiles a list of characters from the given font
-    void Load(std::string font, GLuint fontSize);
+    void Load(std::string font, GLuint fontSize, bool fromMemory = false);
     // Renders a string of text using the precompiled list of characters
     void RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color = glm::vec3(1.0f));
 private:

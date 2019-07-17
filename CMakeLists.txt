@@ -90,6 +90,7 @@ file(GLOB res_files RELATIVE
 
   # data/fonts/URW Gothic L Demi.ttf
   data/icons/*.png
+  data/fonts/NotoSans-Regular.ttf
   ${CMAKE_SOURCE_DIR}/src/graphics/shaders/*.vert
   ${CMAKE_SOURCE_DIR}/src/graphics/shaders/*.frag
 
