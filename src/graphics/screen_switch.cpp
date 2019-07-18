@@ -337,11 +337,14 @@ static void loadShaders() {
     // text
     ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,
       text_vert_size, text_frag_size);
-    ResourceManager::GetShader("text").Use().SetMatrix4("projection", projection);
-    ResourceManager::GetShader("text").SetInteger("text", 0);
 
     ui_text_renderer = new TextRenderer(ResourceManager::GetShader("text"), static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT));
-    std::string noto_font( reinterpret_cast<char const*>(NotoSans_Regular_ttf), NotoSans_Regular_ttf_size ) ;
+
+    // u8 a[]         -> char*          ; const
+    // const FT_Byte* -> unsigned char*
+
+    // std::string noto_font(reinterpret_cast<const char*>(NotoSans_Regular_ttf), NotoSans_Regular_ttf_size);
+    std::string noto_font((const char *)NotoSans_Regular_ttf, NotoSans_Regular_ttf_size);
     ui_text_renderer->Load(noto_font, 24, true);
 }
 
