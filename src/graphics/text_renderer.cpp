@@ -38,6 +38,9 @@ TextRenderer::TextRenderer(GLuint width, GLuint height)
 
 TextRenderer::TextRenderer(Shader shader, GLuint width, GLuint height)
 {
+    this->TextShader = shader;
+    this->TextShader.SetMatrix4("projection", glm::ortho(0.0f, static_cast<GLfloat>(width), static_cast<GLfloat>(height), 0.0f), GL_TRUE);
+    this->TextShader.SetInteger("text", 0);
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO);
     glBindVertexArray(this->VAO);
@@ -60,7 +63,7 @@ void TextRenderer::Load(std::string font, GLuint fontSize, bool fromMemory)
     // Load font as face
     FT_Face face;
     if (fromMemory) {
-        if (FT_New_Memory_Face(ft, (const unsigned char*)font.c_str(), font.length(), 0, &face))
+        if (FT_New_Memory_Face(ft, (const unsigned char*)font.c_str(), font.size(), 0, &face))
             std::cout << "ERROR::FREETYPE: Failed to load font from memory" << std::endl;
     }
     else {
