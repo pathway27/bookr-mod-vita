@@ -163,7 +163,7 @@ void processInput(GLFWwindow *window)
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 static void loadShaders() {
-    ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "sprite");
+    ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "sprite", true);
     ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT), 0.0f, -1.0f, 1.0f);

@@ -64,10 +64,7 @@ void Shader::Compile(const GLchar* vertexSource, const GLchar* fragmentSource, c
     const int vertLength, const int fragLength)
 {
     GLuint sVertex, sFragment, gShader;
-    #ifdef DEBUG
-        printf("vertex_source: %s", vertexSource);
-        printf("frag_source: %s", fragmentSource);
-    #endif
+
     // Vertex Shader
     sVertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(sVertex, 1, &vertexSource, &vertLength);
