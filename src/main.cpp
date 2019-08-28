@@ -5,7 +5,6 @@
 extern int _newlib_heap_size_user = 192 * 1024 * 1024;
 #endif
 
-// extern "C"
 int main(int argc, char *argv[]) {
   bookr::initalise(argc, argv);
   bookr::mainloop();

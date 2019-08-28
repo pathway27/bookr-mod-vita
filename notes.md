@@ -84,6 +84,13 @@ src/graphics/fzscreenglut.cpp:183:2: warning: 'glutMainLoop' is deprecated: firs
 extern void APIENTRY glutMainLoop(void) OPENGL_DEPRECATED(10_0, 10_9);
 ```
 
+## Data files on Platform
+
+We use have user.xml to store configuration info. This will be in:
+- vita: `ux0:data/Bookr`
+- switch: `./` - The SD card is automatically mounted as the default device, usable with standard stdio. SD root dir is located at "/" (also "sdmc:/" but normally using the latter isn't needed). The default current-working-directory when using relative paths is normally the directory where your application is located on the SD card.
+- desktop: `./`
+
 ## C++11
 
 The codebase is using more of the C subset than C++, maybe i can make it cleaner and learn the C++11 features too.  

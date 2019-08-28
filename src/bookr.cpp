@@ -1,5 +1,5 @@
 /*
- * bookr-modern: a graphics based document reader 
+ * bookr-modern: a graphics based document reader for switch, vita and desktop
  * Copyright (C) 2019 pathway27 (Sree)
  * IS A MODIFICATION OF THE ORIGINAL
  * Bookr and bookr-mod for PSP
@@ -48,8 +48,8 @@ void initalise(int argc, char *argv[])
     printf("Debug Started: in bookr::initalise\n");
   #endif
   Screen::open(argc, argv);    // GPU init and initalDraw
-  // Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
-  // BKUser::init(); // get app settings from user.xml
+  Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
+  User::init(); // get app settings from user.xml
 
   // Layer::load();                       // make textures
   // mm = BKMainMenu::create(); // Main Menu, only opens when pressed start on opening screen

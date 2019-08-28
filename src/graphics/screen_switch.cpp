@@ -601,7 +601,7 @@ void dcacheWritebackAll() {
 }
 
 string basePath() {
-  return "";
+  return "./";
 }
 
 struct CompareDirent {

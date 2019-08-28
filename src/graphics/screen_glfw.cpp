@@ -179,8 +179,10 @@ static void loadShaders() {
 }
 
 static GLFWwindow* window;
-static char psp_full_path[1024 + 1];
+static string psv_full_path;
 void open(int argc, char** argv) {
+  psv_full_path = "./";
+
   // glfw: initialize and configure
   // ------------------------------
   glfwInit();
@@ -315,7 +317,7 @@ void dcacheWritebackAll() {
 }
 
 std::string basePath() {
-    return psp_full_path;
+  return psv_full_path;
 }
 
 struct CompareDirent {
