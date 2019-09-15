@@ -91,9 +91,12 @@ file(GLOB res_files RELATIVE
   # data/fonts/URW Gothic L Demi.ttf
   data/icons/*.png
   data/fonts/NotoSans-Regular.ttf
-  ${CMAKE_SOURCE_DIR}/src/graphics/shaders/*.vert
-  ${CMAKE_SOURCE_DIR}/src/graphics/shaders/*.frag
+)
 
+file(GLOB shader_files RELATIVE
+  ${CMAKE_SOURCE_DIR}
+  src/graphics/shaders/*.vert
+  src/graphics/shaders/*.frag
 )
 
 set(COMMON_SRCS
@@ -117,6 +120,7 @@ set(COMMON_SRCS
   src/filechooser.cpp
 )
 
+# TODO: Apparently this is bad
 if(DESKTOP)
   add_definitions(-DDESKTOP)
   if(WIN32)

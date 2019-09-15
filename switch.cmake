@@ -8,6 +8,7 @@ FUNCTION(ADD_RESOURCES out_var)
     SET(out_f "${CMAKE_CURRENT_BINARY_DIR}/${out_fn_e}.o")
     GET_FILENAME_COMPONENT(out_dir ${out_f} DIRECTORY)
     ADD_CUSTOM_COMMAND(OUTPUT ${out_f}
+      COMMENT "Building resource ${out_fn_e}.o and ${out_fn_e}.h"
       COMMAND ${CMAKE_COMMAND} -E make_directory ${out_dir}
 
       COMMAND ${BIN2S_TOOL} ${in_f} | ${CMAKE_AS} -o ${out_f}
@@ -15,7 +16,6 @@ FUNCTION(ADD_RESOURCES out_var)
 
       DEPENDS ${in_f}
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      COMMENT "Building resource ${out_fn_e}.o and ${out_fn_e}.h"
       VERBATIM 
       )
     LIST(APPEND result ${out_f})
@@ -24,6 +24,7 @@ FUNCTION(ADD_RESOURCES out_var)
 ENDFUNCTION()
 
 add_resources(bk_resources ${res_files})
+add_resources(bk_shaders ${shader_files})
 
 # Add any additional include paths here
 include_directories(
@@ -47,6 +48,7 @@ link_directories(
 add_executable(bookr-modern
   ${COMMON_SRCS}
   ${bk_resources}
+  ${bk_shaders}
   data/fonts/res_txtfont.c
   data/fonts/res_uifont.c
 

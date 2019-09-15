@@ -54,4 +54,11 @@ add_custom_command(
   COMMENT "Copying shaders" VERBATIM
 )
 
+add_custom_command(
+  TARGET bookr-mod-vita POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory              
+     ${CMAKE_SOURCE_DIR}/data/fonts $<TARGET_FILE_DIR:bookr-mod-vita>/fonts
+  COMMENT "Copying fonts" VERBATIM
+)
+
 # add_dependencies(bookr-mod-vita glew glm freetype)

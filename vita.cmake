@@ -47,6 +47,7 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
 
 # Huge 62MB with lots of submodules
+# TODO: this makes it under ext/mupdf/src/mupdf_lib; which is annoying
 # TODO: add to ext/CMakeLists.txt
 # TODO: add to vitasdk/packages
 #       similar to http://www.linuxfromscratch.org/blfs/view/cvs/pst/mupdf.html
