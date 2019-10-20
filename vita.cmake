@@ -146,10 +146,10 @@ vita_create_self(eboot.bin bookr-mod-vita
 vita_create_vpk(bookr-mod-vita.vpk ${VITA_TITLEID} eboot.bin
   VERSION ${VITA_VERSION}
   NAME ${VITA_APP_NAME}
-  FILE sce_sys/icon0.png sce_sys/icon0.png
-  FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-  FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-  FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+  FILE data/logos/icon0.png sce_sys/icon0.png
+  FILE data/logos/bg.png sce_sys/livearea/contents/bg.png
+  FILE data/logos/startup.png sce_sys/livearea/contents/startup.png
+  FILE data/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 )
 
 add_dependencies(bookr-mod-vita mupdf_lib)

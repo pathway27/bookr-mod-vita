@@ -173,7 +173,7 @@ static void loadShaders() {
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
     
 
-    ResourceManager::LoadTexture("sce_sys/icon0_t.png", GL_TRUE, "logo");
+    ResourceManager::LoadTexture("data/logos/icon0_t.png", GL_TRUE, "logo");
 
     ResourceManager::CreateTextRenderer(SCR_WIDTH, SCR_HEIGHT);
 }

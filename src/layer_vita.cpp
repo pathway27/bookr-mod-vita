@@ -77,9 +77,8 @@ extern "C" {
   extern unsigned char _binary_data_icons_zoom_out_white_png_start;
   extern unsigned char _binary_data_icons_zoom_in_white_png_start;
 
-  
-  extern unsigned char _binary_sce_sys_icon0_t_png_start;
-  extern unsigned int _binary_sce_sys_icon0_t_png_size;
+  extern unsigned char _binary_data_logos_icon0_t_png_start;
+  extern unsigned int _binary_data_logos_icon0_t_png_size;
 };
 
 void Layer::load() {
@@ -87,7 +86,7 @@ void Layer::load() {
     printf("bklayer load\n");
   #endif
   
-  texLogo = Texture::createFromBuffer(&_binary_sce_sys_icon0_t_png_start);
+  texLogo = Texture::createFromBuffer(&_binary_data_logos_icon0_t_png_size);
 
   // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
   bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));

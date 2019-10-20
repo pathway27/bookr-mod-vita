@@ -86,7 +86,7 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
 
 file(GLOB res_files RELATIVE
   ${CMAKE_SOURCE_DIR}
-  sce_sys/icon0_t.png
+  data/logos/icon0_t.png
 
   # data/fonts/URW Gothic L Demi.ttf
   data/icons/*.png

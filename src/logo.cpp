@@ -43,11 +43,11 @@ Logo::~Logo() {
 }
 
 void Logo::setLoading(bool v) {
-    loading = v;
+  loading = v;
 }
 
 void Logo::setError(bool v) {
-    error = v;
+  error = v;
 }
 
 void Logo::setError(bool v, string message) {
@@ -56,11 +56,11 @@ void Logo::setError(bool v, string message) {
 }
 
 int Logo::update(unsigned int buttons) {
-    int* b = Screen::ctrlReps();
-    if (b[User::controls.showMainMenu] == 1) {
-        return BK_CMD_INVOKE_MENU;
-    }
-    return 0;
+  int* b = Screen::ctrlReps();
+  if (b[User::controls.showMainMenu] == 1) {
+      return BK_CMD_INVOKE_MENU;
+  }
+  return 0;
 }
 
 static const unsigned int TITLE_FONT_SIZE = 28;
@@ -72,10 +72,6 @@ void Logo::render() {
   #ifdef DEBUG_RENDER
     printf("bklogo render");
   #endif
-
-  // Screen::clear(0xffffff, FZ_COLOR_BUFFER);
-  // Screen::color(0xffffffff);
-
 
   #ifdef __vita__
     vita2d_draw_texture(texLogo->vita_texture, 350, 150);
@@ -120,13 +116,13 @@ void Logo::render() {
 }
 
 Logo* Logo::create() {
-    Logo* f = new Logo();
-    Screen::resetReps();
-    return f;
+  Logo* f = new Logo();
+  Screen::resetReps();
+  return f;
 }
 
 void Logo::show(string text) {
-    show(text, 0);
+  show(text, 0);
 }
 
 void Logo::show(string text, int delaySeconds) {
@@ -140,9 +136,9 @@ void Logo::show(string text, int delaySeconds) {
   //Screen::checkEvents();
   l->release();
   #if defined(PSP) || defined(__vita__)
-  if (delaySeconds > 0) {
-    sceKernelDelayThread(delaySeconds * 1000000);
-  }
+    if (delaySeconds > 0) {
+      sceKernelDelayThread(delaySeconds * 1000000);
+    }
   #endif
 }
 

@@ -27,5 +27,3 @@ controls.menuRight        = FZ_REPS_RIGHT;
 controls.menuLTrigger     = FZ_REPS_LTRIGGER;
 controls.menuRTrigger     = FZ_REPS_RTRIGGER;
 controls.resume           = FZ_REPS_START;
-
-shaders are in cmakelists which vita build complains

@@ -1,12 +1,13 @@
 # Motivations
 
-Learning C++  
-Programming the Vita  
-Porting experience  
-Graphics Programming
+In order of priority
 
+1. Graphics Programming
+2. Learning Embedded C/C++  
+3. Programming the Vita/Switch
+4. Porting Experience
 
-Note: I am a web developer professionally so besides my Uni. C++ I haven't used it much.
+Note: I'm a web developer professionally, so besides my university C++ projects, I haven't used it much.
 
 # Random Notes
 
@@ -20,9 +21,17 @@ DISP: 5" 960x544 (16:9) OLED multi-touch @ 220ppi
 
 PSP  480x272 (16:9)
 
+## Switch Hardware
+
+ CPU: Quad-core Cortex-A57 + Quad-core Cortex-A53 @ 1.02 GHz
+ RAM: 4GB LPDDR4
+ GPU: Nvidia GM20B Maxwell-based GPU
+DISP: 6.2-inch, 1280 × 720p LCD (237 ppi) ; 5.5-inch, 1280 × 720p LCD (267 ppi)
+ INP: Dual Touch Pads, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks
+
 ## Directory Stucture
 
-The original bookr had all it's c files outside, i've tried to arrange them in folders so as not to get
+The original bookr had all it's source files outside in the root directory. I've tried to arrange them in folders so as not to get
 overwhelmed.
 
 ```
@@ -73,7 +82,7 @@ ln -s /System/Library/Frameworks/OpenGL.framework/Headers/ /usr/local/include/Op
 
 ## Going from GLUT to GLFW
 
-On macOS 10.9+ i get deprecation warnings for the system's GLUT, so swapping to GLFW (newest and more supported)
+On macOS 10.9+ i get deprecation warnings for the system's GLUT, so swapping to GLFW (newer and more supported)
 ```sh
 ... 17 other warnings
 src/graphics/fzscreenglut.cpp:183:2: warning: 'glutMainLoop' is deprecated: first deprecated in macOS 10.9
@@ -84,6 +93,8 @@ src/graphics/fzscreenglut.cpp:183:2: warning: 'glutMainLoop' is deprecated: firs
 extern void APIENTRY glutMainLoop(void) OPENGL_DEPRECATED(10_0, 10_9);
 ```
 
+NOTE: Now OpenGL is deprecated in favour of Metal on MacOS.
+
 ## Data files on Platform
 
 We use have user.xml to store configuration info. This will be in:
@@ -93,7 +104,7 @@ We use have user.xml to store configuration info. This will be in:
 
 ## C++11
 
-The codebase is using more of the C subset than C++, maybe i can make it cleaner and learn the C++11 features too.  
+The codebase is using more of the C subset than C++, maybe I can make it cleaner and learn the C++11 features too.  
 e.g. FZScreen is only using static functions to do everything, and look so many static global variables!
 
 
@@ -120,6 +131,7 @@ So it seems like most applications share the same paradigm of
 - while (not exiting app)
   - render/draw the "state" of the app (start draw, swap buffers, stop draw)
   - check user input
+  - change state based on user input
 
 - deinitalize display
 
@@ -134,6 +146,15 @@ Got a cool shader class so far.
 The general idea seems to be to read the file and initalise some structures it has defined and finally draw a page into a pixmap buffer. Then put the pixmap into a texture onto the GPU which you can render.
 
 
+### SDL
+
+I chose purposely to not use SDL so I could learn a low level graphics API. Funnily enough vita2d does somewhat abstract that, but the OpenGL on desktop and switch are what I wanted to learn, which really differs from the vita's graphics api (and the psp's).
+
+It's obvious however that I would be releasing features faster if I were using SDL, as the abstractions would take care of platform specific issues. It sometimes feels as if I am writing the SDL library (albiet a bad imitation) from scratch. But the bigger picture and a desire I still have is a 3D visualisation; i.e. of a bookshelf or library.
+
+I belive this is a difference between a file manager and an e-book reader.
+I want to take inspiration from [this](https://www.youtube.com/watch?v=wjXL5CmD5WU) for vita.
+
 ### Bitwise Operations
 
 - "|=" - OR a |= b is a = a | b
@@ -143,8 +164,7 @@ The general idea seems to be to read the file and initalise some structures it h
 ## Style
 
 1. Use spaces instead of tabs
-2. 4 Spaces for normal indentation
-3. 2 Spaces for preprocessor indentation when required.
+2. 2 Spaces for normal indentation
 
 ### Cmake Special Flags
 
