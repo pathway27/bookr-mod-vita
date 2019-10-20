@@ -9,14 +9,6 @@ brew install glm glew glfw freetype
 mkdir -p desktop/Debug && cd $_
 cmake ../..
 make -j8
-./bookr-modern
+./bookr-mod-vita
 ```
 
-### For Windows
-
-```
-git clone --recursive https://github.com/pathway27/bookr-mod-vita
-Open the solution file in Visual Studio
-Download lots of dependancies into (ext), add to visual studio settings.
-Change to Folder View and run to make bookr-mod-vita.exe
-```
