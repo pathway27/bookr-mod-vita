@@ -163,7 +163,7 @@ void processInput(GLFWwindow *window)
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 static void loadShaders() {
-    ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "sprite");
+    ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "sprite", true);
     ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT), 0.0f, -1.0f, 1.0f);
@@ -173,14 +173,16 @@ static void loadShaders() {
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
     
 
-    ResourceManager::LoadTexture("sce_sys/icon0_t.png", GL_TRUE, "logo");
+    ResourceManager::LoadTexture("data/logos/icon0_t.png", GL_TRUE, "logo");
 
     ResourceManager::CreateTextRenderer(SCR_WIDTH, SCR_HEIGHT);
 }
 
 static GLFWwindow* window;
-static char psp_full_path[1024 + 1];
+static string psv_full_path;
 void open(int argc, char** argv) {
+  psv_full_path = "./";
+
   // glfw: initialize and configure
   // ------------------------------
   glfwInit();
@@ -315,7 +317,7 @@ void dcacheWritebackAll() {
 }
 
 std::string basePath() {
-    return psp_full_path;
+  return psv_full_path;
 }
 
 struct CompareDirent {

@@ -1,5 +1,5 @@
 /*
- * bookr-modern: a graphics based document reader 
+ * bookr-modern: a graphics based document reader for switch, vita and desktop
  * Copyright (C) 2019 pathway27 (Sree)
  * IS A MODIFICATION OF THE ORIGINAL
  * Bookr and bookr-mod for PSP

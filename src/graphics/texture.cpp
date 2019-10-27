@@ -60,6 +60,8 @@ Texture* Texture::createFromBuffer(const void * buffer) {
 Texture* Texture::createFromSOIL(char* filename) {
     std::cout <<"create from SOIL" << std::endl;
     Texture* texture = new Texture();
+    texture->vita_texture = v_texture;
+    //psp2shell_print("%p\n", (void *) &(texture->vita_texture));
     return texture;
 }
 

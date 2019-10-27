@@ -106,7 +106,7 @@ Shader ResourceManager::loadShaderFromFile(const GLchar *vShaderFile, const GLch
     const GLchar *gShaderCode = geometryCode.c_str();
     // 2. Now create shader object from source code
     Shader shader;
-    shader.Compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
+    shader.Compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr, vertexCode.size(), fragmentCode.size());
     return shader;
 }
 
@@ -178,7 +178,7 @@ TextRenderer* ResourceManager::CreateTextRenderer(int width, int height)
 {
     if (ui_text_renderer == nullptr) {
         ui_text_renderer = new TextRenderer(width, height);
-        ui_text_renderer->Load("fonts/NotoSans-Regular.ttf", 24);
+        ui_text_renderer->Load("data/fonts/NotoSans-Regular.ttf", 24);
     }
 
     return ui_text_renderer;

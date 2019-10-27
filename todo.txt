@@ -1,0 +1,29 @@
+vita basepath, should be able to mount all the devices
+switch basepath is on app -> make it /....?
+
+Maps these controls on to a picture 
+controls.previousPage     = FZ_REPS_SQUARE;
+controls.nextPage         = FZ_REPS_TRIANGLE;
+controls.previous10Pages  = FZ_REPS_CIRCLE;
+controls.next10Pages      = FZ_REPS_CROSS;
+controls.screenUp         = FZ_REPS_UP;
+controls.screenDown       = FZ_REPS_DOWN;
+controls.screenLeft       = FZ_REPS_LEFT;
+controls.screenRight      = FZ_REPS_RIGHT;
+controls.zoomIn           = FZ_REPS_RTRIGGER;
+controls.zoomOut          = FZ_REPS_LTRIGGER;
+controls.showMainMenu     = FZ_REPS_START;
+controls.showToolbar      = FZ_REPS_SELECT;
+
+// set menu default controls
+controls.select           = FZ_REPS_CROSS;
+controls.cancel           = FZ_REPS_CIRCLE;
+controls.alternate        = FZ_REPS_TRIANGLE;
+controls.details          = FZ_REPS_SQUARE;	
+controls.menuUp           = FZ_REPS_UP;
+controls.menuDown         = FZ_REPS_DOWN;
+controls.menuLeft         = FZ_REPS_LEFT;
+controls.menuRight        = FZ_REPS_RIGHT;
+controls.menuLTrigger     = FZ_REPS_LTRIGGER;
+controls.menuRTrigger     = FZ_REPS_RTRIGGER;
+controls.resume           = FZ_REPS_START;

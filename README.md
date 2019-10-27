@@ -29,14 +29,19 @@ Start - Show/Hide Menu
 
 ## Building
 
+
 ### For VITA (on *nix)
+
+
+MuPDF is built using cmake automatically.
 
 ```sh
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # run pngquant on all your png images if not done already
 mkdir -p vita/Release && cd $_
-make
+cmake ..
+make -j8
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
@@ -46,15 +51,16 @@ make send
 
 ### For Switch
 
+NOTE: You may need to build MuPDF manually.
+
 ```sh
 # Setup devkitpro development evironment: 
 dkp-pacman -S switch-dev
 dkp-pacman -S switch-freetype switch-mesa switch-glad switch-glm
 
 mkdir -p switch/Release && cd $_
+cmake ..
 make
-
-# For devs - replace with your switch ftp ip (assumes vpk was installed once)
 
 ```
 
