@@ -203,8 +203,11 @@ class Layer : public RefCounted {
 
   void drawClockAndBattery(string& extra);
   int drawUTFMenuItem(MenuItem*, Font*, int, int, int, int);
+  
+  void drawText(int x, int y, unsigned int color, float scale, const char *text);
+  void drawRectangle(float x, float y, float w, float h, unsigned int color);
 
-  public:
+public:
   virtual int update(unsigned int buttons) = 0;
   virtual void render() = 0;
 

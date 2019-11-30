@@ -10,6 +10,7 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
+#include "graphics/screen.hpp"
 #include "graphics/fzscreen_defs.h"
 #include "logo.hpp"
 
@@ -36,7 +37,6 @@ static int width, height, nrChannels;
 
 Logo::Logo() : loading(false), error(false), text("")
 {
-
 }
 
 Logo::~Logo() {
@@ -68,51 +68,36 @@ static const unsigned int TEXT_PADDED_WIDTH = 20;
 static const char *LOADING_TEXT = "Loading...";
 static const char *DEFAULT_TEXT = "Press Start";
 
+static const unsigned int LOGO_SIZE = 128;
+static const unsigned int CENTER_X = (Screen::WIDTH / 2) - (LOGO_SIZE / 2);
+static const unsigned int CENTER_Y = (Screen::HEIGHT / 2) - (LOGO_SIZE / 2);
+
 void Logo::render() {
   #ifdef DEBUG_RENDER
     printf("bklogo render");
   #endif
 
   #ifdef __vita__
-    vita2d_draw_texture(texLogo->vita_texture, 350, 150);
-    vita2d_font_draw_text(fontBig->v_font, 260, 440, RGBA8(0,0,0,255), TITLE_FONT_SIZE, "TXT - PDF - CBZ - HTML - EPUB - FB2");
-
-    vita2d_draw_rectangle(96, 494, 768, 40, RGBA8(105,105,105,255)); // my cheapo drawPill
-
-    if (loading)
-      vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255,255,255,255), TITLE_FONT_SIZE,
-        "%*s", TEXT_PADDED_WIDTH / 2 + strlen(LOADING_TEXT) / 2 , LOADING_TEXT);
-    else if (text.length() > 0 && !(error))
-      vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255,255,255,255), TITLE_FONT_SIZE,
-        "%*s", TEXT_PADDED_WIDTH / 2 + strlen(text.c_str()) / 2 , text.c_str());
-    else {
-      if (error) {
-        vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(200,0,0,255), TITLE_FONT_SIZE,
-          "Error: %*s", TEXT_PADDED_WIDTH / 2 + strlen(text.c_str()) / 2 , text.c_str());
-      }
-      else
-        vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255,255,255,255), TITLE_FONT_SIZE,
-          "%*s", TEXT_PADDED_WIDTH / 2 + strlen(DEFAULT_TEXT) / 2 , DEFAULT_TEXT);
-    }
-  #else
+    vita2d_draw_texture(texLogo->vita_texture, CENTER_X, CENTER_Y);
+  #else  
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    ResourceManager::getSpriteRenderer()->DrawSprite(
-      ResourceManager::GetTexture("logo"),
-      glm::vec2(380, 150),
+    ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("logo"),
+      glm::vec2(CENTER_X, CENTER_Y),
       glm::vec2(128, 128));
-    ResourceManager::getSpriteRenderer()->DrawQuad(
-      glm::vec2(350, 150),
-      glm::vec2(128, 128),
-      0.0f, glm::vec4(47/255.0, 47/255.0, 47/255.0, 240/255.0));
-
-    ResourceManager::getSpriteRenderer()->DrawQuad(
-      glm::vec2(450, 150),
-      glm::vec2(128, 128),
-      0.0f, glm::vec4(170/255.0, 170/255.0, 170/255.0, 255/255.0));
-
-    ResourceManager::getTextRenderer()->RenderText("Testing:", 5.0f, 5.0f, 1.0f, glm::vec3(0.0f,0.0f,0.0f));
   #endif
+  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, RGBA8(0,0,0,255), TITLE_FONT_SIZE, "TXT - PDF - CBZ - HTML - EPUB - FB2");
+
+  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, RGBA8(105,105,105,155));
+
+  if (loading)
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, LOADING_TEXT);
+  else if (text.length() > 0 && !(error))
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, text.c_str());
+  else if (error)
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, text.c_str());
+  else
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, DEFAULT_TEXT);
 }
 
 Logo* Logo::create() {
@@ -135,11 +120,6 @@ void Logo::show(string text, int delaySeconds) {
   Screen::swapBuffers();
   //Screen::checkEvents();
   l->release();
-  #if defined(PSP) || defined(__vita__)
-    if (delaySeconds > 0) {
-      sceKernelDelayThread(delaySeconds * 1000000);
-    }
-  #endif
 }
 
 }

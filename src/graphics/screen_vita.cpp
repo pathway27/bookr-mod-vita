@@ -26,6 +26,8 @@
 
 namespace bookr { namespace Screen {
 
+unsigned int WIDTH = 960;
+unsigned int HEIGHT = 544;
 static bool closing = false;
 
 // most stuff here comes directly from pspdev sdk examples

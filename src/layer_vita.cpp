@@ -489,4 +489,12 @@ Layer::Layer() : topItem(0), selItem(0),skipChars(0),maxSkipChars(-1) {
 Layer::~Layer() {
 }
 
+void Layer::drawText(int x, int y, unsigned int color, float scale, const char *text) {
+  Screen::drawText(x, y, color, scale, text);
+}
+
+void Layer::drawRectangle(float x, float y, float w, float h, unsigned int color) {
+  Screen::drawRectangle(x, y, w, h, color);
+}
+
 }

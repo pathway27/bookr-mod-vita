@@ -37,14 +37,15 @@ void SpriteRenderer::DrawSprite(Texture2D texture, glm::vec2 position, glm::vec2
     this->shader.SetMatrix4("model", model);
 
     // Render textured quad
-    this->shader.SetVector3f("spriteColor", color);
+    this->shader.SetVector4f("spriteColor", glm::vec4(color, 1.0f));
 
-    glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, texture.ID);
     texture.Bind();
 
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 void SpriteRenderer::DrawQuad(glm::vec2 position, glm::vec2 size, GLfloat rotate, glm::vec4 color)
@@ -60,14 +61,14 @@ void SpriteRenderer::DrawQuad(glm::vec2 position, glm::vec2 size, GLfloat rotate
     model = glm::scale(model, glm::vec3(size, 1.0f)); // Last scale
 
     this->shader.SetMatrix4("model", model);
-
+    this->shader.SetVector4f("spriteColor", color);
 
     glBindTexture(GL_TEXTURE_2D, emptyTexture);
-    this->shader.SetVector4f("spriteColor", color);
 
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 void SpriteRenderer::initRenderData()
