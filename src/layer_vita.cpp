@@ -140,6 +140,35 @@ void Layer::unload(){
   fontSmall->release();
 }
 
+static const unsigned int TEXT_PADDED_WIDTH = 20;
+static const char *LOADING_TEXT = "Loading...";
+static const char *DEFAULT_TEXT = "Press Start";
+void Layer::drawLogo(bool loading, string text, bool error) {
+  vita2d_draw_texture(texLogo->vita_texture, 350, 150);
+  vita2d_font_draw_text(fontBig->v_font, 260, 440, RGBA8(0, 0, 0, 255), TITLE_FONT_SIZE, "TXT - PDF - CBZ - HTML - EPUB - FB2");
+
+  vita2d_draw_rectangle(96, 494, 768, 40, RGBA8(105, 105, 105, 255)); // my cheapo drawPill
+
+  if (loading)
+    vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255, 255, 255, 255), TITLE_FONT_SIZE,
+                           "%*s", TEXT_PADDED_WIDTH / 2 + strlen(LOADING_TEXT) / 2, LOADING_TEXT);
+  else if (text.length() > 0 && !(error))
+    vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255, 255, 255, 255), TITLE_FONT_SIZE,
+                           "%*s", TEXT_PADDED_WIDTH / 2 + strlen(text.c_str()) / 2, text.c_str());
+  else
+  {
+    if (error)
+    {
+      vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(200, 0, 0, 255), TITLE_FONT_SIZE,
+                             "Error: %*s", TEXT_PADDED_WIDTH / 2 + strlen(text.c_str()) / 2, text.c_str());
+    }
+    else
+      vita2d_font_draw_textf(fontBig->v_font, 350, 524, RGBA8(255, 255, 255, 255), TITLE_FONT_SIZE,
+                             "%*s", TEXT_PADDED_WIDTH / 2 + strlen(DEFAULT_TEXT) / 2, DEFAULT_TEXT);
+  }
+
+}
+
 void Layer::drawImage(int x, int y) {
 
 }

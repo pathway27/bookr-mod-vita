@@ -63,7 +63,6 @@ void mainloop() {
   while (!exitApp) {
     // draw state to back buffer and swap
     if (dirty) {
-    // {
       // Screen::startDirectList();
       LayersIt it(layers.begin());
       LayersIt end(layers.end());

@@ -37,8 +37,6 @@ public:
 	void setError(bool err, string message);
 
 	static Logo* create();
-	static void show(string text);
-	static void show(string text, int delaySeconds);
 };
 
 }

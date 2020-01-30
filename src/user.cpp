@@ -450,7 +450,8 @@ void User::load() {
     options.pageScrollCacheMode = 0;
   }
 
-  fclose(file);
+  if (file != NULL)
+    fclose(file);
 }
 
 }

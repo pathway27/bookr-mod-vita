@@ -139,6 +139,8 @@ class Layer : public RefCounted {
   static map<string, Texture*> bk_icons;
 #endif
 
+  void drawLogo(bool loading, string text, bool error);
+
   int textW(char* t, Font* font);
   int textWidthRange(char* t, int n, Font* font);
   void drawRect(int x, int y, int w, int h, int r, int tx, int ty);

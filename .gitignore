@@ -2,6 +2,7 @@
 build
 Debug
 Release
+desktop
 .vs
 
 *.*o

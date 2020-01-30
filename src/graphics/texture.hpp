@@ -90,7 +90,6 @@ public:
 	#endif
 
 	static Texture* createFromBuffer(const void * buffer);
-	static Texture* createFromSOIL(char* imagePath);
 
 	unsigned int getWidth() const { return width; }
 	unsigned int getHeight() const { return height; }

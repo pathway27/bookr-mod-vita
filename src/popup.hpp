@@ -29,15 +29,15 @@ class Popup : public Layer {
 	int mode;
 	string text;
 
-	protected:
+protected:
 	Popup(int m, string t);	
 	~Popup();
 
-	public:
+public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
 	
-	static Popup* create(int m, string t);	
+	static Popup* create(int m, string t);
 };
 
 }

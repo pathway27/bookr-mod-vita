@@ -16,7 +16,7 @@
 #ifdef __vita__
   #include <vita2d.h>
 #endif
-#include <freetype2/ft2build.h>
+#include <ft2build.h>
 #include <string>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H

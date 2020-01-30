@@ -107,6 +107,15 @@ We use have user.xml to store configuration info. This will be in:
 The codebase is using more of the C subset than C++, maybe I can make it cleaner and learn the C++11 features too.  
 e.g. FZScreen is only using static functions to do everything, and look so many static global variables!
 
+The versions on gcc/clang on platforms
+
+| Platform  | Compiler Version |
+| ------------- | ------------- |
+| Switch  | GCC v8.3.0  |
+| Vita  | GCC v9.1.0  |
+| Mac | Clang  |
+| Windows | Clang  |
+
 
 ### Initalization
 

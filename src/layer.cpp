@@ -11,26 +11,12 @@
 */
 
 #include <cmath>
-#ifdef __vita__
-  #include <vita2d.h>
-  #include <psp2/kernel/threadmgr.h>
-#elif MAC
-  #include <SOIL.h>
-  #include "graphics/shaders/shader.h"
-#endif
 
+#include "graphics/shader.hpp"
+#include "resource_manager.hpp"
 #include "layer.hpp"
 
 namespace bookr {
-
-#ifdef __vita__
-Font* Layer::fontBig = 0;
-Font* Layer::fontSmall = 0;
-Font* Layer::fontUTF = 0;
-Texture* Layer::texUI = 0;
-Texture* Layer::texUI2 = 0;
-Texture* Layer::texLogo = 0;
-#endif
 
 extern "C" {
   extern unsigned int size_res_logo;
@@ -51,18 +37,9 @@ extern "C" {
 };
 
 void Layer::load() {
-  #ifdef __vita__
-    #ifdef DEBUG
-      printf("bklayer load\n");
-    #endif
-    texLogo = Texture::createFromVitaTexture(vita2d_load_PNG_buffer(&_binary_icon0_t_png_start));
-
-    if (!fontBig){
-      fontBig = Font::createFromMemory(fz_resources_fonts_urw_NimbusSans_Regular_cff, fz_resources_fonts_urw_NimbusSans_Regular_cff_size, 
-        14, false);
-    }
+  #ifdef DEBUG
+    printf("bklayer load\n");
   #endif
-
 }
 
 void Layer::unload(){
@@ -73,112 +50,48 @@ struct T32FV32F2D {
   float x,y,z;
 };
 
+void Layer::drawLogo(bool loading, string text, bool error) {
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+  ResourceManager::getSpriteRenderer()->DrawSprite(
+      ResourceManager::GetTexture("logo"),
+      glm::vec2(380, 150),
+      glm::vec2(128, 128));
+
+  ResourceManager::getSpriteRenderer()->DrawQuad(
+      glm::vec2(96, 494),
+      glm::vec2(768, 40),
+      0.0f, glm::vec4(105 / 255.0, 105 / 255.0, 105 / 255.0, 240 / 255.0));
+
+  if (loading)
+    ResourceManager::getTextRenderer()->RenderText(text, 350.0f, 524.0f, 1.0f, glm::vec3(255 / 255.0, 255 / 255.0, 255.0 / 255.0));
+  else if (text.length() > 0 && !(error))
+    ResourceManager::getTextRenderer()->RenderText(text, 350.0f, 524.0f, 1.0f, glm::vec3(255 / 255.0, 255 / 255.0, 255.0 / 255.0));
+  else
+  {
+    if (error)
+      ResourceManager::getTextRenderer()->RenderText(text, 350.0f, 524.0f, 1.0f, glm::vec3(255 / 255.0, 255 / 255.0, 255.0 / 255.0));
+    else
+      ResourceManager::getTextRenderer()->RenderText(text, 350.0f, 524.0f, 1.0f, glm::vec3(255 / 255.0, 255 / 255.0, 255.0 / 255.0));
+  }
+}
+
 void Layer::drawImage(int x, int y) {
-  // shaders["texture"].Use();
-  // // vertex
-  // glm::mat4 model;
-  //   model = glm::translate(model, glm::vec3(x, y, 0.0f));
-
-  //   this->shader.SetMatrix4("model", model);
-  // glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, GL_FALSE, glm::value_ptr(model));
-
-  // glBindVertexArray(VAOs["texture"]);
-  //   	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-  //   glBindVertexArray(0);
 }
 
 void Layer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-// #if defined(MAC) || defined(WIN32)
-//   Shader ourShader("src/graphics/shaders/textures.vert",
-//                    "src/graphics/shaders/textures.frag");
-
-//   GLfloat vertices[] = {
-//     // Positions          // Colors           // Texture Coords
-//     1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-//     1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-//     -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-//     -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
-//   };
-//   GLuint indices[] = {  // Note that we start from 0!
-//       0, 1, 3, // First Triangle
-//       1, 2, 3  // Second Triangle
-//   };
-//   GLuint VBO, VAO, EBO;
-//   glGenVertexArrays(1, &VAO);
-//   glGenBuffers(1, &VBO);
-//   glGenBuffers(1, &EBO);
-
-//   glBindVertexArray(VAO);
-//     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-//     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-//     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-//     // Position attribute
-//     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-//     glEnableVertexAttribArray(0);
-//     // Color attribute
-//     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-//     glEnableVertexAttribArray(1);
-//     // TexCoord attribute
-//     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-//     glEnableVertexAttribArray(2);
-//   glBindVertexArray(0); // Unbind VAO
-
-
-//   // glGenTextures(1, &texture);
-//   // glBindTexture(GL_TEXTURE_2D, texture);
-//   //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-//   //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-//   //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//   //   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-//   //   unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
-//   //   glClearColor(0.0, 0.0, 0.0, 0.0);
-//   //   glClear(GL_COLOR_BUFFER_BIT);
-
-//   //   cout << SOIL_last_result() << endl;
-//   //   cout << "null: " << !image << endl;
-//   //   cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
-//   //   cout << "Width: " <<  width << endl;
-//   //   cout << "Height: " << height << endl;
-//   //   cout << "Obj: " << texture << endl;
-
-//   //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//   //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-//   //   GL_RGB, GL_UNSIGNED_BYTE, image);
-//   //   glGenerateMipmap(GL_TEXTURE_2D);
-
-//   //   SOIL_free_image_data(image);
-//   // glBindTexture(GL_TEXTURE_2D, 0);
-
-//   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-//   glClear(GL_COLOR_BUFFER_BIT);
-
-//   ourShader.Use();
-//   // glBindTexture(GL_TEXTURE_2D, texture);
-
-//   glBindVertexArray(VAO);
-//     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-//   glBindVertexArray(0);
-// #endif
 }
 
 void Layer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
-
 }
 
 void Layer::drawPill(int x, int y, int w, int h, int r, int tx, int ty) {
-
 }
 
 void Layer::drawTPill(int x, int y, int w, int h, int r, int tx, int ty) {
-  
 }
 
 void Layer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
-  
 }
 
 int Layer::textWidthRange(char* t, int n, Font* font) {
@@ -211,38 +124,6 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   int scrY = 0;
   char *t =(char*)circleLabel.c_str();
   // int tw = textW(t, fontBig);
-
-  #ifdef __vita__
-    #ifdef DEBUG_RENDER
-      printf("draw dialog frame\n");
-    #endif
-    // 960
-    // 920
-    // 544
-    // backs
-    vita2d_draw_rectangle(96, 40, 768, 504, RGBA8(34, 34, 34, 200)); // my cheapo drawTPill
-
-    //title
-    vita2d_draw_rectangle(106, 50, 748, 50, RGBA8(170, 170, 170, 255));
-
-    //context label
-    vita2d_draw_rectangle(106, 494, 748, 50, RGBA8(85, 85, 85, 255));
-
-    //icons
-    //(0, 0, 0, 255)
-    //vita2d_draw_texture(genLogo->vita_texture, 0, 0);
-
-    //circle or other context
-    // (204, 204, 204, 255)
-
-    //title
-    // (255, 255, 255, 255)
-    Screen::setTextSize(20.0f, 20.0f);
-    Screen::drawText(116, 88, RGBA8(255, 255, 255, 255), 1.0f, title.c_str());
-
-    //labels
-    // if triangle/circle
-  #endif
 
   // texUI->bindForDisplay();
   // // back
@@ -312,14 +193,11 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
   drawMenu(title, triangleLabel, items, false);
-  #ifdef __vita__
-    Screen::drawText(116, 71, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
-  #endif
 }
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
-  int maxItemNum = 8;
-  int selPos = selItem - topItem;
+  unsigned int maxItemNum = 8;
+  unsigned int selPos = selItem - topItem;
   int scrY = 0;
   Font* itemFont;
 
@@ -333,7 +211,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     selPos = maxItemNum - 1;
   }
 
-  bool scrollbar = items.size() > maxItemNum;
+  bool scrollbar = (items.size() > maxItemNum);
 
   string tl(triangleLabel);
   if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
@@ -348,11 +226,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 
   // texUI->bindForDisplay();
   // // folder icons
-  #ifdef __vita__
-    int ITEMHEIGHT = 128;
-  #else
-    int ITEMHEIGHT = 60;
-  #endif
   /*
     if(useUTFFont)
       ITEMHEIGHT = 62;
@@ -371,15 +244,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     }
   */
   // selected item
-  #ifdef __vita__
-    //Screen::drawText(116,    (ITEMHEIGHT + (i*15)) + scrY, RGBA8(255, 255, 255, 255), 1.0f, items[i + topItem].label.c_str());
-    vita2d_draw_rectangle(106, (ITEMHEIGHT + ((selPos-1)*15) + scrY), 748, 15, RGBA8(170, 170, 170, 255));
-  #elif defined(PSP)
-    int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
-    drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
-  #elif defined(MAC)
-
-  #endif
   // if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
   // 	Screen::ambientColor(0xff000000);
   // 	//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
@@ -436,11 +300,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
       // }
     }
     else {
-      #ifdef __vita__
-        Screen::drawText(116, (ITEMHEIGHT + (i*15)) + scrY, RGBA8(255, 255, 255, 255), 1.0f, items[i + topItem].label.c_str());
-      #else
-        //drawText((char*)items[i + topItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY);
-      #endif
     }
   }
   // Screen::ambientColor(0xff000000);
@@ -683,35 +542,6 @@ static int countLines(string& t) {
 void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
   //texUI->bindForDisplay();
   int l = countLines(text);
-  #ifdef __vita__
-    int h = 22 + (22*l);
-    int y;
-    if (h >= 544)
-      y = 0;
-    else
-      y = (544 - h) / 2;
-  #elif defined(PSP)
-    int h = 25 + (25*l);
-    int y = (272 - h) /2;
-  #endif
-
-  // back
-  #ifdef __vita__
-    vita2d_draw_rectangle(80, y, 960 - 156, h, bg1);
-  #elif defined(PSP)
-    Screen::ambientColor(bg1);
-    drawPill(40, y, 480 - 86, h, 6, 31, 1);
-  #endif
-
-  // title
-  #ifdef __vita__
-    vita2d_draw_rectangle(90, 10 + y, 960 - 176, 30, bg2);
-  #elif defined(PSP)
-    Screen::ambientColor(bg2);
-    drawPill(45, 5 + y, 480 - 96, 20, 6, 31, 1);
-  #endif
-
-
   // // icons
   // Screen::ambientColor(bg1|0xff000000);
   // // drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
@@ -726,15 +556,6 @@ void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
   // }
 
   //fontBig->bindForDisplay();
-
-  #ifdef __vita__
-    Screen::drawText(102, y + 30, fg, 1.0f, title.c_str());
-    Screen::drawText(102, y + 65, fg, 1.0f, text.c_str());
-  #elif defined(PSP)
-    Screen::ambientColor(fg);
-    drawText((char*)title.c_str(), fontBig, 51, y + 9);
-    drawText((char*)text.c_str(), fontBig, 51, y + 35);
-  #endif
 }
 
 void Layer::drawClockAndBattery(string& extra) {
@@ -791,7 +612,7 @@ void Layer::menuCursorUpdate(unsigned int buttons, int max) {
   }
 }
 
-Layer::Layer() : topItem(0), selItem(0),skipChars(0),maxSkipChars(-1) {
+Layer::Layer() : topItem(0), selItem(0), skipChars(0), maxSkipChars(-1) {
 }
 
 Layer::~Layer() {

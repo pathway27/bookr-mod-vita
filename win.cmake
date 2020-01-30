@@ -1,12 +1,5 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_custom_command(
-  TARGET bookr-mod-vita POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory              
-     ${CMAKE_SOURCE_DIR}/src/graphics/shaders $<TARGET_FILE_DIR:bookr-mod-vita>/shaders
-  COMMENT "Copying shaders" VERBATIM
-)
-
 ExternalProject_Add(glew
   URL https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
   URL_MD5 32a72e6b43367db8dbea6010cd095355
@@ -105,11 +98,28 @@ target_link_libraries(bookr-mod-vita
   glew32s
   glew32
   glfw3
-  freetype265
+  freetype
   #freetype6.dll
   tinyxml2
   #SOIL
 )
 
-add_dependencies(bookr-mod-vita glew glm glfw tinyxml2 freetype2)
-#
+# freetype2
+add_dependencies(bookr-mod-vita glew glm glfw tinyxml2)
+
+# $<TARGET_FILE_DIR:bookr-mod-vita>/shaders
+add_custom_command (
+  TARGET bookr-mod-vita POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/src/graphics/shaders ${CMAKE_BINARY_DIR}/bin/shaders
+  DEPENDS ${CMAKE_BINARY_DIR}/bin
+  COMMENT "Copying shaders" VERBATIM
+)
+
+add_custom_command (
+  TARGET bookr-mod-vita POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/bin/data
+  DEPENDS ${CMAKE_BINARY_DIR}/bin
+  COMMENT "Copying data" VERBATIM
+)

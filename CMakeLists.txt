@@ -113,7 +113,6 @@ set(COMMON_SRCS
   src/graphics/image.cpp
 
   src/graphics/instreammem.cpp
-
   src/logo.cpp
   src/mainmenu.cpp
   src/popup.cpp
