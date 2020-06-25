@@ -133,14 +133,10 @@ void cleanup() {
     printf("exiting...\n");
   #endif
 
-  // Get rid of all gui layers
-  // LayersIt it(layers.begin());
-  // LayersIt end(layers.end());
-  // while (it != end) {
-  //   (*it)->release();
-  //   ++it;
-  // }
-  // layers.clear();
+  for(auto &layer: layers) {
+    layer->release();
+  }
+  layers.clear();
 
   Screen::close(); // deinit graphics layer
   // Layer::unload(); // free textures

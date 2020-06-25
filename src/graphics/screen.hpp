@@ -44,6 +44,9 @@ struct Dirent {
  *  TODO: Convert to namespace; add simple draw methods.
  */
 namespace Screen {
+  extern unsigned int WIDTH;
+  extern unsigned int HEIGHT;
+
   int setupCallbacks();
 
   /**

@@ -81,6 +81,8 @@ extern "C" void userAppExit()
 
 namespace bookr { namespace Screen {
 
+unsigned int WIDTH = 1280;
+unsigned int HEIGHT = 720;
 //-----------------------------------------------------------------------------
 // EGL initialization
 //-----------------------------------------------------------------------------

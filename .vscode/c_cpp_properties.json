@@ -1,0 +1,82 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/usr/local/include",
+                "/usr/include",
+                "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include",
+                "/usr/local/Cellar/freetype/2.10.1/include",
+                "ext/glad/include",
+                "/usr/local/Cellar/freetype/2.10.1/include/freetype2",
+                "/usr/local/vitasdk/arm-vita-eabi/include",
+                "/usr/local/Cellar/glm/0.9.8.3/include/glm"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "/usr/local/include",
+                    "/usr/include",
+                    "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include",
+                    "/usr/local/vitasdk/arm-vita-eabi/include",
+                    "/usr/local/Cellar/glm/0.9.8.3/include/glm"
+                ]
+            },
+            "intelliSenseMode": "clang-x64",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "/usr/include"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "/usr/include"
+                ]
+            },
+            "intelliSenseMode": "clang-x64"
+        },
+        {
+            "name": "Win32",
+            "defines": [
+                "DEBUG",
+                "__vita__"
+            ],
+            "includePath": [
+                "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.10.25017/include",
+                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/ucrt",
+                "${workspaceRoot}/ext/freetype/include",
+                "${workspaceRoot}/ext/mupdf/include",
+                "${workspaceRoot}/ext/libvita2d/libvita2d/include",
+                "${workspaceRoot}/ext/tinyxml2"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.10.25017/include",
+                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.15063.0/ucrt",
+                    "${workspaceRoot}/ext/freetype/include",
+                    "${workspaceRoot}/ext/mupdf/include",
+                    "${workspaceRoot}/ext/libvita2d/libvita2d/include"
+                ]
+            },
+            "intelliSenseMode": "msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "clang_format": {
+        "style": "file",
+        "fallback-style": "LLVM",
+        "sort-includes": false
+    },
+    "version": 4
+}

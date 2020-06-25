@@ -23,7 +23,6 @@
 
 #include "screen.hpp"
 #include "controls.hpp"
-#include "resolutions.hpp"
 #include "texture.hpp"
 #include "../resource_manager.hpp"
 
@@ -32,6 +31,8 @@ using std::endl;
 
 namespace bookr { namespace Screen {
 
+unsigned int WIDTH = 1280;
+unsigned int HEIGHT = 720;
 static int keyState = 0;
 static bool stickyKeys = false;
 static int powerSerial = 0;
@@ -64,7 +65,7 @@ static void updateReps() {
 }
 
 //unsigned char key, int x, int y
-int width, height;
+// int width, height;
 GLuint texture;
 
 static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -160,13 +161,11 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
 }
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
 static void loadShaders() {
     ResourceManager::LoadShader("shaders/textures.vert", "shaders/textures.frag", nullptr, "sprite", true);
     ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
 
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT), 0.0f, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WIDTH), static_cast<GLfloat>(HEIGHT), 0.0f, -1.0f, 1.0f);
     // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
 
     // ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
@@ -175,7 +174,7 @@ static void loadShaders() {
 
     ResourceManager::LoadTexture("data/logos/icon0_t.png", GL_TRUE, "logo");
 
-    ResourceManager::CreateTextRenderer(SCR_WIDTH, SCR_HEIGHT);
+    ResourceManager::CreateTextRenderer(WIDTH, HEIGHT);
 }
 
 static GLFWwindow* window;
@@ -194,7 +193,7 @@ void open(int argc, char** argv) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
 
-  window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Bookr", NULL, NULL);
+  window = glfwCreateWindow(WIDTH, HEIGHT, "Bookr", NULL, NULL);
   if (window == NULL)
   {
     std::cout << "Failed to create GLFW window" << std::endl;
@@ -213,7 +212,7 @@ void open(int argc, char** argv) {
   glfwSetKeyCallback(window, key_callback);
 
   // OpenGL configuration
-  glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+  glViewport(0, 0, WIDTH, HEIGHT);
   glEnable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -389,6 +388,14 @@ void color(unsigned int c) {
     glClearColor(red, green, blue, alpha);
     glClear(GL_COLOR_BUFFER_BIT);
 }
+
+glm::vec4 colorToRGBA(unsigned int c) {
+  float red = (float)((c & 0xff000000) >> 24);
+  float green = (float)((c & 0x00ff0000) >> 16);
+  float blue = (float)((c & 0x0000ff00) >> 8);
+  float alpha = (float)(c & 0x000000ff);
+  return glm::vec4(red, green, blue, alpha);
+} 
 
 void ambientColor(unsigned int c) {
     // sceGuAmbientColor(c);
