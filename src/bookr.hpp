@@ -13,6 +13,11 @@
 #ifndef BOOKR_HPP
 #define BOOKR_HPP
 
+// WHERE TO PUT THIS?! Only for Vita newlib
+#ifdef __vita__
+extern int _newlib_heap_size_user = 192 * 1024 * 1024;
+#endif
+
 namespace bookr {
   void initalise(int argc, char *argv[]);
   void mainloop();

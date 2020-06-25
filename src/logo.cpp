@@ -10,10 +10,6 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
-#include "graphics/screen.hpp"
-#include "graphics/fzscreen_defs.h"
-#include "logo.hpp"
-
 #ifdef __vita__
   #include <psp2/kernel/threadmgr.h>
   #include <vita2d.h>
@@ -107,20 +103,20 @@ Logo* Logo::create() {
   return f;
 }
 
-void Logo::show(string text) {
-  show(text, 0);
-}
+// void Logo::show(string text) {
+//   show(text, 0);
+// }
 
-void Logo::show(string text, int delaySeconds) {
-  Logo* l = Logo::create();
-  l->text = text;
-  Screen::startDirectList();
-  l->render();
-  Screen::endAndDisplayList();
-  Screen::waitVblankStart();
-  Screen::swapBuffers();
-  //Screen::checkEvents();
-  l->release();
-}
+// void Logo::show(string text, int delaySeconds) {
+//   Logo* l = Logo::create();
+//   l->text = text;
+//   Screen::startDirectList();
+//   l->render();
+//   Screen::endAndDisplayList();
+//   Screen::waitVblankStart();
+//   Screen::swapBuffers();
+//   //Screen::checkEvents();
+//   l->release();
+// }
 
 }

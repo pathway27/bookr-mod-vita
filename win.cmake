@@ -1,16 +1,21 @@
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 ExternalProject_Add(glew
+  PREFIX       "${CMAKE_BINARY_DIR}/ext/glew"
+  DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/ext"
+
   URL https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip
   URL_MD5 32a72e6b43367db8dbea6010cd095355
   #--Configure step-------------
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glew"
   CONFIGURE_COMMAND ""
   #--Build step-----------------
   BUILD_COMMAND ""
   #--Install step---------------
   UPDATE_COMMAND "" # Skip annoying updates for every build
-  INSTALL_COMMAND ""
+  INSTALL_COMMAND 
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/glew/src/glew/lib/Release/Win32/glew32.lib ${CMAKE_BINARY_DIR}/Debug
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/ext/freetype/win32/freetype.dll ${CMAKE_BINARY_DIR}/Debug
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/tinyxml2/Debug/tinyxml2.dll ${CMAKE_BINARY_DIR}/Debug
 )
 
 ExternalProject_Add(glm
@@ -111,15 +116,15 @@ add_dependencies(bookr-mod-vita glew glm glfw tinyxml2)
 add_custom_command (
   TARGET bookr-mod-vita POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/src/graphics/shaders ${CMAKE_BINARY_DIR}/bin/shaders
-  DEPENDS ${CMAKE_BINARY_DIR}/bin
+  ${CMAKE_SOURCE_DIR}/src/graphics/shaders ${CMAKE_BINARY_DIR}/Debug/shaders
+  DEPENDS ${CMAKE_BINARY_DIR}/Debug
   COMMENT "Copying shaders" VERBATIM
 )
 
 add_custom_command (
   TARGET bookr-mod-vita POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/bin/data
-  DEPENDS ${CMAKE_BINARY_DIR}/bin
+  ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/Debug/data
+  DEPENDS ${CMAKE_BINARY_DIR}/Debug
   COMMENT "Copying data" VERBATIM
 )

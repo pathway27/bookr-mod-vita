@@ -17,9 +17,9 @@
 #include "graphics/screen.hpp"
 #include "graphics/controls.hpp"
 
-  //#include "document.hpp"
-  //#include "mainmenu.hpp"
-  //#include "filechooser.hpp"
+//#include "document.hpp"
+//#include "mainmenu.hpp"
+//#include "filechooser.hpp"
 
 //#include "user.hpp"
 //#include "layer.hpp"
