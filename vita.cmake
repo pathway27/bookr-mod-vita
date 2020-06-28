@@ -52,9 +52,9 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 # TODO: add to vitasdk/packages
 #       similar to http://www.linuxfromscratch.org/blfs/view/cvs/pst/mupdf.html
 ExternalProject_Add(mupdf_lib
-  PREFIX "${CMAKE_SOURCE_DIR}/ext/mupdf"
+  PREFIX "${CMAKE_SOURCE_DIR}/ext/mupdf-lib"
   GIT_REPOSITORY https://github.com/pathway27/mupdf
-  GIT_TAG origin/1.15.0-vg-console
+  GIT_TAG origin/vg-console
   GIT_PROGRESS 1
   #--Configure step-------------
   # SOURCE_SUBDIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
@@ -115,6 +115,7 @@ target_link_libraries(bookr-mod-vita
   vita2d
   mupdf
   mupdf-third
+  c
   pthread
   freetype
   SceDisplay_stub
@@ -134,7 +135,6 @@ target_link_libraries(bookr-mod-vita
   jpeg
   z
   m
-  c
   tinyxml2
 )
 

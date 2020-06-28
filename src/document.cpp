@@ -556,25 +556,25 @@ void Document::render() {
 
     if (alpha > 0) {
       #ifdef __vita__
-        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH, 
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT,
+        vita2d_draw_rectangle(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH, 
+          DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT,
           MENU_TOOLTIP_WIDTH,
           MENU_TOOLTIP_HEIGHT, 0x1D1616 | (alpha << 24));
-        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + MENU_TOOLTIP_PADDING,
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
+        vita2d_draw_rectangle(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + MENU_TOOLTIP_PADDING,
+          DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
            MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
-        vita2d_draw_rectangle(FZ_SCREEN_WIDTH - (MENU_TOOLTIP_WIDTH/2) + (MENU_TOOLTIP_PADDING/2),
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
+        vita2d_draw_rectangle(DEFAULT_SCREEN_WIDTH - (MENU_TOOLTIP_WIDTH/2) + (MENU_TOOLTIP_PADDING/2),
+          DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
           MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
 
-        Screen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10,
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Tools");
-        Screen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10 + 72,
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Menu");
-        Screen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15,
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Select");
-        Screen::drawText(FZ_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15 + 75,
-          FZ_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Start");
+        Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10,
+          DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Tools");
+        Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10 + 72,
+          DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Menu");
+        Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15,
+          DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Select");
+        Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15 + 75,
+          DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Start");
       #elif defined(PSP)
         texUI->bindForDisplay();
         Screen::ambientColor(0x222222 | (alpha << 24));
@@ -596,7 +596,7 @@ void Document::render() {
   // banner that shows page loading and current page number / number of pages
   if (bannerFrames > 0 && User::options.displayLabels) {
     #ifdef __vita__
-      int y = mode == BKDOC_TOOLBAR ? 10 : FZ_SCREEN_HEIGHT - 50;
+      int y = mode == BKDOC_TOOLBAR ? 10 : DEFAULT_SCREEN_HEIGHT - 50;
     #elif defined(PSP)
       int y = mode == BKDOC_TOOLBAR ? 10 : 240;
     #endif
@@ -606,8 +606,8 @@ void Document::render() {
     }
     if (alpha > 0) {
       #ifdef __vita__
-        vita2d_draw_rectangle((FZ_SCREEN_WIDTH / 2) - 180, y, (2*180), 30, 0x222222 | (alpha << 24));
-        Screen::drawText((FZ_SCREEN_WIDTH / 2) - 180 + 90, y + 21, (0xffffff | (alpha << 24)), 1.0f, banner.c_str());
+        vita2d_draw_rectangle((DEFAULT_SCREEN_WIDTH / 2) - 180, y, (2*180), 30, 0x222222 | (alpha << 24));
+        Screen::drawText((DEFAULT_SCREEN_WIDTH / 2) - 180 + 90, y + 21, (0xffffff | (alpha << 24)), 1.0f, banner.c_str());
       #elif defined(PSP)
         texUI->bindForDisplay();
         Screen::ambientColor(0x222222 | (alpha << 24));
@@ -716,11 +716,11 @@ void Document::render() {
       // printf("here");
       switch (User::controls.select)  {
         case FZ_REPS_CROSS:
-          vita2d_draw_texture_scale(bk_icons["bk_cross_icon"]->vita_texture, 768 - 20 - 130, FZ_SCREEN_HEIGHT - 50 + 7,
+          vita2d_draw_texture_scale(bk_icons["bk_cross_icon"]->vita_texture, 768 - 20 - 130, DEFAULT_SCREEN_HEIGHT - 50 + 7,
                                     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
           break;
         case FZ_REPS_CIRCLE:
-          vita2d_draw_texture_scale(bk_icons["bk_circle_icon"]->vita_texture, 768 - 20 - 130, FZ_SCREEN_HEIGHT - 50 + 7,
+          vita2d_draw_texture_scale(bk_icons["bk_circle_icon"]->vita_texture, 768 - 20 - 130, DEFAULT_SCREEN_HEIGHT - 50 + 7,
                                     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
         default:
           break;
@@ -732,7 +732,7 @@ void Document::render() {
     #ifdef PSP
       drawImage(37, 248, 20, 18, _IMG_TRIANGLE_X, _IMG_TRIANGLE_Y);
     #elif defined(__vita__)
-      vita2d_draw_texture_scale(bk_icons["bk_triangle_icon"]->vita_texture, 20 + 130, FZ_SCREEN_HEIGHT - 50 + 7,
+      vita2d_draw_texture_scale(bk_icons["bk_triangle_icon"]->vita_texture, 20 + 130, DEFAULT_SCREEN_HEIGHT - 50 + 7,
                                 DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
     #endif
   }
@@ -795,12 +795,12 @@ void Document::render() {
   // // button labels
   if (it.triangleLabel.size() > 0) {
     #ifdef __vita__
-      vita2d_font_draw_text(fontBig->v_font, 20 + 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.triangleLabel.c_str());
+      vita2d_font_draw_text(fontBig->v_font, 20 + 130 + 45, DEFAULT_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.triangleLabel.c_str());
     #endif
   }
   if (it.circleLabel.size() > 0) {
     #ifdef __vita__
-      vita2d_font_draw_text(fontBig->v_font, 768 - 20 - 130 + 45, FZ_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.circleLabel.c_str());
+      vita2d_font_draw_text(fontBig->v_font, 768 - 20 - 130 + 45, DEFAULT_SCREEN_HEIGHT - 50 + 7 + 28, RGBA8(255, 255, 255, 255), 28, it.circleLabel.c_str());
     #endif
   }
 

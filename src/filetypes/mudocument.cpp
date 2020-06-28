@@ -70,8 +70,8 @@ MUDocument::MUDocument(string& f) :
   filename = string(f);
   m_rotate = 0.0f;
   rotateLevel = 0;
-  m_width = FZ_SCREEN_WIDTH;
-  m_height = FZ_SCREEN_HEIGHT;
+  m_width = DEFAULT_SCREEN_WIDTH;
+  m_height = DEFAULT_SCREEN_HEIGHT;
 
   // Initalize fitz context
   m_ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
@@ -424,7 +424,7 @@ int MUDocument::screenDown() {
     printf("panY: %f potentialY: %f\n", panY, potentialY);
   #endif
 
-  int bottomBounds = (m_bounds.y1 - FZ_SCREEN_HEIGHT);
+  int bottomBounds = (m_bounds.y1 - DEFAULT_SCREEN_HEIGHT);
   if (-potentialY >= bottomBounds)
     panY = -bottomBounds;
   else
