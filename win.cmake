@@ -1,5 +1,8 @@
 message("WIN CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
+# Ugh not working, compile this with visual studio
+#include_external_msproject(mupdf ${CMAKE_SOURCE_DIR}/ext/mupdf/platform/win32/mupdf.vcxproj PLATFORM Win32)
+
 # TODO: add_subdirectory and CMAKE_BUILD_TYPE makes an extra folder where exe is
 # Cmake doesnt move dlls to binary folder so we have to do it here or using install
 ExternalProject_Add(glew
@@ -15,9 +18,10 @@ ExternalProject_Add(glew
   #--Install step---------------
   UPDATE_COMMAND "" # Skip annoying updates for every build
   INSTALL_COMMAND ""
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/glew/src/glew/lib/Release/Win32/glew32.lib ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/ext/freetype/win32/freetype.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
+    #COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/glew/src/glew/lib/Release/Win32/glew32.lib ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
+    #COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/ext/freetype/win32/freetype.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/tinyxml2/Debug/tinyxml2.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
+    #COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/mupdf/platform/win32/Debug/libthirdparty.lib ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
 )
 
 ExternalProject_Add(glm
@@ -45,6 +49,19 @@ ExternalProject_Add(glfw
   UPDATE_COMMAND "" # Skip annoying updates for every build
   INSTALL_COMMAND ""
 )
+
+# ExternalProject_Add(mupdf
+#  URL https://mupdf.com/downloads/archive/mupdf-1.17.0-windows.zip
+#  URL_HASH SHA1=32644f7b793f003278cd96d8127587f66c2da54f
+#  #--Configure step-------------
+#  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/mupdf-windows"
+#  CONFIGURE_COMMAND ""
+#  #--Build step-----------------
+#  BUILD_COMMAND ""
+#  #--Install step---------------
+#  UPDATE_COMMAND "" # Skip annoying updates for every build
+#  INSTALL_COMMAND ""
+# )
 
 #ExternalProject_Add(freetype2
 #  URL https://github.com/ubawurinna/freetype-windows-binaries/archive/v2.6.5.zip
@@ -80,6 +97,7 @@ link_directories(
   "${CMAKE_SOURCE_DIR}/ext/glfw/lib-vc2015"
   "${CMAKE_SOURCE_DIR}/ext/freetype/win32"
   "${CMAKE_SOURCE_DIR}/ext/psp2shell/win32"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/platform/win32/compiled_lib/Debug"
 )
 
 ## Build and link
@@ -105,10 +123,10 @@ target_link_libraries(bookr-mod-vita
   glew32s
   glew32
   glfw3
-  freetype
   #freetype6.dll
   tinyxml2
   #SOIL
+  libmupdf
 )
 
 # freetype2

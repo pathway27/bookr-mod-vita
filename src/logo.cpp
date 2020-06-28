@@ -10,6 +10,8 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
+#include <mupdf/fitz.h>
+
 #ifdef __vita__
   #include <psp2/kernel/threadmgr.h>
   #include <vita2d.h>
@@ -98,6 +100,7 @@ void Logo::render() {
 }
 
 Logo* Logo::create() {
+  fz_context *ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
   Logo* f = new Logo();
   Screen::resetReps();
   return f;
