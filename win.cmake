@@ -1,5 +1,7 @@
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+message("WIN CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
+# TODO: add_subdirectory and CMAKE_BUILD_TYPE makes an extra folder where exe is
+# Cmake doesnt move dlls to binary folder so we have to do it here or using install
 ExternalProject_Add(glew
   PREFIX       "${CMAKE_BINARY_DIR}/ext/glew"
   DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/ext"
@@ -12,10 +14,10 @@ ExternalProject_Add(glew
   BUILD_COMMAND ""
   #--Install step---------------
   UPDATE_COMMAND "" # Skip annoying updates for every build
-  INSTALL_COMMAND 
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/glew/src/glew/lib/Release/Win32/glew32.lib ${CMAKE_BINARY_DIR}/Debug
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/ext/freetype/win32/freetype.dll ${CMAKE_BINARY_DIR}/Debug
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/tinyxml2/Debug/tinyxml2.dll ${CMAKE_BINARY_DIR}/Debug
+  INSTALL_COMMAND ""
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/glew/src/glew/lib/Release/Win32/glew32.lib ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/ext/freetype/win32/freetype.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/ext/tinyxml2/Debug/tinyxml2.dll ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
 )
 
 ExternalProject_Add(glm

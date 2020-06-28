@@ -82,7 +82,10 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -O3")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
 # TODO: Move to ext folder?
-add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
+set(TINYXML2_DIR "${CMAKE_SOURCE_DIR}/ext/tinyxml2" CACHE PATH "The path to the tinyxml2 library.")
+
+# ${PROJECT_BINARY_DIR}/tinyxml2
+add_subdirectory(${TINYXML2_DIR})
 
 file(GLOB res_files RELATIVE
   ${CMAKE_SOURCE_DIR}
