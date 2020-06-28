@@ -1,3 +1,4 @@
+set(BUILD_SHARED_LIBS ON)
 message("WIN CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
 
 # Ugh not working, compile this with visual studio
@@ -28,7 +29,7 @@ ExternalProject_Add(glm
   URL https://github.com/g-truc/glm/releases/download/0.9.8.5/glm-0.9.8.5.zip
   URL_MD5 456c9f54cf9da189733a74c173b840b5
   #--Configure step-------------
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glm"
+  PREFIX "${CMAKE_SOURCE_DIR}/ext/glm"
   CONFIGURE_COMMAND ""
   #--Build step-----------------
   BUILD_COMMAND ""
@@ -41,7 +42,7 @@ ExternalProject_Add(glfw
   URL https://github.com/glfw/glfw/releases/download/3.2.1/glfw-3.2.1.bin.WIN32.zip
   URL_MD5 c1fce22f39deab17a819da9d23b3a002
   #--Configure step-------------
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/ext/glfw"
+  PREFIX "${CMAKE_SOURCE_DIR}/ext/glfw"
   CONFIGURE_COMMAND ""
   #--Build step-----------------
   BUILD_COMMAND ""
@@ -97,7 +98,7 @@ link_directories(
   "${CMAKE_SOURCE_DIR}/ext/glfw/lib-vc2015"
   "${CMAKE_SOURCE_DIR}/ext/freetype/win32"
   "${CMAKE_SOURCE_DIR}/ext/psp2shell/win32"
-  "${CMAKE_SOURCE_DIR}/ext/mupdf/platform/win32/compiled_lib/Debug"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/platform/win32/compiled_lib\ Release"
 )
 
 ## Build and link
