@@ -208,6 +208,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // // back
   // Screen::ambientColor(0xf0222222);
   // drawTPill(20, 20 + scrY, 480 - 46, 272, 6, 31, 1);
+  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.2, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.6, RGBA8(105, 105, 105, 155));
   // // title
   // Screen::ambientColor(0xffaaaaaa);
   // drawPill(25, 25 + scrY, 480 - 46 - 10, 20, 6, 31, 1);

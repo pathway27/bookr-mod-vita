@@ -98,7 +98,7 @@ link_directories(
   "${CMAKE_SOURCE_DIR}/ext/glfw/lib-vc2015"
   "${CMAKE_SOURCE_DIR}/ext/freetype/win32"
   "${CMAKE_SOURCE_DIR}/ext/psp2shell/win32"
-  "${CMAKE_SOURCE_DIR}/ext/mupdf/platform/win32/compiled_lib\ Release"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/platform/win32/Debug"
 )
 
 ## Build and link

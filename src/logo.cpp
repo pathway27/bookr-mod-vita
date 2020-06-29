@@ -95,6 +95,15 @@ void Logo::render() {
     drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, text.c_str());
   else
     drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, DEFAULT_TEXT);
+
+  #if DEBUG
+    #include "bookrconfig.h"
+    #include <mupdf/fitz/version.h>
+    string version_text = string("MuPDF v") + string(FZ_VERSION);
+    drawText(Screen::WIDTH * 0.87, Screen::HEIGHT * 0.93, RGBA8(240, 0, 0, 255), 10, version_text.c_str());
+    version_text = string("Bookr ") + string(GIT_VERSION);
+    drawText(Screen::WIDTH * 0.77, Screen::HEIGHT * 0.97, RGBA8(240, 0, 0, 255), 10, version_text.c_str());
+  #endif
 }
 
 Logo* Logo::create() {
