@@ -1,5 +1,7 @@
 ### For Windows
 
+You have to compile mupdf with Visual Studio and add the link directories first.
+
 #### Visual Studio Code
 
 Requirements:
@@ -25,4 +27,3 @@ cmake ../..
 make -j8
 ./bookr-mod-vita
 ```
-
