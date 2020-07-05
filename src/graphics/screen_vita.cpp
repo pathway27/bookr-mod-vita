@@ -157,7 +157,9 @@ void open(int argc, char** argv) {
   }
 
   #ifdef DEBUG
-      initalDraw();
+    // while (1) {
+    //   initalDraw();
+    // }
   #endif
 }
 
@@ -241,6 +243,7 @@ void startDirectList() {
     printf("start drawing");
   #endif
   vita2d_start_drawing();
+  vita2d_clear_screen();
 }
 
 void endAndDisplayList() {

@@ -52,9 +52,9 @@ void initalise(int argc, char *argv[])
   User::init(); // get app settings from user.xml
 
   // Layer::load();                       // make textures
-  mm = MainMenu::create(); // Main Menu, only opens when pressed start on opening screen
+  // mm = MainMenu::create(); // Main Menu, only opens when pressed start on opening screen
   layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
-  layers.push_back(mm);                  // Main Menu
+  // layers.push_back(mm);                  // Main Menu
 }
 
 
@@ -63,7 +63,7 @@ void mainloop() {
   while (!exitApp) {
     // draw state to back buffer and swap
     if (dirty) {
-      // Screen::startDirectList();
+      Screen::startDirectList();
       LayersIt it(layers.begin());
       LayersIt end(layers.end());
       while (it != end)
@@ -71,7 +71,7 @@ void mainloop() {
         (*it)->render();
         ++it;
       }
-      // Screen::endAndDisplayList();
+      Screen::endAndDisplayList();
       Screen::swapBuffers();
     }
 
@@ -80,33 +80,33 @@ void mainloop() {
 
 
     // // the last layer always owns the input focus
-    LayersIt it(layers.end());
-    --it;
-    int command = 0;
+    // LayersIt it(layers.end());
+    // --it;
+    // int command = 0;
 
-    if ((*it) == nullptr)
-      continue;
+    // if ((*it) == nullptr)
+    //   continue;
 
     // These take up most of the stdout
     #ifdef DEBUG_BUTTONS
       printf("pre update-buttons\n");
     #endif
 
-    command = (*it)->update(buttons);
-    if (command == BK_CMD_OPEN_FILE) {
-      #ifdef DEBUG
-        printf("Got BK_CMD_OPEN_FILE\n");
-      #endif
-    }
+    // command = (*it)->update(buttons);
+    // if (command == BK_CMD_OPEN_FILE) {
+    //   #ifdef DEBUG
+    //     printf("Got BK_CMD_OPEN_FILE\n");
+    //   #endif
+    // }
 
     #ifdef DEBUG_BUTTONS
       printf("post update-buttons\n");
     #endif
     // dont proc events while in the reload timer
-    std::cout << command << std::endl;
+    // std::cout << command << std::endl;
 
-    // pusedo message passing
-    command_handler(command);
+    // // pusedo message passing
+    // command_handler(command);
 
     if (Screen::isClosing())
       break;
@@ -114,11 +114,11 @@ void mainloop() {
     #ifdef DEBUG
       // printf("powerResumed %i\n", Screen::getSuspendSerial());
       // Quick close
-      // if ((buttons == (FZ_CTRL_LTRIGGER | FZ_CTRL_CIRCLE)) ||
-      //     Screen::isClosing())
-      //   break;
+      if ((buttons == (FZ_CTRL_LTRIGGER | FZ_CTRL_CIRCLE)) ||
+          Screen::isClosing())
+        break;
       // else
-      //   Screen::checkEvents(buttons);
+      // Screen::checkEvents(buttons);
     #endif
   }
 }
@@ -138,7 +138,7 @@ void cleanup() {
   Screen::exit();
 }
 
-void command_handler(int command) {
+static void command_handler(int command) {
   switch (command) {
     case BK_CMD_MARK_DIRTY:
     {

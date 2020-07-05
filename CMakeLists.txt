@@ -32,15 +32,6 @@ ELSE()
   endif()
 ENDIF()
 
-# Use CMAKE_BINARY_DIR Determine if release or debug variant
-# Defaults to Debug
-# TODO: This is bad apparently; but I prefer it rather than typing `cmake -DCMAKE_BUILD_TYPE=Release ..`
-IF(CMAKE_BINARY_DIR MATCHES Release)
-  set(CMAKE_BUILD_TYPE Release)
-ELSE(CMAKE_BINARY_DIR MATCHES Debug)
-  set(CMAKE_BUILD_TYPE Debug)
-ENDIF()
-
 ## Define project parameters here
 # Name of the project
 project(bookr-mod-vita)
@@ -58,8 +49,17 @@ configure_file(
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# Debug CMAKE/ENV variables
-message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+# Use CMAKE_BINARY_DIR Determine if release or debug variant
+# Defaults to Debug
+# TODO: This is bad apparently; but I prefer it rather than typing `cmake -DCMAKE_BUILD_TYPE=Release ..`
+IF(${CMAKE_BINARY_DIR} MATCHES "Release")
+  set(CMAKE_BUILD_TYPE Release)
+ELSE()
+  set(CMAKE_BUILD_TYPE Debug)
+ENDIF()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
   get_cmake_property(_variableNames VARIABLES)
   foreach (_variableName ${_variableNames})
@@ -67,7 +67,6 @@ IF(CMAKE_BUILD_TYPE MATCHES Debug)
   endforeach()
   execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 ENDIF()
-
 
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
