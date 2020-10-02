@@ -109,9 +109,11 @@ add_executable(bookr-mod-vita
 )
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
-#-lpsp2shell -lSceSysmodule_stub -lSceNet_stub \ -lSceNetCtl_stub -lSceKernel_stub -lScePower_stub -lSceAppMgr_stub
+#\ -lSceNetCtl_stub -lSceKernel_stub -lScePower_stub -lSceAppMgr_stub
 #mupdf -ldjvulibre -lraster -lworld -lfonts -lstream -lbase -lm
+# TODO: link only on debug
 target_link_libraries(bookr-mod-vita
+  debugnet
   vita2d
   mupdf
   mupdf-third

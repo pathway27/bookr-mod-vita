@@ -10,13 +10,6 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
-// TODO: Figure out how to remove this.
-#if defined(__vita__) && defined(DEBUG)
-  #include <cstdio>
-  #include <psp2/kernel/clib.h>
-  #define printf sceClibPrintf
-#endif
-
 #include "font.hpp"
 
 namespace bookr {

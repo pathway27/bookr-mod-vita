@@ -15,7 +15,7 @@
 #include <psp2/io/dirent.h> 
 #include <psp2/io/stat.h>
 #include <psp2/ctrl.h>
-#include <psp2/power.h> 
+#include <psp2/power.h>
 #include <psp2/rtc.h>
 
 #include <malloc.h>
@@ -23,6 +23,9 @@
 #include "screen.hpp"
 #include "texture.hpp"
 #include "controls.hpp"
+
+// TODO:
+#include "debug_vita.hpp"
 
 namespace bookr { namespace Screen {
 
@@ -33,6 +36,7 @@ static bool closing = false;
 static string psv_full_path;
 static vita2d_pgf *pgf;
 static void initalDraw() {
+    printf("initalDraw\n");
     vita2d_start_drawing();
     vita2d_clear_screen();
 
@@ -50,10 +54,18 @@ static void initalDraw() {
 
 // Move this to constructor?
 void open(int argc, char** argv) {
+  #ifdef DEBUG
+    int ret;
+    ret = debugNetInit(ip_server, port_server, DEBUG);
+    debugNetPrintf(DEBUG, "Test debug level %d\n", ret);
+    debugNetPrintf(ERROR, "Test error level %d\n", ret);
+    debugNetPrintf(INFO, "Test info level %d\n", ret);
+  #endif
+
   setupCallbacks();
 
   vita2d_init();
-  vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
+  vita2d_set_clear_color(RGBA8(255, 255, 255, 255));
 
   pgf = vita2d_load_default_pgf();
 
@@ -73,6 +85,9 @@ void open(int argc, char** argv) {
 
 /* Exit callback */
 int exit_callback(int arg1, int arg2, void *common) {
+  #ifdef DEBUG
+    debugNetFinish();
+  #endif
   return sceKernelExitProcess(0);
 }
 

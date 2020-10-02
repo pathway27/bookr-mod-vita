@@ -29,6 +29,8 @@
 
 namespace bookr {
 
+#include "debug_vita.hpp"
+
 static unsigned int VBO, VAO, EBO, texture;
 static int width, height, nrChannels;
 
@@ -83,18 +85,18 @@ void Logo::render() {
       glm::vec2(CENTER_X, CENTER_Y),
       glm::vec2(128, 128));
   #endif
-  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, RGBA8(0,0,0,255), TITLE_FONT_SIZE, "TXT - PDF - CBZ - HTML - EPUB - FB2");
+  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, RGBA8(0,0,0,255), 1.0f, "TXT - PDF - CBZ - HTML - EPUB - FB2");
 
   drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, RGBA8(105,105,105,155));
 
   if (loading)
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, LOADING_TEXT);
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, LOADING_TEXT);
   else if (text.length() > 0 && !(error))
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, text.c_str());
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, text.c_str());
   else if (error)
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, text.c_str());
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, text.c_str());
   else
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), TITLE_FONT_SIZE, DEFAULT_TEXT);
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, DEFAULT_TEXT);
 
   #if DEBUG
     #include "bookrconfig.h"

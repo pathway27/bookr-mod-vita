@@ -25,6 +25,8 @@ namespace bookr {
   #define drawFontTextf Screen::drawFontTextf
 #endif
 
+#include "debug_vita.hpp"
+
 // need only one - UI font
 Font* Layer::fontBig = 0;
 Font* Layer::fontSmall = 0;
@@ -33,7 +35,6 @@ Texture* Layer::texUI = 0;
 Texture* Layer::texUI2 = 0;
 Texture* Layer::texLogo = 0;
 
-const auto& createTexFromBuffer = Texture::createFromBuffer;
 map<string, Texture*> Layer::bk_icons;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
@@ -86,37 +87,37 @@ void Layer::load() {
     printf("bklayer load\n");
   #endif
   
-  texLogo = Texture::createFromBuffer(&_binary_data_logos_icon0_t_png_size);
+  texLogo = Texture::createFromBuffer(&_binary_data_logos_icon0_t_png_start);
 
   // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
-  bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));
-  bk_icons.insert(make_pair("bk_battery_icon", createTexFromBuffer(&_binary_data_icons_battery_outline_png_start)));
-  bk_icons.insert(make_pair("bk_clock_icon", createTexFromBuffer(&_binary_data_icons_clock_png_start)));
+  // bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));
+  // bk_icons.insert(make_pair("bk_battery_icon", createTexFromBuffer(&_binary_data_icons_battery_outline_png_start)));
+  // bk_icons.insert(make_pair("bk_clock_icon", createTexFromBuffer(&_binary_data_icons_clock_png_start)));
 
-  bk_icons.insert(make_pair("bk_circle_icon", createTexFromBuffer(&_binary_data_icons_circle_outline_png_start)));
-  bk_icons.insert(make_pair("bk_cross_icon", createTexFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
-  bk_icons.insert(make_pair("bk_triangle_icon", createTexFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
+  // bk_icons.insert(make_pair("bk_circle_icon", createTexFromBuffer(&_binary_data_icons_circle_outline_png_start)));
+  // bk_icons.insert(make_pair("bk_cross_icon", createTexFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
+  // bk_icons.insert(make_pair("bk_triangle_icon", createTexFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
 
-  bk_icons.insert(make_pair("bk_bookmark_icon", createTexFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
-  bk_icons.insert(make_pair("bk_copy_icon", createTexFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
-  bk_icons.insert(make_pair("bk_search_icon", createTexFromBuffer(&_binary_data_icons_search_white_png_start)));
-  bk_icons.insert(make_pair("bk_rotate_left_icon", createTexFromBuffer(&_binary_data_icons_rotate_left_white_png_start)));
-  bk_icons.insert(make_pair("bk_rotate_right_icon", createTexFromBuffer(&_binary_data_icons_rotate_right_white_png_start)));
+  // bk_icons.insert(make_pair("bk_bookmark_icon", createTexFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
+  // bk_icons.insert(make_pair("bk_copy_icon", createTexFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
+  // bk_icons.insert(make_pair("bk_search_icon", createTexFromBuffer(&_binary_data_icons_search_white_png_start)));
+  // bk_icons.insert(make_pair("bk_rotate_left_icon", createTexFromBuffer(&_binary_data_icons_rotate_left_white_png_start)));
+  // bk_icons.insert(make_pair("bk_rotate_right_icon", createTexFromBuffer(&_binary_data_icons_rotate_right_white_png_start)));
 
-  bk_icons.insert(make_pair("bk_add_bookmark_icon", createTexFromBuffer(&_binary_data_icons_bookmark_add_white_png_start)));
-  bk_icons.insert(make_pair("bk_first_page_icon", createTexFromBuffer(&_binary_data_icons_first_page_png_start)));
-  bk_icons.insert(make_pair("bk_last_page_icon", createTexFromBuffer(&_binary_data_icons_last_page_png_start)));
-  bk_icons.insert(make_pair("bk_prev_ten_icon", createTexFromBuffer(&_binary_data_icons_previous_ten_png_start)));
-  bk_icons.insert(make_pair("bk_next_ten_icon", createTexFromBuffer(&_binary_data_icons_next_ten_png_start)));
-  bk_icons.insert(make_pair("bk_go_to_page_icon", createTexFromBuffer(&_binary_data_icons_go_to_page_png_start)));
+  // bk_icons.insert(make_pair("bk_add_bookmark_icon", createTexFromBuffer(&_binary_data_icons_bookmark_add_white_png_start)));
+  // bk_icons.insert(make_pair("bk_first_page_icon", createTexFromBuffer(&_binary_data_icons_first_page_png_start)));
+  // bk_icons.insert(make_pair("bk_last_page_icon", createTexFromBuffer(&_binary_data_icons_last_page_png_start)));
+  // bk_icons.insert(make_pair("bk_prev_ten_icon", createTexFromBuffer(&_binary_data_icons_previous_ten_png_start)));
+  // bk_icons.insert(make_pair("bk_next_ten_icon", createTexFromBuffer(&_binary_data_icons_next_ten_png_start)));
+  // bk_icons.insert(make_pair("bk_go_to_page_icon", createTexFromBuffer(&_binary_data_icons_go_to_page_png_start)));
   
-  bk_icons.insert(make_pair("bk_fit_height_icon", createTexFromBuffer(&_binary_data_icons_fit_height_png_start)));
-  bk_icons.insert(make_pair("bk_fit_width_icon", createTexFromBuffer(&_binary_data_icons_fit_width_png_start)));
-  bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
-  bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
+  // bk_icons.insert(make_pair("bk_fit_height_icon", createTexFromBuffer(&_binary_data_icons_fit_height_png_start)));
+  // bk_icons.insert(make_pair("bk_fit_width_icon", createTexFromBuffer(&_binary_data_icons_fit_width_png_start)));
+  // bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
+  // bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
 
-  fontBig = Font::createFromMemory(res_uifont, size_res_uifont);
-  fontSmall = Font::createFromMemory(res_uifont, size_res_uifont);
+  // fontBig = Font::createFromMemory(res_uifont, size_res_uifont);
+  // fontSmall = Font::createFromMemory(res_uifont, size_res_uifont);
 }
 
 void Layer::unload(){

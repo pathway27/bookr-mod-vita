@@ -42,15 +42,17 @@ static bool dirty = true;
 static bool exitApp = false;
 static int reloadTimer = 0;
 
+#include "debug_vita.hpp"
+
 void initalise(int argc, char *argv[]) {
-  #ifdef DEBUG
-    printf("Debug Started: in bookr::initalise\n");
-  #endif
+  // #ifdef DEBUG
+  //   printf("Debug Started: in bookr::initalise\n");
+  // #endif
   Screen::open(argc, argv);    // GPU init and initalDraw
   Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
   User::init(); // get app settings from user.xml
 
-  // Layer::load();                       // make textures
+  Layer::load();                       // make textures
   // mm = MainMenu::create(); // Main Menu, only opens when pressed start on opening screen
   layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
   // layers.push_back(mm);                  // Main Menu
@@ -58,6 +60,9 @@ void initalise(int argc, char *argv[]) {
 
 
 void mainloop() {
+  #ifdef DEBUG
+    printf("bookr::mainloop\n");
+  #endif
   // Event Loop
   while (!exitApp) {
     // draw state to back buffer and swap
