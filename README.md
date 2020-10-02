@@ -53,6 +53,10 @@ make send
 
 NOTE: You may need to build MuPDF manually.
 
+Install Devkitpro: https://devkitpro.org/wiki/Getting_Started#macOS
+
+Add it to PATH or your rc file and don't forget to source it.
+
 ```sh
 # Setup devkitpro development evironment: 
 dkp-pacman -S switch-dev

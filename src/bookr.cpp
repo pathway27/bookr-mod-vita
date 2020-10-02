@@ -42,8 +42,7 @@ static bool dirty = true;
 static bool exitApp = false;
 static int reloadTimer = 0;
 
-void initalise(int argc, char *argv[])
-{
+void initalise(int argc, char *argv[]) {
   #ifdef DEBUG
     printf("Debug Started: in bookr::initalise\n");
   #endif

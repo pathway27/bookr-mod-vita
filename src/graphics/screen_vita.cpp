@@ -30,10 +30,46 @@ unsigned int WIDTH = 960;
 unsigned int HEIGHT = 544;
 static bool closing = false;
 
-// most stuff here comes directly from pspdev sdk examples
-// default display list
-//static unsigned int __attribute__((aligned(16))) list[262144];
-static unsigned int* list;
+static string psv_full_path;
+static vita2d_pgf *pgf;
+static void initalDraw() {
+    vita2d_start_drawing();
+    vita2d_clear_screen();
+
+    vita2d_pgf_draw_text(pgf, 700, 30, RGBA8(255,255,255,255), 1.0f, "Hello in PGF");
+    #ifdef __vita__
+      vita2d_pgf_draw_text(pgf, 700, 207, RGBA8(255,255,255,255), 1.0f, "UTF-8 しません");
+      //vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
+    #endif
+
+    vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
+
+    vita2d_end_drawing();
+    vita2d_swap_buffers();
+}
+
+// Move this to constructor?
+void open(int argc, char** argv) {
+  setupCallbacks();
+
+  vita2d_init();
+  vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
+
+  pgf = vita2d_load_default_pgf();
+
+  psv_full_path = "ux0:";
+
+  struct SceIoStat st = {0};
+  if (sceIoGetstat("ux0:data/Bookr", &st) == -1) {
+      sceIoMkdir("ux0:data/Bookr", 0700);
+  }
+
+  #ifdef DEBUG
+    // while (1) {
+    //   initalDraw();
+    // }
+  #endif
+}
 
 /* Exit callback */
 int exit_callback(int arg1, int arg2, void *common) {
@@ -119,48 +155,6 @@ static void * ptr_align64_uncached(unsigned long ptr) {
   // flush dcache just before dlist issue
   //return (void *) (((ptr + 0x0f) & ~0x0f) | 0x40000000);
   return (void *) ((ptr + 0x3f) & ~0x3f);
-}
-
-
-static string psv_full_path;
-static vita2d_pgf *pgf;
-static void initalDraw() {
-    vita2d_start_drawing();
-    vita2d_clear_screen();
-
-    vita2d_pgf_draw_text(pgf, 700, 30, RGBA8(255,255,255,255), 1.0f, "Hello in PGF");
-    #ifdef __vita__
-      vita2d_pgf_draw_text(pgf, 700, 207, RGBA8(255,255,255,255), 1.0f, "UTF-8 しません");
-      //vita2d_pgf_draw_text(pgf, 700, 514, RGBA8(255,255,255,255), 1.0f, GIT_VERSION);
-    #endif
-
-    vita2d_pgf_draw_text(pgf, 0, 514, RGBA8(255,255,255,255), 1.0f, "Press L Trigger to Quit!");
-
-    vita2d_end_drawing();
-    vita2d_swap_buffers();
-}
-
-// Move this to constructor?
-void open(int argc, char** argv) {
-  setupCallbacks();
-
-  vita2d_init();
-  vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
-
-  pgf = vita2d_load_default_pgf();
-
-  psv_full_path = "ux0:";
-
-  struct SceIoStat st = {0};
-  if (sceIoGetstat("ux0:data/Bookr", &st) == -1) {
-      sceIoMkdir("ux0:data/Bookr", 0700);
-  }
-
-  #ifdef DEBUG
-    // while (1) {
-    //   initalDraw();
-    // }
-  #endif
 }
 
 void close() {

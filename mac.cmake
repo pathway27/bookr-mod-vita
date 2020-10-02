@@ -10,6 +10,7 @@ include_directories(
   "${FREETYPE_INCLUDE_DIRS}"
   "${GLM_INCLUDE_DIRS}"
   "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/include"
   "${CMAKE_SOURCE_DIR}/ext/glad/include"
   "${CMAKE_SOURCE_DIR}/ext/stb"
 )
