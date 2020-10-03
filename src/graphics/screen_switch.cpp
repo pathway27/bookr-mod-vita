@@ -32,64 +32,112 @@
 #include "NotoSans-Regular_ttf.h"
 #include "text_vert.h"
 #include "text_frag.h"
+
 //-----------------------------------------------------------------------------
 // nxlink support
 //-----------------------------------------------------------------------------
-
 #ifndef DEBUG
-#define TRACE(fmt, ...) ((void)0)
+  #define TRACE(fmt, ...) ((void)0)
 #else
-#include <unistd.h>
-#define TRACE(fmt, ...) printf("%s: " fmt "\n", __PRETTY_FUNCTION__, ##__VA_ARGS__)
+  #include <unistd.h>
+  #define TRACE(fmt, ...) printf("%s: " fmt "\n", __PRETTY_FUNCTION__, ##__VA_ARGS__)
 
-static int s_nxlinkSock = -1;
+  static int s_nxlinkSock = -1;
 
-static void initNxLink()
-{
-  if (R_FAILED(socketInitializeDefault()))
-    return;
-
-  s_nxlinkSock = nxlinkStdio();
-  if (s_nxlinkSock >= 0)
-    TRACE("printf output now goes to nxlink server");
-  else
-    socketExit();
-}
-
-static void deinitNxLink()
-{
-  if (s_nxlinkSock >= 0)
+  static void initNxLink()
   {
-    close(s_nxlinkSock);
-    socketExit();
-    s_nxlinkSock = -1;
+    if (R_FAILED(socketInitializeDefault()))
+      return;
+
+    s_nxlinkSock = nxlinkStdio();
+    if (s_nxlinkSock >= 0)
+      TRACE("printf output now goes to nxlink server");
+    else
+      socketExit();
   }
-}
 
-extern "C" void userAppInit()
-{
-  initNxLink();
-}
+  static void deinitNxLink()
+  {
+    if (s_nxlinkSock >= 0)
+    {
+      close(s_nxlinkSock);
+      socketExit();
+      s_nxlinkSock = -1;
+    }
+  }
 
-extern "C" void userAppExit()
-{
-  deinitNxLink();
-}
+  extern "C" void userAppInit()
+  {
+    initNxLink();
+  }
 
+  extern "C" void userAppExit()
+  {
+    deinitNxLink();
+  }
 #endif
-
 
 namespace bookr { namespace Screen {
 
-unsigned int WIDTH = 1280;
-unsigned int HEIGHT = 720;
-//-----------------------------------------------------------------------------
-// EGL initialization
-//-----------------------------------------------------------------------------
+const unsigned int WIDTH = 1280;
+const unsigned int HEIGHT = 720;
 
 static EGLDisplay s_display;
 static EGLContext s_context;
 static EGLSurface s_surface;
+
+static bool initEgl(NWindow *win);
+static void loadShaders();
+static void sceneRender();
+
+// Move this to constructor?
+void open(int argc, char **argv)
+{
+  #ifdef DEBUG
+    printf("screen::open\n");
+    // Set mesa configuration (useful for debugging)
+    // setMesaConfig();
+  #endif
+  // Initialize EGL on the default window
+  if (!initEgl(nwindowGetDefault())) {
+    #ifdef DEBUG
+      printf("!initEgl(nwindowGetDefault())\n");
+    #endif
+    return;
+  }
+
+  gladLoadGL();
+  #ifdef DEBUG
+    printf("gladLoadGL()\n");
+  #endif
+
+  glViewport(0, 0, WIDTH, HEIGHT);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  std::cout << glGetString(GL_VERSION) << std::endl;
+
+  loadShaders();
+
+  while (appletMainLoop())
+  {
+    // Get and process input
+    hidScanInput();
+    u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+    if (kDown & KEY_PLUS)
+      break;
+
+    // Render stuff!
+    sceneRender();
+    swapBuffers();
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+// EGL initialization
+//-----------------------------------------------------------------------------
 
 static bool initEgl(NWindow *win)
 {
@@ -320,15 +368,12 @@ static void sceneExit()
   glDeleteProgram(s_program);
 }
 
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
-
 static void loadShaders() {
     ResourceManager::LoadShader((const char*)textures_vert, (const char*)textures_frag, nullptr, "sprite", false,
       textures_vert_size, textures_frag_size);
     ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
 
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT), 0.0f, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WIDTH), static_cast<GLfloat>(HEIGHT), 0.0f, -1.0f, 1.0f);
     // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
 
     ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
@@ -340,7 +385,7 @@ static void loadShaders() {
     ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,
       text_vert_size, text_frag_size);
 
-    ui_text_renderer = new TextRenderer(ResourceManager::GetShader("text"), static_cast<GLfloat>(SCR_WIDTH), static_cast<GLfloat>(SCR_HEIGHT));
+    ui_text_renderer = new TextRenderer(ResourceManager::GetShader("text"), static_cast<GLfloat>(WIDTH), static_cast<GLfloat>(HEIGHT));
 
     // u8 a[]         -> char*          ; const
     // const FT_Byte* -> unsigned char*
@@ -350,50 +395,6 @@ static void loadShaders() {
     ui_text_renderer->Load(noto_font, 24, true);
 }
 
-// Move this to constructor?
-void open(int argc, char **argv)
-{
-  #ifdef DEBUG
-    printf("screen::open\n");
-    // Set mesa configuration (useful for debugging)
-    // setMesaConfig();
-  #endif
-  // Initialize EGL on the default window
-  if (!initEgl(nwindowGetDefault())) {
-    #ifdef DEBUG
-      printf("!initEgl(nwindowGetDefault())\n");
-    #endif
-    return;
-  }
-
-  gladLoadGL();
-  #ifdef DEBUG
-    printf("gladLoadGL()\n");
-  #endif
-
-  glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  std::cout << glGetString(GL_VERSION) << std::endl;
-
-  loadShaders();
-
-  while (appletMainLoop())
-  {
-    // Get and process input
-    hidScanInput();
-    u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-    if (kDown & KEY_PLUS)
-      break;
-
-    // Render stuff!
-    sceneRender();
-    swapBuffers();
-  }
-}
-
 int setupCallbacks(void) {
   return 0;
 }
@@ -401,7 +402,6 @@ int setupCallbacks(void) {
 static void initalDraw() {
   sceneInit();
 }
-
 
 
 void close() {
@@ -573,7 +573,7 @@ void drawTextureTintScaleRotate(const Texture *texture, float x, float y, float 
 void drawArray(int prim, int vtype, int count, void* indices, void* vertices) {
 }
 
-void copyImage(int psm, int sx, int sy, int width, int height, int srcw, void *src,
+void copyImage(int psm, int sx, int sy, int width, int HEIGHT, int srcw, void *src,
     int dx, int dy, int destw, void *dest) {
 
 }
