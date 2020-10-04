@@ -25,7 +25,7 @@
 #include "controls.hpp"
 
 // TODO:
-#include "debug_vita.hpp"
+#include "../debug_vita.hpp"
 
 namespace bookr { namespace Screen {
 
@@ -81,6 +81,64 @@ void open(int argc, char** argv) {
     //   initalDraw();
     // }
   #endif
+}
+
+// INPUT HANDLING
+static bool stickyKeys = false;
+
+static int breps[16];
+static void updateReps(int keyState) {
+  if (stickyKeys && keyState == 0) {
+    stickyKeys = false;
+  }
+  if (stickyKeys) {
+    memset((void*)breps, 0, sizeof(int)*16);
+    return;
+  }
+  if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
+  if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+  if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
+  if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
+  if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
+  if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
+  if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
+  if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
+  if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
+  if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
+  if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
+  if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
+  if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
+  if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
+  if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
+}
+
+void resetReps() {
+  stickyKeys = true;
+}
+
+int* ctrlReps() {
+  return breps;
+}
+
+void setupCtrl() {
+  sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
+  resetReps();
+}
+
+static volatile int lastAnalogX = 0;
+static volatile int lastAnalogY = 0;
+int readCtrl() {
+  SceCtrlData pad;
+  sceCtrlPeekBufferPositive(0, &pad, 1);
+  updateReps(pad.buttons);
+  lastAnalogX = pad.lx;
+  lastAnalogY = pad.ly;
+  return pad.buttons;
+}
+
+void getAnalogPad(int& x, int& y) {
+  x = lastAnalogX - FZ_ANALOG_CENTER;
+  y = lastAnalogY - FZ_ANALOG_CENTER;
 }
 
 /* Exit callback */
@@ -189,63 +247,7 @@ void setTextSize(float x, float y) {
 
 }
 
-static bool stickyKeys = false;
 
-static int breps[16];
-static void updateReps(int keyState) {
-  if (stickyKeys && keyState == 0) {
-    stickyKeys = false;
-  }
-  if (stickyKeys) {
-    memset((void*)breps, 0, sizeof(int)*16);
-    return;
-  }
-  if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
-  if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
-  if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
-  if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
-  if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
-  if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
-  if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
-  if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
-  if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
-  if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
-  if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
-  if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
-  if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
-  if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
-  if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
-}
-
-
-void resetReps() {
-  stickyKeys = true;
-}
-
-int* ctrlReps() {
-  return breps;
-}
-
-void setupCtrl() {
-  sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
-  resetReps();
-}
-
-static volatile int lastAnalogX = 0;
-static volatile int lastAnalogY = 0;
-int readCtrl() {
-  SceCtrlData pad;
-  sceCtrlPeekBufferPositive(0, &pad, 1);
-  updateReps(pad.buttons);
-  lastAnalogX = pad.lx;
-  lastAnalogY = pad.ly;
-  return pad.buttons;
-}
-
-void getAnalogPad(int& x, int& y) {
-  x = lastAnalogX - FZ_ANALOG_CENTER;
-  y = lastAnalogY - FZ_ANALOG_CENTER;
-}
 
 void startDirectList() {
   #ifdef DEBUG_RENDER
@@ -318,6 +320,10 @@ void drawRectangle(float x, float y, float w, float h, unsigned int color) {
 
 void drawFontText(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text) {
   vita2d_font_draw_text(font->v_font, x, y, color, size, text);
+}
+
+void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale) {
+  vita2d_draw_texture_scale(texture->vita_texture, x, y);
 }
 
 void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale) {

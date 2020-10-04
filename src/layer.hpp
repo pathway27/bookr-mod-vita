@@ -157,10 +157,12 @@ class Layer : public RefCounted {
   ~Layer();
 
   // "flexible" menu
-  #define BK_MENU_ITEM_FOLDER			1
-  #define BK_MENU_ITEM_USE_LR_ICON	2
-  #define BK_MENU_ITEM_COLOR_RECT		4
-  #define BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL 8
+  enum BK_MENU_ITEM_FLAG {
+    FOLDER,
+    USE_LR_ICON,
+    COLOR_RECT,
+    OPTIONAL_TRIANGLE_LABEL
+  };
   struct MenuItem {
     string label;
     string circleLabel;
@@ -178,6 +180,7 @@ class Layer : public RefCounted {
     MenuItem(const char* l, const char* cl, int f) : label(l), circleLabel(cl), flags(f),tex(0) { }
     ~MenuItem(){if(tex) tex->release();}
   };
+
   #define BK_OUTLINE_ITEM_HAS_TRIANGLE_LABEL 16
   struct OutlineItem : public MenuItem {
     void* outline;
@@ -215,6 +218,13 @@ public:
 
   static void load();
   static void unload();
+
+  template <class T>
+  static T* create() {
+    T* t = new T();
+    Screen::resetReps();
+	  return t;
+  }
 };
 
 typedef vector<Layer*> Layers;

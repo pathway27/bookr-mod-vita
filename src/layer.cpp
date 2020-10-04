@@ -204,14 +204,12 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   char *t =(char*)circleLabel.c_str();
   // int tw = textW(t, fontBig);
 
-  // texUI->bindForDisplay();
-  // // back
-  // Screen::ambientColor(0xf0222222);
-  // drawTPill(20, 20 + scrY, 480 - 46, 272, 6, 31, 1);
+  // back
   drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.2, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.6, RGBA8(105, 105, 105, 155));
-  // // title
-  // Screen::ambientColor(0xffaaaaaa);
-  // drawPill(25, 25 + scrY, 480 - 46 - 10, 20, 6, 31, 1);
+
+  // title
+  drawRectangle(Screen::WIDTH * 0.11, Screen::HEIGHT * 0.21, Screen::WIDTH * 0.78, Screen::HEIGHT * 0.05, RGBA8(105, 105, 105, 250));
+
   // // context label
   // Screen::ambientColor(0xff555555);
   // drawTPill(25, 272 - 30 + scrY, 480 - 46 - 11, 30, 6, 31, 1);
@@ -231,7 +229,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
 
   // Screen::ambientColor(0xffcccccc);
   // // circle or other context icon
-  // if (flags & BK_MENU_ITEM_USE_LR_ICON) {
+  // if (flags & BK_MENU_ITEM_FLAG::USE_LR_ICON) {
   // 	drawImage(480 - tw - 65, 248 + scrY, BK_IMG_LRARROWS_XSIZE, BK_IMG_LRARROWS_YSIZE, BK_IMG_LRARROWS_X, BK_IMG_LRARROWS_Y);
   // } else {
   //   if(circleLabel.size() > 0){
@@ -247,7 +245,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // 	// drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
   //   }
   // }
-  // if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
+  // if (triangleLabel.size() > 0 || flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL) {
   // 	//drawImage(37, 248 + scrY, 20, 20, 107, 5);
   // 	// drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
   // 	drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
@@ -255,9 +253,9 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
 
   // fontBig->bindForDisplay();
 
-  // // title
-  // Screen::ambientColor(0xffffffff);
-  // drawText((char*)title.c_str(), fontBig, 31, 28 + scrY);
+  // title
+  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.22, RGBA8(0,0,0,255), 1.0f, title.c_str());
+  
   // // labels
   // Screen::ambientColor(0xffcccccc);
   // if (triangleLabel.size() > 0) {
@@ -294,14 +292,13 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   bool scrollbar = (items.size() > maxItemNum);
 
   string tl(triangleLabel);
-  if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
+  if (items[selItem].flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL) {
     tl = items[selItem].triangleLabel;
   }
   #ifdef DEBUG_RENDER
     printf("drawmenu\n");
   #endif
   drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
-
 
 
   // texUI->bindForDisplay();
@@ -317,14 +314,14 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
         break;
       if ((i + topItem) >= (int)(items.size()))
         break;
-      if (items[i + topItem].flags & BK_MENU_ITEM_FOLDER) {
+      if (items[i + topItem].flags & BK_MENU_ITEM_FLAG::FOLDER) {
         //drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 84, 52);
         drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 58, 81);
       }
     }
   */
-  // selected item
-  // if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
+  
+  // if (items[selItem].flags & BK_MENU_ITEM_FLAG::FOLDER) {
   // 	Screen::ambientColor(0xff000000);
   // 	//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
   // 	drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
@@ -350,7 +347,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   // 		break;
   // 	if ((i + topItem) >= (int)(items.size()))
   // 		break;
-  // 	if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
+  // 	if (items[i + topItem].flags & BK_MENU_ITEM_FLAG::COLOR_RECT) {
   // 		int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
   // 		Screen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
   // 		drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
@@ -361,7 +358,12 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 
   // itemFont->bindForDisplay();
 
-  // Screen::ambientColor(0xffffffff);
+  int intial = Screen::HEIGHT * 0.35;
+  int size = Screen::HEIGHT * 0.07;
+  
+  // selected item
+  drawRectangle(Screen::WIDTH * 0.1, intial + (selItem * size) - 1, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.05, RGBA8(115, 115, 115, 250));
+
   // contents
   int yoff = 3;
   for (int i = 0; i < maxItemNum; ++i) {
@@ -380,6 +382,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
       // }
     }
     else {
+      drawText(Screen::WIDTH * 0.12, intial + (i * size), RGBA8(0,0,0,255), 1.0f, items.at(i).label.c_str());
     }
   }
   // Screen::ambientColor(0xff000000);
@@ -511,7 +514,7 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   // selected item
   int wSelBox = scrollbar ? 480 - 46 - 10 - 24: 480 - 46 - 10;
   //drawPill(25, ITEMHEIGHT - 3 + scrY + selPos*itemFont->getLineHeight(), wSelBox, 19, 6, 31, 1);
-  if (items[selItem].flags & BK_MENU_ITEM_FOLDER) {
+  if (items[selItem].flags & BK_MENU_ITEM_FLAG::FOLDER) {
     Screen::ambientColor(0xff000000);
     //drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
     //drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
@@ -538,7 +541,7 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   // 		break;
   // 	if ((i + topItem) >= (int)(items.size()))
   // 		break;
-  // 	if (items[i + topItem].flags & BK_MENU_ITEM_COLOR_RECT) {
+  // 	if (items[i + topItem].flags & BK_MENU_ITEM_FLAG::COLOR_RECT) {
   // 		int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
   // 		Screen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
   // 		drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
@@ -662,7 +665,10 @@ void Layer::drawClockAndBattery(string& extra) {
 }
 
 void Layer::menuCursorUpdate(unsigned int buttons, int max) {
+  // printf("MainMenu::updateMain buttons: %i\n", buttons);
   int* b = Screen::ctrlReps();
+  // printf("MainMenu::updateMain b[User::controls.menuDown]: %i\n", b[User::controls.menuDown]);
+  
   if (b[User::controls.menuUp] == 1 || (b[User::controls.menuUp] > 10 && b[User::controls.menuUp] % 5 == 0)) {
     selItem--;
     if (selItem < 0) {
@@ -690,6 +696,8 @@ void Layer::menuCursorUpdate(unsigned int buttons, int max) {
     if (maxSkipChars >= 0 && skipChars>maxSkipChars)
       skipChars = maxSkipChars;
   }
+
+  // printf("MainMenu::updateMain selItem %i\n", selItem);
 }
 
 Layer::Layer() : topItem(0), selItem(0), skipChars(0), maxSkipChars(-1) {

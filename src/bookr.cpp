@@ -53,9 +53,9 @@ void initalise(int argc, char *argv[]) {
   User::init(); // get app settings from user.xml
 
   Layer::load();                       // make textures
-  // mm = MainMenu::create(); // Main Menu, only opens when pressed start on opening screen
+  mm = MainMenu::create(); // Main Menu, only opens when pressed start on opening screen
   layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
-  // layers.push_back(mm);                  // Main Menu
+  layers.push_back(mm);                  // Main Menu
 }
 
 
@@ -80,34 +80,34 @@ void mainloop() {
     }
 
     int buttons = Screen::readCtrl();
-    // dirty = buttons != 0;
+    dirty = buttons != 0;
 
 
     // // the last layer always owns the input focus
-    // LayersIt it(layers.end());
-    // --it;
-    // int command = 0;
+    LayersIt it(layers.end());
+    --it;
+    int command = 0;
 
-    // if ((*it) == nullptr)
-    //   continue;
+    if ((*it) == nullptr)
+      continue;
 
     // These take up most of the stdout
     #ifdef DEBUG_BUTTONS
       printf("pre update-buttons\n");
     #endif
 
-    // command = (*it)->update(buttons);
-    // if (command == BK_CMD_OPEN_FILE) {
-    //   #ifdef DEBUG
-    //     printf("Got BK_CMD_OPEN_FILE\n");
-    //   #endif
-    // }
+    command = (*it)->update(buttons);
+    if (command == BK_CMD_OPEN_FILE) {
+      #ifdef DEBUG
+        printf("Got BK_CMD_OPEN_FILE\n");
+      #endif
+    }
 
     #ifdef DEBUG_BUTTONS
       printf("post update-buttons\n");
     #endif
     // dont proc events while in the reload timer
-    // std::cout << command << std::endl;
+    std::cout << "mainloop command: " << command << std::endl;
 
     // // pusedo message passing
     // command_handler(command);
@@ -138,7 +138,7 @@ void cleanup() {
   layers.clear();
 
   Screen::close(); // deinit graphics layer
-  // Layer::unload(); // free textures
+  Layer::unload(); // free textures
   Screen::exit();
 }
 

@@ -67,7 +67,7 @@ static const unsigned int TEXT_PADDED_WIDTH = 20;
 static const char *LOADING_TEXT = "Loading...";
 static const char *DEFAULT_TEXT = "Press Start";
 
-static const unsigned int LOGO_SIZE = 128;
+static const unsigned int LOGO_SIZE = 256;
 static const unsigned int CENTER_X = (Screen::WIDTH / 2) - (LOGO_SIZE / 2);
 static const unsigned int CENTER_Y = (Screen::HEIGHT / 2) - (LOGO_SIZE / 2);
 
@@ -77,14 +77,15 @@ void Logo::render() {
   #endif
 
   #ifdef __vita__
-    vita2d_draw_texture(texLogo->vita_texture, CENTER_X, CENTER_Y);
-  #else  
+    drawTexture(texLogo, CENTER_X, CENTER_Y);
+  #else
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("logo"),
       glm::vec2(CENTER_X, CENTER_Y),
-      glm::vec2(128, 128));
+      glm::vec2(LOGO_SIZE, LOGO_SIZE));
   #endif
+
   drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, RGBA8(0,0,0,255), 1.0f, "TXT - PDF - CBZ - HTML - EPUB - FB2");
 
   drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, RGBA8(105,105,105,155));
@@ -103,7 +104,7 @@ void Logo::render() {
     #include <mupdf/fitz/version.h>
     string version_text = string("MuPDF v") + string(FZ_VERSION);
     drawText(0, Screen::HEIGHT * 0.93, RGBA8(240, 0, 0, 255), 1.0f, version_text.c_str());
-    version_text = string("Bookr ") + string(GIT_VERSION);
+    version_text = string("Bookr DEBUG ") + string(GIT_VERSION);
     drawText(0, Screen::HEIGHT * 0.97, RGBA8(240, 0, 0, 255), 1.0f, version_text.c_str());
   #endif
 }

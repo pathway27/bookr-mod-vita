@@ -277,7 +277,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
 
   // triangle labels
-  if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL)) {
+  if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL)) {
     Screen::drawTextureScale(bk_icons["bk_triangle_icon"], DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
       DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
     Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X + 60,
@@ -295,8 +295,8 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 }
 
 #define DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y DIALOG_TITLE_OFFSET_Y + DIALOG_ITEM_HEIGHT + 15
-#define DIALOGBK_MENU_ITEM_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
-#define DIALOGBK_MENU_ITEM_HEIGHT 40
+#define DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
+#define DIALOGBK_MENU_ITEM_FLAG::HEIGHT 40
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
   int maxItemNum = 8;
@@ -317,7 +317,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   bool scrollbar = items.size() > maxItemNum;
 
   string tl(triangleLabel);
-  if (items[selItem].flags & BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL) {
+  if (items[selItem].flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL) {
     tl = items[selItem].triangleLabel;
   }
   #ifdef DEBUG_RENDER
@@ -328,8 +328,8 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   // selectedItem
   int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
   Screen::drawRectangle(DIALOG_ITEM_OFFSET_X,
-    (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOGBK_MENU_ITEM_HEIGHT)),
-    wSelBox, DIALOGBK_MENU_ITEM_HEIGHT, COLOR_WHITE);
+    (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOGBK_MENU_ITEM_FLAG::HEIGHT)),
+    wSelBox, DIALOGBK_MENU_ITEM_FLAG::HEIGHT, COLOR_WHITE);
 
   // check if folder
 
@@ -361,12 +361,12 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
       break;
 
     if ((i + topItem) == selItem)
-      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X,
-        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_HEIGHT) - 10),
+      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X,
+        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_FLAG::HEIGHT) - 10),
         COLOR_BLACK, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
     else
-      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X,
-        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_HEIGHT) - 10),
+      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X,
+        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_FLAG::HEIGHT) - 10),
         COLOR_WHITE, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
   }
 }
@@ -442,42 +442,42 @@ void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 
 void Layer::drawClockAndBattery(string& extra) {
   // int ew = textW((char*)extra.c_str(), fontSmall);
-  Screen::drawFontText(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 565,
+  Screen::drawFontText(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 565,
     DIALOG_ICON_TEXT_OFFSET_Y - 45,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, extra.c_str());
 
   // cpu speed
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 255,
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 255,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dMHz", Screen::getSpeed());
 
   // cpu icon
-  Screen::drawTextureTintScale(bk_icons["bk_memory_icon"], DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 345, 
+  Screen::drawTextureTintScale(bk_icons["bk_memory_icon"], DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 345, 
     DIALOG_ICON_OFFSET_Y, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // memory usage
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 395,
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 395,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", Screen::getUsedMemory() / 1024);
 
   // battery icon
-  Screen::drawTextureTintScaleRotate(bk_icons["bk_battery_icon"], DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 485,
+  Screen::drawTextureTintScaleRotate(bk_icons["bk_battery_icon"], DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 485,
     DIALOG_ICON_OFFSET_Y + 17, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE,
     DEG_TO_RAD(90), DIALOG_ICON_COLOR);
 
   // battery %
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 510,
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 510,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%d%%", Screen::getBattery());
 
   // clock icon
-  Screen::drawTextureTintScale(bk_icons["bk_clock_icon"], DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 565,
+  Screen::drawTextureTintScale(bk_icons["bk_clock_icon"], DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 565,
     DIALOG_ICON_OFFSET_Y + 5, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // time text
   int h = 0, m = 0;
   Screen::getTime(h, m);
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_TEXT_OFFSET_X + 600,
+  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 600,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%02d:%02d", h, m);
 }

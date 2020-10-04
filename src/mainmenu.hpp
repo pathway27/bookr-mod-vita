@@ -21,11 +21,14 @@ using std::string;
 namespace bookr {
 
 class MainMenu : public Layer {
-	#define BKMM_MAIN 0
-	#define BKMM_CONTROLS 1
-	#define BKMM_OPTIONS 2
+	// TODO: better name like view?
+	enum class Mode {
+		MAIN,
+		CONTROLS,
+		OPTIONS
+	};
 
-	int mode;
+	Mode mode;
 	bool captureButton;
 	vector<MenuItem> mainItems;
 	vector<MenuItem> controlItems;
@@ -49,7 +52,7 @@ public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
 	
-	static MainMenu* create();	
+	static MainMenu* create();
 
 	string getPopupText();
 	int getPopupMode();

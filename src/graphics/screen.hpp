@@ -94,10 +94,12 @@ namespace Screen {
   void checkEvents(int buttons);
 
   void color(unsigned int c);
+  void color(float r, float g, float b, float a);
 
   void ambientColor(unsigned int c);
 
   void clear(unsigned int c, int b);
+  void clear(float r, float g, float b, float a, int buffer);
 
   void matricesFor2D(int rotation = 0);
 
@@ -121,7 +123,7 @@ namespace Screen {
   void drawFontTextf(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...);
 
   // TODO: Refactor to Texture
-
+  void drawTexture(const Texture *texture, float x, float y);
   void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale);
   void drawTextureTintScale(const Texture *texture, float x, float y, float x_scale, float y_scale, unsigned int color);
   void drawTextureTintScaleRotate(const Texture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color);

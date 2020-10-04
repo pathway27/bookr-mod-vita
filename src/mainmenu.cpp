@@ -67,7 +67,7 @@
 
 namespace bookr {
 
-MainMenu::MainMenu() : mode(BKMM_MAIN), captureButton(false), frames(0) {
+MainMenu::MainMenu() : mode(Mode::MAIN), captureButton(false), frames(0) {
 	buildMainMenu();
 	buildControlMenu();
 	buildOptionMenu();
@@ -76,25 +76,11 @@ MainMenu::MainMenu() : mode(BKMM_MAIN), captureButton(false), frames(0) {
 MainMenu::~MainMenu() {
 }
 
-string MainMenu::getPopupText() {
-	return popupText;
-}
-
-int MainMenu::getPopupMode() {
-	return popupMode;
-}
-
-void MainMenu::rebuildMenu() {
-	if (mode == BKMM_CONTROLS) {
-		buildControlMenu();
-	} else if (mode == BKMM_OPTIONS) {
-		buildOptionMenu();
-	}
-}
-
 void MainMenu::buildMainMenu() {
 	mainItems.push_back(MenuItem("Open File", "Select", 0));
-	mainItems.push_back(MenuItem("Browse chm Cache", "Select", 0));
+  // TODO:
+	// mainItems.push_back(MenuItem("Browse chm Cache", "Select", 0));
+  // TODO: Merge these next two
 	mainItems.push_back(MenuItem("Controls", "Select", 0));
 	mainItems.push_back(MenuItem("Options", "Select", 0));
 	mainItems.push_back(MenuItem("About", "Select", 0));
@@ -154,11 +140,11 @@ void MainMenu::buildOptionMenu() {
 	optionItems.push_back(MenuItem("Restore defaults", "Select", 0));
 
 	string t("Menu control style: ");
-	switch(User::controls.select) {
-	case FZ_REPS_CIRCLE:	t.append("Asian");	break;
-	case FZ_REPS_CROSS:		t.append("Western"); break;
+	switch (User::controls.select) {
+	  case FZ_REPS_CIRCLE:	t.append("Asian");	break;
+	  case FZ_REPS_CROSS:		t.append("Western"); break;
 	}
-	optionItems.push_back(MenuItem(t, "Choose", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Choose", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	t = ("PDF - Fast images (zoom limited to 2x): ");
 	t += User::options.pdfFastScroll ? "Enabled" : "Disabled";
@@ -180,18 +166,18 @@ void MainMenu::buildOptionMenu() {
 			t += User::options.txtFont;
 		}
 	}
-	MenuItem mi = MenuItem(t, "Select font file", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL);
+	MenuItem mi = MenuItem(t, "Select font file", BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL);
 	mi.triangleLabel = "Use built-in font";
 	optionItems.push_back(mi);
 
 	char txt[1024];
 	snprintf(txt, 1024, "Plain text - Font size: %d pixels", User::options.txtSize);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	snprintf(txt, 1024, "Plain text - Line Height: %d Pct", User::options.txtHeightPct);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	t = "Plain text - Justify text: ";
 	t += User::options.txtJustify ? "Enabled" : "Disabled";
@@ -199,7 +185,7 @@ void MainMenu::buildOptionMenu() {
 
 	snprintf(txt, 1024, "Plain text - Wrap CRs: %d", User::options.txtWrapCR);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	/*char txt[1024];
 	snprintf(txt, 1024, "Plain text - Rotation: %d\260", User::options.txtRotation);
@@ -208,11 +194,11 @@ void MainMenu::buildOptionMenu() {
 
 	snprintf(txt, 1024, "Browser - Text size: %s", &Screen::browserTextSizes[User::options.browserTextSize]);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	snprintf(txt, 1024, "Browser - Display mode: %s", &Screen::browserDisplayModes[User::options.browserDisplayMode]);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	t = "Browser - Flash content: ";
 	t += User::options.browserEnableFlash ? "Enabled" : "Disabled";
@@ -220,7 +206,7 @@ void MainMenu::buildOptionMenu() {
 
 	snprintf(txt, 1024, "Browser - Interface mode: %s", &Screen::browserInterfaceModes[User::options.browserInterfaceMode]);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	t = "Browser - Exit confirmation: ";
 	t += User::options.browserConfirmExit ? "Enabled" : "Disabled";
@@ -231,7 +217,7 @@ void MainMenu::buildOptionMenu() {
 	optionItems.push_back(MenuItem(t, "Toggle", 0));
 
 	t = "Color schemes";
-	mi = MenuItem(t, "Choose", BK_MENU_ITEM_OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_USE_LR_ICON | BK_MENU_ITEM_COLOR_RECT);
+	mi = MenuItem(t, "Choose", BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL | BK_MENU_ITEM_FLAG::USE_LR_ICON | BK_MENU_ITEM_FLAG::COLOR_RECT);
 	mi.triangleLabel = "Manage schemes";
 	mi.bgcolor = User::options.colorSchemes[User::options.currentScheme].txtBGColor;
 	mi.fgcolor = User::options.colorSchemes[User::options.currentScheme].txtFGColor;
@@ -247,19 +233,19 @@ void MainMenu::buildOptionMenu() {
 
 	snprintf(txt, 1024, "CPU/Bus speed: %s", Screen::speedLabels[User::options.pspSpeed]);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 	snprintf(txt, 1024, "Menu speed: %s", Screen::speedLabels[User::options.pspMenuSpeed]);
 	t = txt;
-	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_USE_LR_ICON));
+	optionItems.push_back(MenuItem(t, "Change", BK_MENU_ITEM_FLAG::USE_LR_ICON));
 
 	optionItems.push_back(MenuItem("Clear bookmarks", "Select", 0));
 
 }
 
 int MainMenu::update(unsigned int buttons) {
-	if (mode == BKMM_CONTROLS) {
+	if (mode == Mode::CONTROLS) {
 		return updateControls(buttons);
-	} else if (mode == BKMM_OPTIONS) {
+	} else if (mode == Mode::OPTIONS) {
 		return updateOptions(buttons);
 	}
 	return updateMain(buttons);
@@ -280,13 +266,13 @@ int MainMenu::updateMain(unsigned int buttons) {
 		if (selItem == MAIN_MENU_ITEM_CONTROLS) {
 			selItem = 0;
 			topItem = 0;
-			mode = BKMM_CONTROLS;
+			mode = Mode::CONTROLS;
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == MAIN_MENU_ITEM_OPTIONS) {
 			selItem = 0;
 			topItem = 0;
-			mode = BKMM_OPTIONS;
+			mode = Mode::OPTIONS;
 			return BK_CMD_MARK_DIRTY;
 		}
 		if (selItem == MAIN_MENU_ITEM_ABOUT) {
@@ -342,6 +328,49 @@ int MainMenu::updateMain(unsigned int buttons) {
 	return 0;
 }
 
+void MainMenu::render() {
+	#ifdef DEBUG_RENDER
+    printf("mainmenu render\n");
+  #endif
+	string t("");
+	if (mode == Mode::MAIN) {
+		string title("Main Menu");
+		drawMenu(title, t, mainItems);
+		string e;
+		drawClockAndBattery(e);
+	} else if (mode == Mode::CONTROLS) {
+		string title("Customize controls");
+		drawMenu(title, t, controlItems);
+	} else if (mode == Mode::OPTIONS) {
+		string title("Options");
+		drawMenu(title, t, optionItems);
+	}
+	// if (captureButton) {
+	// 	texUI->bindForDisplay();
+	// 	Screen::ambientColor(0xf0dddddd);
+	// 	drawPill(150, 126, 180, 20, 6, 31, 1);
+	// 	fontBig->bindForDisplay();
+	// 	Screen::ambientColor(0xff222222);
+	// 	drawTextHC("Press the new button", fontBig, 130);
+	// }
+}
+
+string MainMenu::getPopupText() {
+	return popupText;
+}
+
+int MainMenu::getPopupMode() {
+	return popupMode;
+}
+
+void MainMenu::rebuildMenu() {
+	if (mode == Mode::CONTROLS) {
+		buildControlMenu();
+	} else if (mode == Mode::OPTIONS) {
+		buildOptionMenu();
+	}
+}
+
 static int buttonsHack = 0;
 int MainMenu::updateControls(unsigned int buttons) {
 	const int validMask = FZ_CTRL_UP | FZ_CTRL_RIGHT | FZ_CTRL_DOWN | FZ_CTRL_LEFT | FZ_CTRL_LTRIGGER |
@@ -392,7 +421,7 @@ int MainMenu::updateControls(unsigned int buttons) {
 	if (b[User::controls.cancel] == 1) {
 		selItem = 0;
 		topItem = 0;
-		mode = BKMM_MAIN;
+		mode = Mode::MAIN;
 		return BK_CMD_MARK_DIRTY;
 	}
 
@@ -499,7 +528,7 @@ int MainMenu::updateOptions(unsigned int buttons) {
 	if (b[User::controls.cancel] == 1) {
 		selItem = 0;
 		topItem = 0;
-		mode = BKMM_MAIN;
+		mode = Mode::MAIN;
 		User::save();
 		return BK_CMD_MARK_DIRTY;
 	}
@@ -507,7 +536,7 @@ int MainMenu::updateOptions(unsigned int buttons) {
 	if (b[User::controls.showMainMenu] == 1) {
 		selItem = 0;
 		topItem = 0;
-		mode = BKMM_MAIN;
+		mode = Mode::MAIN;
 		User::save();
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}
@@ -700,33 +729,6 @@ int MainMenu::updateOptions(unsigned int buttons) {
 
 
 	return 0;
-}
-
-void MainMenu::render() {
-	#ifdef DEBUG_RENDER
-    printf("mainmenu render\n");
-  #endif
-	string t("");
-	if (mode == BKMM_MAIN) {
-		string title("Main Menu");
-		drawMenu(title, t, mainItems);
-		string e;
-		drawClockAndBattery(e);
-	} else if (mode == BKMM_CONTROLS) {
-		string title("Customize controls");
-		drawMenu(title, t, controlItems);
-	} else if (mode == BKMM_OPTIONS) {
-		string title("Options");
-		drawMenu(title, t, optionItems);
-	}
-	// if (captureButton) {
-	// 	texUI->bindForDisplay();
-	// 	Screen::ambientColor(0xf0dddddd);
-	// 	drawPill(150, 126, 180, 20, 6, 31, 1);
-	// 	fontBig->bindForDisplay();
-	// 	Screen::ambientColor(0xff222222);
-	// 	drawTextHC("Press the new button", fontBig, 130);
-	// }
 }
 
 MainMenu* MainMenu::create() {

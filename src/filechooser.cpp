@@ -121,7 +121,7 @@ void FileChooser::render() {
 		int f = 0;
 		if (dirFiles[i].stat & FZ_STAT_IFDIR) {
 			cl = "Open folder";
-			f = BK_MENU_ITEM_FOLDER;
+			f = BK_MENU_ITEM_FLAG::FOLDER;
 		}
 		items.push_back(MenuItem(dirFiles[i].name, cl, f)); 
 	}
