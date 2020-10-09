@@ -10,35 +10,36 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
-#ifndef BKLOGO_H
-#define BKLOGO_H
+#ifndef BKPOPUP_H
+#define BKPOPUP_H
 
-#include "layer.hpp"
-#include "graphics/screen.hpp"
+#include "../graphics/screen.hpp"
+#include "../layer.hpp"
 
 using std::string;
 
 namespace bookr {
 
-class Logo : public Layer {
-	bool loading;
-	bool error;
+#define BKPOPUP_WARNING		1
+#define BKPOPUP_ERROR		2
+#define BKPOPUP_INFO		3
+
+class Popup : public Layer {
+	int mode;
 	string text;
 
 protected:
-	Logo();
-	~Logo();
+	Popup(int m, string t);	
+	~Popup();
 
 public:
 	virtual int update(unsigned int buttons);
 	virtual void render();
-	void setLoading(bool v);
-	void setError(bool err);
-	void setError(bool err, string message);
-
-	static Logo* create();
+	
+	static Popup* create(int m, string t);
 };
 
 }
 
 #endif
+

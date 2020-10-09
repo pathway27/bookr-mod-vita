@@ -23,9 +23,9 @@
 
 //#include "user.hpp"
 //#include "layer.hpp"
-#include "logo.hpp"
-#include "mainmenu.hpp"
-#include "popup.hpp"
+#include "ui/logo.hpp"
+#include "ui/mainmenu.hpp"
+#include "ui/popup.hpp"
 //#include "filechooser.hpp"
 
 namespace bookr {
@@ -40,9 +40,8 @@ static MainMenu *mm;                    // Main Menu, only opens when pressed st
 // Swapping buffers based on dirty variable feels dirty.
 static bool dirty = true;
 static bool exitApp = false;
-static int reloadTimer = 0;
 
-#include "debug_vita.hpp"
+#include "utils/debug_vita.hpp"
 
 void initalise(int argc, char *argv[]) {
   // #ifdef DEBUG

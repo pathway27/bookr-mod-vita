@@ -12,9 +12,9 @@
 
 #include <cstring>
 
-#include "graphics/screen.hpp"
+#include "../graphics/screen.hpp"
 #include "filechooser.hpp"
-#include "user.hpp"
+#include "../user.hpp"
 
 namespace bookr {
 

@@ -21,8 +21,8 @@
 #ifndef BKFILECHOOSER_H
 #define BKFILECHOOSER_H
 
-#include "graphics/screen.hpp"
-#include "layer.hpp"
+#include "../graphics/screen.hpp"
+#include "../layer.hpp"
 
 using std::string;
 

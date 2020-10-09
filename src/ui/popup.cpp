@@ -10,7 +10,7 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
-#include "graphics/fzscreen_defs.h"
+#include "../graphics/fzscreen_defs.h"
 #include "popup.hpp"
 
 #ifdef __vita__
@@ -20,8 +20,8 @@
   #include <glm/glm.hpp>
   #include <glm/gtc/matrix_transform.hpp>
   #include <glm/gtc/type_ptr.hpp>
-  #include "graphics/shader.hpp"
-  #include "resource_manager.hpp"
+  #include "../graphics/shader.hpp"
+  #include "../resource_manager.hpp"
 #endif
 
 #include <cstring>

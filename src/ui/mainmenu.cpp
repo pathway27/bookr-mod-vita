@@ -13,11 +13,11 @@
 #include <cstring>
 #include <mupdf/fitz/version.h>
 
-#include "graphics/screen.hpp"
-#include "graphics/controls.hpp"
+#include "../graphics/screen.hpp"
+#include "../graphics/controls.hpp"
 #include "mainmenu.hpp"
-#include "document.hpp"
-#include "bookmark.hpp"
+#include "../document.hpp"
+#include "../bookmark.hpp"
 #include "popup.hpp"
 #include "bookrconfig.h"
 
@@ -330,14 +330,14 @@ int MainMenu::updateMain(unsigned int buttons) {
 
 void MainMenu::render() {
 	#ifdef DEBUG_RENDER
-    printf("mainmenu render\n");
+    printf("MainMenu::render\n");
   #endif
 	string t("");
 	if (mode == Mode::MAIN) {
 		string title("Main Menu");
 		drawMenu(title, t, mainItems);
 		string e;
-		drawClockAndBattery(e);
+		// drawClockAndBattery(e);
 	} else if (mode == Mode::CONTROLS) {
 		string title("Customize controls");
 		drawMenu(title, t, controlItems);

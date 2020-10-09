@@ -115,10 +115,10 @@ set(COMMON_SRCS
   src/graphics/image.cpp
 
   src/graphics/instreammem.cpp
-  src/logo.cpp
-  src/mainmenu.cpp
-  src/popup.cpp
-  src/filechooser.cpp
+  src/ui/logo.cpp
+  src/ui/mainmenu.cpp
+  src/ui/popup.cpp
+  src/ui/filechooser.cpp
 )
 
 # TODO: Apparently this is bad

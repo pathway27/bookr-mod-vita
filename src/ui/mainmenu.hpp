@@ -13,8 +13,8 @@
 #ifndef BKMAINMENU_H
 #define BKMAINMENU_H
 
-#include "graphics/screen.hpp"
-#include "layer.hpp"
+#include "../graphics/screen.hpp"
+#include "../layer.hpp"
 
 using std::string;
 

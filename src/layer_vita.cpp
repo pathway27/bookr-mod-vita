@@ -15,17 +15,20 @@
 #include "graphics/controls.hpp"
 
 using std::make_pair;
+// using Texture::createFromBuffer;
 
 namespace bookr {
+
+// using namespace Screen;
 
 // Yeah, ok.
 #ifdef __vita__
   #define drawFontTextf(font, x, y, color, size, text, ...) vita2d_font_draw_textf(font->v_font, x, y, color, size, text, __VA_ARGS__)
 #else
-  #define drawFontTextf Screen::drawFontTextf
+  #define drawFontTextf drawFontTextf
 #endif
 
-#include "debug_vita.hpp"
+#include "utils/debug_vita.hpp"
 
 // need only one - UI font
 Font* Layer::fontBig = 0;
@@ -35,6 +38,7 @@ Texture* Layer::texUI = 0;
 Texture* Layer::texUI2 = 0;
 Texture* Layer::texLogo = 0;
 
+// const auto& createTexFromBuffer = Texture::createFromBuffer;
 map<string, Texture*> Layer::bk_icons;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
@@ -57,8 +61,13 @@ extern "C" {
   extern unsigned char _binary_data_icons_clock_png_start;
 
   extern unsigned char _binary_data_icons_circle_outline_png_start;
+  extern unsigned int _binary_data_icons_circle_outline_png_size;
+
   extern unsigned char _binary_data_icons_close_box_outline_png_start;
+  extern unsigned int _binary_data_icons_close_box_outline_png_size;
+
   extern unsigned char _binary_data_icons_triangle_outline_png_start;
+  extern unsigned int _binary_data_icons_triangle_outline_png_size;
 
   extern unsigned char _binary_data_icons_collections_bookmark_white_png_start;
   extern unsigned char _binary_data_icons_content_copy_white_png_start;
@@ -90,13 +99,13 @@ void Layer::load() {
   texLogo = Texture::createFromBuffer(&_binary_data_logos_icon0_t_png_start);
 
   // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
-  // bk_icons.insert(make_pair("bk_memory_icon", createTexFromBuffer(&_binary_data_icons_memory_png_start)));
-  // bk_icons.insert(make_pair("bk_battery_icon", createTexFromBuffer(&_binary_data_icons_battery_outline_png_start)));
-  // bk_icons.insert(make_pair("bk_clock_icon", createTexFromBuffer(&_binary_data_icons_clock_png_start)));
+  bk_icons.insert(make_pair("bk_memory_icon", Texture::createFromBuffer(&_binary_data_icons_memory_png_start)));
+  bk_icons.insert(make_pair("bk_battery_icon", Texture::createFromBuffer(&_binary_data_icons_battery_outline_png_start)));
+  bk_icons.insert(make_pair("bk_clock_icon", Texture::createFromBuffer(&_binary_data_icons_clock_png_start)));
 
-  // bk_icons.insert(make_pair("bk_circle_icon", createTexFromBuffer(&_binary_data_icons_circle_outline_png_start)));
-  // bk_icons.insert(make_pair("bk_cross_icon", createTexFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
-  // bk_icons.insert(make_pair("bk_triangle_icon", createTexFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
+  bk_icons.insert(make_pair("bk_circle_icon", Texture::createFromBuffer(&_binary_data_icons_circle_outline_png_start)));
+  bk_icons.insert(make_pair("bk_cross_icon", Texture::createFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
+  bk_icons.insert(make_pair("bk_triangle_icon", Texture::createFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
 
   // bk_icons.insert(make_pair("bk_bookmark_icon", createTexFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
   // bk_icons.insert(make_pair("bk_copy_icon", createTexFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
@@ -116,8 +125,8 @@ void Layer::load() {
   // bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
   // bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
 
-  // fontBig = Font::createFromMemory(res_uifont, size_res_uifont);
-  // fontSmall = Font::createFromMemory(res_uifont, size_res_uifont);
+  fontBig = Font::createFromMemory(res_uifont, size_res_uifont);
+  fontSmall = Font::createFromMemory(res_uifont, size_res_uifont);
 }
 
 void Layer::unload(){
@@ -264,25 +273,34 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
     case FZ_REPS_CROSS:
       Screen::drawTextureScale(bk_icons["bk_cross_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+      printf("cross\n");
       break;
     case FZ_REPS_CIRCLE:
-      Screen::drawTextureScale(bk_icons["bk_circle_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
-        DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+      // Screen::drawTextureScale(bk_icons["bk_circle_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
+      //   DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+      printf("circle\n");
     default:
       break;
   }
 
   //title
   // (255, 255, 255, 255)
+  printf("cross 1\n");
   Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
+  printf("cross 2\n");
 
   // triangle labels
-  if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL)) {
-    Screen::drawTextureScale(bk_icons["bk_triangle_icon"], DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
-      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
-    Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X + 60,
-      DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, triangleLabel.c_str());
-  }
+  // try {
+  //   if (triangleLabel.size() > 0 || (flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL)) {
+  //     // Screen::drawTextureScale(bk_icons["bk_triangle_icon"], DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y + 7, 
+  //     //   DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+  //     printf("triangle\n");
+  //     Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X + 60,
+  //       DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, triangleLabel.c_str());
+  //   }
+  // } catch (const std::exception& e) {
+  //   printf("triangle %s\n", e.what());
+  // }
 }
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items) {
@@ -294,15 +312,14 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   Screen::drawText(300, 83, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
 }
 
-#define DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y DIALOG_TITLE_OFFSET_Y + DIALOG_ITEM_HEIGHT + 15
-#define DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
-#define DIALOGBK_MENU_ITEM_FLAG::HEIGHT 40
+#define DIALOG_MENU_FIRST_ITEM_OFFSET_Y DIALOG_TITLE_OFFSET_Y + DIALOG_ITEM_HEIGHT + 15
+#define DIALOG_MENU_ITEM_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
+#define DIALOG_MENU_ITEM_HEIGHT 40
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
-  int maxItemNum = 8;
+int maxItemNum = 8;
   int selPos = selItem - topItem;
-  Font* itemFont;
-  itemFont = fontBig;
+  Font* itemFont = fontBig;
 
   if (selPos < 0) {
     topItem += selPos;
@@ -321,15 +338,15 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     tl = items[selItem].triangleLabel;
   }
   #ifdef DEBUG_RENDER
-    printf("drawmenu\n");
+    printf("Layer::drawMenu\n");
   #endif
   drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
   // selectedItem
   int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
   Screen::drawRectangle(DIALOG_ITEM_OFFSET_X,
-    (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOGBK_MENU_ITEM_FLAG::HEIGHT)),
-    wSelBox, DIALOGBK_MENU_ITEM_FLAG::HEIGHT, COLOR_WHITE);
+    (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOG_MENU_ITEM_HEIGHT)),
+    wSelBox, DIALOG_MENU_ITEM_HEIGHT, COLOR_WHITE);
 
   // check if folder
 
@@ -343,16 +360,16 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     trel *= 73.0f;
 
     Screen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
-      DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y,
+      DIALOG_MENU_FIRST_ITEM_OFFSET_Y,
       40,
-      DIALOG_CONTEXT_OFFSET_Y - DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y - 200 - 30,
-    0xff555555);
+      DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - 30,
+      0xff555555);
 
     Screen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
-      DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + int(trel),
+      DIALOG_MENU_FIRST_ITEM_OFFSET_Y + int(trel),
       40,
-      DIALOG_CONTEXT_OFFSET_Y - DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y - 200 - int(barh),
-    0xffaaaaaa);
+      DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - int(barh),
+      0xffaaaaaa);
   }
 
 
@@ -361,12 +378,12 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
       break;
 
     if ((i + topItem) == selItem)
-      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X,
-        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_FLAG::HEIGHT) - 10),
+      Screen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
+        (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
         COLOR_BLACK, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
     else
-      Screen::drawFontText(fontBig, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X,
-        (DIALOGBK_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOGBK_MENU_ITEM_FLAG::HEIGHT) - 10),
+      Screen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
+        (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
         COLOR_WHITE, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
   }
 }
@@ -439,45 +456,44 @@ void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
 #define DIALOG_ICON_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 35
 #define DIALOG_ICON_TEXT_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 10
 
-
 void Layer::drawClockAndBattery(string& extra) {
   // int ew = textW((char*)extra.c_str(), fontSmall);
-  Screen::drawFontText(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 565,
+  Screen::drawFontText(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_TEXT_OFFSET_Y - 45,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, extra.c_str());
 
   // cpu speed
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 255,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 255,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dMHz", Screen::getSpeed());
 
   // cpu icon
-  Screen::drawTextureTintScale(bk_icons["bk_memory_icon"], DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 345, 
+  Screen::drawTextureTintScale(bk_icons["bk_memory_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 345, 
     DIALOG_ICON_OFFSET_Y, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // memory usage
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 395,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 395,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", Screen::getUsedMemory() / 1024);
 
   // battery icon
-  Screen::drawTextureTintScaleRotate(bk_icons["bk_battery_icon"], DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 485,
+  Screen::drawTextureTintScaleRotate(bk_icons["bk_battery_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 485,
     DIALOG_ICON_OFFSET_Y + 17, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE,
     DEG_TO_RAD(90), DIALOG_ICON_COLOR);
 
   // battery %
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 510,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 510,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%d%%", Screen::getBattery());
 
   // clock icon
-  Screen::drawTextureTintScale(bk_icons["bk_clock_icon"], DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 565,
+  Screen::drawTextureTintScale(bk_icons["bk_clock_icon"], DIALOG_MENU_ITEM_TEXT_OFFSET_X + 565,
     DIALOG_ICON_OFFSET_Y + 5, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // time text
   int h = 0, m = 0;
   Screen::getTime(h, m);
-  drawFontTextf(fontSmall, DIALOGBK_MENU_ITEM_FLAG::TEXT_OFFSET_X + 600,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 600,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%02d:%02d", h, m);
 }

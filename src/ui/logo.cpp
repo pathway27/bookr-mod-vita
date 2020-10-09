@@ -18,18 +18,18 @@
   #include <glm/gtc/matrix_transform.hpp>
   #include <glm/gtc/type_ptr.hpp>
 
-  #include "resource_manager.hpp"
+  #include "../resource_manager.hpp"
 #endif
 
 #include <cstring>
 #include <iostream>
 
-#include "graphics/fzscreen_defs.h"
+#include "../graphics/fzscreen_defs.h"
 #include "logo.hpp"
 
 namespace bookr {
 
-#include "debug_vita.hpp"
+#include "../utils/debug_vita.hpp"
 
 static unsigned int VBO, VAO, EBO, texture;
 static int width, height, nrChannels;
@@ -73,11 +73,11 @@ static const unsigned int CENTER_Y = (Screen::HEIGHT / 2) - (LOGO_SIZE / 2);
 
 void Logo::render() {
   #ifdef DEBUG_RENDER
-    printf("bklogo render");
+    printf("bklogo render\n");
   #endif
 
   #ifdef __vita__
-    drawTexture(texLogo, CENTER_X, CENTER_Y);
+    Screen::drawTexture(texLogo, CENTER_X, CENTER_Y);
   #else
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);

@@ -90,42 +90,61 @@ void open(int argc, char** argv) {
   loadShaders();
 }
 
+static volatile int last_key = 0;
 static bool stickyKeys = false;
 static int breps[16];
-static void updateReps(int keyState) {
-  if (stickyKeys && keyState == 0) {
-    stickyKeys = false;
-  }
+static void updateReps(int keyState, int action) {
+  cout << "updatereps stickyKeys " << stickyKeys << endl;
+  // if (stickyKeys && keyState == 0) {
+  //   stickyKeys = false;
+  // }
   // if (stickyKeys) {
   //   memset((void*)breps, 0, sizeof(int)*16);
   //   return;
   // }
-  cout << "updatereps keystate " << keyState << endl;
+  cout << "updatereps keystate " << last_key << endl;
 
-  if (keyState == GLFW_KEY_LEFT_SHIFT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
-  if (keyState == GLFW_KEY_ENTER  ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
-  if (keyState == GLFW_KEY_W  ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
-  if (keyState == GLFW_KEY_D  ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
-  if (keyState == GLFW_KEY_S  ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
-  if (keyState == GLFW_KEY_A  ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
-  if (keyState == GLFW_KEY_Q  ) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
-  if (keyState == GLFW_KEY_E  ) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
-  if (keyState == GLFW_KEY_I  ) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
-  if (keyState == GLFW_KEY_L  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
-  if (keyState == GLFW_KEY_M  ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
-  if (keyState == GLFW_KEY_J  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
-  if (keyState == GLFW_KEY_T  ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
-  if (keyState == GLFW_KEY_V  ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
-  if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
+  if (action == GLFW_PRESS) {
+    if (keyState == GLFW_KEY_LEFT_SHIFT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
+    if (keyState == GLFW_KEY_ENTER  ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+    if (keyState == GLFW_KEY_W  ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
+    if (keyState == GLFW_KEY_D  ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
+    if (keyState == GLFW_KEY_S  ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
+    if (keyState == GLFW_KEY_A  ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
+    if (keyState == GLFW_KEY_Q  ) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
+    if (keyState == GLFW_KEY_E  ) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
+    if (keyState == GLFW_KEY_I  ) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
+    if (keyState == GLFW_KEY_L  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
+    if (keyState == GLFW_KEY_M  ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
+    if (keyState == GLFW_KEY_J  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
+    if (keyState == GLFW_KEY_T  ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
+    if (keyState == GLFW_KEY_V  ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
+    if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
+  } else if (action == GLFW_RELEASE) {
+    if (keyState == GLFW_KEY_LEFT_SHIFT  ) breps[FZ_REPS_SELECT  ]--; else breps[FZ_REPS_SELECT  ] = 0;
+    if (keyState == GLFW_KEY_ENTER  ) breps[FZ_REPS_START   ]--; else breps[FZ_REPS_START   ] = 0;
+    if (keyState == GLFW_KEY_W  ) breps[FZ_REPS_UP      ]--; else breps[FZ_REPS_UP      ] = 0;
+    if (keyState == GLFW_KEY_D  ) breps[FZ_REPS_RIGHT   ]--; else breps[FZ_REPS_RIGHT   ] = 0;
+    if (keyState == GLFW_KEY_S  ) breps[FZ_REPS_DOWN    ]--; else breps[FZ_REPS_DOWN    ] = 0;
+    if (keyState == GLFW_KEY_A  ) breps[FZ_REPS_LEFT    ]--; else breps[FZ_REPS_LEFT    ] = 0;
+    if (keyState == GLFW_KEY_Q  ) breps[FZ_REPS_LTRIGGER]--; else breps[FZ_REPS_LTRIGGER] = 0;
+    if (keyState == GLFW_KEY_E  ) breps[FZ_REPS_RTRIGGER]--; else breps[FZ_REPS_RTRIGGER] = 0;
+    if (keyState == GLFW_KEY_I  ) breps[FZ_REPS_TRIANGLE]--; else breps[FZ_REPS_TRIANGLE] = 0;
+    if (keyState == GLFW_KEY_L  ) breps[FZ_REPS_CIRCLE  ]--; else breps[FZ_REPS_CIRCLE  ] = 0;
+    if (keyState == GLFW_KEY_M  ) breps[FZ_REPS_CROSS   ]--; else breps[FZ_REPS_CROSS   ] = 0;
+    if (keyState == GLFW_KEY_J  ) breps[FZ_REPS_SQUARE  ]--; else breps[FZ_REPS_SQUARE  ] = 0;
+    if (keyState == GLFW_KEY_T  ) breps[FZ_REPS_HOME    ]--; else breps[FZ_REPS_HOME    ] = 0;
+    if (keyState == GLFW_KEY_V  ) breps[FZ_REPS_HOLD    ]--; else breps[FZ_REPS_HOLD    ] = 0;
+    if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]--; else breps[FZ_REPS_NOTE    ] = 0;
+  }
 }
 
-static volatile int keyState;
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  keyState = key;
-  updateReps(key);
+  last_key = key;
+  updateReps(key, action);
 
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -133,7 +152,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int readCtrl() {
   glfwWaitEvents();
-  return keyState;
+  // glfwPollEvents();
+  return last_key;
 }
 
 void resetReps() {

@@ -25,7 +25,7 @@
 #include "controls.hpp"
 
 // TODO:
-#include "../debug_vita.hpp"
+#include "../utils/debug_vita.hpp"
 
 namespace bookr { namespace Screen {
 
@@ -64,7 +64,9 @@ void open(int argc, char** argv) {
 
   setupCallbacks();
 
-  vita2d_init();
+  // #define DEFAULT_TEMP_POOL_SIZE		(1 * 1024 * 1024)
+
+  vita2d_init_advanced(2 * 1024 * 1024);
   vita2d_set_clear_color(RGBA8(255, 255, 255, 255));
 
   pgf = vita2d_load_default_pgf();
@@ -322,8 +324,8 @@ void drawFontText(Font *font, int x, int y, unsigned int color, unsigned int siz
   vita2d_font_draw_text(font->v_font, x, y, color, size, text);
 }
 
-void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale) {
-  vita2d_draw_texture_scale(texture->vita_texture, x, y);
+void drawTexture(const Texture *texture, float x, float y) {
+  vita2d_draw_texture(texture->vita_texture, x, y);
 }
 
 void drawTextureScale(const Texture *texture, float x, float y, float x_scale, float y_scale) {
@@ -337,8 +339,6 @@ void drawTextureTintScale(const Texture *texture, float x, float y, float x_scal
 void drawTextureTintScaleRotate(const Texture *texture, float x, float y, float x_scale, float y_scale, float rad, unsigned int color) {
   vita2d_draw_texture_tint_scale_rotate(texture->vita_texture, x, y, x_scale, y_scale, rad, color);
 }
-
-
 
 /*  Active Shader
     bind correct vertex array
