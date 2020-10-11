@@ -79,8 +79,8 @@
 
 namespace bookr { namespace Screen {
 
-const unsigned int WIDTH = 1280;
-const unsigned int HEIGHT = 720;
+unsigned int WIDTH = 1280;
+unsigned int HEIGHT = 720;
 
 static EGLDisplay s_display;
 static EGLContext s_context;

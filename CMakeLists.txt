@@ -37,7 +37,7 @@ ENDIF()
 project(bookr-mod-vita)
 
 execute_process(
-  COMMAND git describe --long
+  COMMAND git describe --tags
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   OUTPUT_VARIABLE GIT_VERSION
 )

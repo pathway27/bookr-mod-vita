@@ -66,7 +66,7 @@ void open(int argc, char** argv) {
 
   // #define DEFAULT_TEMP_POOL_SIZE		(1 * 1024 * 1024)
 
-  vita2d_init_advanced(2 * 1024 * 1024);
+  vita2d_init_advanced(8 * 1024 * 1024);
   vita2d_set_clear_color(RGBA8(255, 255, 255, 255));
 
   pgf = vita2d_load_default_pgf();
