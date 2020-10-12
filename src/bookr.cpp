@@ -79,6 +79,7 @@ void mainloop() {
     }
 
     int buttons = Screen::readCtrl();
+    std::cout << "mainloop buttons " << buttons << std::endl;
     dirty = buttons != 0;
 
 
@@ -161,21 +162,21 @@ static void command_handler(int command) {
         // repaint
         dirty = true;
       }
+      break;
     }
-    break;
     case BK_CMD_INVOKE_MENU:
     {
       mm = MainMenu::create();
       layers.push_back(mm);
+      break;
     }
-    break;
     case BK_CMD_MAINMENU_POPUP:
     {
       layers.push_back(Popup::create(
           mm->getPopupMode(),
           mm->getPopupText()));
+      break;
     }
-    break;
     case BK_CMD_EXIT:
     {
       exitApp = true;
