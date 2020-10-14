@@ -50,6 +50,7 @@ public:
     static SpriteRenderer* CreateSpriteRenderer(Shader shader);
 
     static TextRenderer* getTextRenderer();
+    static bool setTextRenderer(TextRenderer* default_text_renderer);
     static TextRenderer* CreateTextRenderer(int width, int height);
 private:
     // Private constructor, that is we do not want any actual resource manager objects. Its members and functions should be publicly available (static).

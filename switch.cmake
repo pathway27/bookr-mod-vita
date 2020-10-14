@@ -92,6 +92,6 @@ switch_create_nro(bookr-modern bookr-modern)
 
 # From VitaShell
 add_custom_target(send
-  COMMAND nxlink -a $(SWITCHIP) bookr-modern.nro
+  COMMAND nxlink -s -a $(SWITCHIP) bookr-modern.nro
   DEPENDS bookr-modern
 )

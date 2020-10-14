@@ -174,6 +174,15 @@ TextRenderer* ResourceManager::getTextRenderer()
     return ui_text_renderer;
 }
 
+bool ResourceManager::setTextRenderer(TextRenderer* default_text_renderer)
+{
+    if (ui_text_renderer == nullptr) {
+        ui_text_renderer = default_text_renderer;
+        return true;
+    }
+    return false;
+}
+
 TextRenderer* ResourceManager::CreateTextRenderer(int width, int height)
 {
     if (ui_text_renderer == nullptr) {

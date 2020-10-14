@@ -94,7 +94,7 @@ static void sceneRender();
 void open(int argc, char **argv)
 {
   #ifdef DEBUG
-    printf("screen::open\n");
+    printf("Screen::open\n");
     // Set mesa configuration (useful for debugging)
     // setMesaConfig();
   #endif
@@ -133,7 +133,6 @@ void open(int argc, char **argv)
     swapBuffers();
   }
 }
-
 
 //-----------------------------------------------------------------------------
 // EGL initialization
@@ -236,111 +235,26 @@ static void deinitEgl()
 }
 
 static const char *const vertexShaderSource = R"text(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aColor;
-    out vec3 ourColor;
-    void main()
-    {
-        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-        ourColor = aColor;
-    }
+  #version 330 core
+  layout (location = 0) in vec3 aPos;
+  layout (location = 1) in vec3 aColor;
+  out vec3 ourColor;
+  void main()
+  {
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    ourColor = aColor;
+  }
 )text";
 
 static const char *const fragmentShaderSource = R"text(
-    #version 330 core
-    in vec3 ourColor;
-    out vec4 fragColor;
-    void main()
-    {
-        fragColor = vec4(ourColor, 1.0f);
-    }
+  #version 330 core
+  in vec3 ourColor;
+  out vec4 fragColor;
+  void main()
+  {
+    fragColor = vec4(ourColor, 1.0f);
+  }
 )text";
-
-static GLuint createAndCompileShader(GLenum type, const char *source)
-{
-  GLint success;
-  GLchar msg[512];
-
-  GLuint handle = glCreateShader(type);
-  if (!handle)
-  {
-    TRACE("%u: cannot create shader", type);
-    return 0;
-  }
-  glShaderSource(handle, 1, &source, nullptr);
-  glCompileShader(handle);
-  glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
-
-  if (!success)
-  {
-    glGetShaderInfoLog(handle, sizeof(msg), nullptr, msg);
-    TRACE("%u: %s\n", type, msg);
-    glDeleteShader(handle);
-    return 0;
-  }
-
-  return handle;
-}
-
-static GLuint s_program;
-static GLuint s_vao, s_vbo;
-
-static void sceneInit()
-{
-  GLint vsh = createAndCompileShader(GL_VERTEX_SHADER, vertexShaderSource);
-  GLint fsh = createAndCompileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
-
-  s_program = glCreateProgram();
-  glAttachShader(s_program, vsh);
-  glAttachShader(s_program, fsh);
-  glLinkProgram(s_program);
-
-  GLint success;
-  glGetProgramiv(s_program, GL_LINK_STATUS, &success);
-  if (!success)
-  {
-    char buf[512];
-    glGetProgramInfoLog(s_program, sizeof(buf), nullptr, buf);
-    TRACE("Link error: %s", buf);
-  }
-  glDeleteShader(vsh);
-  glDeleteShader(fsh);
-
-  struct Vertex
-  {
-    float position[3];
-    float color[3];
-  };
-
-  static const Vertex vertices[] =
-      {
-          {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-          {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-          {{0.0f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-      };
-
-  glGenVertexArrays(1, &s_vao);
-  glGenBuffers(1, &s_vbo);
-  // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-  glBindVertexArray(s_vao);
-
-  glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
-  glEnableVertexAttribArray(0);
-
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, color));
-  glEnableVertexAttribArray(1);
-
-  // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-  // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-  glBindVertexArray(0);
-}
 
 static TextRenderer* ui_text_renderer;
 static void sceneRender()
@@ -361,63 +275,57 @@ static void sceneRender()
   ui_text_renderer->RenderText("Testing:", 5.0f, 5.0f, 1.0f, glm::vec3(0.0f,0.0f,0.0f));
 }
 
-static void sceneExit()
-{
-  glDeleteBuffers(1, &s_vbo);
-  glDeleteVertexArrays(1, &s_vao);
-  glDeleteProgram(s_program);
-}
-
 static void loadShaders() {
-    ResourceManager::LoadShader((const char*)textures_vert, (const char*)textures_frag, nullptr, "sprite", false,
-      textures_vert_size, textures_frag_size);
-    ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
+  ResourceManager::LoadShader((const char*)textures_vert, (const char*)textures_frag, nullptr, "sprite", false, textures_vert_size, textures_frag_size);
+  ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
 
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WIDTH), static_cast<GLfloat>(HEIGHT), 0.0f, -1.0f, 1.0f);
-    // glm::mat4 projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
+  glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WIDTH), static_cast<GLfloat>(HEIGHT), 0.0f, -1.0f, 1.0f);
 
-    ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
-    ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
-    
-    ResourceManager::LoadTexture((const char*)icon0_t_png, GL_TRUE, "logo", false, icon0_t_png_size);
+  // ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
+  ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
+  
+  ResourceManager::LoadTexture((const char*)icon0_t_png, GL_TRUE, "logo", false, icon0_t_png_size);
 
-    // text
-    ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,
-      text_vert_size, text_frag_size);
+  // text
+  ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,
+    text_vert_size, text_frag_size);
 
-    ui_text_renderer = new TextRenderer(ResourceManager::GetShader("text"), static_cast<GLfloat>(WIDTH), static_cast<GLfloat>(HEIGHT));
+  ui_text_renderer = new TextRenderer(ResourceManager::GetShader("text"), static_cast<GLfloat>(WIDTH), static_cast<GLfloat>(HEIGHT));
 
-    // u8 a[]         -> char*          ; const
-    // const FT_Byte* -> unsigned char*
+  std::string noto_font((const char *)NotoSans_Regular_ttf, NotoSans_Regular_ttf_size);
+  ui_text_renderer->Load(noto_font, 24, true);
 
-    // std::string noto_font(reinterpret_cast<const char*>(NotoSans_Regular_ttf), NotoSans_Regular_ttf_size);
-    std::string noto_font((const char *)NotoSans_Regular_ttf, NotoSans_Regular_ttf_size);
-    ui_text_renderer->Load(noto_font, 24, true);
+  ResourceManager::setTextRenderer(ui_text_renderer);
 }
 
 int setupCallbacks(void) {
   return 0;
 }
 
-static void initalDraw() {
-  sceneInit();
-}
-
-
 void close() {
-  // Deinitialize our scene
-  sceneExit();
+  #ifdef DEBUG
+    printf("Screeh::close\n");
+  #endif
 
   // Deinitialize EGL
   deinitEgl();
 }
 
 void exit() {
-
+  #ifdef DEBUG
+    printf("Screeh::exit\n");
+  #endif
 }
 
 void drawText(int x, int y, unsigned int color, float scale, const char *text) {
+  ui_text_renderer->RenderText(std::string(text), x, y, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+}
 
+void drawRectangle(float x, float y, float w, float h, unsigned int color) {
+  ResourceManager::getSpriteRenderer()->DrawQuad(
+        glm::vec2(x, y),
+        glm::vec2(w, h),
+        0.0f, glm::vec4(170/255.0, 170/255.0, 170/255.0, 255/255.0));
 }
 
 void drawFontTextf(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...) {
@@ -463,7 +371,6 @@ static void normalizeControls(u64 kDown, u64 kHeld, u64 kUp)
   }
 }
 
-
 void resetReps() {
 
 }
@@ -499,13 +406,12 @@ void startDirectList() {
 
 }
 
-void endAndDisplayList() {
-
-}
-
-
 void swapBuffers() {
   eglSwapBuffers(s_display, s_surface);
+}
+
+void endAndDisplayList() {
+
 }
 
 void waitVblankStart() {
@@ -544,10 +450,6 @@ struct T32FV32F2D {
 };
 
 void setBoundTexture(Texture *t) {
-
-}
-
-void drawRectangle(float x, float y, float w, float h, unsigned int color) {
 
 }
 
