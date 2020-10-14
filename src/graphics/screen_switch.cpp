@@ -336,39 +336,33 @@ void setTextSize(float x, float y) {
 
 }
 
+static u64 last_kDown = 0;
+static u64 last_kHeld = 0;
+static u64 last_kUp = 0;
+
 static bool stickyKeys = false;
-
 static int breps[16];
-static void updateReps(int keyState) {
-  if (stickyKeys && keyState == 0) {
-    stickyKeys = false;
-  }
-  if (stickyKeys) {
-    memset((void*)breps, 0, sizeof(int)*16);
-    return;
-  }
-  if (keyState & FZ_CTRL_SELECT  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
-  if (keyState & FZ_CTRL_START   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
-  if (keyState & FZ_CTRL_UP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
-  if (keyState & FZ_CTRL_RIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
-  if (keyState & FZ_CTRL_DOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
-  if (keyState & FZ_CTRL_LEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
-  if (keyState & FZ_CTRL_LTRIGGER) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
-  if (keyState & FZ_CTRL_RTRIGGER) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
-  if (keyState & FZ_CTRL_TRIANGLE) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
-  if (keyState & FZ_CTRL_CIRCLE  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
-  if (keyState & FZ_CTRL_CROSS   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
-  if (keyState & FZ_CTRL_SQUARE  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
-  if (keyState & FZ_CTRL_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
-  if (keyState & FZ_CTRL_HOLD    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
-  if (keyState & FZ_CTRL_NOTE    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
-}
-
-static void normalizeControls(u64 kDown, u64 kHeld, u64 kUp)
-{
-  switch (kDown) {
-    // case GLFW_KEY_H: keyState |= FZ_CTRL_HOLD;break;
-  }
+static void updateReps(u64 kDown, u64 kHeld, u64 kUp) {
+  // hidScanInput();
+  // u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+  // if (kDown & KEY_PLUS)
+  //   break;
+  
+  if (kDown & KEY_MINUS  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
+  if (kDown & KEY_DLEFT   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+  if (kDown & KEY_DUP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
+  if (kDown & KEY_DRIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
+  if (kDown & KEY_DDOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
+  if (kDown & KEY_DLEFT    ) breps[FZ_REPS_LEFT    ]++; else breps[FZ_REPS_LEFT    ] = 0;
+  if (kDown & KEY_L) breps[FZ_REPS_LTRIGGER]++; else breps[FZ_REPS_LTRIGGER] = 0;
+  if (kDown & KEY_R) breps[FZ_REPS_RTRIGGER]++; else breps[FZ_REPS_RTRIGGER] = 0;
+  if (kDown & KEY_X) breps[FZ_REPS_TRIANGLE]++; else breps[FZ_REPS_TRIANGLE] = 0;
+  if (kDown & KEY_A  ) breps[FZ_REPS_CIRCLE  ]++; else breps[FZ_REPS_CIRCLE  ] = 0;
+  if (kDown & KEY_B   ) breps[FZ_REPS_CROSS   ]++; else breps[FZ_REPS_CROSS   ] = 0;
+  if (kDown & KEY_Y  ) breps[FZ_REPS_SQUARE  ]++; else breps[FZ_REPS_SQUARE  ] = 0;
+  if (kDown & KEY_HOME    ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
+  if (kDown & KEY_CAPTURE    ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
+  if (kDown & KEY_ZL    ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
 }
 
 void resetReps() {
@@ -391,7 +385,15 @@ int readCtrl() {
   //hidKeysUp returns information about which buttons have been just released
   u64 kUp = hidKeysUp(CONTROLLER_P1_AUTO);
 
-  normalizeControls(kDown, kHeld, kUp);
+  updateReps(kDown, kHeld, kUp);
+  // || kHeld != last_kHeld || kUp != last_kUp
+  bool rerender = (kDown != last_kDown);
+
+  last_kDown = kDown;
+  // last_kHeld = kHeld;
+  // last_kUp = kUp;
+
+  return rerender;
 }
 
 void getAnalogPad(int& x, int& y) {

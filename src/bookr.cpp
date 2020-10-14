@@ -79,7 +79,9 @@ void mainloop() {
     }
 
     int buttons = Screen::readCtrl();
-    std::cout << "mainloop buttons " << buttons << std::endl;
+    #ifdef DEBUG_BUTTONS
+      std::cout << "mainloop buttons " << buttons << std::endl;
+    #endif
     dirty = buttons != 0;
 
 
@@ -107,8 +109,10 @@ void mainloop() {
       printf("post update-buttons\n");
     #endif
     // dont proc events while in the reload timer
-    std::cout << "mainloop command: " << command << std::endl;
 
+    #ifdef DEBUG_BUTTONS
+      std::cout << "mainloop command: " << command << std::endl;
+    #endif
     // // pusedo message passing
     // command_handler(command);
 
