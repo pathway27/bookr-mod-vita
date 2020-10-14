@@ -47,6 +47,9 @@ void Layer::load() {
 }
 
 void Layer::unload(){
+  #ifdef DEBUG
+    printf("bklayer unload\n");
+  #endif
 }
 
 struct T32FV32F2D {
@@ -623,22 +626,7 @@ static int countLines(string& t) {
 }
 
 void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
-  //texUI->bindForDisplay();
-  int l = countLines(text);
-  // // icons
-  // Screen::ambientColor(bg1|0xff000000);
-  // // drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
-  // switch (User::controls.select) {
-  // case FZ_REPS_CIRCLE:
-  // 	drawImage(410, 9 + y, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-  // 	break;
-  // case FZ_REPS_CROSS:
-  // default:
-  // 	drawImage(410, 9 + y, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
-  // 	break;
-  // }
-
-  //fontBig->bindForDisplay();
+  // TODO: Remove
 }
 
 void Layer::drawClockAndBattery(string& extra) {

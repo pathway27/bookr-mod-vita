@@ -406,40 +406,7 @@ static int countLines(string& t) {
 }
 
 void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {  
-  int l = countLines(text);
-
-  int h = 22 + (22*l);
-  int y;
-  if (h >= 544)
-    y = 0;
-  else
-    y = (544 - h) / 2;
-
-  // back
-  Screen::drawRectangle(80, y, 960 - 156, h, bg1);
-
-  // title
-  Screen::drawRectangle(90, 10 + y, 960 - 176, 30, bg2);
-
-
-  // // icons
-  // Screen::ambientColor(bg1|0xff000000);
-  // // drawImage(410, 9 + y, _IMG_CIRCLE_XSIZE, _IMG_CIRCLE_YSIZE, _IMG_CIRCLE_X, _IMG_CIRCLE_Y);
-  // switch (User::controls.select) {
-  // case FZ_REPS_CIRCLE:
-  // 	drawImage(410, 9 + y, _IMG_CROSS_XSIZE, _IMG_CROSS_YSIZE, _IMG_CROSS_X, _IMG_CROSS_Y);
-  // 	break;
-  // case FZ_REPS_CROSS:
-  // default:
-  // 	drawImage(410, 9 + y, _IMG_CIRCLE_XSIZE, _IMG_CIRCLE_YSIZE, _IMG_CIRCLE_X, _IMG_CIRCLE_Y);
-  // 	break;
-  // }
-
-  //fontBig->bindForDisplay();
-
-
-  Screen::drawText(102, y + 30, fg, 1.0f, title.c_str());
-  Screen::drawText(102, y + 65, fg, 1.0f, text.c_str());
+  // TODO: Remove
 }
 
 #define _PI_OVER_180 0.0174532925199432957692369076849f

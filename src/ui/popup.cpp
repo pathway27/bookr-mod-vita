@@ -69,7 +69,16 @@ void Popup::render() {
 		fg = 0xffffffff;
 		title = "Error";
 	}
-	drawPopup(text, title, bg1, bg2, fg);
+
+  // back
+  drawRectangle(Screen::WIDTH * 0.15, Screen::HEIGHT * 0.15, Screen::WIDTH * 0.70, Screen::HEIGHT * 0.80, bg1);
+
+  // title
+  drawRectangle(Screen::WIDTH * 0.16, Screen::HEIGHT * 0.17, Screen::WIDTH * 0.68, Screen::HEIGHT * 0.05, bg2);
+  drawText(Screen::WIDTH * 0.17, Screen::HEIGHT * 0.18, fg, 1.0f, title.c_str());
+
+	// body
+  drawText(Screen::WIDTH * 0.17, Screen::HEIGHT * 0.25, fg, 1.0f, text.c_str());
 }
 
 Popup* Popup::create(int m, string t) {

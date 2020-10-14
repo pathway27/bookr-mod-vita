@@ -22,12 +22,16 @@
 #include "bookrconfig.h"
 
 // Main menu layout
-#define MAIN_MENU_ITEM_OPEN_FILE				0
-#define MAIN_MENU_ITEM_BROWSE_CACHE				1
-#define MAIN_MENU_ITEM_CONTROLS					2
-#define MAIN_MENU_ITEM_OPTIONS					3
-#define MAIN_MENU_ITEM_ABOUT					4
-#define MAIN_MENU_ITEM_EXIT						5
+
+// Matching array index with these
+enum MAIN_MENU_ITEM {
+	OPEN_FILE,
+	// MAIN_MENU_ITEM_BROWSE_CACHE
+	CONTROLS,
+	OPTIONS,
+	ABOUT,
+	EXIT
+};
 
 // Controls menu layout
 #define CONTROLS_MENU_ITEM_RESTORE_DEFAULTS		0
@@ -257,25 +261,40 @@ int MainMenu::updateMain(unsigned int buttons) {
 	int* b = Screen::ctrlReps();
 
 	if (b[User::controls.select] == 1) {
-		if (selItem == MAIN_MENU_ITEM_OPEN_FILE) {
+		printf("selItem: %i\n", selItem);
+
+		if (selItem == MAIN_MENU_ITEM::OPEN_FILE) {
 			return BK_CMD_INVOKE_OPEN_FILE;
 		}
-		if (selItem == MAIN_MENU_ITEM_BROWSE_CACHE) {
-			return BK_CMD_INVOKE_BROWSE_CACHE;
-		}
-		if (selItem == MAIN_MENU_ITEM_CONTROLS) {
+		if (selItem == MAIN_MENU_ITEM::CONTROLS) {
 			selItem = 0;
 			topItem = 0;
 			mode = Mode::CONTROLS;
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == MAIN_MENU_ITEM_OPTIONS) {
+		if (selItem == MAIN_MENU_ITEM::OPTIONS) {
 			selItem = 0;
 			topItem = 0;
 			mode = Mode::OPTIONS;
 			return BK_CMD_MARK_DIRTY;
 		}
-		if (selItem == MAIN_MENU_ITEM_ABOUT) {
+		if (selItem == MAIN_MENU_ITEM::ABOUT) {
+			std::string specific_text;
+
+			#ifdef __vita__
+			 specific_text = "vita2d by xerpi under MIT\n\
+			  psp2shell by Cpasjuste under GPLv3\n\n\
+			Thanks to:\n\
+			  Team Molecule for Henkaku\n\
+			  VITA SDK Contibutors\n\
+			  People on freenode#vitasdk#henkaku and Discord\n";
+			#elif defined(__switch__)
+				specific_text = "devkitpro\n";
+			else
+				specific_text = "learnopengl.com\n"
+			#endif
+
+
 			popupText = "\
 			Bookr Mod Vita (" + std::string(GIT_VERSION) + ") - by pathway27 (Sreekara C.)\n\n\
 			IS A MODIFICATION OF THE ORIGINAL\n\
@@ -286,18 +305,13 @@ int MainMenu::updateMain(unsigned int buttons) {
 			AND VARIOUS OTHER FORKS\n\n\
 			This program is licensed under the terms of the GNU GPLv3+.\n\n\
 			This program uses the following libraries/projects:\n\
-			  MuPDF v" + FZ_VERSION + " by ArtifexSoftware under AGPL v3\n\
-			  vita2d by xerpi under MIT\n\
-			  psp2shell by Cpasjuste under GPLv3\n\n\
-			Thanks to:\n\
-			  Team Molecule for Henkaku\n\
-			  VITA SDK Contibutors\n\
-			  People on freenode#vitasdk#henkaku and Discord\n\
-			  ebraminio for help with harbuzz\n";
+			  MuPDF v" + FZ_VERSION + " by ArtifexSoftware under AGPL v3\n"
+			+ specific_text + "\nSpecial thanks to\nebraminio for help with harbuzz\n\
+				and you for using and keeping this going\n\n Report issues at https://github.com/pathway27/bookr-mod-vita\n";
 			popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
-		if (selItem == MAIN_MENU_ITEM_EXIT) {
+		if (selItem == MAIN_MENU_ITEM::EXIT) {
 			#if 0
 			if (reader != NULL) {
 				// Set bookmark now

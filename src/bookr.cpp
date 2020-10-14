@@ -110,11 +110,11 @@ void mainloop() {
     #endif
     // dont proc events while in the reload timer
 
-    #ifdef DEBUG_BUTTONS
-      std::cout << "mainloop command: " << command << std::endl;
-    #endif
+    // #ifdef DEBUG_BUTTONS
+    std::cout << "mainloop command: " << command << std::endl;
+    // #endif
     // // pusedo message passing
-    // command_handler(command);
+    command_handler(command);
 
     if (Screen::isClosing())
       break;
@@ -176,9 +176,9 @@ static void command_handler(int command) {
     }
     case BK_CMD_MAINMENU_POPUP:
     {
-      layers.push_back(Popup::create(
-          mm->getPopupMode(),
-          mm->getPopupText()));
+      layers.push_back(
+        Popup::create(mm->getPopupMode(), mm->getPopupText())
+      );
       break;
     }
     case BK_CMD_EXIT:

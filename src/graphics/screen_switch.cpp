@@ -120,18 +120,18 @@ void open(int argc, char **argv)
 
   loadShaders();
 
-  while (appletMainLoop())
-  {
-    // Get and process input
-    hidScanInput();
-    u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-    if (kDown & KEY_PLUS)
-      break;
+  // while (appletMainLoop())
+  // {
+  //   // Get and process input
+  //   hidScanInput();
+  //   u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+  //   if (kDown & KEY_PLUS)
+  //     break;
 
-    // Render stuff!
-    sceneRender();
-    swapBuffers();
-  }
+  //   // Render stuff!
+  //   sceneRender();
+  //   swapBuffers();
+  // }
 }
 
 //-----------------------------------------------------------------------------

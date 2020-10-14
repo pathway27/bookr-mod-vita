@@ -127,14 +127,27 @@ void TextRenderer::RenderText(std::string text, GLfloat x, GLfloat y, GLfloat sc
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(this->VAO);
 
+    unsigned int new_line_counter = 0;
+    const unsigned int original_x = x;
+
     // Iterate through all characters
-    std::string::const_iterator c;
+    std::string::iterator c;
     for (c = text.begin(); c != text.end(); c++)
     {
+        if (*c == '\n') {
+            new_line_counter++;
+            x = original_x;
+            continue;
+        }
+
+        if (*c == '\t') {
+            *c = ' ';
+        }
+
         Character ch = Characters[*c];
 
         GLfloat xpos = x + ch.Bearing.x * scale;
-        GLfloat ypos = y + (this->Characters['H'].Bearing.y - ch.Bearing.y) * scale;
+        GLfloat ypos = y + (new_line_counter * (this->Characters['H'].Bearing.y + 7)) + (this->Characters['H'].Bearing.y - ch.Bearing.y) * scale;
 
         GLfloat w = ch.Size.x * scale;
         GLfloat h = ch.Size.y * scale;
