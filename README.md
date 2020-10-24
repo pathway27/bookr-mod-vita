@@ -47,6 +47,7 @@ make -j8
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
 export PSVITAIP=IP-HERE
 make send
+socat udp-recv:18194 stdout
 ```
 
 ### For Switch

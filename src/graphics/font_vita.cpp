@@ -12,6 +12,8 @@
 
 #include "font.hpp"
 
+#include "../utils/debug_vita.hpp"
+
 namespace bookr {
 
 Font::Font() : metrics(0), isUTF(false), ftlib(0), ftface(0) {

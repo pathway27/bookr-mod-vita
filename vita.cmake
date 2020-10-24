@@ -168,6 +168,6 @@ add_custom_target(sendvpk
 )
 
 add_custom_target(copy
-    COMMAND cp eboot.bin F:/app/${VITA_TITLEID}/eboot.bin
-    DEPENDS bookr-mod-vita.self
+    COMMAND rsync -ah --progress eboot.bin /Volumes/Untitled/app/${VITA_TITLEID}/eboot.bin
+    DEPENDS eboot.bin
 )

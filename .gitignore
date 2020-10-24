@@ -4,6 +4,7 @@ Debug
 Release
 desktop
 .vs
+.ropeproject
 
 *.*o
 *.*lf
@@ -18,3 +19,7 @@ src/bookrconfig.h
 ext/
 html/
 latex/
+bkup/
+bookr/
+data/books/
+data/CVS/

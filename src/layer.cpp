@@ -202,16 +202,38 @@ int Layer::drawText(char* t, Font* font, int x, int y, int n, bool useLF, bool u
   return 0;
 }
 
+#define DIALOG_ICON_SCALE 1.0
+#define DIALOG_OFFSET_X Screen::WIDTH * 0.1
+#define DIALOG_OFFSET_Y Screen::HEIGHT * 0.1
+#define DIALOG_WIDTH Screen::WIDTH * 0.8
+#define DIALOG_HEIGHT Screen::HEIGHT * 0.8
+#define DIALOG_BG_COLOR RGBA8(47, 47, 47, 240) // Very Dark Transparent Gray
+
+#define DIALOG_ITEM_OFFSET_X Screen::WIDTH * 0.11
+#define DIALOG_ITEM_WIDTH Screen::WIDTH * 0.78
+#define DIALOG_ITEM_HEIGHT Screen::HEIGHT * 0.05
+
+#define DIALOG_TITLE_OFFSET_Y Screen::HEIGHT * 0.11
+#define DIALOG_TITLE_BG_COLOR RGBA8(170, 170, 170, 255) // Very Light Gray
+#define DIALOG_TITLE_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + Screen::WIDTH * 0.01
+#define DIALOG_TITLE_TEXT_OFFSET_Y DIALOG_TITLE_OFFSET_Y + Screen::HEIGHT * 0.01
+
+#define DIALOG_CONTEXT_OFFSET_Y Screen::HEIGHT - DIALOG_ITEM_HEIGHT
+#define DIALOG_CONTEXT_BG_COLOR RGBA8(85, 85, 85, 255) // Dark Gray
+
+#define COLOR_WHITE RGBA8(255, 255, 255, 255)
+#define COLOR_BLACK RGBA8(0, 0, 0, 255)
+
 void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
   int scrY = 0;
   char *t =(char*)circleLabel.c_str();
   // int tw = textW(t, fontBig);
 
   // back
-  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.2, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.6, RGBA8(105, 105, 105, 155));
+  drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR);
 
   // title
-  drawRectangle(Screen::WIDTH * 0.11, Screen::HEIGHT * 0.21, Screen::WIDTH * 0.78, Screen::HEIGHT * 0.05, RGBA8(105, 105, 105, 250));
+  drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
 
   // // context label
   // Screen::ambientColor(0xff555555);
@@ -257,7 +279,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // fontBig->bindForDisplay();
 
   // title
-  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.22, RGBA8(0,0,0,255), 1.0f, title.c_str());
+  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.12, COLOR_WHITE, 1.0f, title.c_str());
   
   // // labels
   // Screen::ambientColor(0xffcccccc);
@@ -266,14 +288,6 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // }
   // if (circleLabel.size() > 0)
   //   drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
-}
-
-void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items) {
-  drawMenu(title, triangleLabel, items, false);
-}
-
-void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
-  drawMenu(title, triangleLabel, items, false);
 }
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
@@ -361,11 +375,11 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
 
   // itemFont->bindForDisplay();
 
-  int intial = Screen::HEIGHT * 0.35;
+  int intial = Screen::HEIGHT * 0.21;
   int size = Screen::HEIGHT * 0.07;
   
   // selected item
-  drawRectangle(Screen::WIDTH * 0.1, intial + (selItem * size) - 1, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.05, RGBA8(115, 115, 115, 250));
+  drawRectangle(Screen::WIDTH * 0.11, intial + (selItem * size) - 1, Screen::WIDTH * 0.78, Screen::HEIGHT * 0.05, COLOR_WHITE);
 
   // contents
   int yoff = 3;
@@ -376,17 +390,11 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     // 	break;
     if ((i + topItem) >= (int)(items.size()))
       break;
-    if(useUTFFont){
-      // int tooLong = drawUTFMenuItem(&(items[i + topItem]), itemFont, 40 + 25, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 350);
-      // if(tooLong){
-      //   //drawUTFText("...", itemFont, 416, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff, 0, 480);
-      //   texUI->bindForDisplay();
-      //   drawImage(415,ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + yoff,12,12,7,112);
-      // }
-    }
-    else {
-      drawText(Screen::WIDTH * 0.12, intial + (i * size), RGBA8(0,0,0,255), 1.0f, items.at(i).label.c_str());
-    }
+
+    if ((i + topItem) == selItem)
+      drawText(Screen::WIDTH * 0.12, intial + (Screen::HEIGHT * 0.01) + (i * size), COLOR_BLACK, 1.0f, items.at(i).label.c_str());
+    else
+      drawText(Screen::WIDTH * 0.12, intial + (Screen::HEIGHT * 0.01) + (i * size), COLOR_WHITE, 1.0f, items.at(i).label.c_str());
   }
   // Screen::ambientColor(0xff000000);
   // if(useUTFFont){
@@ -410,6 +418,14 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   // }
   // else
   //   drawText((char*)items[selItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
+}
+
+void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items) {
+  drawMenu(title, triangleLabel, items, false);
+}
+
+void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
+  drawMenu(title, triangleLabel, items, false);
 }
 
 void Layer::drawOutlinePrefix(string prefix, int x, int y, int w, int h, int ws){

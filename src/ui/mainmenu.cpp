@@ -21,6 +21,9 @@
 #include "popup.hpp"
 #include "bookrconfig.h"
 
+// TODO:
+#include "../utils/debug_vita.hpp"
+
 // Main menu layout
 
 // Matching array index with these

@@ -146,7 +146,6 @@ void Layer::unload(){
   #ifdef DEBUG
     printf("finish fontbig unload\n");
   #endif
-  fontBig->release();
   fontSmall->release();
 }
 
@@ -273,21 +272,18 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
     case FZ_REPS_CROSS:
       Screen::drawTextureScale(bk_icons["bk_cross_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7, 
         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
-      printf("cross\n");
       break;
     case FZ_REPS_CIRCLE:
       // Screen::drawTextureScale(bk_icons["bk_circle_icon"], DIALOG_ITEM_WIDTH - 130, DIALOG_CONTEXT_OFFSET_Y + 7,
       //   DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
-      printf("circle\n");
+      break;
     default:
       break;
   }
 
   //title
   // (255, 255, 255, 255)
-  printf("cross 1\n");
   Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
-  printf("cross 2\n");
 
   // triangle labels
   // try {
