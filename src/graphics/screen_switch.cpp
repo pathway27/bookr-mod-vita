@@ -510,7 +510,8 @@ void dcacheWritebackAll() {
 }
 
 string basePath() {
-  return "./";
+  // TODO: Change this for switch.
+  return "/Books";
 }
 
 struct CompareDirent {
@@ -523,7 +524,9 @@ struct CompareDirent {
   }
 };
 
-int dirContents(const char* path, vector<Dirent>& a) {
+#include <dirent.h>
+
+int dirContents(const char* path, std::vector<Dirent>& a) {
   for (const auto & entry : std::filesystem::directory_iterator(path)) {
     std::cout << entry.path() << std::endl;
 
@@ -532,7 +535,7 @@ int dirContents(const char* path, vector<Dirent>& a) {
     // if (filename == std::string('.') || filename == std::string('..'))
     //   continue;
 
-    a.push_back(Dirent(filename, 0, 0));
+    a.push_back(Dirent(filename, FZ_STAT_IFREG, 0));
   }
 
   return 0;

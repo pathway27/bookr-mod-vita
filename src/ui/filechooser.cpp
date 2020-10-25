@@ -24,6 +24,8 @@ FileChooser::FileChooser(string& t, int r) : title(t), ret(r) {
 		path = User::options.lastFontFolder;
 	else
 		path = User::options.lastFolder;
+
+	path = Screen::basePath();
 	updateDirFiles();
 }
 
