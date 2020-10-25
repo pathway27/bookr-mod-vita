@@ -93,19 +93,19 @@ extern "C" {
 
 void Layer::load() {
   #ifdef DEBUG
-    printf("bklayer load\n");
+    printf("qload\n");
   #endif
   
   texLogo = Texture::createFromBuffer(&_binary_data_logos_icon0_t_png_start);
 
   // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
-  bk_icons.insert(make_pair("bk_memory_icon", Texture::createFromBuffer(&_binary_data_icons_memory_png_start)));
-  bk_icons.insert(make_pair("bk_battery_icon", Texture::createFromBuffer(&_binary_data_icons_battery_outline_png_start)));
-  bk_icons.insert(make_pair("bk_clock_icon", Texture::createFromBuffer(&_binary_data_icons_clock_png_start)));
+  // bk_icons["bk_memory_icon"] = Texture::createFromBuffer(&_binary_data_icons_memory_png_start)));
+  // bk_icons.insert(make_pair("bk_battery_icon", Texture::createFromBuffer(&_binary_data_icons_battery_outline_png_start)));
+  // bk_icons.insert(make_pair("bk_clock_icon", Texture::createFromBuffer(&_binary_data_icons_clock_png_start)));
 
-  bk_icons.insert(make_pair("bk_circle_icon", Texture::createFromBuffer(&_binary_data_icons_circle_outline_png_start)));
-  bk_icons.insert(make_pair("bk_cross_icon", Texture::createFromBuffer(&_binary_data_icons_close_box_outline_png_start)));
-  bk_icons.insert(make_pair("bk_triangle_icon", Texture::createFromBuffer(&_binary_data_icons_triangle_outline_png_start)));
+  bk_icons["bk_circle_icon"] = Texture::createFromBuffer(&_binary_data_icons_circle_outline_png_start);
+  bk_icons["bk_cross_icon"] = Texture::createFromBuffer(&_binary_data_icons_close_box_outline_png_start);
+  bk_icons["bk_triangle_icon"] = Texture::createFromBuffer(&_binary_data_icons_triangle_outline_png_start);
 
   // bk_icons.insert(make_pair("bk_bookmark_icon", createTexFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
   // bk_icons.insert(make_pair("bk_copy_icon", createTexFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
