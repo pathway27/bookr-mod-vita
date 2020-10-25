@@ -33,6 +33,9 @@
 #include "text_vert.h"
 #include "text_frag.h"
 
+#include <filesystem>
+#include <iostream>
+
 //-----------------------------------------------------------------------------
 // nxlink support
 //-----------------------------------------------------------------------------
@@ -521,6 +524,17 @@ struct CompareDirent {
 };
 
 int dirContents(const char* path, vector<Dirent>& a) {
+  for (const auto & entry : std::filesystem::directory_iterator(path)) {
+    std::cout << entry.path() << std::endl;
+
+    std::string filename(entry.path().filename());
+
+    // if (filename == std::string('.') || filename == std::string('..'))
+    //   continue;
+
+    a.push_back(Dirent(filename, 0, 0));
+  }
+
   return 0;
 }
 

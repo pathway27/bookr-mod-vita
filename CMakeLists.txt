@@ -71,7 +71,7 @@ ENDIF()
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 # Specific flags on Debug and Release
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -DDEBUG -DDEBUG_REFCOUNT")
@@ -119,6 +119,13 @@ set(COMMON_SRCS
   src/ui/mainmenu.cpp
   src/ui/popup.cpp
   src/ui/filechooser.cpp
+
+  src/bookmark.cpp
+  src/document.cpp
+  src/filetypes/fancytext.cpp
+  src/filetypes/mudocument.cpp
+  # src/filetypes/palmdoc.cpp
+  src/filetypes/plaintext.cpp
 )
 
 # TODO: Apparently this is bad

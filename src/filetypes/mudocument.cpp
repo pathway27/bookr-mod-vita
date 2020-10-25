@@ -12,10 +12,10 @@
 
 #ifdef __vita__
 #include <psp2/io/fcntl.h>
-#endif
-
-#ifdef __vita__
-#include <psp2/io/fcntl.h>
+#else
+#include "../graphics/texture2d.hpp"
+#include "../resource_manager.hpp"
+#include "../graphics/sprite_renderer.hpp"
 #endif
 
 #include <map>
@@ -29,6 +29,7 @@
 #include <cstring>
 #include <ctime>
 #include <cerrno>
+#include <memory>
 
 #include "mudocument.hpp"
 #include "../graphics/resolutions.hpp"
@@ -47,8 +48,12 @@ static MUDocument* mudoc_singleton = nullptr;
 // texture of current pixmap, TODO: generic fztexture
 #ifdef __vita__
 static vita2d_texture *texture;
-#elif defined(SWITCH)
+#else
+static std::unique_ptr<Texture2D> texture;
 #endif
+
+// char accelpath[PATH_MAX];
+char *accel = NULL;
 
 // These will crash...
 //, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
@@ -56,7 +61,6 @@ static vita2d_texture *texture;
 static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
   1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f };
 static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
-
 
 MUDocument::MUDocument(string& f) : 
   m_ctx(nullptr), m_doc(nullptr), m_page(nullptr), loadNewPage(false), zooming(false),
@@ -214,7 +218,7 @@ bool MUDocument::redrawBuffer() {
 
   // Create final transformation matrix in the correct order (Rotation x Scaling x Translation)
   m_transform = fz_concat(rotation_matrix, scaling_matrix);
-  // fz_concat(&m_transform, &m_transform, &translation_matrix); // dont really need to translate the page...?
+  // fz_concat(&m_transform, &m_transform, &translation_matrix); // dont really need since you transfromed it with translation already
 
   #ifdef DEBUG
     printf("bound_page; (%f, %f) - (%f, %f)\n", m_bounds.x0, m_bounds.y0, m_bounds.y0, m_bounds.y1);
@@ -246,11 +250,13 @@ bool MUDocument::redrawBuffer() {
     #endif
 
     texture = _vita2d_load_pixmap_generic(m_pix);
-
+  #else
+    texture = std::make_unique<Texture2D>();
+    texture->Generate(m_pix->w, m_pix->h, m_pix->samples);
   #endif
 
   #ifdef DEBUG
-    printf("post _vita2d_load_pixmap_generic\n");
+    printf("post _vita2d_load_pixmap_generic m_pix->n: %i\n", m_pix->n);
   #endif
 
   fz_drop_pixmap(m_ctx, m_pix);
@@ -303,6 +309,12 @@ void MUDocument::renderContent() {
   Screen::clear(0xefefef, FZ_COLOR_BUFFER);
   #ifdef __vita__
     vita2d_draw_texture(texture, panX, panY);
+  #else
+    ResourceManager::getSpriteRenderer()->DrawSprite(
+      *texture,
+      glm::vec2(50, 50),
+      glm::vec2(1180, 620)
+    );
   #endif
 
   // TODO: Show Page Error, don"t draw texture then.

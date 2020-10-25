@@ -16,7 +16,7 @@ include_directories(
 )
 
 link_directories(
-
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
 )
 
 ## Build and link
@@ -38,6 +38,8 @@ add_executable(bookr-mod-vita
 
 
 target_link_libraries(bookr-mod-vita
+  mupdf
+  mupdf-third
   tinyxml2
   ${OPENGL_LIBRARIES}
   ${FREETYPE_LIBRARIES}

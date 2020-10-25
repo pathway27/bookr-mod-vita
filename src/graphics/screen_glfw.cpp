@@ -20,6 +20,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <filesystem>
+#include <iostream>
 
 #include "screen.hpp"
 #include "controls.hpp"
@@ -45,7 +47,8 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 static void loadShaders();
 
 void open(int argc, char** argv) {
-  psv_full_path = "./";
+  psv_full_path = std::string(std::filesystem::current_path());
+  std::cout << "psv_full_path: " << psv_full_path << std::endl;
 
   // glfw: initialize and configure
   // ------------------------------
@@ -291,7 +294,20 @@ struct CompareDirent {
     }
 };
 
+#include <dirent.h>
+
 int dirContents(const char* path, std::vector<Dirent>& a) {
+  for (const auto & entry : std::filesystem::directory_iterator(path)) {
+    std::cout << entry.path() << std::endl;
+
+    std::string filename(entry.path().filename());
+
+    // if (filename == std::string('.') || filename == std::string('..'))
+    //   continue;
+
+    a.push_back(Dirent(filename, FZ_STAT_IFREG, 0));
+  }
+
   return 0;
 }
 

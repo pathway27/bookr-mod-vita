@@ -17,25 +17,23 @@
 #include "graphics/screen.hpp"
 #include "graphics/controls.hpp"
 
-//#include "document.hpp"
-//#include "mainmenu.hpp"
-//#include "filechooser.hpp"
-
 //#include "user.hpp"
 //#include "layer.hpp"
 #include "ui/logo.hpp"
 #include "ui/mainmenu.hpp"
 #include "ui/popup.hpp"
-//#include "filechooser.hpp"
+#include "ui/filechooser.hpp"
+
+#include "document.hpp"
 
 namespace bookr {
 
 static void command_handler(int command);
 
-// extern Document *documentLayer;
 static Layers layers;                 // iterator over all gui obj. that are initalsed
 static MainMenu *mm;                    // Main Menu, only opens when pressed start on opening screen
-// BKFileChooser *fs;                 // file chooser, only opens when Open File in mainmenu
+static FileChooser *fs;                 // file chooser, only opens when Open File in mainmenu
+static Document *documentLayer;
 
 // Swapping buffers based on dirty variable feels dirty.
 static bool dirty = true;
@@ -110,9 +108,9 @@ void mainloop() {
     #endif
     // dont proc events while in the reload timer
 
-    // #ifdef DEBUG_BUTTONS
-    std::cout << "mainloop command: " << command << std::endl;
-    // #endif
+    #ifdef DEBUG_BUTTONS
+      std::cout << "mainloop command: " << command << std::endl;
+    #endif
     // // pusedo message passing
     command_handler(command);
 
@@ -189,123 +187,120 @@ static void command_handler(int command) {
     case BK_CMD_INVOKE_OPEN_FILE:
     {
       // add a file chooser layer
-      // string title("Open (use SQUARE to open Vietnamese chm/html)");
-      // string title("Open File");
-      // fs = FileChooser::create(title, BK_CMD_OPEN_FILE);
-      // layers.push_back(fs);
+      string title("Open File");
+      fs = FileChooser::create(title, BK_CMD_OPEN_FILE);
+      layers.push_back(fs);
       break;
     }
-    /*
-      case BK_CMD_RELOAD:
-      case BK_CMD_OPEN_FILE:
+    case BK_CMD_RELOAD:
+    case BK_CMD_OPEN_FILE:
+    {
+      // open a file as a document
+      #ifdef DEBUG
+        printf("BK_CMD_OPEN_FILE\n");
+      #endif
+      string fileName; // this is being changed somewhere, don't trust it..
+      string fnCpy;
+
+      bool convertToVN = false;
+
+      if (command == BK_CMD_RELOAD)
       {
-        // open a file as a document
-        #ifdef DEBUG
-          printf("BK_CMD_OPEN_FILE\n");
-        #endif
-        string fileName; // this is being changed somewhere, don't trust it..
-        string fnCpy;
-
-        bool convertToVN = false;
-
-        if (command == BK_CMD_RELOAD)
-        {
-          documentLayer->getFileName(fileName);
-          documentLayer = 0;
-        }
-        if (command == BK_CMD_OPEN_FILE)
-        {
-          // open selected file
-          fs->getFullPath(fileName);
-          //convertToVN = fs->isConvertToVN();
-          fs = 0;
-          #ifdef DEBUG
-            printf("getFullPath %s\n", fileName.c_str());
-          #endif
-        }
-        fnCpy = string(fileName);
-
-        // clear layers
-        #ifdef DEBUG
-          printf("getFullPath pre layer clear %s\n", fileName.c_str());
-        #endif
-        LayersIt it(layers.begin());
-        LayersIt end(layers.end());
-        while (it != end)
-        {
-          (*it)->release();
-          ++it;
-        }
-        layers.clear();
-        #ifdef DEBUG
-          printf("getFullPath post layer clear %s\n", fileName.c_str());
-        #endif
-        // little hack to display a loading screen
-        BKLogo *l = BKLogo::create();
-        l->setLoading(true);
-        Screen::startDirectList();
-        l->render();
-        Screen::endAndDisplayList();
-        Screen::waitVblankStart();
-        Screen::swapBuffers();
-        // Screen::checkEvents();
-        l->release();
-        #ifdef DEBUG
-          printf("getFullPath copy %s\n", fnCpy.c_str());
-        #endif
-        #ifdef DEBUG
-          printf("BKLogo Created\n");
-          printf("Pre Document::create\n");
-        #endif
+        documentLayer->getFileName(fileName);
+        documentLayer = 0;
+      }
+      if (command == BK_CMD_OPEN_FILE)
+      {
+        // open selected file
+        fs->getFullPath(fileName);
+        //convertToVN = fs->isConvertToVN();
+        fs = 0;
         #ifdef DEBUG
           printf("getFullPath %s\n", fileName.c_str());
         #endif
-
-        const char *error;
-        // detect file type and add a new display layer
-        try
-        {
-          #ifdef DEBUG
-            printf("getFullPath %s\n", fileName.c_str());
-          #endif
-          documentLayer = BKDocument::create(fnCpy.c_str());
-        }
-        catch (const char *e)
-        {
-          error = e;
-          documentLayer = nullptr;
-        }
-        // specific create BKPDF::create
-        //   init mupdf vars
-        //   b->redrawBuffer(); sets bouncebuffer
-        #ifdef DEBUG
-          printf("Post Document::create\n");
-        #endif
-        if (documentLayer == nullptr)
-        {
-          // error, back to logo screen
-          BKLogo *l = BKLogo::create();
-          l->setError(true, error);
-          // Still no way of getting exact error during file opening
-          // or during class init... maybe throw string and try and catch
-          layers.push_back(l);
-        }
-        else
-        {
-          // file loads ok, add the layer
-          layers.push_back(documentLayer);
-        }
-
-        // render document
-        // render filetype content i.e. bouncebuffer with Screen::copyImage
-        // wait for event, redraw bouncebuffer responding to events
-
-        // Screen::setSpeed(BKUser::options.pspSpeed);
-
-        dirty = true;
-        break;
       }
-    */
+      fnCpy = string(fileName);
+
+      // clear layers
+      #ifdef DEBUG
+        printf("getFullPath pre layer clear %s\n", fileName.c_str());
+      #endif
+      LayersIt it(layers.begin());
+      LayersIt end(layers.end());
+      while (it != end)
+      {
+        (*it)->release();
+        ++it;
+      }
+      layers.clear();
+      #ifdef DEBUG
+        printf("getFullPath post layer clear %s\n", fileName.c_str());
+      #endif
+      // little hack to display a loading screen
+      Logo *l = Logo::create();
+      l->setLoading(true);
+      Screen::startDirectList();
+      l->render();
+      Screen::endAndDisplayList();
+      Screen::waitVblankStart();
+      Screen::swapBuffers();
+      // Screen::checkEvents();
+      l->release();
+      #ifdef DEBUG
+        printf("getFullPath copy %s\n", fnCpy.c_str());
+      #endif
+      #ifdef DEBUG
+        printf("BKLogo Created\n");
+        printf("Pre Document::create\n");
+      #endif
+      #ifdef DEBUG
+        printf("getFullPath %s\n", fileName.c_str());
+      #endif
+
+      const char *error;
+      // detect file type and add a new display layer
+      try
+      {
+        #ifdef DEBUG
+          printf("getFullPath %s\n", fileName.c_str());
+        #endif
+        documentLayer = Document::create(fnCpy.c_str());
+      }
+      catch (const char *e)
+      {
+        error = e;
+        documentLayer = nullptr;
+      }
+      // specific create BKPDF::create
+      //   init mupdf vars
+      //   b->redrawBuffer(); sets bouncebuffer
+      #ifdef DEBUG
+        printf("Post Document::create\n");
+      #endif
+      if (documentLayer == nullptr)
+      {
+        // error, back to logo screen
+        Logo *l = Logo::create();
+        l->setError(true, error);
+        // Still no way of getting exact error during file opening
+        // or during class init... maybe throw string and try and catch
+        layers.push_back(l);
+      }
+      else
+      {
+        // file loads ok, add the layer
+        layers.push_back(documentLayer);
+      }
+
+      // render document
+      // render filetype content i.e. bouncebuffer with Screen::copyImage
+      // wait for event, redraw bouncebuffer responding to events
+
+      // Screen::setSpeed(BKUser::options.pspSpeed);
+
+      dirty = true;
+      break;
+    }
   }
 }
 

@@ -307,6 +307,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   }
 
   bool scrollbar = (items.size() > maxItemNum);
+  int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
 
   string tl(triangleLabel);
   if (items[selItem].flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL) {
@@ -318,47 +319,29 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
 
-  // texUI->bindForDisplay();
-  // // folder icons
-  /*
-    if(useUTFFont)
-      ITEMHEIGHT = 62;
-    Screen::ambientColor(0xffffffff);
-    for (int i = 0; i < maxItemNum; ++i) {
-      if (i + topItem == selItem)
-        continue;
-      if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-        break;
-      if ((i + topItem) >= (int)(items.size()))
-        break;
-      if (items[i + topItem].flags & BK_MENU_ITEM_FLAG::FOLDER) {
-        //drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 84, 52);
-        drawImage(40, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 20, 20, 58, 81);
-      }
-    }
-  */
-  
-  // if (items[selItem].flags & BK_MENU_ITEM_FLAG::FOLDER) {
-  // 	Screen::ambientColor(0xff000000);
-  // 	//drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), 20, 20, 84, 52);
-  // 	drawImage(40, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight(), BK_IMG_FOLDER_XSIZE, BK_IMG_FOLDER_YSIZE, BK_IMG_FOLDER_X, BK_IMG_FOLDER_Y);
-  // }
+  // scrollbar
+  if (scrollbar) {
+    float barh = 8.0f / float(items.size());
+    barh *= 73.0f;
+    if (barh < 15.0f)
+      barh = 15.0f;
+    float trel = float(topItem) / float(items.size());
+    trel *= 73.0f;
 
-  // // scrollbar
-  // if (scrollbar) {
-  // 	float barh = 1.0f * maxItemNum / float(items.size());
-  // 	barh *= 173.0f;
-  // 	if (barh < 15.0f)
-  // 		barh = 15.0f;
-  // 	float trel = float(topItem) / float(items.size());
-  // 	trel *= 173.0f;
-  // 	Screen::ambientColor(0xff555555);
-  // 	drawPill(436, 57, 12, 173, 6, 31, 1);
-  // 	Screen::ambientColor(0xffaaaaaa);
-  // 	drawPill(436, 57 + int(trel), 12, int(barh), 6, 31, 1);
-  // }
+    drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
+      10,
+      40,
+      DIALOG_CONTEXT_OFFSET_Y - 10 - 200 - 30,
+      0xff555555);
 
-  // // color rects items
+    drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
+      10 + int(trel),
+      40,
+      DIALOG_CONTEXT_OFFSET_Y - 10 - 200 - int(barh),
+      0xffaaaaaa);
+  }
+
+  // color rects items
   // for (int i = 0; i < maxItemNum; ++i) {
   // 	if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
   // 		break;
@@ -373,8 +356,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   // 	}
   // }
 
-  // itemFont->bindForDisplay();
-
   int intial = Screen::HEIGHT * 0.21;
   int size = Screen::HEIGHT * 0.07;
   
@@ -384,10 +365,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   // contents
   int yoff = 3;
   for (int i = 0; i < maxItemNum; ++i) {
-    // if (i + topItem == selItem)
-    // 	continue;
-    // if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-    // 	break;
     if ((i + topItem) >= (int)(items.size()))
       break;
 
@@ -396,28 +373,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     else
       drawText(Screen::WIDTH * 0.12, intial + (Screen::HEIGHT * 0.01) + (i * size), COLOR_WHITE, 1.0f, items.at(i).label.c_str());
   }
-  // Screen::ambientColor(0xff000000);
-  // if(useUTFFont){
-  //   int tooLong;
-  //   if(skipChars==0)
-  //     tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 350);
-  //   else {
-  //     //drawUTFText("...", itemFont, 40+25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 0, 480);
-  //     texUI->bindForDisplay();
-  //     drawImage(40+25,ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff,12,12,7,112);
-  //     tooLong = drawUTFMenuItem(&(items[selItem]), itemFont, 40 + 25 + 14, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, skipChars*10+14, 336);
-  //   }
-  //   if(tooLong){
-  //     texUI->bindForDisplay();
-  //     drawImage(415, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight() + yoff, 12,12,7,112);
-  //   }
-  //   else{
-  //     maxSkipChars = skipChars;
-  //   }
-  //   itemFont->doneUTFFont();
-  // }
-  // else
-  //   drawText((char*)items[selItem].label.c_str(), itemFont, 40 + 25, ITEMHEIGHT + scrY + selPos*itemFont->getLineHeight());
 }
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items) {
