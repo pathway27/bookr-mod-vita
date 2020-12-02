@@ -34,7 +34,7 @@ set(VITA_APP_NAME "Bookr MOD Vita")
 set(VITA_TITLEID  "PATH00027")
 
 # bash "-c" "echo -n hello | sed 's/hello/world/;'"
-execute_process(COMMAND git describe
+execute_process(COMMAND git describe --tags
                 COMMAND sed -e "s,v,0," -e "s,\\(.*\\)\\.,\\1," -e "s,-.*,,g"
                 OUTPUT_VARIABLE VITA_VERSION)
 string(REGEX REPLACE "\n$" "" VITA_VERSION "${VITA_VERSION}")
@@ -137,7 +137,7 @@ target_link_libraries(bookr-mod-vita
   jpeg
   z
   m
-  tinyxml2
+  tinyxml2_static
 )
 
 ## Create Vita files

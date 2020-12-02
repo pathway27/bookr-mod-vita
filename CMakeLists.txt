@@ -37,7 +37,7 @@ ENDIF()
 project(bookr-mod-vita)
 
 execute_process(
-  COMMAND git describe --tags
+  COMMAND git describe
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   OUTPUT_VARIABLE GIT_VERSION
 )
@@ -80,11 +80,16 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -DDEBUG -DDEBUG_REFCOUNT"
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -O3")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
-# TODO: Move to ext folder?
+# tinyxml2
 set(TINYXML2_DIR "${CMAKE_SOURCE_DIR}/ext/tinyxml2" CACHE PATH "The path to the tinyxml2 library.")
 
-# ${PROJECT_BINARY_DIR}/tinyxml2
+option(BUILD_SHARED_LIBS "build as shared library" OFF)
+option(BUILD_STATIC_LIBS "build as static library" ON)
 add_subdirectory(${TINYXML2_DIR})
+
+include_directories(
+  ${TINYXML2_DIR}
+)
 
 file(GLOB res_files RELATIVE
   ${CMAKE_SOURCE_DIR}

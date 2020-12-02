@@ -85,7 +85,7 @@ target_link_libraries(bookr-modern
   mupdf-third
   z
   m
-  tinyxml2
+  tinyxml2_static
 )
 
 switch_create_nro(bookr-modern bookr-modern)

@@ -9,14 +9,15 @@ find_package(glfw3 REQUIRED)
 include_directories(
   "${FREETYPE_INCLUDE_DIRS}"
   "${GLM_INCLUDE_DIRS}"
-  "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
+  # "${CMAKE_SOURCE_DIR}/ext/mupdf/include"
   "${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/include"
   "${CMAKE_SOURCE_DIR}/ext/glad/include"
   "${CMAKE_SOURCE_DIR}/ext/stb"
 )
 
 link_directories(
-  "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
+  # "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/build/release"
 )
 
 ## Build and link
@@ -40,7 +41,7 @@ add_executable(bookr-mod-vita
 target_link_libraries(bookr-mod-vita
   mupdf
   mupdf-third
-  tinyxml2
+  tinyxml2_static
   ${OPENGL_LIBRARIES}
   ${FREETYPE_LIBRARIES}
   ${GLEW_LIBRARIES}
