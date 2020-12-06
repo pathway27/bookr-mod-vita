@@ -251,7 +251,8 @@ bool MUDocument::redrawBuffer() {
 
     texture = _vita2d_load_pixmap_generic(m_pix);
   #else
-    texture = std::make_unique<Texture2D>();
+    if (texture == nullptr)
+      texture = std::make_unique<Texture2D>();
     texture->Generate(m_pix->w, m_pix->h, m_pix->samples);
   #endif
 
