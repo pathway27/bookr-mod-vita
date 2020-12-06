@@ -16,8 +16,8 @@ include_directories(
 )
 
 link_directories(
-  # "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
-  "${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/build/release"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
+  # "${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/build/release"
 )
 
 ## Build and link

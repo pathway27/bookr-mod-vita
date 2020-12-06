@@ -1,5 +1,5 @@
 ## This file is a quick tutorial on writing CMakeLists for targeting the Vita
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 include(ExternalProject)
 
 message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
