@@ -368,7 +368,7 @@ int maxItemNum = 8;
       0xffaaaaaa);
   }
 
-
+  // contents
   for (int i = 0; i < maxItemNum; ++i) {
     if ((i + topItem) >= (int)(items.size()))
       break;

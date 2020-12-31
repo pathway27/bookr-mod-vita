@@ -104,7 +104,6 @@ MUDocument::MUDocument(string& f) :
     fz_throw(m_ctx, FZ_ERROR_GENERIC, "opening error:");
   }
 
-
   m_pdf = pdf_specifics(m_ctx, m_doc);
 
   // Set page count
@@ -144,7 +143,6 @@ MUDocument* MUDocument::create(string& file) {
 
   MUDocument* b = new MUDocument(file);
   mudoc_singleton = b;
-
 
   b->redrawBuffer();
   return b;
@@ -313,8 +311,8 @@ void MUDocument::renderContent() {
   #else
     ResourceManager::getSpriteRenderer()->DrawSprite(
       *texture,
-      glm::vec2(50, 50),
-      glm::vec2(1180, 620)
+      glm::vec2(0, 0),
+      glm::vec2(Screen::WIDTH, Screen::HEIGHT)
     );
   #endif
 

@@ -291,10 +291,8 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
 }
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
-  unsigned int maxItemNum = 8;
-  unsigned int selPos = selItem - topItem;
-  int scrY = 0;
-  Font* itemFont;
+  int maxItemNum = 8;
+  int selPos = selItem - topItem;
 
   if (selPos < 0) {
     topItem += selPos;
@@ -306,8 +304,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     selPos = maxItemNum - 1;
   }
 
-  bool scrollbar = (items.size() > maxItemNum);
-  int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
+  bool scrollbar = items.size() > maxItemNum;
 
   string tl(triangleLabel);
   if (items[selItem].flags & BK_MENU_ITEM_FLAG::OPTIONAL_TRIANGLE_LABEL) {
@@ -318,6 +315,14 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   #endif
   drawDialogFrame(title, tl, items[selItem].circleLabel, items[selItem].flags);
 
+  // selected item
+  int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
+  int intial = Screen::HEIGHT * 0.21;
+  int size = Screen::HEIGHT * 0.07;
+  drawRectangle(Screen::WIDTH * 0.11,
+    intial + (selPos * size) - 1,
+    Screen::WIDTH * 0.77,
+    Screen::HEIGHT * 0.05, COLOR_WHITE);
 
   // scrollbar
   if (scrollbar) {
@@ -329,49 +334,31 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     trel *= 73.0f;
 
     drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
-      10,
+      intial + (Screen::HEIGHT * 0.009),
       40,
       DIALOG_CONTEXT_OFFSET_Y - 10 - 200 - 30,
       0xff555555);
 
     drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
-      10 + int(trel),
+      intial + (Screen::HEIGHT * 0.009) + int(trel),
       40,
       DIALOG_CONTEXT_OFFSET_Y - 10 - 200 - int(barh),
       0xffaaaaaa);
   }
-
-  // color rects items
-  // for (int i = 0; i < maxItemNum; ++i) {
-  // 	if ((ITEMHEIGHT + (i+1)*itemFont->getLineHeight()) > 250)
-  // 		break;
-  // 	if ((i + topItem) >= (int)(items.size()))
-  // 		break;
-  // 	if (items[i + topItem].flags & BK_MENU_ITEM_FLAG::COLOR_RECT) {
-  // 		int tw = textW((char*)items[i + topItem].label.c_str(), itemFont);
-  // 		Screen::ambientColor(items[i + topItem].bgcolor | 0xff000000);
-  // 		drawRect(40 + 25 + tw + 10, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY, 30, 15, 6, 31, 1);
-  // 		Screen::ambientColor(items[i + topItem].fgcolor | 0xff000000);
-  // 		drawRect(40 + 25 + tw + 15, ITEMHEIGHT + i*itemFont->getLineHeight() + scrY + 4, 30, 15, 6, 31, 1);
-  // 	}
-  // }
-
-  int intial = Screen::HEIGHT * 0.21;
-  int size = Screen::HEIGHT * 0.07;
   
-  // selected item
-  drawRectangle(Screen::WIDTH * 0.11, intial + (selItem * size) - 1, Screen::WIDTH * 0.78, Screen::HEIGHT * 0.05, COLOR_WHITE);
-
   // contents
-  int yoff = 3;
   for (int i = 0; i < maxItemNum; ++i) {
     if ((i + topItem) >= (int)(items.size()))
       break;
 
     if ((i + topItem) == selItem)
-      drawText(Screen::WIDTH * 0.12, intial + (Screen::HEIGHT * 0.01) + (i * size), COLOR_BLACK, 1.0f, items.at(i).label.c_str());
+      drawText(Screen::WIDTH * 0.12,
+        intial + (Screen::HEIGHT * 0.01) + (i * size),
+        COLOR_BLACK, 1.0f, items[i + topItem].label.c_str());
     else
-      drawText(Screen::WIDTH * 0.12, intial + (Screen::HEIGHT * 0.01) + (i * size), COLOR_WHITE, 1.0f, items.at(i).label.c_str());
+      drawText(Screen::WIDTH * 0.12,
+        intial + (Screen::HEIGHT * 0.01) + (i * size),
+        COLOR_WHITE, 1.0f, items[i + topItem].label.c_str());
   }
 }
 
