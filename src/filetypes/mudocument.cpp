@@ -57,7 +57,6 @@ char *accel = NULL;
 
 // These will crash...
 //, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 5.0f, 7.5f, 10.0f, 16.0f };
-
 static const float zoomLevels[] = { 0.25f, 0.5f, 0.75f, 0.90f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
   1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f };
 static const float rotateLevels[] = { 0.0f, 90.0f, 180.0f, 270.0f };
@@ -176,7 +175,7 @@ bool MUDocument::redrawBuffer() {
   // bounds for inital window size
   m_bounds = fz_bound_page(m_ctx, m_page);
   #ifdef DEBUG
-    printf("bound_page; (%f, %f) - (%f, %f)\n", m_bounds.x0, m_bounds.y0, m_bounds.y0, m_bounds.y1);
+    printf("bound_page; (%f, %f) - (%f, %f)\n", m_bounds.x0, m_bounds.y0, m_bounds.x1, m_bounds.y1);
   #endif
 
   fz_matrix rotation_matrix;
@@ -217,10 +216,6 @@ bool MUDocument::redrawBuffer() {
   // Create final transformation matrix in the correct order (Rotation x Scaling x Translation)
   m_transform = fz_concat(rotation_matrix, scaling_matrix);
   // fz_concat(&m_transform, &m_transform, &translation_matrix); // dont really need since you transfromed it with translation already
-
-  #ifdef DEBUG
-    printf("bound_page; (%f, %f) - (%f, %f)\n", m_bounds.x0, m_bounds.y0, m_bounds.y0, m_bounds.y1);
-  #endif
 
   #ifdef DEBUG
     printf("scale/transform\n");
@@ -311,8 +306,7 @@ void MUDocument::renderContent() {
   #else
     ResourceManager::getSpriteRenderer()->DrawSprite(
       *texture,
-      glm::vec2(0, 0),
-      glm::vec2(Screen::WIDTH, Screen::HEIGHT)
+      glm::vec2(panX, panY)
     );
   #endif
 
@@ -412,10 +406,14 @@ bool MUDocument::isPaginated() {
 
 #define D_PAD_SPEED 250
 int MUDocument::screenUp() {
+  #ifdef DEBUG
+    printf("MUDocument::screenUp\n");
+  #endif
+
   float potentialY = panY + D_PAD_SPEED;
   
   #ifdef DEBUG
-    printf("bounds y0: %f y1: %f\n", m_bounds.y0, m_bounds.y1);
+    printf("pan (X,Y): (%f,%f)\n \t (x1,y1): (%f,%f)\n (x0,y0): (%f,%f)\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
     printf("panY: %f potentialY: %f\n", panY, potentialY);
   #endif
 
@@ -428,14 +426,19 @@ int MUDocument::screenUp() {
 }
 
 int MUDocument::screenDown() {
+  #ifdef DEBUG
+    printf("MUDocument::screenDown\n");
+  #endif
+
   float potentialY = panY - D_PAD_SPEED;
   
   #ifdef DEBUG
-    printf("bounds y0: %f y1: %f\n", m_bounds.y0, m_bounds.y1);
+    printf("pan (X,Y): (%f,%f)\n \t (x1,y1): (%f,%f)\n (x0,y0): (%f,%f)\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
     printf("panY: %f potentialY: %f\n", panY, potentialY);
   #endif
 
-  int bottomBounds = (m_bounds.y1 - DEFAULT_SCREEN_HEIGHT);
+  // What and how is this 150 leeway?
+  int bottomBounds = (m_bounds.y1 + 150);
   if (-potentialY >= bottomBounds)
     panY = -bottomBounds;
   else
@@ -456,7 +459,7 @@ int MUDocument::pan(int x, int y) {
     return 0;
 
   #ifdef DEBUG
-    printf("panX: %f panY: %f\n x1:%f y1:%f\n x0:%f y0:%f\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
+    printf("pan (X,Y): (%f,%f)\n \t (x1,y1): (%f,%f)\n (x0,y0): (%f,%f)\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
   #endif
   // TODO: Choose invert analog settings
   // if settings.invertAnalog
@@ -632,7 +635,6 @@ int MUDocument::setRotation(int r, bool bForce) {
   return 0;
 }
 
-
 void MUDocument::getBookmarkPosition(map<string, float>& m) {
   m["page"] = m_current_page;
   
@@ -647,7 +649,7 @@ void MUDocument::getBookmarkPosition(map<string, float>& m) {
 
 int MUDocument::setBookmarkPosition(map<string, float>& m) {
   #ifdef DEBUG
-    printf("setBookmarkPosition: page %i, panX %i, panY %i", m["page"], m["panX"], m["panY"]);
+    printf("setBookmarkPosition: page %i, panX %i, panY %i\n", m["page"], m["panX"], m["panY"]);
   #endif
   setCurrentPage(m["page"]);
   loadNewPage = false;

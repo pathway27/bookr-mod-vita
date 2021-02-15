@@ -168,6 +168,6 @@ add_custom_target(sendvpk
 )
 
 add_custom_target(copy
-    COMMAND rsync -ah --progress eboot.bin /Volumes/Untitled/app/${VITA_TITLEID}/eboot.bin
+    COMMAND rsync -ah --progress eboot.bin /Volumes/Untitled\ 1/app/${VITA_TITLEID}/eboot.bin
     DEPENDS eboot.bin
 )

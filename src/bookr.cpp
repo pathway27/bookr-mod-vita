@@ -55,7 +55,6 @@ void initalise(int argc, char *argv[]) {
   layers.push_back(mm);                  // Main Menu
 }
 
-
 void mainloop() {
   #ifdef DEBUG
     printf("bookr::mainloop\n");

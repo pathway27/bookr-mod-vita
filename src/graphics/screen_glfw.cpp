@@ -219,8 +219,8 @@ bool isClosing() {
 
 
 void getAnalogPad(int& x, int& y) {
-  x = 128;
-  y = 128;
+  x = 0;
+  y = 0;
 }
 
 void swapBuffers() {

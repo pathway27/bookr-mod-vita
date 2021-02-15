@@ -405,6 +405,9 @@ void getAnalogPad(int& x, int& y) {
   //Read the joysticks' position
   hidJoystickRead(&pos_left, CONTROLLER_P1_AUTO, JOYSTICK_LEFT);
   hidJoystickRead(&pos_right, CONTROLLER_P1_AUTO, JOYSTICK_RIGHT);
+
+  x = 0;
+  y = 0;
 }
 
 void startDirectList() {
