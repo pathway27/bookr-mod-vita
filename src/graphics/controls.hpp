@@ -16,8 +16,22 @@
 #define FZ_CTRL_HOLD 0x020000
 #define FZ_CTRL_NOTE 0x800000
 
-#define FZ_ANALOG_CENTER 128
-#define FZ_ANALOG_THRESHOLD 50
+#ifdef __vita__
+  #define FZ_ANALOG_CENTER 128
+#elif defined(SWITCH)
+  #define FZ_ANALOG_CENTER 1000
+#else
+  #define FZ_ANALOG_CENTER 128
+#endif
+
+#ifdef __vita__
+  #define FZ_ANALOG_THRESHOLD 50
+#elif defined(SWITCH)
+  #define FZ_ANALOG_THRESHOLD 25000
+#else
+  #define FZ_ANALOG_THRESHOLD 50
+#endif
+
 #define FZ_ANALOG_SENSITIVITY 16
 
 #ifdef __vita__

@@ -93,6 +93,7 @@ static bool initEgl(NWindow *win);
 static void loadShaders();
 static void sceneRender();
 
+static PadState pad;
 // Move this to constructor?
 void open(int argc, char **argv)
 {
@@ -122,6 +123,10 @@ void open(int argc, char **argv)
   std::cout << glGetString(GL_VERSION) << std::endl;
 
   loadShaders();
+
+  padConfigureInput(8, HidNpadStyleSet_NpadStandard);
+
+  padInitializeAny(&pad);
 
   // while (appletMainLoop())
   // {
@@ -381,12 +386,13 @@ void setupCtrl() {
 }
 
 int readCtrl() {
-  hidScanInput();
-  u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+  padUpdate(&pad);
+  u64 kDown = padGetButtonsDown(&pad);
   //hidKeysHeld returns information about which buttons have are held down in this frame
-  u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
+  u64 kHeld = padGetButtons(&pad);
   //hidKeysUp returns information about which buttons have been just released
-  u64 kUp = hidKeysUp(CONTROLLER_P1_AUTO);
+  u64 kUp = padGetButtonsUp(&pad);
+
 
   updateReps(kDown, kHeld, kUp);
   // || kHeld != last_kHeld || kUp != last_kUp
@@ -400,14 +406,12 @@ int readCtrl() {
 }
 
 void getAnalogPad(int& x, int& y) {
-  JoystickPosition pos_left, pos_right;
-
   //Read the joysticks' position
-  hidJoystickRead(&pos_left, CONTROLLER_P1_AUTO, JOYSTICK_LEFT);
-  hidJoystickRead(&pos_right, CONTROLLER_P1_AUTO, JOYSTICK_RIGHT);
+  HidAnalogStickState analog_stick_l = padGetStickPos(&pad, 0);
+  // HidAnalogStickState analog_stick_r = padGetStickPos(&pad, 1);
 
-  x = 0;
-  y = 0;
+  x = analog_stick_l.x - FZ_ANALOG_CENTER;
+  y = analog_stick_l.y - FZ_ANALOG_CENTER;
 }
 
 void startDirectList() {

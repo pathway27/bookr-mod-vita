@@ -148,6 +148,7 @@ MUDocument* MUDocument::create(string& file) {
 }
 
 // Draws current page into texture using pixmap
+static int texture_width, texture_height;
 bool MUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("MUDocument::redrawBuffer pp\n");
@@ -233,6 +234,9 @@ bool MUDocument::redrawBuffer() {
   #ifdef DEBUG
     printf("new_pixmap n: %i \n", m_pix->n);
   #endif
+
+  texture_width = m_pix->w;
+  texture_height = m_pix->h;
 
   #ifdef __vita__
     // Crashes due to GPU memory use without this.
@@ -417,8 +421,8 @@ int MUDocument::screenUp() {
     printf("panY: %f potentialY: %f\n", panY, potentialY);
   #endif
 
-  if (potentialY >= m_bounds.y0)
-    panY = m_bounds.y0;
+  if (potentialY >= 0)
+    panY = 0;
   else
     panY = potentialY;
 
@@ -435,12 +439,12 @@ int MUDocument::screenDown() {
   #ifdef DEBUG
     printf("pan (X,Y): (%f,%f)\n \t (x1,y1): (%f,%f)\n (x0,y0): (%f,%f)\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
     printf("panY: %f potentialY: %f\n", panY, potentialY);
+    printf("w: %i h: %i\n", texture_width, texture_height);
   #endif
 
-  // What and how is this 150 leeway?
-  int bottomBounds = (m_bounds.y1 + 150);
-  if (-potentialY >= bottomBounds)
-    panY = -bottomBounds;
+  int bottom_bound = texture_height - DEFAULT_SCREEN_HEIGHT;
+  if (-potentialY >= something)
+    panY = -something;
   else
     panY = potentialY;
 
@@ -459,31 +463,41 @@ int MUDocument::pan(int x, int y) {
     return 0;
 
   #ifdef DEBUG
-    printf("pan (X,Y): (%f,%f)\n \t (x1,y1): (%f,%f)\n (x0,y0): (%f,%f)\n", panX, panY, m_bounds.x1, m_bounds.y1, m_bounds.x0, m_bounds.y0);
+    printf("analog_stick_l (x,y) : (%i, %i)\n", x, y);
   #endif
+  
   // TODO: Choose invert analog settings
   // if settings.invertAnalog
   // x = -x
 
   // bounds checked pan
   if (abs(x) > FZ_ANALOG_THRESHOLD) {
-    if (panX > m_bounds.x0) { // left bounds
-      if (x > 0) panX -= x/10;     // only going right allowed
-    } else if (-panX > m_bounds.x1 - m_width) { // right bounds
-      if (x < 0) panX -= x/10;                       // only going left
-    } else {        // inside box
-      panX -= x/10;
-    }
+    // if (panX > m_bounds.x0) { // left bounds
+    //   if (x > 0) panX -= x/10;     // only going right allowed
+    // } else if (-panX > m_bounds.x1 - m_width) { // right bounds
+    //   if (x < 0) panX -= x/10;                       // only going left
+    // } else {        // inside box
+      
+    // }
+    // panX -= x/10000;
   }
 
-  if (abs(y) > FZ_ANALOG_THRESHOLD) {
-    if (panY > m_bounds.y0) {
-      if (y > 0) panY -= y/10;
-    } else if (-panY > m_bounds.y1 - m_height) {
-      if (y < 0) panY -= y/10;
-    } else {
-      panY -= y/10;
-    }
+  int bottom_bound = texture_height - DEFAULT_SCREEN_HEIGHT;
+  if (abs(y) > FZ_ANALOG_THRESHOLD) {  
+    // if (panY > m_bounds.y0) {
+    //   if (y > 0) panY -= y/10;
+    // } else if (-panY > m_bounds.y1 - m_height) {
+    //   if (y < 0) panY -= y/10;
+    // } else {
+      
+    // }
+    
+    panY += y/1000;
+
+    if (panY > 0)
+      panY = 0;
+    else if (-panY > (something + y/1000))
+      panY = -something;
   }
 
 

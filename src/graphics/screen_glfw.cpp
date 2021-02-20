@@ -96,6 +96,8 @@ void open(int argc, char** argv) {
 static volatile int last_key = 0;
 static bool stickyKeys = false;
 static int breps[16];
+static volatile int lastAnalogX = 0;
+static volatile int lastAnalogY = 0;
 static void updateReps(int keyState, int action) {
   cout << "updatereps stickyKeys " << stickyKeys << endl;
   // if (stickyKeys && keyState == 0) {
@@ -123,6 +125,8 @@ static void updateReps(int keyState, int action) {
     if (keyState == GLFW_KEY_T  ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
     if (keyState == GLFW_KEY_V  ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
     if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
+    if (keyState == GLFW_KEY_UP ) lastAnalogX++; else lastAnalogX = 0;
+    if (keyState == GLFW_KEY_DOWN ) lastAnalogY++; else lastAnalogY = 0;
   } else if (action == GLFW_RELEASE) {
     if (keyState == GLFW_KEY_LEFT_SHIFT  ) breps[FZ_REPS_SELECT  ]--; else breps[FZ_REPS_SELECT  ] = 0;
     if (keyState == GLFW_KEY_ENTER  ) breps[FZ_REPS_START   ]--; else breps[FZ_REPS_START   ] = 0;
@@ -139,6 +143,8 @@ static void updateReps(int keyState, int action) {
     if (keyState == GLFW_KEY_T  ) breps[FZ_REPS_HOME    ]--; else breps[FZ_REPS_HOME    ] = 0;
     if (keyState == GLFW_KEY_V  ) breps[FZ_REPS_HOLD    ]--; else breps[FZ_REPS_HOLD    ] = 0;
     if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]--; else breps[FZ_REPS_NOTE    ] = 0;
+    if (keyState == GLFW_KEY_UP ) lastAnalogX--; else lastAnalogX = 0;
+    if (keyState == GLFW_KEY_DOWN ) lastAnalogY--; else lastAnalogY = 0;
   }
 }
 
@@ -152,6 +158,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
+
 
 int readCtrl() {
   glfwWaitEvents();
@@ -219,8 +226,8 @@ bool isClosing() {
 
 
 void getAnalogPad(int& x, int& y) {
-  x = 0;
-  y = 0;
+  x = lastAnalogX;
+  y = lastAnalogY;
 }
 
 void swapBuffers() {
