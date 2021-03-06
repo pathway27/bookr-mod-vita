@@ -27,12 +27,19 @@
 #ifdef __vita__
   #define FZ_ANALOG_THRESHOLD 50
 #elif defined(SWITCH)
-  #define FZ_ANALOG_THRESHOLD 25000
+  #define FZ_ANALOG_THRESHOLD 20000
 #else
   #define FZ_ANALOG_THRESHOLD 50
 #endif
 
-#define FZ_ANALOG_SENSITIVITY 16
+#ifdef __vita__
+  #define FZ_ANALOG_SENSITIVITY -10
+#elif defined(SWITCH)
+  #define FZ_ANALOG_SENSITIVITY 10000
+#else
+  #define FZ_ANALOG_SENSITIVITY 1000
+#endif
+
 
 #ifdef __vita__
 #define FZ_CTRL_L3 0x000002

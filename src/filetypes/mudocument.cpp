@@ -443,8 +443,8 @@ int MUDocument::screenDown() {
   #endif
 
   int bottom_bound = texture_height - DEFAULT_SCREEN_HEIGHT;
-  if (-potentialY >= something)
-    panY = -something;
+  if (-potentialY >= bottom_bound)
+    panY = -bottom_bound;
   else
     panY = potentialY;
 
@@ -457,14 +457,14 @@ int MUDocument::pan(int x, int y) {
   #ifdef DEBUG_BUTTONS
     printf("INPUT x %i y %i\n", x, y);
   #endif
-  
-  if (abs(x) <= FZ_ANALOG_THRESHOLD &&
-      abs(y) <= FZ_ANALOG_THRESHOLD)
-    return 0;
 
   #ifdef DEBUG
     printf("analog_stick_l (x,y) : (%i, %i)\n", x, y);
   #endif
+  
+  if (abs(x) <= FZ_ANALOG_THRESHOLD &&
+      abs(y) <= FZ_ANALOG_THRESHOLD)
+    return 0;
   
   // TODO: Choose invert analog settings
   // if settings.invertAnalog
@@ -492,12 +492,12 @@ int MUDocument::pan(int x, int y) {
       
     // }
     
-    panY += y/1000;
+    panY += y/FZ_ANALOG_SENSITIVITY;
 
     if (panY > 0)
       panY = 0;
-    else if (-panY > (something + y/1000))
-      panY = -something;
+    else if (-panY > (bottom_bound + y/FZ_ANALOG_SENSITIVITY))
+      panY = -bottom_bound;
   }
 
 

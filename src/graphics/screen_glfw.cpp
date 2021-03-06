@@ -99,14 +99,6 @@ static int breps[16];
 static volatile int lastAnalogX = 0;
 static volatile int lastAnalogY = 0;
 static void updateReps(int keyState, int action) {
-  cout << "updatereps stickyKeys " << stickyKeys << endl;
-  // if (stickyKeys && keyState == 0) {
-  //   stickyKeys = false;
-  // }
-  // if (stickyKeys) {
-  //   memset((void*)breps, 0, sizeof(int)*16);
-  //   return;
-  // }
   cout << "updatereps keystate " << last_key << endl;
 
   if (action == GLFW_PRESS) {
@@ -125,8 +117,8 @@ static void updateReps(int keyState, int action) {
     if (keyState == GLFW_KEY_T  ) breps[FZ_REPS_HOME    ]++; else breps[FZ_REPS_HOME    ] = 0;
     if (keyState == GLFW_KEY_V  ) breps[FZ_REPS_HOLD    ]++; else breps[FZ_REPS_HOLD    ] = 0;
     if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
-    if (keyState == GLFW_KEY_UP ) lastAnalogX++; else lastAnalogX = 0;
-    if (keyState == GLFW_KEY_DOWN ) lastAnalogY++; else lastAnalogY = 0;
+    if (keyState == GLFW_KEY_UP )   lastAnalogY += 20000;
+    if (keyState == GLFW_KEY_DOWN ) lastAnalogY -= 20000;
   } else if (action == GLFW_RELEASE) {
     if (keyState == GLFW_KEY_LEFT_SHIFT  ) breps[FZ_REPS_SELECT  ]--; else breps[FZ_REPS_SELECT  ] = 0;
     if (keyState == GLFW_KEY_ENTER  ) breps[FZ_REPS_START   ]--; else breps[FZ_REPS_START   ] = 0;
@@ -143,8 +135,8 @@ static void updateReps(int keyState, int action) {
     if (keyState == GLFW_KEY_T  ) breps[FZ_REPS_HOME    ]--; else breps[FZ_REPS_HOME    ] = 0;
     if (keyState == GLFW_KEY_V  ) breps[FZ_REPS_HOLD    ]--; else breps[FZ_REPS_HOLD    ] = 0;
     if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]--; else breps[FZ_REPS_NOTE    ] = 0;
-    if (keyState == GLFW_KEY_UP ) lastAnalogX--; else lastAnalogX = 0;
-    if (keyState == GLFW_KEY_DOWN ) lastAnalogY--; else lastAnalogY = 0;
+    if (keyState == GLFW_KEY_UP )   lastAnalogY = 0;
+    if (keyState == GLFW_KEY_DOWN ) lastAnalogY = 0;
   }
 }
 

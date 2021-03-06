@@ -66,6 +66,8 @@ dkp-pacman -S switch-freetype switch-mesa switch-glad switch-glm
 mkdir -p switch/Release && cd $_
 cmake ..
 make
+export SWITCHIP=IP-HERE
+make send
 
 ```
 
