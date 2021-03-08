@@ -64,13 +64,8 @@ void mainloop() {
     // draw state to back buffer and swap
     if (dirty) {
       Screen::startDirectList();
-      LayersIt it(layers.begin());
-      LayersIt end(layers.end());
-      while (it != end)
-      {
-        (*it)->render();
-        ++it;
-      }
+      for (const auto &layer : layers)
+        layer->render();
       Screen::endAndDisplayList();
       Screen::swapBuffers();
     }
@@ -83,11 +78,10 @@ void mainloop() {
 
 
     // // the last layer always owns the input focus
-    LayersIt it(layers.end());
-    --it;
+    auto &last_layer = layers.back();
     int command = 0;
 
-    if ((*it) == nullptr)
+    if (last_layer == nullptr)
       continue;
 
     // These take up most of the stdout
@@ -95,7 +89,7 @@ void mainloop() {
       printf("pre update-buttons\n");
     #endif
 
-    command = (*it)->update(buttons);
+    command = last_layer->update(buttons);
     if (command == BK_CMD_OPEN_FILE) {
       #ifdef DEBUG
         printf("Got BK_CMD_OPEN_FILE\n");
@@ -153,10 +147,7 @@ static void command_handler(int command) {
     }
     case BK_CMD_CLOSE_TOP_LAYER:
     {
-      LayersIt it(layers.end());
-      --it;
-      (*it)->release();
-      layers.erase(it);
+      layers.pop_back();
 
       if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD)
       {
@@ -224,13 +215,8 @@ static void command_handler(int command) {
       #ifdef DEBUG
         printf("getFullPath pre layer clear %s\n", fileName.c_str());
       #endif
-      LayersIt it(layers.begin());
-      LayersIt end(layers.end());
-      while (it != end)
-      {
-        (*it)->release();
-        ++it;
-      }
+      for (const auto &layer : layers)
+        layer->release();
       layers.clear();
       #ifdef DEBUG
         printf("getFullPath post layer clear %s\n", fileName.c_str());

@@ -16,30 +16,20 @@
 #define FZ_CTRL_HOLD 0x020000
 #define FZ_CTRL_NOTE 0x800000
 
+// These are numbers based on when using the analog stick.
 #ifdef __vita__
   #define FZ_ANALOG_CENTER 128
-#elif defined(SWITCH)
-  #define FZ_ANALOG_CENTER 1000
-#else
-  #define FZ_ANALOG_CENTER 128
-#endif
-
-#ifdef __vita__
   #define FZ_ANALOG_THRESHOLD 50
-#elif defined(SWITCH)
-  #define FZ_ANALOG_THRESHOLD 20000
-#else
-  #define FZ_ANALOG_THRESHOLD 50
-#endif
-
-#ifdef __vita__
   #define FZ_ANALOG_SENSITIVITY -10
 #elif defined(SWITCH)
-  #define FZ_ANALOG_SENSITIVITY 10000
+  #define FZ_ANALOG_CENTER 1000
+  #define FZ_ANALOG_THRESHOLD 20000
+  #define FZ_ANALOG_SENSITIVITY 8500
 #else
+  #define FZ_ANALOG_CENTER 128
+  #define FZ_ANALOG_THRESHOLD 50
   #define FZ_ANALOG_SENSITIVITY 1000
 #endif
-
 
 #ifdef __vita__
 #define FZ_CTRL_L3 0x000002

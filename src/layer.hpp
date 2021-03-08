@@ -123,7 +123,7 @@ namespace bookr {
  *
  *  Has more specific draw methods, using native screen methods.
  *  Manages textures and fonts for use within the app.
- *  TODO: Should be platform independant.
+ *  TODO: Should be replaced by <unique_ptr>.
  */
 class Layer : public RefCounted {
   protected:
@@ -228,7 +228,6 @@ public:
 };
 
 typedef vector<Layer*> Layers;
-typedef vector<Layer*>::iterator LayersIt;
 
 }
 

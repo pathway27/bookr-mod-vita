@@ -13,34 +13,48 @@ Note: I'm a web developer professionally, so besides my university C++ projects,
 
 ## VITA Hardware
 
- CPU: ARM Cortex-A9 MPCore (32-bit armv7-a, 4 cores) 2GHz (NEON SIMD)  
- RAM: 512MB
- GPU: PowerVR SGX543MP4+ 128MB (4 cores)
-DISP: 5" 960x544 (16:9) OLED multi-touch @ 220ppi
- INP: Dual Touch Pads, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks
+| Type | Model |
+|------|-------|
+| CPU | ARM Cortex-A9 MPCore (32-bit armv7-a, 4 cores) 2GHz (NEON SIMD) |
+| RAM | 512MB |
+| GPU | PowerVR SGX543MP4+ 128MB (4 cores) |
+| DISPLAY | 5" 960x544 (16:9) OLED multi-touch @ 220ppi |
+| INPUT | Dual Touch Pads, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks |
 
-PSP  480x272 (16:9)
+### PSP in Comparison
+
+Purposely not targeting PSP for legacy reasons. This is just for reference since the codebase was originally for PSP.
+
+| Type | Model |
+|------|-------|
+| CPU | 20-333 MHz MIPS R4000x2 |
+| RAM | 32MB-64MB |
+| GPU | RE+SE-90nm 2MB (133Mhz) |
+| DISPLAY | 4.3" 480x272 (16:9) LCD 24bit @ 220ppi |
+| INPUT | D-pad, 16 Buttons, 2 Analog Sticks |
 
 ## Switch Hardware
 
- CPU: Quad-core Cortex-A57 + Quad-core Cortex-A53 @ 1.02 GHz
- RAM: 4GB LPDDR4
- GPU: Nvidia GM20B Maxwell-based GPU
-DISP: 6.2-inch, 1280 × 720p LCD (237 ppi) ; 5.5-inch, 1280 × 720p LCD (267 ppi)
- INP: Dual Touch Pads, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks
+| Type | Model |
+|------|-------|
+| CPU | Quad-core Cortex-A57 + Quad-core Cortex-A53 @ 1.02 GHz |
+| RAM | 4GB LPDDR4 |
+| GPU | Nvidia GM20B Maxwell-based GPU |
+| DISPLAY | 6.2-inch, 1280 × 720p LCD (237 ppi); Docked 1080p |
+| INPUT | 2 Wireless Joycons, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks, Touchscreen |
 
 ## Directory Stucture
 
-The original bookr had all it's source files outside in the root directory. I've tried to arrange them in folders so as not to get
-overwhelmed.
+The original bookr had all it's source files outside in the root directory.
+I've tried to arrange them in folders so as not to get overwhelmed.
 
 ```
-  data              - should have all images and external resources, should also subdivide into vita/psp
-  ext               - external libraries used statically by bookr
-  sce_sys           - vita resources, should refactor into data/vita
-  src               - main directory for c++ source files
-    filetypes       - classes for specific filetypes for books
-    graphics        - has main rendering, texture classes and shaders (eventually)
+  data          - should have all images and external resources, should also subdivide into vita/psp
+  ext           - external libraries used statically by bookr
+  sce_sys       - vita resources, should refactor into data/vita
+  src           - main directory for c++ source files
+    filetypes   - classes for specific filetypes for books
+    graphics    - has main rendering, texture classes and shaders (eventually)
 ```
 
 ## Licensing and Copyright
@@ -102,12 +116,11 @@ We use have user.xml to store configuration info. This will be in:
 - switch: `./` - The SD card is automatically mounted as the default device, usable with standard stdio. SD root dir is located at "/" (also "sdmc:/" but normally using the latter isn't needed). The default current-working-directory when using relative paths is normally the directory where your application is located on the SD card.
 - desktop: `./`
 
-## C++11
+## C++17
 
-The codebase is using more of the C subset than C++, maybe I can make it cleaner and learn the C++17 features too.  
-e.g. FZScreen is only using static functions to do everything, and look so many static global variables!
+The codebase is using more of the C subset than C++, maybe I can make it cleaner and learn the C++17 features too.
 
-The versions on gcc/clang on platforms
+The versions on gcc/clang on platforms:
 
 | Platform  | Compiler Version |
 | ------------- | ------------- |
@@ -116,6 +129,7 @@ The versions on gcc/clang on platforms
 | Mac | Clang 12 |
 | Windows | MSVC++  |
 
+All of them have complete C++17 support, so targeting that.
 
 ### Initalization
 
@@ -162,18 +176,19 @@ I chose purposely to not use SDL so I could learn a low level graphics API. Funn
 It's obvious however that I would be releasing features faster if I were using SDL, as the abstractions would take care of platform specific issues. It sometimes feels as if I am writing the SDL library (albiet a bad imitation) from scratch. But the bigger picture and a desire I still have is a 3D visualisation; i.e. of a bookshelf or library.
 
 I belive this is a difference between a file manager and an e-book reader.
-I want to take inspiration from [this](https://www.youtube.com/watch?v=wjXL5CmD5WU) for vita.
+I want to take inspiration from [this](https://www.youtube.com/watch?v=wjXL5CmD5WU) for vita/switch.
 
 ### Bitwise Operations
 
 - "|=" - OR a |= b is a = a | b
 - "&=" - AND a &= b is a = a & b
 
-
 ## Style
 
 1. Use spaces instead of tabs
 2. 2 Spaces for normal indentation
+
+This will change to 4 spaces soon.
 
 ### Cmake Special Flags
 
@@ -186,7 +201,7 @@ make
 same for Debug # Adds -DDEBUG
 ```
 
-### Class Hierarchy
+### Old Class Hierarchy
 
 ```
 main .
