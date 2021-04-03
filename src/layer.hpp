@@ -43,7 +43,6 @@
 using std::string;
 using std::map;
 
-#define RGBA8(r,g,b,a) ((((a)&0xFF)<<24) | (((b)&0xFF)<<16) | (((g)&0xFF)<<8) | (((r)&0xFF)<<0))
 #define BK_CMD_CLOSE_TOP_LAYER 1
 #define BK_CMD_MARK_DIRTY 2
 #define BK_CMD_EXIT 3
@@ -211,6 +210,7 @@ class Layer : public RefCounted {
   
   void drawText(int x, int y, unsigned int color, float scale, const char *text);
   void drawRectangle(float x, float y, float w, float h, unsigned int color);
+  void drawMenuToolbarTooltip();
 
 public:
   virtual int update(unsigned int buttons) = 0;

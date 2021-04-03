@@ -26,6 +26,7 @@
 
 #include "../graphics/fzscreen_defs.h"
 #include "logo.hpp"
+#include "colours.hpp"
 
 namespace bookr {
 
@@ -62,12 +63,11 @@ int Logo::update(unsigned int buttons) {
   return 0;
 }
 
-static const unsigned int TITLE_FONT_SIZE = 28;
-static const unsigned int TEXT_PADDED_WIDTH = 20;
-static const char *LOADING_TEXT = "Loading...";
-static const char *DEFAULT_TEXT = "Press Start";
+inline constexpr char *LOADING_TEXT = "Loading...";
+inline constexpr char *DEFAULT_TEXT = "Press Start";
 
-static const unsigned int LOGO_SIZE = 256;
+inline constexpr unsigned int LOGO_SIZE = 256;
+
 static const unsigned int CENTER_X = (Screen::WIDTH / 2) - (LOGO_SIZE / 2);
 static const unsigned int CENTER_Y = (Screen::HEIGHT / 2) - (LOGO_SIZE / 2);
 
@@ -86,26 +86,26 @@ void Logo::render() {
       glm::vec2(LOGO_SIZE, LOGO_SIZE));
   #endif
 
-  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, RGBA8(0,0,0,255), 1.0f, "TXT - PDF - CBZ - HTML - EPUB - FB2");
+  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, BLACK, 1.0f, "TXT - PDF - CBZ - HTML - EPUB - FB2");
 
-  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, RGBA8(105,105,105,155));
+  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, DIM_GRAY);
 
   if (loading)
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, LOADING_TEXT);
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, LOADING_TEXT);
   else if (text.length() > 0 && !(error))
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, text.c_str());
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, text.c_str());
   else if (error)
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, text.c_str());
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, text.c_str());
   else
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, RGBA8(255,255,255,255), 1.0f, DEFAULT_TEXT);
+    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, DEFAULT_TEXT);
 
   #if DEBUG
     #include "bookrconfig.h"
     #include <mupdf/fitz/version.h>
     string version_text = string("MuPDF v") + string(FZ_VERSION);
-    drawText(0, Screen::HEIGHT * 0.93, RGBA8(240, 0, 0, 255), 1.0f, version_text.c_str());
+    drawText(0, Screen::HEIGHT * 0.93, LIGHT_RED, 1.0f, version_text.c_str());
     version_text = string("Bookr DEBUG ") + string(GIT_VERSION);
-    drawText(0, Screen::HEIGHT * 0.97, RGBA8(240, 0, 0, 255), 1.0f, version_text.c_str());
+    drawText(0, Screen::HEIGHT * 0.97, LIGHT_RED, 1.0f, version_text.c_str());
   #endif
 }
 

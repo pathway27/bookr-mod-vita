@@ -12,6 +12,7 @@
 
 #include <cmath>
 
+#include "ui/colours.hpp"
 #include "graphics/shader.hpp"
 #include "resource_manager.hpp"
 #include "layer.hpp"
