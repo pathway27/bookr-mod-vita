@@ -203,8 +203,6 @@ class Layer : public RefCounted {
   void drawOutline(string& title, string& triangleLabel, vector<OutlineItem>& items, bool useUTFFont);
   void menuCursorUpdate(unsigned int buttons, int max);
 
-  void drawPopup(string& text, string& title, int bg1, int bg2, int fg);
-
   void drawClockAndBattery(string& extra);
   int drawUTFMenuItem(MenuItem*, Font*, int, int, int, int);
   

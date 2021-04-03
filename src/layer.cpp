@@ -84,122 +84,7 @@ void Layer::drawLogo(bool loading, string text, bool error) {
   }
 }
 
-void Layer::drawImage(int x, int y) {
-}
-
-void Layer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-  // #if defined(MAC) || defined(WIN32)
-  //   Shader ourShader("src/graphics/shaders/textures.vert",
-  //                    "src/graphics/shaders/textures.frag");
-
-  //   GLfloat vertices[] = {
-  //     // Positions          // Colors           // Texture Coords
-  //     1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-  //     1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-  //     -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-  //     -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
-  //   };
-  //   GLuint indices[] = {  // Note that we start from 0!
-  //       0, 1, 3, // First Triangle
-  //       1, 2, 3  // Second Triangle
-  //   };
-  //   GLuint VBO, VAO, EBO;
-  //   glGenVertexArrays(1, &VAO);
-  //   glGenBuffers(1, &VBO);
-  //   glGenBuffers(1, &EBO);
-
-  //   glBindVertexArray(VAO);
-  //     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  //     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  //     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  //     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-  //     // Position attribute
-  //     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-  //     glEnableVertexAttribArray(0);
-  //     // Color attribute
-  //     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-  //     glEnableVertexAttribArray(1);
-  //     // TexCoord attribute
-  //     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-  //     glEnableVertexAttribArray(2);
-  //   glBindVertexArray(0); // Unbind VAO
-
-
-  //   // glGenTextures(1, &texture);
-  //   // glBindTexture(GL_TEXTURE_2D, texture);
-  //   //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  //   //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  //   //   //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  //   //   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  //   //   unsigned char* image = SOIL_load_image("sce_sys/icon0.png", &width, &height, 0, SOIL_LOAD_RGB);
-  //   //   glClearColor(0.0, 0.0, 0.0, 0.0);
-  //   //   glClear(GL_COLOR_BUFFER_BIT);
-
-  //   //   cout << SOIL_last_result() << endl;
-  //   //   cout << "null: " << !image << endl;
-  //   //   cout << "Max size: " << GL_MAX_TEXTURE_SIZE << endl;
-  //   //   cout << "Width: " <<  width << endl;
-  //   //   cout << "Height: " << height << endl;
-  //   //   cout << "Obj: " << texture << endl;
-
-  //   //   // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  //   //   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-  //   //   GL_RGB, GL_UNSIGNED_BYTE, image);
-  //   //   glGenerateMipmap(GL_TEXTURE_2D);
-
-  //   //   SOIL_free_image_data(image);
-  //   // glBindTexture(GL_TEXTURE_2D, 0);
-
-  //   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  //   glClear(GL_COLOR_BUFFER_BIT);
-
-  //   ourShader.Use();
-  //   // glBindTexture(GL_TEXTURE_2D, texture);
-
-  //   glBindVertexArray(VAO);
-  //     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-  //   glBindVertexArray(0);
-  // #endif
-}
-
-void Layer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
-}
-
-void Layer::drawPill(int x, int y, int w, int h, int r, int tx, int ty) {
-}
-
-void Layer::drawTPill(int x, int y, int w, int h, int r, int tx, int ty) {
-}
-
-void Layer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
-}
-
-int Layer::textWidthRange(char* t, int n, Font* font) {
-  return 0;
-}
-
 int Layer::textW(char* t, Font* font) {
-  return 0;
-}
-
-void Layer::drawTextHC(char* t, Font* font, int y) {
-  int w = textW(t, font);
-  drawText(t, font, (480 - w) / 2, y);
-}
-
-
-int Layer::drawUTFText(const char* t, Font* font, int x, int y, int skipUTFChars, int maxWidth) {
-  return 0;
-}
-
-int Layer::drawUTFMenuItem(MenuItem* item, Font* font, int x, int y, int skipPixels, int maxWidth) {
-  return 0;
-}
-
-int Layer::drawText(char* t, Font* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
   return 0;
 }
 
@@ -361,14 +246,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
         intial + (Screen::HEIGHT * 0.01) + (i * size),
         COLOR_WHITE, 1.0f, items[i + topItem].label.c_str());
   }
-}
-
-void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items) {
-  drawMenu(title, triangleLabel, items, false);
-}
-
-void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
-  drawMenu(title, triangleLabel, items, false);
 }
 
 void Layer::drawOutlinePrefix(string prefix, int x, int y, int w, int h, int ws){
@@ -574,20 +451,6 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   //   items.clear();
 }
 
-static int countLines(string& t) {
-  int lines = 1;
-  char* c = (char*)t.c_str();
-  while (*c != 0) {
-    if (*c == 0xa) ++lines;
-    ++c;
-  }
-  return lines;
-}
-
-void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {
-  // TODO: Remove
-}
-
 void Layer::drawClockAndBattery(string& extra) {
   Screen::ambientColor(0xffbbbbbb);
   drawImage(350, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
@@ -609,48 +472,6 @@ void Layer::drawClockAndBattery(string& extra) {
   snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
   char t4[20];
   snprintf(t4, 20, "%dMHz", speed);
-}
-
-void Layer::menuCursorUpdate(unsigned int buttons, int max) {
-  // printf("MainMenu::updateMain buttons: %i\n", buttons);
-  int* b = Screen::ctrlReps();
-  // printf("MainMenu::updateMain b[User::controls.menuDown]: %i\n", b[User::controls.menuDown]);
-  
-  if (b[User::controls.menuUp] == 1 || (b[User::controls.menuUp] > 10 && b[User::controls.menuUp] % 5 == 0)) {
-    selItem--;
-    if (selItem < 0) {
-      selItem = max - 1;
-    }
-    skipChars = 0;
-    maxSkipChars = -1;
-  }
-  if (b[User::controls.menuDown] == 1 || (b[User::controls.menuDown] > 10 && b[User::controls.menuDown] % 5 == 0)) {
-    selItem++;
-    if (selItem >= max) {
-      selItem = 0;
-    }
-    skipChars = 0;
-    maxSkipChars = -1;
-  }
-  if (b[User::controls.menuLeft] == 1 || (b[User::controls.menuLeft] > 10 && b[User::controls.menuLeft] % 5 == 0)) {
-    skipChars--;
-    if (skipChars < 0) {
-      skipChars = 0;
-    }
-  }
-  if (b[User::controls.menuRight] == 1 || (b[User::controls.menuRight] > 10 && b[User::controls.menuRight] % 5 == 0)) {
-    skipChars++;
-    if (maxSkipChars >= 0 && skipChars>maxSkipChars)
-      skipChars = maxSkipChars;
-  }
-
-  // printf("MainMenu::updateMain selItem %i\n", selItem);
-}
-
-Layer::Layer() : topItem(0), selItem(0), skipChars(0), maxSkipChars(-1) {
-}
-
-Layer::~Layer() {
 }
 
 static glm::vec3 colorToRGB(unsigned int c) {

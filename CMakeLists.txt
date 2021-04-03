@@ -112,6 +112,7 @@ set(COMMON_SRCS
   
   src/utils.cpp
   src/graphics/screen_common.cpp
+  src/layer_common.cpp
 
   src/user.cpp
 

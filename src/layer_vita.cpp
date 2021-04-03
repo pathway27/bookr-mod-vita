@@ -178,47 +178,8 @@ void Layer::drawLogo(bool loading, string text, bool error) {
 
 }
 
-void Layer::drawImage(int x, int y) {
-
-}
-
-void Layer::drawImage(int x, int y, int w, int h, int tx, int ty) {
-
-}
-
-void Layer::drawImageScale(int x, int y, int w, int h, int tx, int ty, int tw, int th) {
-}
-
-void Layer::drawTPill(int x, int y, int w, int h, int r, int tx, int ty) {
-}
-
-void Layer::drawRect(int x, int y, int w, int h, int r, int tx, int ty) {
-}
-
-int Layer::textWidthRange(char* t, int n, Font* font) {
-  return 0;
-}
-
 int Layer::textW(char* t, Font* font) {
   return font->fontTextWidth(t);
-}
-
-void Layer::drawTextHC(char* t, Font* font, int y) {
-  int w = textW(t, font);
-  drawText(t, font, (480 - w) / 2, y);
-}
-
-
-int Layer::drawUTFText(const char* t, Font* font, int x, int y, int skipUTFChars, int maxWidth) {
-  return 0;
-}
-
-int Layer::drawUTFMenuItem(MenuItem* item, Font* font, int x, int y, int skipPixels, int maxWidth) {
-  return 0;
-}
-
-int Layer::drawText(char* t, Font* font, int x, int y, int n, bool useLF, bool usePS, float ps, bool use3D) {
-  return 0;
 }
 
 #define DIALOG_ICON_SCALE 1.0
@@ -255,18 +216,17 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // 920
   // 544
   // backs
-  Screen::drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR); // my cheapo drawTPill
+  drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR); // my cheapo drawTPill
 
   //title
-  Screen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
+  drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
 
   //context label
-  Screen::drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
+  drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
 
   //circle or other context
   // circleLabel
-  Screen::drawFontText(fontBig, DIALOG_ITEM_WIDTH - 70,
-    DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, TITLE_FONT_SIZE, t);
+  drawText(DIALOG_ITEM_WIDTH - 70, DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, 1.0f, t);
 
   switch(User::controls.select) {
     case FZ_REPS_CROSS:
@@ -283,7 +243,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
 
   //title
   // (255, 255, 255, 255)
-  Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, TITLE_FONT_SIZE, title.c_str());
+  drawText(DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, 1.0f, title.c_str());
 
   // triangle labels
   // try {
@@ -299,21 +259,12 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // }
 }
 
-void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items) {
-  drawMenu(title, triangleLabel, items, false);
-}
-
-void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
-  drawMenu(title, triangleLabel, items, false);
-  Screen::drawText(300, 83, RGBA8(255, 255, 255, 255), 1.0f, upperBreadCrumb.c_str());
-}
-
 #define DIALOG_MENU_FIRST_ITEM_OFFSET_Y DIALOG_TITLE_OFFSET_Y + DIALOG_ITEM_HEIGHT + 15
 #define DIALOG_MENU_ITEM_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 60
 #define DIALOG_MENU_ITEM_HEIGHT 40
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
-int maxItemNum = 8;
+  int maxItemNum = 8;
   int selPos = selItem - topItem;
   Font* itemFont = fontBig;
 
@@ -340,7 +291,7 @@ int maxItemNum = 8;
 
   // selectedItem
   int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
-  Screen::drawRectangle(DIALOG_ITEM_OFFSET_X,
+  drawRectangle(DIALOG_ITEM_OFFSET_X,
     (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOG_MENU_ITEM_HEIGHT)),
     wSelBox, DIALOG_MENU_ITEM_HEIGHT, COLOR_WHITE);
 
@@ -355,13 +306,13 @@ int maxItemNum = 8;
     float trel = float(topItem) / float(items.size());
     trel *= 73.0f;
 
-    Screen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
+    drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
       DIALOG_MENU_FIRST_ITEM_OFFSET_Y,
       40,
       DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - 30,
       0xff555555);
 
-    Screen::drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
+    drawRectangle(DIALOG_OFFSET_X + wSelBox + 20,
       DIALOG_MENU_FIRST_ITEM_OFFSET_Y + int(trel),
       40,
       DIALOG_CONTEXT_OFFSET_Y - DIALOG_MENU_FIRST_ITEM_OFFSET_Y - 200 - int(barh),
@@ -374,35 +325,20 @@ int maxItemNum = 8;
       break;
 
     if ((i + topItem) == selItem)
-      Screen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
+      drawText(DIALOG_MENU_ITEM_TEXT_OFFSET_X,
         (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
-        COLOR_BLACK, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
+        COLOR_BLACK, 1.0f, items[i + topItem].label.c_str());
     else
-      Screen::drawFontText(fontBig, DIALOG_MENU_ITEM_TEXT_OFFSET_X,
+      drawText(DIALOG_MENU_ITEM_TEXT_OFFSET_X,
         (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
-        COLOR_WHITE, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
+        COLOR_WHITE, 1.0f, items[i + topItem].label.c_str());
   }
 }
 
-void Layer::drawOutlinePrefix(string prefix, int x, int y, int w, int h, int ws){
-
+void Layer::drawOutlinePrefix(string prefix, int x, int y, int w, int h, int ws) {
 }
 
 void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem>& items, bool useUTFFont) {
-}
-
-static int countLines(string& t) {
-  int lines = 1;
-  char* c = (char*)t.c_str();
-  while (*c != 0) {
-    if (*c == 0xa) ++lines;
-    ++c;
-  }
-  return lines;
-}
-
-void Layer::drawPopup(string& text, string& title, int bg1, int bg2, int fg) {  
-  // TODO: Remove
 }
 
 #define _PI_OVER_180 0.0174532925199432957692369076849f
@@ -459,43 +395,6 @@ void Layer::drawClockAndBattery(string& extra) {
   drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 600,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%02d:%02d", h, m);
-}
-
-void Layer::menuCursorUpdate(unsigned int buttons, int max) {
-  int* b = Screen::ctrlReps();
-  if (b[User::controls.menuUp] == 1 || (b[User::controls.menuUp] > 10 && b[User::controls.menuUp] % 5 == 0)) {
-    selItem--;
-    if (selItem < 0) {
-      selItem = max - 1;
-    }
-    skipChars = 0;
-    maxSkipChars = -1;
-  }
-  if (b[User::controls.menuDown] == 1 || (b[User::controls.menuDown] > 10 && b[User::controls.menuDown] % 5 == 0)) {
-    selItem++;
-    if (selItem >= max) {
-      selItem = 0;
-    }
-    skipChars = 0;
-    maxSkipChars = -1;
-  }
-  if (b[User::controls.menuLeft] == 1 || (b[User::controls.menuLeft] > 10 && b[User::controls.menuLeft] % 5 == 0)) {
-    skipChars--;
-    if (skipChars < 0) {
-      skipChars = 0;
-    }
-  }
-  if (b[User::controls.menuRight] == 1 || (b[User::controls.menuRight] > 10 && b[User::controls.menuRight] % 5 == 0)) {
-    skipChars++;
-    if (maxSkipChars >= 0 && skipChars>maxSkipChars)
-      skipChars = maxSkipChars;
-  }
-}
-
-Layer::Layer() : topItem(0), selItem(0),skipChars(0),maxSkipChars(-1) {
-}
-
-Layer::~Layer() {
 }
 
 void Layer::drawText(int x, int y, unsigned int color, float scale, const char *text) {
