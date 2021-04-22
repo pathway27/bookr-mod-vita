@@ -14,6 +14,7 @@
   #include <vita2d.h>
 #endif
 
+#include "ui/colours.hpp"
 #include "graphics/resolutions.hpp"
 #include "graphics/controls.hpp"
 #include "document.hpp"
@@ -537,176 +538,231 @@ int Document::processEventsForToolbar() {
   return 0;
 }
 
-#define MENU_TOOLTIP_WIDTH 150
-#define MENU_TOOLTIP_PADDING 10
-#define MENU_TOOLTIP_ITEM_WIDTH 60
-#define MENU_TOOLTIP_HEIGHT 50
+#define TOOLTIP_WIDTH 150
+#define TOOLTIP_PADDING 10
+#define TOOLTIP_ITEM_WIDTH 60
+#define TOOLTIP_HEIGHT 50
 #define DIALOG_ICON_SCALE 1.0f
-#define MENU_ICONS_Y_OFFSET 544 - 150 + 10
+
+#ifdef __vita__
+#define TOOLTIP_ICONS_Y_OFFSET 544 - 150 + 10
+#define TOOLTIP_TEXT_OFFSET_X 10
+#define TOOLTIP_TEXT_OFFSET_Y 18
+#define TOOLTIP_TEXT_OFFSET_X_2 72
+#define TOOLTIP_TEXT_OFFSET_4 15
+#define TOOLTIP_TEXT_OFFSET_X_3 75
+#else
+#define TOOLTIP_ICONS_Y_OFFSET 1280 - 150 + 10
+#define TOOLTIP_TEXT_OFFSET_X 8
+#define TOOLTIP_TEXT_OFFSET_Y 6
+#define TOOLTIP_TEXT_OFFSET_X_2 72
+#define TOOLTIP_TEXT_OFFSET_4 13
+#define TOOLTIP_TEXT_OFFSET_X_3 75
+#endif
+
+#ifdef SWITCH
+#define TOOLTIP_TOOLS_TEXT "+"
+#define TOOLTIP_MENU_TEXT "-"
+#elif defined(__vita__)
+#define TOOLTIP_TOOLS_TEXT "Select"
+#define TOOLTIP_MENU_TEXT "Start"
+#else
+#define TOOLTIP_TOOLS_TEXT "L-Shift"
+#define TOOLTIP_MENU_TEXT "Enter"
+#endif
+
+#define TOOLTIP_OUTER_RECTANGLE_X DEFAULT_SCREEN_WIDTH - TOOLTIP_WIDTH
+#define TOOLTIP_OUTER_RECTANGLE_Y DEFAULT_SCREEN_HEIGHT - TOOLTIP_HEIGHT
+
+#define TOOLTIP_INNER_TOOLS_RECTANGLE_X TOOLTIP_OUTER_RECTANGLE_X + TOOLTIP_PADDING
+#define TOOLTIP_INNER_TOOLS_RECTANGLE_Y TOOLTIP_OUTER_RECTANGLE_Y + (TOOLTIP_HEIGHT / 2)
+#define TOOLTIP_INNER_MENU_RECTANGLE_X DEFAULT_SCREEN_WIDTH - (TOOLTIP_WIDTH / 2) + (TOOLTIP_PADDING/2)
+#define TOOLTIP_INNER_MENU_RECTANGLE_Y TOOLTIP_INNER_TOOLS_RECTANGLE_Y
+
+#define TOOLTIP_TOOLS_TEXT_OFFSET_X TOOLTIP_OUTER_RECTANGLE_X + TOOLTIP_TEXT_OFFSET_X
+#define TOOLTIP_TOOLS_TEXT_OFFSET_Y TOOLTIP_OUTER_RECTANGLE_Y + TOOLTIP_TEXT_OFFSET_Y
+#define TOOLTIP_MENU_TEXT_OFFSET_X TOOLTIP_TOOLS_TEXT_OFFSET_X + TOOLTIP_TEXT_OFFSET_X_2
+#define TOOLTIP_MENU_TEXT_OFFSET_Y TOOLTIP_TOOLS_TEXT_OFFSET_Y
+
+#define TOOLTIP_SELECT_TEXT_OFFSET_X TOOLTIP_OUTER_RECTANGLE_X + TOOLTIP_TEXT_OFFSET_4
+#define TOOLTIP_SELECT_TEXT_OFFSET_Y TOOLTIP_OUTER_RECTANGLE_Y + (TOOLTIP_HEIGHT / 2) + TOOLTIP_TEXT_OFFSET_Y
+#define TOOLTIP_START_TEXT_OFFSET_X TOOLTIP_SELECT_TEXT_OFFSET_X + TOOLTIP_TEXT_OFFSET_X_3
+#define TOOLTIP_START_TEXT_OFFSET_Y TOOLTIP_SELECT_TEXT_OFFSET_Y
+
+#ifdef __vita__
+#define BANNER_X (DEFAULT_SCREEN_WIDTH / 2) - 180
+#define BANNER_WIDTH (2*180)
+#define BANNER_HEIGHT 30
+#define BANNER_X_TEXT_X BANNER_X + 90
+#define BANNER_X_TEXT_Y 21
+#else
+#define BANNER_X (DEFAULT_SCREEN_WIDTH / 2) - 180
+#define BANNER_WIDTH (2*180)
+#define BANNER_HEIGHT 30
+#define BANNER_X_TEXT_X BANNER_X + 90
+#define BANNER_X_TEXT_Y 6
+#endif
+
+#ifdef __vita__
+#define TOOLBAR_OUTER_RECTANGLE_X 40
+#define TOOLBAR_OUTER_RECTANGLE_Y 544 - 150
+#define TOOLBAR_OUTER_RECTANGLE_WIDTH 960 - 92
+#define TOOLBAR_OUTER_RECTANGLE_HEIGHT 544
+#else
+#define TOOLBAR_OUTER_RECTANGLE_X 40
+#define TOOLBAR_OUTER_RECTANGLE_Y 544 - 150
+#define TOOLBAR_OUTER_RECTANGLE_WIDTH 960 - 92
+#define TOOLBAR_OUTER_RECTANGLE_HEIGHT 544
+#endif
+
+#ifdef __vita__
+#define TOOLBAR_CONTEXT_LABEL_X 96
+#define TOOLBAR_CONTEXT_LABEL_Y 494
+#define TOOLBAR_CONTEXT_LABEL_WIDTH 768
+#define TOOLBAR_CONTEXT_LABEL_HEIGHT 50
+#else
+#define TOOLBAR_CONTEXT_LABEL_X 96
+#define TOOLBAR_CONTEXT_LABEL_Y 494
+#define TOOLBAR_CONTEXT_LABEL_WIDTH 768
+#define TOOLBAR_CONTEXT_LABEL_HEIGHT 50
+#endif
+
+#ifdef __vita__
+#define TOOLBAR_HIGHLIGHT_ICON_X 40
+#define TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER 75
+#define TOOLBAR_HIGHLIGHT_ICON_Y 544 - 150
+#define TOOLBAR_HIGHLIGHT_ICON_Y_MULTIPLIER 55
+#define TOOLBAR_HIGHLIGHT_ICON_WIDTH 85
+#define TOOLBAR_HIGHLIGHT_ICON_HEIGHT 65
+#else
+#define TOOLBAR_HIGHLIGHT_ICON_X 40
+#define TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER 75
+#define TOOLBAR_HIGHLIGHT_ICON_Y 544 - 150
+#define TOOLBAR_HIGHLIGHT_ICON_Y_MULTIPLIER 55
+#define TOOLBAR_HIGHLIGHT_ICON_WIDTH 85
+#define TOOLBAR_HIGHLIGHT_ICON_HEIGHT 65
+#endif
+
+#ifdef __vita__
+#define TOOLBAR_SELECTED_ICON_X 50
+#define TOOLBAR_SELECTED_ICON_Y 544 - 195
+#define TOOLBAR_SELECTED_ICON_Y_MULTIPLIER 55
+#define TOOLBAR_SELECTED_ICON_WIDTH 80
+#define TOOLBAR_SELECTED_ICON_HEIGHT 50
+#else
+#define TOOLBAR_SELECTED_ICON_X 40
+#define TOOLBAR_SELECTED_ICON_X_MULTIPLIER 75
+#define TOOLBAR_SELECTED_ICON_Y 544 - 150
+#define TOOLBAR_SELECTED_ICON_Y_MULTIPLIER 55
+#define TOOLBAR_SELECTED_ICON_WIDTH 85
+#define TOOLBAR_SELECTED_ICON_HEIGHT 65
+#endif
+
 void Document::render() {
   // content
   renderContent();
 
-  // // flash tip for menu/toolbar on load
-  // if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
-  //   int alpha = 0xff;
-  //   if (tipFrames <= 32) {
-  //     alpha = tipFrames*(256/32) - 8;
-  //   }
+  // flash tip for menu/toolbar on load
+  if (tipFrames > 0 && mode != BKDOC_TOOLBAR) {
+    int alpha = 0xff;
+    if (tipFrames <= 32) {
+      alpha = tipFrames * (256/32) - 8;
+    }
 
-  //   if (alpha > 0) {
-  //     #ifdef __vita__
-  //       vita2d_draw_rectangle(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH, 
-  //         DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT,
-  //         MENU_TOOLTIP_WIDTH,
-  //         MENU_TOOLTIP_HEIGHT, 0x1D1616 | (alpha << 24));
-  //       vita2d_draw_rectangle(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + MENU_TOOLTIP_PADDING,
-  //         DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
-  //          MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
-  //       vita2d_draw_rectangle(DEFAULT_SCREEN_WIDTH - (MENU_TOOLTIP_WIDTH/2) + (MENU_TOOLTIP_PADDING/2),
-  //         DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2),
-  //         MENU_TOOLTIP_ITEM_WIDTH, MENU_TOOLTIP_HEIGHT/2, 0xEBEBEB | (alpha << 24));
+    if (alpha > 0) {
+      drawRectangle(TOOLTIP_OUTER_RECTANGLE_X, TOOLTIP_OUTER_RECTANGLE_Y,
+                    TOOLTIP_WIDTH, TOOLTIP_HEIGHT, WOOD_BARK | (alpha << 24));
+      drawRectangle(TOOLTIP_INNER_TOOLS_RECTANGLE_X, TOOLTIP_INNER_TOOLS_RECTANGLE_Y,
+                    TOOLTIP_ITEM_WIDTH, TOOLTIP_HEIGHT/2,WHITE_SMOKE | (alpha << 24));
+      drawRectangle(TOOLTIP_INNER_MENU_RECTANGLE_X,  TOOLTIP_INNER_MENU_RECTANGLE_Y,
+                    TOOLTIP_ITEM_WIDTH, TOOLTIP_HEIGHT/2, WHITE_SMOKE | (alpha << 24));
 
-  //       Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10,
-  //         DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Tools");
-  //       Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 10 + 72,
-  //         DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + 18, (0xffffff | (alpha << 24)), 1.0f, "Menu");
-  //       Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15,
-  //         DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Select");
-  //       Screen::drawText(DEFAULT_SCREEN_WIDTH - MENU_TOOLTIP_WIDTH + 15 + 75,
-  //         DEFAULT_SCREEN_HEIGHT - MENU_TOOLTIP_HEIGHT + (MENU_TOOLTIP_HEIGHT / 2) + 18, (0x1D1616 | (alpha << 24)), 0.85f, "Start");
-  //     #elif defined(PSP)
-  //       texUI->bindForDisplay();
-  //       Screen::ambientColor(0x222222 | (alpha << 24));
-  //       drawPill(480 - 37 - 37 - 8, 272 - 18 - 4,
-  //         37*2 + 2, 50,
-  //         6,
-  //         31, 1);
-  //       Screen::ambientColor(0xffffff | (alpha << 24));
-  //       drawImage(480 - 37 - 2, 272 - 18,
-  //         37, 18,
-  //         75, 60);
-  //       drawImage(480 - 37 - 2 - 2 - 37, 272 - 18,
-  //         37, 18,
-  //         75, 39);
-  //     #endif
-  //   }
-  // }
+      drawText(TOOLTIP_TOOLS_TEXT_OFFSET_X, TOOLTIP_TOOLS_TEXT_OFFSET_Y,
+               (WHITE | (alpha << 24)), 1.0f, "Tools");
+      drawText(TOOLTIP_MENU_TEXT_OFFSET_X, TOOLTIP_MENU_TEXT_OFFSET_Y,
+               (WHITE | (alpha << 24)), 1.0f, "Menu");
+      drawText(TOOLTIP_SELECT_TEXT_OFFSET_X, TOOLTIP_SELECT_TEXT_OFFSET_Y,
+               (WOOD_BARK | (alpha << 24)), 0.85f, TOOLTIP_TOOLS_TEXT);
+      drawText(TOOLTIP_START_TEXT_OFFSET_X, TOOLTIP_START_TEXT_OFFSET_Y,
+               (WHITE | (alpha << 24)), 0.85f, TOOLTIP_MENU_TEXT);
+    }
+  }
 
-  // // banner that shows page loading and current page number / number of pages
-  // if (bannerFrames > 0 && User::options.displayLabels) {
-  //   #ifdef __vita__
-  //     int y = mode == BKDOC_TOOLBAR ? 10 : DEFAULT_SCREEN_HEIGHT - 50;
-  //   #elif defined(PSP)
-  //     int y = mode == BKDOC_TOOLBAR ? 10 : 240;
-  //   #endif
-  //   int alpha = 0xff;
-  //   if (bannerFrames <= 32) {
-  //     alpha = bannerFrames*(256/32) - 8;
-  //   }
-  //   if (alpha > 0) {
-  //     #ifdef __vita__
-  //       vita2d_draw_rectangle((DEFAULT_SCREEN_WIDTH / 2) - 180, y, (2*180), 30, 0x222222 | (alpha << 24));
-  //       Screen::drawText((DEFAULT_SCREEN_WIDTH / 2) - 180 + 90, y + 21, (0xffffff | (alpha << 24)), 1.0f, banner.c_str());
-  //     #elif defined(PSP)
-  //       texUI->bindForDisplay();
-  //       Screen::ambientColor(0x222222 | (alpha << 24));
-  //       drawPill(150, y, 180, 20, 6, 31, 1);
-  //       fontBig->bindForDisplay();
-  //       Screen::ambientColor(0xffffff | (alpha << 24));
-  //       drawTextHC((char*)banner.c_str(), fontBig, y + 4);
-  //     #endif
-  //   }
-  // }
+  // banner that shows page loading and current page number / number of pages
+  if (bannerFrames > 0 && User::options.displayLabels) {
+    int y = mode == BKDOC_TOOLBAR ? 10 : DEFAULT_SCREEN_HEIGHT - 50;
+    int alpha = 0xff;
+    if (bannerFrames <= 32) {
+      alpha = bannerFrames*(256/32) - 8;
+    }
+    if (alpha > 0) {
+      drawRectangle(BANNER_X, y,
+                    BANNER_WIDTH, BANNER_HEIGHT, NERO | (alpha << 24));
+      drawText(BANNER_X_TEXT_X, y + BANNER_X_TEXT_Y,
+               WHITE | (alpha << 24), 1.0f, banner.c_str());
+    }
+  }
 
-  // if (mode != BKDOC_TOOLBAR)
-  //   return;
+  if (mode != BKDOC_TOOLBAR)
+    return;
 
-  // // // all of the icons menus must have at least one item
+  // all of the icons menus must have at least one item
+  // wrap menu indexes
+  if (toolbarSelMenu >= 4)
+    toolbarSelMenu = 0;
+  if (toolbarSelMenu < 0)
+    toolbarSelMenu = 3;
+  if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
+    toolbarSelMenuItem = 0;
+  if (toolbarSelMenuItem < 0)
+    toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
 
-  // // // wrap menu indexes
-  // if (toolbarSelMenu >= 4)
-  //   toolbarSelMenu = 0;
-  // if (toolbarSelMenu < 0)
-  //   toolbarSelMenu = 3;
-  // if (toolbarSelMenuItem >= (int)toolbarMenus[toolbarSelMenu].size())
-  //   toolbarSelMenuItem = 0;
-  // if (toolbarSelMenuItem < 0)
-  //   toolbarSelMenuItem = toolbarMenus[toolbarSelMenu].size() - 1;
+  const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
 
-  // const ToolbarItem& it = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem];
+  // background
+  drawRectangle(TOOLBAR_OUTER_RECTANGLE_X, TOOLBAR_OUTER_RECTANGLE_Y,
+                TOOLBAR_OUTER_RECTANGLE_WIDTH, TOOLBAR_OUTER_RECTANGLE_HEIGHT, ALIZARIN);
 
-  // // // background
-  // #ifdef PSP
-  //   texUI->bindForDisplay();
-  //   Screen::ambientColor(0xf0222222);
-  //   drawTPill(20, 272 - 75, 480 - 46, 272, 6, 31, 1);
-  // #elif defined(__vita__)
-  //   vita2d_draw_rectangle(40, 544 - 150, 960 - 92, 544, 0xf0222222);
-  // #endif
+  // context label
+  drawRectangle(TOOLBAR_CONTEXT_LABEL_X, TOOLBAR_CONTEXT_LABEL_Y,
+                TOOLBAR_CONTEXT_LABEL_WIDTH, TOOLBAR_CONTEXT_LABEL_HEIGHT, TOMATO);
 
-  // // // context label
-  // #ifdef PSP
-  //   Screen::ambientColor(0xff555555);
-  //   //drawTPill(25, 272 - 40, 480 - 46 - 11, 40, 6, 31, 1);
-  //   drawTPill(25, 272 - 30, 480 - 46 - 11, 30, 6, 31, 1);
-  // #elif defined(__vita__)
-  //   vita2d_draw_rectangle(96, 494, 768, 50, 0xff555555);
-  // #endif
+  // selected column - decide if it overflows
+  int ts = toolbarMenus[toolbarSelMenu].size();
+  int init = 0;
+  bool overflow = false;
+  int cs = ts;
+  if (ts > 5) { // overflow mode
+    overflow = true;
+    init = toolbarSelMenuItem - 4;
+    if (init < 0)
+      init = 0;
+    ts = 5 + init;
+    cs = 5;
+  }
 
-  // // // selected column - decide if it overflows
-  // int ts = toolbarMenus[toolbarSelMenu].size();
-  // int init = 0;
-  // bool overflow = false;
-  // int cs = ts;
-  // if (ts > 5) { // overflow mode
-  //   overflow = true;
-  //   init = toolbarSelMenuItem - 4;
-  //   if (init < 0)
-  //     init = 0;
-  //   ts = 5 + init;
-  //   cs = 5;
-  // }
+  // highlight icon column
+  drawRectangle(TOOLBAR_HIGHLIGHT_ICON_X + (toolbarSelMenu*TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER),
+                TOOLBAR_HIGHLIGHT_ICON_Y - (cs * TOOLBAR_HIGHLIGHT_ICON_Y_MULTIPLIER),
+                TOOLBAR_HIGHLIGHT_ICON_WIDTH,
+                (cs * TOOLBAR_HIGHLIGHT_ICON_Y_MULTIPLIER) + TOOLBAR_HIGHLIGHT_ICON_HEIGHT,
+                TOMATO);
 
-  // // // highlight icon column
-  // #ifdef PSP
-  //   Screen::ambientColor(0xf0555555);
-  //   drawPill(25 + toolbarSelMenu*55,
-  //     272 - 156 - cs*35+70,
-  //     40, cs*35+45,
-  //     6, 31, 1
-  //   );
-  // #elif defined(__vita__)
-  //   vita2d_draw_rectangle(40 + toolbarSelMenu*75, 544 - 150 - (cs*55), 
-  //     85, (cs*55) + 65, 0xf0555555);
-  // #endif
+  // selected icon item row
+  int iw = 1;
+  int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
+  if (iw < mw)
+    iw = mw;
+  int selItemI = overflow ?
+    toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
+    : toolbarSelMenuItem;
+  drawRectangle(TOOLBAR_SELECTED_ICON_X + (toolbarSelMenu*TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER),
+                TOOLBAR_SELECTED_ICON_Y - (selItemI * TOOLBAR_SELECTED_ICON_Y_MULTIPLIER),
+                TOOLBAR_SELECTED_ICON_WIDTH + iw,
+                TOOLBAR_SELECTED_ICON_HEIGHT,
+                CHERUB);
 
-  // // // selected icon item row
-  // //Screen::ambientColor();
-  // #ifdef PSP
-  //   drawPill(
-  //     30 + toolbarSelMenu*55,
-  //     272 - 156 - selItemI*35+40,
-  //     iw + 10 + 35,
-  //     30,
-  //     6, 31, 1);
-  // #elif defined(__vita__)
-  //   int iw = textW((char*)toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].label.c_str(), fontBig);
-  //   int mw = toolbarMenus[toolbarSelMenu][toolbarSelMenuItem].minWidth;
-  //   if (iw < mw)
-  //     iw = mw;
-  //   int selItemI = overflow ?
-  //     toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
-  //     : toolbarSelMenuItem;
-  //   vita2d_draw_rectangle(
-  //     60 + toolbarSelMenu*75 - 10,
-  //     544 - 140 - (selItemI*55) - 55,
-  //     60 + 20 + iw,
-  //     50,
-  //     0xf0cccccc);
-  // #endif
-
-  // // // button icons
+  // button icons
   // if (it.circleLabel.size() > 0) {
   //   #ifdef PSP
   //     Screen::ambientColor(0xffcccccc);
@@ -738,27 +794,27 @@ void Document::render() {
   // }
 
 
-  // // menu row
+  // menu row
   // #ifdef PSP
   //   drawImage(38 + 0*55, 205, 18, 26, 0, 0);
   //   drawImage(38 + 1*55, 205, 18, 26, 19, 53);
   //   drawImage(38 + 2*55, 205, 18, 26, 38, 53);
   //   drawImage(38 + 3*55, 205, 19, 26, 19, 79);
   // #elif defined(__vita__)
-  //   vita2d_draw_texture_scale(bk_icons["bk_bookmark_icon"]->vita_texture, 60, MENU_ICONS_Y_OFFSET, 
+  //   vita2d_draw_texture_scale(bk_icons["bk_bookmark_icon"]->vita_texture, 60, TOOLTIP_ICONS_Y_OFFSET, 
   //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-  //   vita2d_draw_texture_scale(bk_icons["bk_copy_icon"]->vita_texture, 60 + 75, MENU_ICONS_Y_OFFSET, 
+  //   vita2d_draw_texture_scale(bk_icons["bk_copy_icon"]->vita_texture, 60 + 75, TOOLTIP_ICONS_Y_OFFSET, 
   //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-  //   vita2d_draw_texture_scale(bk_icons["bk_search_icon"]->vita_texture, 60 + 75 + 75 , MENU_ICONS_Y_OFFSET, 
+  //   vita2d_draw_texture_scale(bk_icons["bk_search_icon"]->vita_texture, 60 + 75 + 75 , TOOLTIP_ICONS_Y_OFFSET, 
   //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-  //   vita2d_draw_texture_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + 75 + 75 + 75, MENU_ICONS_Y_OFFSET, 
+  //   vita2d_draw_texture_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + 75 + 75 + 75, TOOLTIP_ICONS_Y_OFFSET, 
   //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
   // #endif
 
-  // // // selected column
+  // selected column
   // for (int i = init, j = 0; i < ts; i++, j++) {
   //   const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
   //   unsigned int color;
@@ -780,7 +836,7 @@ void Document::render() {
   //   }
   // }
   
-  // // // item label for selected item
+  // item label for selected item
   // #ifdef PSP
   //   fontBig->bindForDisplay();
   //   Screen::ambientColor(0xff000000);
@@ -813,14 +869,14 @@ void Document::render() {
   //   }
   // */
 
-  // string t;
-  // if (isPaginated()) {
-  //   char tp[256];
-  //   snprintf(tp, 256, "Page %d of %d", getCurrentPage() + 1, getTotalPages());
-  //   t = tp;
-  // }
+  string t;
+  if (isPaginated()) {
+    char tp[256];
+    snprintf(tp, 256, "Page %d of %d", getCurrentPage() + 1, getTotalPages());
+    t = tp;
+  }
   
-  // drawClockAndBattery(t);
+  drawClockAndBattery(t);
 }
 
 }

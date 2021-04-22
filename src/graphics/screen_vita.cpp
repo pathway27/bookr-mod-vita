@@ -487,7 +487,6 @@ int getBattery() {
 int getUsedMemory() {
   struct mallinfo mi = mallinfo();
   return mi.uordblks;
-  //return mi.arena;
 }
 
 void setBrightness(int b){

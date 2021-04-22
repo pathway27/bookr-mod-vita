@@ -10,28 +10,33 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
-#include "screen.hpp"
-
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <switch.h>
+#include <malloc.h>
+#include <dirent.h>
 
 #include <EGL/egl.h>    // EGL library
 #include <EGL/eglext.h> // EGL extensions
 #include <glad/glad.h>  // glad library (OpenGL loader)
 
+#include "screen.hpp"
 #include "texture.hpp"
 #include "controls.hpp"
 #include "../resource_manager.hpp"
 
 #include "textures_frag.h"
 #include "textures_vert.h"
-#include "icon0_t_png.h"
-#include "NotoSans-Regular_ttf.h"
 #include "text_vert.h"
 #include "text_frag.h"
+
+#include "NotoSans-Regular_ttf.h"
+#include "icon0_t_png.h"
+#include "circle-outline_png.h"
+#include "close-box-outline_png.h"
+#include "triangle-outline_png.h"
 
 #include <filesystem>
 #include <iostream>
@@ -91,7 +96,6 @@ static EGLSurface s_surface;
 
 static bool initEgl(NWindow *win);
 static void loadShaders();
-static void sceneRender();
 
 static PadState pad;
 // Move this to constructor?
@@ -127,19 +131,6 @@ void open(int argc, char **argv)
   padConfigureInput(8, HidNpadStyleSet_NpadStandard);
 
   padInitializeAny(&pad);
-
-  // while (appletMainLoop())
-  // {
-  //   // Get and process input
-  //   hidScanInput();
-  //   u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-  //   if (kDown & KEY_PLUS)
-  //     break;
-
-  //   // Render stuff!
-  //   sceneRender();
-  //   swapBuffers();
-  // }
 }
 
 //-----------------------------------------------------------------------------
@@ -265,24 +256,6 @@ static const char *const fragmentShaderSource = R"text(
 )text";
 
 static TextRenderer* ui_text_renderer;
-static void sceneRender()
-{
-  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  ResourceManager::getSpriteRenderer()->DrawSprite(
-    ResourceManager::GetTexture("logo"),
-    glm::vec2(380, 150),
-    glm::vec2(128, 128));
-
-  ResourceManager::getSpriteRenderer()->DrawQuad(
-      glm::vec2(450, 150),
-      glm::vec2(128, 128),
-      0.0f, glm::vec4(170/255.0, 170/255.0, 170/255.0, 255/255.0));
-
-  ui_text_renderer->RenderText("Testing:", 5.0f, 5.0f, 1.0f, glm::vec3(0.0f,0.0f,0.0f));
-}
-
 static void loadShaders() {
   ResourceManager::LoadShader((const char*)textures_vert, (const char*)textures_frag, nullptr, "sprite", false, textures_vert_size, textures_frag_size);
   ResourceManager::CreateSpriteRenderer(ResourceManager::GetShader("sprite"));
@@ -291,8 +264,11 @@ static void loadShaders() {
 
   // ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
   ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
-  
+
   ResourceManager::LoadTexture((const char*)icon0_t_png, GL_TRUE, "logo", false, icon0_t_png_size);
+  ResourceManager::LoadTexture((const char*)circle-outline_png, GL_TRUE, "bk_circle_icon", false, circle-outline_png_size);
+  ResourceManager::LoadTexture((const char*)close-box-outline_png, GL_TRUE, "bk_cross_icon", false, close-box-outline_png_size);
+  ResourceManager::LoadTexture((const char*)triangle-outline_png, GL_TRUE, "bk_triangle_icon", false, triangle-outline_png_size);
 
   // text
   ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,
@@ -337,7 +313,6 @@ void drawRectangle(float x, float y, float w, float h, unsigned int color) {
 }
 
 void drawFontTextf(Font *font, int x, int y, unsigned int color, unsigned int size, const char *text, ...) {
-
 }
 
 void setTextSize(float x, float y) {
@@ -531,8 +506,6 @@ struct CompareDirent {
   }
 };
 
-#include <dirent.h>
-
 int dirContents(const char* path, std::vector<Dirent>& a) {
   for (const auto & entry : std::filesystem::directory_iterator(path)) {
     std::cout << entry.path() << std::endl;
@@ -561,15 +534,21 @@ int getSpeed() {
 }
 
 void getTime(int &h, int &m) {
-
+  auto t = std::time(0);   // get time now
+  auto now = std::localtime(&t);
+  h = now->tm_hour;
+  m = now->tm_min;
 }
 
 int getBattery() {
-  return 0;
+  unsigned int charge;
+  psmGetBatteryChargePercentage(&charge);
+  return charge;
 }
 
 int getUsedMemory() {
-  return 0;
+  struct mallinfo mi = mallinfo();
+  return mi.uordblks;
 }
 
 void setBrightness(int b){
@@ -580,4 +559,4 @@ bool isClosing() {
   return !appletMainLoop();
 }
 
-}}
+} }

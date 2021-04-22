@@ -354,7 +354,7 @@ void MainMenu::render() {
 		string title("Main Menu");
 		drawMenu(title, t, mainItems);
 		string e;
-		// drawClockAndBattery(e);
+		drawClockAndBattery(e);
 	} else if (mode == Mode::CONTROLS) {
 		string title("Customize controls");
 		drawMenu(title, t, controlItems);

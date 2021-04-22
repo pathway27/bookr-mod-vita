@@ -22,6 +22,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <filesystem>
 #include <iostream>
+#include <ctime>
+#include <malloc/malloc.h>
+#include <cinttypes>
+
+#include <dirent.h>
 
 #include "screen.hpp"
 #include "controls.hpp"
@@ -179,9 +184,11 @@ static void loadShaders() {
 
   // ResourceManager::GetShader("sprite").Use().SetInteger("sprite", 0);
   ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
-  
 
   ResourceManager::LoadTexture("data/logos/icon0_t.png", GL_TRUE, "logo");
+  ResourceManager::LoadTexture("data/icons/circle-outline.png", GL_TRUE, "bk_circle_icon");
+  ResourceManager::LoadTexture("data/icons/close-box-outline.png", GL_TRUE, "bk_cross_icon");
+  ResourceManager::LoadTexture("data/icons/triangle-outline.png", GL_TRUE, "bk_triangle_icon");
 
   ResourceManager::CreateTextRenderer(WIDTH, HEIGHT);
 }
@@ -233,7 +240,6 @@ void checkEvents(int buttons) {
 
 void matricesFor2D(int rotation) {
 }
-
 
 static Texture* boundTexture = 0;
 void setBoundTexture(Texture *t) {
@@ -293,8 +299,6 @@ struct CompareDirent {
     }
 };
 
-#include <dirent.h>
-
 int dirContents(const char* path, std::vector<Dirent>& a) {
   for (const auto & entry : std::filesystem::directory_iterator(path)) {
     std::cout << entry.path() << std::endl;
@@ -332,17 +336,19 @@ int getSpeed() {
 }
 
 void getTime(int &h, int &m) {
+  auto t = std::time(0);   // get time now
+  auto now = std::localtime(&t);
+  h = now->tm_hour;
+  m = now->tm_min;
 }
 
 int getBattery() {
-  return 0;
+  return 100;
 }
 
 int getUsedMemory() {
-    //struct mallinfo mi = mallinfo();
-    //return mi.uordblks;
-    //return mi.arena;
-  return 0;
+  auto data = mstats();
+  return data.bytes_used;
 }
 
 void* getListMemory(int s) {
@@ -350,14 +356,11 @@ void* getListMemory(int s) {
   return 0;
 }
 
-
 void setBrightness(int b){
 }
 
 void waitVblankStart() {
 }
-
-
 
 glm::vec4 colorToRGBA(unsigned int c) {
   float red = (float)((c & 0xff000000) >> 24);
@@ -395,16 +398,12 @@ void color(unsigned int c) {
   glClearColor(red, green, blue, alpha);
 }
 
-
-
 void endAndDisplayList() {
     // sceGuFinish();
     // sceKernelDcacheWritebackAll();  
     // sceGuSync(0,0);
 }
 
-void drawTexture(const Texture *texture, float x, float y) {
-
-}
+void drawTexture(const Texture *texture, float x, float y) {}
 
 } }

@@ -11,35 +11,18 @@
 */
 
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "ui/colours.hpp"
 #include "graphics/shader.hpp"
 #include "resource_manager.hpp"
 #include "layer.hpp"
 #include "resource_manager.hpp"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "graphics/controls.hpp"
 
 namespace bookr {
-
-extern "C" {
-  extern unsigned int size_res_logo;
-  extern unsigned char res_logo[];
-  extern unsigned int size_res_uitex;
-  extern unsigned char res_uitex[];
-  extern unsigned int size_res_uitex2;
-  extern unsigned char res_uitex2[];
-  extern unsigned int size_res_uifont;
-  extern unsigned char res_uifont[];
-  extern unsigned char pdf_font_DroidSansFallback_ttf_buf[];
-  extern unsigned int  pdf_font_DroidSansFallback_ttf_len;
-  extern unsigned char _binary_icon0_t_png_start;
-  extern unsigned int _binary_icon0_t_png_size;
-
-  extern unsigned char fz_resources_fonts_urw_NimbusSans_Regular_cff[];
-  extern unsigned int fz_resources_fonts_urw_NimbusSans_Regular_cff_size;
-};
 
 void Layer::load() {
   #ifdef DEBUG
@@ -90,7 +73,7 @@ int Layer::textW(char* t, Font* font) {
 
 #define DIALOG_ICON_SCALE 1.0
 #define DIALOG_OFFSET_X Screen::WIDTH * 0.1
-#define DIALOG_OFFSET_Y Screen::HEIGHT * 0.1
+#define DIALOG_OFFSET_Y Screen::HEIGHT * 0.09
 #define DIALOG_WIDTH Screen::WIDTH * 0.8
 #define DIALOG_HEIGHT Screen::HEIGHT * 0.8
 #define DIALOG_BG_COLOR RGBA8(47, 47, 47, 240) // Very Dark Transparent Gray
@@ -109,10 +92,11 @@ int Layer::textW(char* t, Font* font) {
 
 #define COLOR_WHITE RGBA8(255, 255, 255, 255)
 #define COLOR_BLACK RGBA8(0, 0, 0, 255)
+inline constexpr unsigned int LOGO_SIZE = 32;
 
 void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
   int scrY = 0;
-  char *t =(char*)circleLabel.c_str();
+  char *t = (char*)circleLabel.c_str();
   // int tw = textW(t, fontBig);
 
   // back
@@ -121,29 +105,38 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // title
   drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
 
-  // // context label
-  // Screen::ambientColor(0xff555555);
-  // drawTPill(25, 272 - 30 + scrY, 480 - 46 - 11, 30, 6, 31, 1);
-  // // icons
-  // Screen::ambientColor(0xff000000);
-  // // drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
-  // // drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
-  // switch (User::controls.select) {
-  // case FZ_REPS_CROSS:
-  // 	drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y);
-  // 	break;
-  // case FZ_REPS_CIRCLE:
-  // default:
-  // 	drawImage(430, 29 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
-  // 	break;
-  // }
+  // context label
+  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, DIALOG_CONTEXT_BG_COLOR);
 
+  // circleLabel or other context
+  drawText(Screen::WIDTH * 0.9 - 120, Screen::HEIGHT * 0.9 + 29, WHITE, 1.0f, t);
+
+  switch (User::controls.select) {
+    case FZ_REPS_CROSS:
+      // drawText(Screen::WIDTH * 0.1 + 210, Screen::HEIGHT * 0.9 + 10, BLACK, 1.0f, "INSERT CROSS HERE");
+      ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("bk_cross_icon"),
+        glm::vec2(Screen::WIDTH * 0.9 - 200, Screen::HEIGHT * 0.9 + 25),
+        glm::vec2(LOGO_SIZE, LOGO_SIZE));
+      break;
+    case FZ_REPS_CIRCLE:
+    default:
+      // drawText(Screen::WIDTH * 0.1 + 210, Screen::HEIGHT * 0.9 + 10, BLACK, 1.0f, "INSERT CIRCLE HERE");
+      ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("bk_circle_icon"),
+        glm::vec2(Screen::WIDTH * 0.9 - 200, Screen::HEIGHT * 0.9 + 25),
+        glm::vec2(LOGO_SIZE, LOGO_SIZE));
+      break;
+  }
+
+  // title
+  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.12, COLOR_WHITE, 1.0f, title.c_str());
+
+  // triangle colors
   // Screen::ambientColor(0xffcccccc);
-  // // circle or other context icon
+  // circle or other context icon
   // if (flags & BK_MENU_ITEM_FLAG::USE_LR_ICON) {
   // 	drawImage(480 - tw - 65, 248 + scrY, BK_IMG_LRARROWS_XSIZE, BK_IMG_LRARROWS_YSIZE, BK_IMG_LRARROWS_X, BK_IMG_LRARROWS_Y);
   // } else {
-  //   if(circleLabel.size() > 0){
+  //   if(circleLabel.size() > 0) {
   // 	switch(User::controls.select) {
   // 	case FZ_REPS_CROSS:
   // 		drawImage(480 - tw - 65, 248 + scrY, BK_IMG_CROSS_XSIZE, BK_IMG_CROSS_YSIZE, BK_IMG_CROSS_X, BK_IMG_CROSS_Y);
@@ -161,19 +154,19 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // 	// drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
   // 	drawImage(37, 248 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y);
   // }
-
-  // fontBig->bindForDisplay();
-
-  // title
-  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.12, COLOR_WHITE, 1.0f, title.c_str());
-  
-  // // labels
+ 
+  // labels
   // Screen::ambientColor(0xffcccccc);
   // if (triangleLabel.size() > 0) {
   // 	drawText((char*)triangleLabel.c_str(), fontBig, 37 + 25, 248 + scrY);
   // }
   // if (circleLabel.size() > 0)
   //   drawText(t, fontBig, 480 - tw - 40, 248 + scrY);
+
+  // icons
+  // Screen::ambientColor(0xff000000);
+  // drawImage(430, 30 + scrY, BK_IMG_TRIANGLE_XSIZE, BK_IMG_TRIANGLE_YSIZE, BK_IMG_TRIANGLE_X, BK_IMG_TRIANGLE_Y); tri!
+  // drawImage(430, 29 + scrY, BK_IMG_CIRCLE_XSIZE, BK_IMG_CIRCLE_YSIZE, BK_IMG_CIRCLE_X, BK_IMG_CIRCLE_Y); // close handle
 }
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, bool useUTFFont) {
@@ -472,6 +465,11 @@ void Layer::drawClockAndBattery(string& extra) {
   snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
   char t4[20];
   snprintf(t4, 20, "%dMHz", speed);
+  drawText(60, 128, BLACK, 1.0f, t1);
+  drawText(60, 228, BLACK, 1.0f, t2);
+  drawText(60, 328, BLACK, 1.0f, t3);
+  drawText(60, 428, BLACK, 1.0f, t4);
+  drawText(60, 528, BLACK, 1.0f, extra.c_str());
 }
 
 static glm::vec3 colorToRGB(unsigned int c) {

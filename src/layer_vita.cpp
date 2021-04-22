@@ -10,12 +10,10 @@
  * Licensed under GPLv3+, see LICENSE
 */
 
+#include "ui/colours.hpp"
 #include "layer.hpp"
 #include "graphics/resolutions.hpp"
 #include "graphics/controls.hpp"
-
-using std::make_pair;
-// using Texture::createFromBuffer;
 
 namespace bookr {
 
@@ -38,7 +36,6 @@ Texture* Layer::texUI = 0;
 Texture* Layer::texUI2 = 0;
 Texture* Layer::texLogo = 0;
 
-// const auto& createTexFromBuffer = Texture::createFromBuffer;
 map<string, Texture*> Layer::bk_icons;
 
 static const unsigned int TITLE_FONT_SIZE = 28;
@@ -98,10 +95,9 @@ void Layer::load() {
   
   texLogo = Texture::createFromBuffer(&_binary_data_logos_icon0_t_png_start);
 
-  // TODO: fix serious uglyness, replace with old spritesheet code? IDK.
-  // bk_icons["bk_memory_icon"] = Texture::createFromBuffer(&_binary_data_icons_memory_png_start)));
-  // bk_icons.insert(make_pair("bk_battery_icon", Texture::createFromBuffer(&_binary_data_icons_battery_outline_png_start)));
-  // bk_icons.insert(make_pair("bk_clock_icon", Texture::createFromBuffer(&_binary_data_icons_clock_png_start)));
+  bk_icons["bk_clock_icon"] = Texture::createFromBuffer(&_binary_data_icons_clock_png_start);
+  bk_icons["bk_battery_icon"] = Texture::createFromBuffer(&_binary_data_icons_battery_outline_png_start);
+  bk_icons["bk_memory_icon"] = Texture::createFromBuffer(&_binary_data_icons_memory_png_start);
 
   bk_icons["bk_circle_icon"] = Texture::createFromBuffer(&_binary_data_icons_circle_outline_png_start);
   bk_icons["bk_cross_icon"] = Texture::createFromBuffer(&_binary_data_icons_close_box_outline_png_start);
@@ -187,36 +183,27 @@ int Layer::textW(char* t, Font* font) {
 #define DIALOG_OFFSET_Y 40
 #define DIALOG_WIDTH 768
 #define DIALOG_HEIGHT 504
-#define DIALOG_BG_COLOR RGBA8(47, 47, 47, 240) // Very Dark Transparent Gray
+#define DIALOG_BG_COLOR NIGHT_RIDER
 
 #define DIALOG_ITEM_OFFSET_X DIALOG_OFFSET_X + 10
 #define DIALOG_ITEM_WIDTH DIALOG_WIDTH - 20
 #define DIALOG_ITEM_HEIGHT 50
 
 #define DIALOG_TITLE_OFFSET_Y DIALOG_OFFSET_Y + 10
-#define DIALOG_TITLE_BG_COLOR RGBA8(170, 170, 170, 255) // Very Light Gray
+#define DIALOG_TITLE_BG_COLOR LIGHT_GREY
 #define DIALOG_TITLE_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + 10
 #define DIALOG_TITLE_TEXT_OFFSET_Y DIALOG_TITLE_OFFSET_Y + 35
 
 #define DIALOG_CONTEXT_OFFSET_Y DEFAULT_SCREEN_HEIGHT - DIALOG_ITEM_HEIGHT
-#define DIALOG_CONTEXT_BG_COLOR RGBA8(85, 85, 85, 255) // Dark Gray
-
-#define COLOR_WHITE RGBA8(255, 255, 255, 255)
-#define COLOR_BLACK RGBA8(0, 0, 0, 255)
+#define DIALOG_CONTEXT_BG_COLOR MORTAR
 
 void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
   int scrY = 0;
-  char *t =(char*)circleLabel.c_str();
+  char *t = (char*)circleLabel.c_str();
   // int tw = textW(t, fontBig);
-
-  #ifdef DEBUG_RENDER
-    printf("draw dialog frame\n");
-  #endif
-  // 960
-  // 920
-  // 544
+  
   // backs
-  drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR); // my cheapo drawTPill
+  drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR);
 
   //title
   drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
@@ -224,9 +211,8 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   //context label
   drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
 
-  //circle or other context
-  // circleLabel
-  drawText(DIALOG_ITEM_WIDTH - 70, DIALOG_CONTEXT_OFFSET_Y + 35, COLOR_WHITE, 1.0f, t);
+  // circleLabel or other context
+  drawText(DIALOG_ITEM_WIDTH - 70, DIALOG_CONTEXT_OFFSET_Y + 35, WHITE, 1.0f, t);
 
   switch(User::controls.select) {
     case FZ_REPS_CROSS:
@@ -241,9 +227,8 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
       break;
   }
 
-  //title
-  // (255, 255, 255, 255)
-  drawText(DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, COLOR_WHITE, 1.0f, title.c_str());
+  // title
+  drawText(DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, WHITE, 1.0f, title.c_str());
 
   // triangle labels
   // try {
@@ -293,7 +278,7 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
   drawRectangle(DIALOG_ITEM_OFFSET_X,
     (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + (selPos*DIALOG_MENU_ITEM_HEIGHT)),
-    wSelBox, DIALOG_MENU_ITEM_HEIGHT, COLOR_WHITE);
+    wSelBox, DIALOG_MENU_ITEM_HEIGHT, WHITE);
 
   // check if folder
 
@@ -327,11 +312,11 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     if ((i + topItem) == selItem)
       drawText(DIALOG_MENU_ITEM_TEXT_OFFSET_X,
         (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
-        COLOR_BLACK, 1.0f, items[i + topItem].label.c_str());
+        BLACK, 1.0f, items[i + topItem].label.c_str());
     else
       drawText(DIALOG_MENU_ITEM_TEXT_OFFSET_X,
         (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
-        COLOR_WHITE, 1.0f, items[i + topItem].label.c_str());
+        WHITE, 1.0f, items[i + topItem].label.c_str());
   }
 }
 
@@ -350,7 +335,6 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
 // RGBA8(75,75,75,255)
 #define DIALOG_ICON_COLOR 0xffbbbbbb
 #define DIALOG_ICON_TEXT_SIZE TITLE_FONT_SIZE - 6
-
 
 #define DIALOG_ICON_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 35
 #define DIALOG_ICON_TEXT_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 10

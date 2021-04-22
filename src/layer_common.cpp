@@ -40,7 +40,6 @@ void Layer::drawTextHC(char* t, Font* font, int y) {
 
 int Layer::drawUTFText(const char* t, Font* font, int x, int y, int skipUTFChars, int maxWidth) {  return 0; }
 
-
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items) {
   drawMenu(title, triangleLabel, items, false);
 }
