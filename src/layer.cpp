@@ -444,11 +444,32 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   //   items.clear();
 }
 
+#define DIALOG_ICON_COLOR 0xffbbbbbb
+#define DIALOG_ICON_TEXT_SIZE TITLE_FONT_SIZE - 6
+
+#define DIALOG_ICON_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 35
+#define DIALOG_ICON_TEXT_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 60
+
+#define CLOCK_X_OFFSET 1280 * 0.4 
+
 void Layer::drawClockAndBattery(string& extra) {
   Screen::ambientColor(0xffbbbbbb);
-  drawImage(350, 226, BK_IMG_BATTERY_XSIZE, BK_IMG_BATTERY_YSIZE, BK_IMG_BATTERY_X, BK_IMG_BATTERY_Y);
-  drawImage(405, 222, BK_IMG_CLOCK_XSIZE, BK_IMG_CLOCK_YSIZE, BK_IMG_CLOCK_X, BK_IMG_CLOCK_Y);
-  drawImage(292, 224, BK_IMG_MEMORY_XSIZE, BK_IMG_MEMORY_YSIZE, BK_IMG_MEMORY_X, BK_IMG_MEMORY_Y);
+
+  ResourceManager::getSpriteRenderer()->DrawSprite(
+      ResourceManager::GetTexture("bk_clock_icon"),
+      glm::vec2(CLOCK_X_OFFSET - 45, DIALOG_ICON_TEXT_OFFSET_Y - 16),
+      glm::vec2(LOGO_SIZE, LOGO_SIZE));
+
+  ResourceManager::getSpriteRenderer()->DrawSprite(
+      ResourceManager::GetTexture("bk_battery_icon"),
+      glm::vec2(CLOCK_X_OFFSET + 65, DIALOG_ICON_TEXT_OFFSET_Y - 16),
+      glm::vec2(LOGO_SIZE, LOGO_SIZE));
+
+  ResourceManager::getSpriteRenderer()->DrawSprite(
+      ResourceManager::GetTexture("bk_memory_icon"),
+      glm::vec2(CLOCK_X_OFFSET + 165, DIALOG_ICON_TEXT_OFFSET_Y - 16),
+      glm::vec2(LOGO_SIZE, LOGO_SIZE));
+
   // fontSmall->bindForDisplay();
   Screen::ambientColor(0xffbbbbbb);
   // drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);
@@ -465,11 +486,11 @@ void Layer::drawClockAndBattery(string& extra) {
   snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
   char t4[20];
   snprintf(t4, 20, "%dMHz", speed);
-  drawText(60, 128, BLACK, 1.0f, t1);
-  drawText(60, 228, BLACK, 1.0f, t2);
-  drawText(60, 328, BLACK, 1.0f, t3);
-  drawText(60, 428, BLACK, 1.0f, t4);
-  drawText(60, 528, BLACK, 1.0f, extra.c_str());
+  drawText(CLOCK_X_OFFSET, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t1);
+  drawText(CLOCK_X_OFFSET + 100, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t2);
+  drawText(CLOCK_X_OFFSET + 200, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t3);
+  drawText(CLOCK_X_OFFSET + 300, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t4);
+  drawText(CLOCK_X_OFFSET + 400, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, extra.c_str());
 }
 
 static glm::vec3 colorToRGB(unsigned int c) {

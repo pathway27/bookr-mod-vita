@@ -37,6 +37,9 @@
 #include "circle-outline_png.h"
 #include "close-box-outline_png.h"
 #include "triangle-outline_png.h"
+#include "clock_png.h"
+#include "battery_outline_png.h"
+#include "memory_png.h"
 
 #include <filesystem>
 #include <iostream>
@@ -269,6 +272,10 @@ static void loadShaders() {
   ResourceManager::LoadTexture((const char*)circle-outline_png, GL_TRUE, "bk_circle_icon", false, circle-outline_png_size);
   ResourceManager::LoadTexture((const char*)close-box-outline_png, GL_TRUE, "bk_cross_icon", false, close-box-outline_png_size);
   ResourceManager::LoadTexture((const char*)triangle-outline_png, GL_TRUE, "bk_triangle_icon", false, triangle-outline_png_size);
+  
+  ResourceManager::LoadTexture((const char*)clock_png, GL_TRUE, "bk_clock_icon", false, circle-outline_png_size);
+  ResourceManager::LoadTexture((const char*)battery_outline_png, GL_TRUE, "bk_battery_icon", false, close-box-outline_png_size);
+  ResourceManager::LoadTexture((const char*)memory_png, GL_TRUE, "bk_memory_icon", false, triangle-outline_png_size);
 
   // text
   ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,

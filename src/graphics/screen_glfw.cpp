@@ -189,6 +189,9 @@ static void loadShaders() {
   ResourceManager::LoadTexture("data/icons/circle-outline.png", GL_TRUE, "bk_circle_icon");
   ResourceManager::LoadTexture("data/icons/close-box-outline.png", GL_TRUE, "bk_cross_icon");
   ResourceManager::LoadTexture("data/icons/triangle-outline.png", GL_TRUE, "bk_triangle_icon");
+  ResourceManager::LoadTexture("data/icons/clock.png", GL_TRUE, "bk_clock_icon");
+  ResourceManager::LoadTexture("data/icons/battery-outline.png", GL_TRUE, "bk_battery_icon");
+  ResourceManager::LoadTexture("data/icons/memory.png", GL_TRUE, "bk_memory_icon");
 
   ResourceManager::CreateTextRenderer(WIDTH, HEIGHT);
 }
