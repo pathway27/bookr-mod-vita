@@ -189,9 +189,28 @@ static void loadShaders() {
   ResourceManager::LoadTexture("data/icons/circle-outline.png", GL_TRUE, "bk_circle_icon");
   ResourceManager::LoadTexture("data/icons/close-box-outline.png", GL_TRUE, "bk_cross_icon");
   ResourceManager::LoadTexture("data/icons/triangle-outline.png", GL_TRUE, "bk_triangle_icon");
+
   ResourceManager::LoadTexture("data/icons/clock.png", GL_TRUE, "bk_clock_icon");
   ResourceManager::LoadTexture("data/icons/battery-outline.png", GL_TRUE, "bk_battery_icon");
   ResourceManager::LoadTexture("data/icons/memory.png", GL_TRUE, "bk_memory_icon");
+
+  ResourceManager::LoadTexture("data/icons/collections_bookmark_white-fs8.png", GL_TRUE, "bk_bookmark_icon");
+  ResourceManager::LoadTexture("data/icons/content_copy_white-fs8.png", GL_TRUE, "bk_copy_icon");
+  ResourceManager::LoadTexture("data/icons/search_white-fs8.png", GL_TRUE, "bk_search_icon");
+  ResourceManager::LoadTexture("data/icons/rotate_left_white-fs8.png", GL_TRUE, "bk_rotate_left_icon");
+  ResourceManager::LoadTexture("data/icons/rotate_right_white-fs8.png", GL_TRUE, "bk_rotate_right_icon");
+
+  ResourceManager::LoadTexture("data/icons/bookmark_add_white-fs8.png", GL_TRUE, "bk_add_bookmark_icon");
+  ResourceManager::LoadTexture("data/icons/first_page-fs8.png", GL_TRUE, "bk_first_page_icon");
+  ResourceManager::LoadTexture("data/icons/last_page-fs8.png", GL_TRUE, "bk_last_page_icon");
+  ResourceManager::LoadTexture("data/icons/previous_ten-fs8.png", GL_TRUE, "bk_prev_ten_icon");
+  ResourceManager::LoadTexture("data/icons/next_ten-fs8.png", GL_TRUE, "bk_next_ten_icon");
+  ResourceManager::LoadTexture("data/icons/go_to_page-fs8.png", GL_TRUE, "bk_go_to_page_icon");
+
+  ResourceManager::LoadTexture("data/icons/fit_height-fs8.png", GL_TRUE, "bk_fit_height_icon");
+  ResourceManager::LoadTexture("data/icons/fit_width-fs8.png", GL_TRUE, "bk_fit_width_icon");
+  ResourceManager::LoadTexture("data/icons/zoom_out_white-fs8.png", GL_TRUE, "bk_zoom_out_icon");
+  ResourceManager::LoadTexture("data/icons/zoom_in_white-fs8.png", GL_TRUE, "bk_zoom_in_icon");
 
   ResourceManager::CreateTextRenderer(WIDTH, HEIGHT);
 }

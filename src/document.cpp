@@ -12,6 +12,8 @@
 
 #ifdef __vita__
   #include <vita2d.h>
+#else
+  #include "resource_manager.hpp"
 #endif
 
 #include "ui/colours.hpp"
@@ -757,7 +759,7 @@ void Document::render() {
     toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
     : toolbarSelMenuItem;
   drawRectangle(TOOLBAR_SELECTED_ICON_X + (toolbarSelMenu*TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER),
-                TOOLBAR_SELECTED_ICON_Y - (selItemI * TOOLBAR_SELECTED_ICON_Y_MULTIPLIER),
+                TOOLBAR_SELECTED_ICON_Y - (selItemI * TOOLBAR_SELECTED_ICON_Y_MULTIPLIER) - TOOLBAR_HIGHLIGHT_ICON_Y_MULTIPLIER,
                 TOOLBAR_SELECTED_ICON_WIDTH + iw,
                 TOOLBAR_SELECTED_ICON_HEIGHT,
                 CHERUB);
@@ -795,58 +797,76 @@ void Document::render() {
 
 
   // menu row
-  // #ifdef PSP
-  //   drawImage(38 + 0*55, 205, 18, 26, 0, 0);
-  //   drawImage(38 + 1*55, 205, 18, 26, 19, 53);
-  //   drawImage(38 + 2*55, 205, 18, 26, 38, 53);
-  //   drawImage(38 + 3*55, 205, 19, 26, 19, 79);
-  // #elif defined(__vita__)
-  //   vita2d_draw_texture_scale(bk_icons["bk_bookmark_icon"]->vita_texture, 60, TOOLTIP_ICONS_Y_OFFSET, 
-  //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+  #ifdef __vita__
+    vita2d_draw_texture_scale(bk_icons["bk_bookmark_icon"]->vita_texture, 60, TOOLTIP_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-  //   vita2d_draw_texture_scale(bk_icons["bk_copy_icon"]->vita_texture, 60 + 75, TOOLTIP_ICONS_Y_OFFSET, 
-  //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+    vita2d_draw_texture_scale(bk_icons["bk_copy_icon"]->vita_texture, 60 + 75, TOOLTIP_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-  //   vita2d_draw_texture_scale(bk_icons["bk_search_icon"]->vita_texture, 60 + 75 + 75 , TOOLTIP_ICONS_Y_OFFSET, 
-  //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+    vita2d_draw_texture_scale(bk_icons["bk_search_icon"]->vita_texture, 60 + 75 + 75 , TOOLTIP_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
 
-  //   vita2d_draw_texture_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + 75 + 75 + 75, TOOLTIP_ICONS_Y_OFFSET, 
-  //     DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
-  // #endif
+    vita2d_draw_texture_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + 75 + 75 + 75, TOOLTIP_ICONS_Y_OFFSET, 
+      DIALOG_ICON_SCALE, DIALOG_ICON_SCALE);
+  #else
+    #define LOGO_SIZE 48
+
+    ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("bk_bookmark_icon"),
+      glm::vec2(TOOLBAR_HIGHLIGHT_ICON_X + 20, TOOLBAR_HIGHLIGHT_ICON_Y + 10),
+      glm::vec2(48, 48));
+
+    ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("bk_copy_icon"),
+      glm::vec2(TOOLBAR_HIGHLIGHT_ICON_X + 20 + 70, TOOLBAR_HIGHLIGHT_ICON_Y + 10),
+      glm::vec2(LOGO_SIZE, LOGO_SIZE));
+
+    ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("bk_search_icon"),
+      glm::vec2(TOOLBAR_HIGHLIGHT_ICON_X + 20 + (70 * 2), TOOLBAR_HIGHLIGHT_ICON_Y + 10),
+      glm::vec2(LOGO_SIZE, LOGO_SIZE));
+
+    ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture("bk_rotate_left_icon"),
+      glm::vec2(TOOLBAR_HIGHLIGHT_ICON_X + 20 + (70 * 3), TOOLBAR_HIGHLIGHT_ICON_Y + 10),
+      glm::vec2(LOGO_SIZE, LOGO_SIZE));
+  #endif
 
   // selected column
-  // for (int i = init, j = 0; i < ts; i++, j++) {
-  //   const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
-  //   unsigned int color;
-  //   if (i == toolbarSelMenuItem)
-  //     color = 0xff000000;
-  //   else
-  //     color = 0xffffffff;
-  //   if (it2.iconName.size() > 0) {
-  //     // check map existance, just in case.
-  //     #ifdef __vita__
-  //       vita2d_draw_texture_tint_scale(bk_icons[it2.iconName]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
-  //         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
-  //     #endif
-  //   } else {
-  //     #ifdef __vita__
-  //       vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
-  //         DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
-  //     #endif
-  //   }
-  // }
+  for (int i = init, j = 0; i < ts; i++, j++) {
+    const ToolbarItem& it2 = toolbarMenus[toolbarSelMenu][i];
+    unsigned int color;
+    if (i == toolbarSelMenuItem)
+      color = 0xff000000;
+    else
+      color = 0xffffffff;
+    if (it2.iconName.size() > 0) {
+      // check map existance, just in case.
+      #ifdef __vita__
+        vita2d_draw_texture_tint_scale(bk_icons[it2.iconName]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
+      #else
+        ResourceManager::getSpriteRenderer()->DrawSprite(ResourceManager::GetTexture(it2.iconName),
+          glm::vec2(60 + toolbarSelMenu*75, 720 - 150 - (j*55) - 110),
+          glm::vec2(48, 48));
+
+      #endif
+    } else {
+      #ifdef __vita__
+        vita2d_draw_texture_tint_scale(bk_icons["bk_rotate_left_icon"]->vita_texture, 60 + toolbarSelMenu*75, 544 - 140 - (j*55) - 55,
+          DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, color);
+      #endif
+    }
+  }
   
   // item label for selected item
-  // #ifdef PSP
-  //   fontBig->bindForDisplay();
-  //   Screen::ambientColor(0xff000000);
-  //   drawText((char*)it.label.c_str(), fontBig, 40 + toolbarSelMenu*55 + 35, 272 - 156 - selItemI*35+48);
-  // #elif defined(__vita__)
-  //   vita2d_font_draw_text(fontBig->v_font, 
-  //     60 + toolbarSelMenu*75 - 10 + 70,
-  //     544 - 140 - (selItemI*55) - 55 + 33,
-  //     0xff000000, 28, it.label.c_str());
-  // #endif
+  #ifdef __vita__
+    vita2d_font_draw_text(fontBig->v_font, 
+      60 + toolbarSelMenu*75 - 10 + 70,
+      544 - 140 - (selItemI*55) - 55 + 33,
+      0xff000000, 28, it.label.c_str());
+  #else
+    drawText(60 + toolbarSelMenu*75 - 10 + 70 + 15,
+      544 - 140 - (selItemI*55) + 55 + 15,
+      BLACK, 1.0f, it.label.c_str());
+  #endif
 
   // // // button labels
   // if (it.triangleLabel.size() > 0) {

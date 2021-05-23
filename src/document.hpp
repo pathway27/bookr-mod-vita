@@ -53,7 +53,13 @@ private:
 		string botLabelRight;
 		int iconX, iconY, iconW, iconH;
 		ToolbarItem(string label = "", string iconName = "", string circleLabel = "", string triangleLabel = "")
-		 : lines(1), minWidth(100),
+		 : lines(1), minWidth(
+#ifdef __vita__
+100
+#else
+250
+#endif
+),
 		 label(label), iconName(iconName), circleLabel(circleLabel), triangleLabel(triangleLabel) { }
 	};
 
