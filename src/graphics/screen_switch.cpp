@@ -33,31 +33,7 @@
 #include "text_frag.h"
 
 #include "NotoSans-Regular_ttf.h"
-#include "icon0_t_png.h"
-#include "circle-outline_png.h"
-#include "close-box-outline_png.h"
-#include "triangle-outline_png.h"
-#include "clock_png.h"
-#include "battery_outline_png.h"
-#include "memory_png.h"
-
-#include "collections_bookmark_white-fs8_png.h"
-#include "content_copy_white-fs8_png.h"
-#include "search_white-fs8_png.h"
-#include "rotate_left_white-fs8_png.h"
-#include "rotate_right_white-fs8_png.h"
-
-#include "bookmark_add_white-fs8_png.h"
-#include "first_page-fs8_png.h"
-#include "last_page-fs8_png.h"
-#include "previous_ten-fs8_png.h"
-#include "next_ten-fs8_png.h"
-#include "go_to_page-fs8_png.h"
-
-#include "fit_height-fs8_png.h"
-#include "fit_width-fs8_png.h"
-#include "zoom_out_white-fs8_png.h"
-#include "zoom_in_white-fs8_png.h"
+#include "icons_switch.h"
 
 #include <filesystem>
 #include <iostream>
@@ -287,31 +263,31 @@ static void loadShaders() {
   ResourceManager::GetShader("sprite").SetMatrix4("projection", projection, true);
 
   ResourceManager::LoadTexture((const char*)icon0_t_png, GL_TRUE, "logo", false, icon0_t_png_size);
-  ResourceManager::LoadTexture((const char*)circle-outline_png, GL_TRUE, "bk_circle_icon", false, circle-outline_png_size);
-  ResourceManager::LoadTexture((const char*)close-box-outline_png, GL_TRUE, "bk_cross_icon", false, close-box-outline_png_size);
-  ResourceManager::LoadTexture((const char*)triangle-outline_png, GL_TRUE, "bk_triangle_icon", false, triangle-outline_png_size);
+  ResourceManager::LoadTexture((const char*)circle_outline_png, GL_TRUE, "bk_circle_icon", false, circle_outline_png_size);
+  ResourceManager::LoadTexture((const char*)close_box_outline_png, GL_TRUE, "bk_cross_icon", false, close_box_outline_png_size);
+  ResourceManager::LoadTexture((const char*)triangle_outline_png, GL_TRUE, "bk_triangle_icon", false, triangle_outline_png_size);
   
-  ResourceManager::LoadTexture((const char*)clock_png, GL_TRUE, "bk_clock_icon", false, circle-outline_png_size);
-  ResourceManager::LoadTexture((const char*)battery_outline_png, GL_TRUE, "bk_battery_icon", false, close-box-outline_png_size);
-  ResourceManager::LoadTexture((const char*)memory_png, GL_TRUE, "bk_memory_icon", false, triangle-outline_png_size);
+  ResourceManager::LoadTexture((const char*)clock_png, GL_TRUE, "bk_clock_icon", false, circle_outline_png_size);
+  ResourceManager::LoadTexture((const char*)battery_outline_png, GL_TRUE, "bk_battery_icon", false, close_box_outline_png_size);
+  ResourceManager::LoadTexture((const char*)memory_png, GL_TRUE, "bk_memory_icon", false, triangle_outline_png_size);
 
-  ResourceManager::LoadTexture((const char*)collections_bookmark_white-fs8_png, GL_TRUE, "collections_bookmark_white-fs8", false, collections_bookmark_white-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)content_copy_white-fs8_png, GL_TRUE, "bk_battery_icon", false, content_copy_white-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)search_white-fs8_png, GL_TRUE, "bk_memory_icon", false, search_white-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)rotate_left_white-fs8_png, GL_TRUE, "bk_clock_icon", false, rotate_left_white-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)rotate_right_white-fs8_png, GL_TRUE, "bk_battery_icon", false, rotate_right_white-fs8_png_size);
+  ResourceManager::LoadTexture((const char*)collections_bookmark_white_fs8_png, GL_TRUE, "bk_bookmark_icon", false, collections_bookmark_white_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)content_copy_white_fs8_png, GL_TRUE, "bk_copy_icon", false, content_copy_white_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)search_white_fs8_png, GL_TRUE, "bk_search_icon", false, search_white_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)rotate_left_white_fs8_png, GL_TRUE, "bk_rotate_left_icon", false, rotate_left_white_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)rotate_right_white_fs8_png, GL_TRUE, "bk_rotate_right_icon", false, rotate_right_white_fs8_png_size);
 
-  ResourceManager::LoadTexture((const char*)bookmark_add_white-fs8_png, GL_TRUE, "bk_memory_icon", false, bookmark_add_white-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)first_page-fs8_png, GL_TRUE, "bk_memory_icon", false, first_page-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)last_page-fs8_png, GL_TRUE, "bk_memory_icon", false, last_page-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)previous_ten-fs8_png, GL_TRUE, "bk_memory_icon", false, previous_ten-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)next_ten-fs8_png, GL_TRUE, "bk_memory_icon", false, next_ten-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)go_to_page-fs8_png, GL_TRUE, "bk_memory_icon", false, go_to_page-fs8_png_size);
+  ResourceManager::LoadTexture((const char*)bookmark_add_white_fs8_png, GL_TRUE, "bk_add_bookmark_icon", false, bookmark_add_white_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)first_page_fs8_png, GL_TRUE, "bk_first_page_icon", false, first_page_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)last_page_fs8_png, GL_TRUE, "bk_last_page_icon", false, last_page_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)previous_ten_fs8_png, GL_TRUE, "bk_prev_ten_icon", false, previous_ten_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)next_ten_fs8_png, GL_TRUE, "bk_next_ten_icon", false, next_ten_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)go_to_page_fs8_png, GL_TRUE, "bk_go_to_page_icon", false, go_to_page_fs8_png_size);
 
-  ResourceManager::LoadTexture((const char*)fit_height-fs8_png, GL_TRUE, "bk_memory_icon", false, fit_height-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)fit_width-fs8_png, GL_TRUE, "bk_memory_icon", false, fit_width-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)zoom_out_white-fs8_png, GL_TRUE, "bk_memory_icon", false, zoom_out_white-fs8_png_size);
-  ResourceManager::LoadTexture((const char*)zoom_in_white-fs8_png, GL_TRUE, "bk_memory_icon", false, zoom_in_white-fs8_png_size);
+  ResourceManager::LoadTexture((const char*)fit_height_fs8_png, GL_TRUE, "bk_fit_height_icon", false, fit_height_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)fit_width_fs8_png, GL_TRUE, "bk_fit_width_icon", false, fit_width_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)zoom_out_white_fs8_png, GL_TRUE, "bk_zoom_out_icon", false, zoom_out_white_fs8_png_size);
+  ResourceManager::LoadTexture((const char*)zoom_in_white_fs8_png, GL_TRUE, "bk_zoom_in_icon", false, zoom_in_white_fs8_png_size);
 
   // text
   ResourceManager::LoadShader((const char*)text_vert, (const char*)text_frag, nullptr, "text", false,
@@ -375,7 +351,7 @@ static void updateReps(u64 kDown, u64 kHeld, u64 kUp) {
   //   break;
   
   if (kDown & KEY_MINUS  ) breps[FZ_REPS_SELECT  ]++; else breps[FZ_REPS_SELECT  ] = 0;
-  if (kDown & KEY_DLEFT   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
+  if (kDown & KEY_PLUS   ) breps[FZ_REPS_START   ]++; else breps[FZ_REPS_START   ] = 0;
   if (kDown & KEY_DUP      ) breps[FZ_REPS_UP      ]++; else breps[FZ_REPS_UP      ] = 0;
   if (kDown & KEY_DRIGHT   ) breps[FZ_REPS_RIGHT   ]++; else breps[FZ_REPS_RIGHT   ] = 0;
   if (kDown & KEY_DDOWN    ) breps[FZ_REPS_DOWN    ]++; else breps[FZ_REPS_DOWN    ] = 0;
