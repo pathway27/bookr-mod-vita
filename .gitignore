@@ -15,6 +15,7 @@ out/*
 
 bookr.glfw
 src/bookrconfig.h
+src/filetypes/palmdoc
 
 html/
 latex/

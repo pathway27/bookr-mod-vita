@@ -86,18 +86,22 @@ void Logo::render() {
       glm::vec2(LOGO_SIZE, LOGO_SIZE));
   #endif
 
-  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, BLACK, 1.0f, "TXT - PDF - CBZ - HTML - EPUB - FB2");
+  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, BLACK, 1.0f, "TXT - PDF - CBZ - HTML - ePub - FB2");
 
-  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, DIM_GRAY);
+  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.08, GONDOLA);
+
+  unsigned int bottom_text_color = WHITE;
+  const char * bottom_text = DEFAULT_TEXT;
 
   if (loading)
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, LOADING_TEXT);
-  else if (text.length() > 0 && !(error))
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, text.c_str());
-  else if (error)
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, text.c_str());
-  else
-    drawText(Screen::WIDTH * 0.3, Screen::HEIGHT * 0.95, WHITE, 1.0f, DEFAULT_TEXT);
+    bottom_text = LOADING_TEXT;
+  else if (text.length() > 0) {
+    bottom_text = text.c_str();
+    if (error)
+      bottom_text_color = ERROR_RED;
+  }
+
+  drawText(CENTER_X + 30, Screen::HEIGHT * 0.93, bottom_text_color, 1.0f, bottom_text);
 
   #if DEBUG
     #include "bookrconfig.h"

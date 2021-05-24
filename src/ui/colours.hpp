@@ -9,16 +9,19 @@
 #define WHITE RGBA8(255,255,255,255)
 
 // grays
-
+#define DIM_GRAY_SOLID RGBA8(105,105,105,255)
 #define DIM_GRAY RGBA8(105,105,105,155)
 #define WOOD_BARK RGBA8(29,22,22,255)
 #define WHITE_SMOKE RGBA8(235,235,235,255)
-#define NERO RGBA8(34,34,34,255)
+#define GONDOLA RGBA8(34,34,34,240)
+#define NERO RGBA8(34,34,34,240)
 #define NIGHT_RIDER RGBA8(47, 47, 47, 240) // Very Dark Transparent Gray
 #define LIGHT_GREY RGBA8(170, 170, 170, 255) // Very Light Gray
 #define MORTAR RGBA8(85, 85, 85, 255) // Dark Gray
+#define SILVER RGBA8(187, 187, 187, 187) // 0xffbbbbbb
 
 // reds
+#define ERROR_RED RGBA8(200, 0, 0, 255)
 #define LIGHT_RED RGBA8(255, 0, 0, 240)
 
   // transparents

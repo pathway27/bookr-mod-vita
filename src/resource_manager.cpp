@@ -187,7 +187,7 @@ TextRenderer* ResourceManager::CreateTextRenderer(int width, int height)
 {
     if (ui_text_renderer == nullptr) {
         ui_text_renderer = new TextRenderer(width, height);
-        ui_text_renderer->Load("data/fonts/NotoSans-Regular.ttf", 24);
+        ui_text_renderer->Load("data/fonts/NotoSans-Regular.ttf", 28);
     }
 
     return ui_text_renderer;

@@ -71,27 +71,20 @@ int Layer::textW(char* t, Font* font) {
   return 0;
 }
 
-#define DIALOG_ICON_SCALE 1.0
 #define DIALOG_OFFSET_X Screen::WIDTH * 0.1
 #define DIALOG_OFFSET_Y Screen::HEIGHT * 0.09
 #define DIALOG_WIDTH Screen::WIDTH * 0.8
-#define DIALOG_HEIGHT Screen::HEIGHT * 0.8
-#define DIALOG_BG_COLOR RGBA8(47, 47, 47, 240) // Very Dark Transparent Gray
 
 #define DIALOG_ITEM_OFFSET_X Screen::WIDTH * 0.11
 #define DIALOG_ITEM_WIDTH Screen::WIDTH * 0.78
-#define DIALOG_ITEM_HEIGHT Screen::HEIGHT * 0.05
+#define DIALOG_ITEM_HEIGHT Screen::HEIGHT * 0.07
 
-#define DIALOG_TITLE_OFFSET_Y Screen::HEIGHT * 0.11
-#define DIALOG_TITLE_BG_COLOR RGBA8(170, 170, 170, 255) // Very Light Gray
+#define DIALOG_TITLE_OFFSET_Y Screen::HEIGHT * 0.12
 #define DIALOG_TITLE_TEXT_OFFSET_X DIALOG_ITEM_OFFSET_X + Screen::WIDTH * 0.01
 #define DIALOG_TITLE_TEXT_OFFSET_Y DIALOG_TITLE_OFFSET_Y + Screen::HEIGHT * 0.01
 
 #define DIALOG_CONTEXT_OFFSET_Y Screen::HEIGHT - DIALOG_ITEM_HEIGHT
-#define DIALOG_CONTEXT_BG_COLOR RGBA8(85, 85, 85, 255) // Dark Gray
 
-#define COLOR_WHITE RGBA8(255, 255, 255, 255)
-#define COLOR_BLACK RGBA8(0, 0, 0, 255)
 inline constexpr unsigned int LOGO_SIZE = 32;
 
 void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
@@ -100,13 +93,13 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   // int tw = textW(t, fontBig);
 
   // back
-  drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, DIALOG_HEIGHT, DIALOG_BG_COLOR);
+  drawRectangle(DIALOG_OFFSET_X, DIALOG_OFFSET_Y, DIALOG_WIDTH, Screen::HEIGHT, NIGHT_RIDER);
 
   // title
-  drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_TITLE_BG_COLOR);
+  drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_TITLE_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, LIGHT_GREY);
 
   // context label
-  drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.1, DIALOG_CONTEXT_BG_COLOR);
+  drawRectangle(Screen::WIDTH * 0.11, Screen::HEIGHT * 0.91, Screen::WIDTH * 0.78, Screen::HEIGHT * 0.1, MORTAR);
 
   // circleLabel or other context
   drawText(Screen::WIDTH * 0.9 - 120, Screen::HEIGHT * 0.9 + 29, WHITE, 1.0f, t);
@@ -128,7 +121,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   }
 
   // title
-  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.12, COLOR_WHITE, 1.0f, title.c_str());
+  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.14, WHITE, 1.0f, title.c_str());
 
   // triangle colors
   // Screen::ambientColor(0xffcccccc);
@@ -198,10 +191,11 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   int wSelBox = scrollbar ? DIALOG_ITEM_WIDTH - 50: DIALOG_ITEM_WIDTH;
   int intial = Screen::HEIGHT * 0.21;
   int size = Screen::HEIGHT * 0.07;
+  
   drawRectangle(Screen::WIDTH * 0.11,
     intial + (selPos * size) - 1,
     Screen::WIDTH * 0.77,
-    Screen::HEIGHT * 0.05, COLOR_WHITE);
+    Screen::HEIGHT * 0.05, WHITE);
 
   // scrollbar
   if (scrollbar) {
@@ -230,14 +224,14 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     if ((i + topItem) >= (int)(items.size()))
       break;
 
+    unsigned int color = WHITE;
+
     if ((i + topItem) == selItem)
-      drawText(Screen::WIDTH * 0.12,
+      color = BLACK;
+
+    drawText(Screen::WIDTH * 0.12,
         intial + (Screen::HEIGHT * 0.01) + (i * size),
-        COLOR_BLACK, 1.0f, items[i + topItem].label.c_str());
-    else
-      drawText(Screen::WIDTH * 0.12,
-        intial + (Screen::HEIGHT * 0.01) + (i * size),
-        COLOR_WHITE, 1.0f, items[i + topItem].label.c_str());
+        color, 1.0f, items[i + topItem].label.c_str());
   }
 }
 
@@ -444,35 +438,26 @@ void Layer::drawOutline(string& title, string& triangleLabel, vector<OutlineItem
   //   items.clear();
 }
 
-#define DIALOG_ICON_COLOR 0xffbbbbbb
-#define DIALOG_ICON_TEXT_SIZE TITLE_FONT_SIZE - 6
-
-#define DIALOG_ICON_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 35
-#define DIALOG_ICON_TEXT_OFFSET_Y DIALOG_CONTEXT_OFFSET_Y - 60
-
-#define CLOCK_X_OFFSET 1280 * 0.4 
+#define CLOCK_X_OFFSET Screen::WIDTH * 0.45
+#define CLOCK_Y_OFFSET Screen::HEIGHT * 0.86
 
 void Layer::drawClockAndBattery(string& extra) {
-  Screen::ambientColor(0xffbbbbbb);
 
   ResourceManager::getSpriteRenderer()->DrawSprite(
-      ResourceManager::GetTexture("bk_clock_icon"),
-      glm::vec2(CLOCK_X_OFFSET - 45, DIALOG_ICON_TEXT_OFFSET_Y - 16),
+      ResourceManager::GetTexture("bk_memory_icon"),
+      glm::vec2(CLOCK_X_OFFSET + 100, CLOCK_Y_OFFSET - 5),
       glm::vec2(LOGO_SIZE, LOGO_SIZE));
 
   ResourceManager::getSpriteRenderer()->DrawSprite(
       ResourceManager::GetTexture("bk_battery_icon"),
-      glm::vec2(CLOCK_X_OFFSET + 65, DIALOG_ICON_TEXT_OFFSET_Y - 16),
+      glm::vec2(CLOCK_X_OFFSET + 250, CLOCK_Y_OFFSET - 5),
       glm::vec2(LOGO_SIZE, LOGO_SIZE));
 
   ResourceManager::getSpriteRenderer()->DrawSprite(
-      ResourceManager::GetTexture("bk_memory_icon"),
-      glm::vec2(CLOCK_X_OFFSET + 165, DIALOG_ICON_TEXT_OFFSET_Y - 16),
+      ResourceManager::GetTexture("bk_clock_icon"),
+      glm::vec2(CLOCK_X_OFFSET + 400, CLOCK_Y_OFFSET - 5),
       glm::vec2(LOGO_SIZE, LOGO_SIZE));
 
-  // fontSmall->bindForDisplay();
-  Screen::ambientColor(0xffbbbbbb);
-  // drawText((char*)extra.c_str(), fontSmall, 480 - 30 - ew, 205);
   int h = 0, m = 0;
   Screen::getTime(h, m);
   int b = Screen::getBattery();
@@ -486,11 +471,12 @@ void Layer::drawClockAndBattery(string& extra) {
   snprintf(t3, 20, "%.1fM", ((float)(mem)) / (1024.0f*1024.0f));
   char t4[20];
   snprintf(t4, 20, "%dMHz", speed);
-  drawText(CLOCK_X_OFFSET, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t1);
-  drawText(CLOCK_X_OFFSET + 100, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t2);
-  drawText(CLOCK_X_OFFSET + 200, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t3);
-  drawText(CLOCK_X_OFFSET + 300, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, t4);
-  drawText(CLOCK_X_OFFSET + 400, DIALOG_ICON_TEXT_OFFSET_Y, BLACK, 1.0f, extra.c_str());
+
+  drawText(CLOCK_X_OFFSET, CLOCK_Y_OFFSET, SILVER, 1.0f, t4);
+  drawText(CLOCK_X_OFFSET + 150, CLOCK_Y_OFFSET, SILVER, 1.0f, t3);
+  drawText(CLOCK_X_OFFSET + 300, CLOCK_Y_OFFSET, SILVER, 1.0f, t2);
+  drawText(CLOCK_X_OFFSET + 450, CLOCK_Y_OFFSET, SILVER, 1.0f, t1);
+  drawText(CLOCK_X_OFFSET + 380, CLOCK_Y_OFFSET - 40, SILVER, 1.0f, extra.c_str());
 }
 
 static glm::vec3 colorToRGB(unsigned int c) {
