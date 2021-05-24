@@ -684,7 +684,7 @@ void Document::render() {
       drawText(TOOLTIP_MENU_TEXT_OFFSET_X, TOOLTIP_MENU_TEXT_OFFSET_Y,
                (WHITE | (alpha << 24)), 1.0f, "Menu");
       drawText(TOOLTIP_SELECT_TEXT_OFFSET_X, TOOLTIP_SELECT_TEXT_OFFSET_Y,
-               (WOOD_BARK | (alpha << 24)), 0.85f, TOOLTIP_TOOLS_TEXT);
+               (WHITE | (alpha << 24)), 0.85f, TOOLTIP_TOOLS_TEXT);
       drawText(TOOLTIP_START_TEXT_OFFSET_X, TOOLTIP_START_TEXT_OFFSET_Y,
                (WHITE | (alpha << 24)), 0.85f, TOOLTIP_MENU_TEXT);
     }
@@ -758,11 +758,20 @@ void Document::render() {
   int selItemI = overflow ?
     toolbarSelMenuItem > 4 ? 4 : toolbarSelMenuItem
     : toolbarSelMenuItem;
-  drawRectangle(TOOLBAR_SELECTED_ICON_X + (toolbarSelMenu*TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER),
-                TOOLBAR_SELECTED_ICON_Y - (selItemI * TOOLBAR_SELECTED_ICON_Y_MULTIPLIER) - TOOLBAR_HIGHLIGHT_ICON_Y_MULTIPLIER,
+
+  #ifdef __vita__
+    drawRectangle(TOOLBAR_SELECTED_ICON_X + (toolbarSelMenu*TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER),
+                TOOLBAR_SELECTED_ICON_Y - (selItemI * TOOLBAR_SELECTED_ICON_Y_MULTIPLIER),
                 TOOLBAR_SELECTED_ICON_WIDTH + iw,
                 TOOLBAR_SELECTED_ICON_HEIGHT,
                 CHERUB);
+  #else
+    drawRectangle(TOOLBAR_SELECTED_ICON_X + (toolbarSelMenu*TOOLBAR_HIGHLIGHT_ICON_X_MULTIPLIER),
+                  TOOLBAR_SELECTED_ICON_Y - (selItemI * TOOLBAR_SELECTED_ICON_Y_MULTIPLIER) - TOOLBAR_HIGHLIGHT_ICON_Y_MULTIPLIER,
+                  TOOLBAR_SELECTED_ICON_WIDTH + iw,
+                  TOOLBAR_SELECTED_ICON_HEIGHT,
+                  CHERUB);
+  #endif
 
   // button icons
   // if (it.circleLabel.size() > 0) {

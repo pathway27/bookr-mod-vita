@@ -103,23 +103,23 @@ void Layer::load() {
   bk_icons["bk_cross_icon"] = Texture::createFromBuffer(&_binary_data_icons_close_box_outline_png_start);
   bk_icons["bk_triangle_icon"] = Texture::createFromBuffer(&_binary_data_icons_triangle_outline_png_start);
 
-  // bk_icons.insert(make_pair("bk_bookmark_icon", createTexFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start)));
-  // bk_icons.insert(make_pair("bk_copy_icon", createTexFromBuffer(&_binary_data_icons_content_copy_white_png_start)));
-  // bk_icons.insert(make_pair("bk_search_icon", createTexFromBuffer(&_binary_data_icons_search_white_png_start)));
-  // bk_icons.insert(make_pair("bk_rotate_left_icon", createTexFromBuffer(&_binary_data_icons_rotate_left_white_png_start)));
-  // bk_icons.insert(make_pair("bk_rotate_right_icon", createTexFromBuffer(&_binary_data_icons_rotate_right_white_png_start)));
+  bk_icons["bk_bookmark_icon"] = Texture::createFromBuffer(&_binary_data_icons_collections_bookmark_white_png_start);
+  bk_icons["bk_copy_icon"] = Texture::createFromBuffer(&_binary_data_icons_content_copy_white_png_start);
+  bk_icons["bk_search_icon"] = Texture::createFromBuffer(&_binary_data_icons_search_white_png_start);
+  bk_icons["bk_rotate_left_icon"] = Texture::createFromBuffer(&_binary_data_icons_rotate_left_white_png_start);
+  bk_icons["bk_rotate_right_icon"] = Texture::createFromBuffer(&_binary_data_icons_rotate_right_white_png_start);
 
-  // bk_icons.insert(make_pair("bk_add_bookmark_icon", createTexFromBuffer(&_binary_data_icons_bookmark_add_white_png_start)));
-  // bk_icons.insert(make_pair("bk_first_page_icon", createTexFromBuffer(&_binary_data_icons_first_page_png_start)));
-  // bk_icons.insert(make_pair("bk_last_page_icon", createTexFromBuffer(&_binary_data_icons_last_page_png_start)));
-  // bk_icons.insert(make_pair("bk_prev_ten_icon", createTexFromBuffer(&_binary_data_icons_previous_ten_png_start)));
-  // bk_icons.insert(make_pair("bk_next_ten_icon", createTexFromBuffer(&_binary_data_icons_next_ten_png_start)));
-  // bk_icons.insert(make_pair("bk_go_to_page_icon", createTexFromBuffer(&_binary_data_icons_go_to_page_png_start)));
+  bk_icons["bk_add_bookmark_icon"] = Texture::createFromBuffer(&_binary_data_icons_bookmark_add_white_png_start);
+  bk_icons["bk_first_page_icon"] = Texture::createFromBuffer(&_binary_data_icons_first_page_png_start);
+  bk_icons["bk_last_page_icon"] = Texture::createFromBuffer(&_binary_data_icons_last_page_png_start);
+  bk_icons["bk_prev_ten_icon"] = Texture::createFromBuffer(&_binary_data_icons_previous_ten_png_start);
+  bk_icons["bk_next_ten_icon"] = Texture::createFromBuffer(&_binary_data_icons_next_ten_png_start);
+  bk_icons["bk_go_to_page_icon"] = Texture::createFromBuffer(&_binary_data_icons_go_to_page_png_start);
   
-  // bk_icons.insert(make_pair("bk_fit_height_icon", createTexFromBuffer(&_binary_data_icons_fit_height_png_start)));
-  // bk_icons.insert(make_pair("bk_fit_width_icon", createTexFromBuffer(&_binary_data_icons_fit_width_png_start)));
-  // bk_icons.insert(make_pair("bk_zoom_out_icon", createTexFromBuffer(&_binary_data_icons_zoom_out_white_png_start)));
-  // bk_icons.insert(make_pair("bk_zoom_in_icon", createTexFromBuffer(&_binary_data_icons_zoom_in_white_png_start)));
+  bk_icons["bk_fit_height_icon"] = Texture::createFromBuffer(&_binary_data_icons_fit_height_png_start);
+  bk_icons["bk_fit_width_icon"] = Texture::createFromBuffer(&_binary_data_icons_fit_width_png_start);
+  bk_icons["bk_zoom_out_icon"] = Texture::createFromBuffer(&_binary_data_icons_zoom_out_white_png_start);
+  bk_icons["bk_zoom_in_icon"] = Texture::createFromBuffer(&_binary_data_icons_zoom_in_white_png_start);
 
   fontBig = Font::createFromMemory(res_uifont, size_res_uifont);
   fontSmall = Font::createFromMemory(res_uifont, size_res_uifont);
@@ -212,7 +212,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   drawRectangle(DIALOG_ITEM_OFFSET_X, DIALOG_CONTEXT_OFFSET_Y, DIALOG_ITEM_WIDTH, DIALOG_ITEM_HEIGHT, DIALOG_CONTEXT_BG_COLOR);
 
   // circleLabel or other context
-  drawText(DIALOG_ITEM_WIDTH - 70, DIALOG_CONTEXT_OFFSET_Y + 35, WHITE, 1.0f, t);
+  Screen::drawFontText(fontBig, DIALOG_ITEM_WIDTH - 70, DIALOG_CONTEXT_OFFSET_Y + 35, WHITE, TITLE_FONT_SIZE, t);
 
   switch(User::controls.select) {
     case FZ_REPS_CROSS:
@@ -228,7 +228,7 @@ void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circle
   }
 
   // title
-  drawText(DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, WHITE, 1.0f, title.c_str());
+  Screen::drawFontText(fontBig, DIALOG_TITLE_TEXT_OFFSET_X, DIALOG_TITLE_TEXT_OFFSET_Y, WHITE, TITLE_FONT_SIZE, title.c_str());
 
   // triangle labels
   // try {
@@ -309,14 +309,15 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
     if ((i + topItem) >= (int)(items.size()))
       break;
 
+    unsigned int color = WHITE;
+
     if ((i + topItem) == selItem)
-      drawText(DIALOG_MENU_ITEM_TEXT_OFFSET_X,
-        (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
-        BLACK, 1.0f, items[i + topItem].label.c_str());
-    else
-      drawText(DIALOG_MENU_ITEM_TEXT_OFFSET_X,
-        (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
-        WHITE, 1.0f, items[i + topItem].label.c_str());
+      color = BLACK;
+
+    Screen::drawFontText(fontBig,
+      DIALOG_MENU_ITEM_TEXT_OFFSET_X,
+      (DIALOG_MENU_FIRST_ITEM_OFFSET_Y + ((i+1)*DIALOG_MENU_ITEM_HEIGHT) - 10),
+      color, TITLE_FONT_SIZE, items[i + topItem].label.c_str());
   }
 }
 
@@ -355,7 +356,7 @@ void Layer::drawClockAndBattery(string& extra) {
     DIALOG_ICON_OFFSET_Y, DIALOG_ICON_SCALE, DIALOG_ICON_SCALE, DIALOG_ICON_COLOR);
 
   // memory usage
-  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 395,
+  drawFontTextf(fontSmall, DIALOG_MENU_ITEM_TEXT_OFFSET_X + 390,
     DIALOG_ICON_TEXT_OFFSET_Y,
     DIALOG_ICON_COLOR, DIALOG_ICON_TEXT_SIZE, "%dK", Screen::getUsedMemory() / 1024);
 
