@@ -404,7 +404,7 @@ void getAnalogPad(int& x, int& y) {
   HidAnalogStickState analog_stick_l = padGetStickPos(&pad, 0);
   // HidAnalogStickState analog_stick_r = padGetStickPos(&pad, 1);
 
-  x = analog_stick_l.x - FZ_ANALOG_CENTER;
+  x = -(analog_stick_l.x - FZ_ANALOG_CENTER);
   y = analog_stick_l.y - FZ_ANALOG_CENTER;
 }
 

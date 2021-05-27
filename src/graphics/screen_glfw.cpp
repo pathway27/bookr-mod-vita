@@ -124,6 +124,8 @@ static void updateReps(int keyState, int action) {
     if (keyState == GLFW_KEY_B  ) breps[FZ_REPS_NOTE    ]++; else breps[FZ_REPS_NOTE    ] = 0;
     if (keyState == GLFW_KEY_UP )   lastAnalogY += 20000;
     if (keyState == GLFW_KEY_DOWN ) lastAnalogY -= 20000;
+    if (keyState == GLFW_KEY_LEFT )  lastAnalogX += 20000;
+    if (keyState == GLFW_KEY_RIGHT ) lastAnalogX -= 20000;
   } else if (action == GLFW_RELEASE) {
     if (keyState == GLFW_KEY_LEFT_SHIFT  ) breps[FZ_REPS_SELECT  ]--; else breps[FZ_REPS_SELECT  ] = 0;
     if (keyState == GLFW_KEY_ENTER  ) breps[FZ_REPS_START   ]--; else breps[FZ_REPS_START   ] = 0;
