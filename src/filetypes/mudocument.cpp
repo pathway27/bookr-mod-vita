@@ -37,6 +37,7 @@
 #include "../utils.hpp"
 #include "../graphics/fzscreen_defs.h"
 #include "../graphics/controls.hpp"
+#include "../ui/colours.hpp"
 
 extern int _newlib_heap_size_user;
 
@@ -257,7 +258,7 @@ bool MUDocument::redrawBuffer() {
     printf("post _vita2d_load_pixmap_generic m_pix->n: %i\n", m_pix->n);
   #endif
 
-  fz_drop_pixmap(m_ctx, m_pix);
+  // fz_drop_pixmap(m_ctx, m_pix);
   // load annotations
 
   return true;
@@ -312,6 +313,29 @@ void MUDocument::renderContent() {
       *texture,
       glm::vec2(panX, panY)
     );
+  #endif
+
+  #ifdef DEBUG
+    // drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.08, GONDOLA);
+    char t1[200];
+    drawRectangle(0, 0, Screen::WIDTH * 0.6, Screen::HEIGHT * 0.5, GONDOLA);
+    snprintf(t1, 200, "PanX, PanY: %.2f %.2f", panX, panY);
+    drawText(0, 20, WHITE, 1.0f, t1);
+    
+    snprintf(t1, 200, "m_current_page %i", m_current_page);
+    drawText(0, 40, WHITE, 1.0f, t1);
+
+    snprintf(t1, 200, "m_pages %i", m_pages);
+    drawText(0, 60, WHITE, 1.0f, t1);
+
+    snprintf(t1, 200, "m_pix (x, y, w, h) %i %i %i %i", m_pix->x, m_pix->y, m_pix->w, m_pix->h);
+    drawText(0, 80, WHITE, 1.0f, t1);
+
+    snprintf(t1, 200, "tex (w, h) %i %i", texture_width, texture_height);
+    drawText(0, 100, WHITE, 1.0f, t1);
+
+    snprintf(t1, 200, "m_bounds (x, y) (x1, y1) %.2f %.2f %.2f %.2f", m_bounds.x0, m_bounds.y0, m_bounds.x1, m_bounds.y1);
+    drawText(0, 120, WHITE, 1.0f, t1);
   #endif
 
   // TODO: Show Page Error, don"t draw texture then.
@@ -471,27 +495,20 @@ int MUDocument::pan(int x, int y) {
   // x = -x
 
   // bounds checked pan
+  int right_bound = m_pix->w - DEFAULT_SCREEN_WIDTH;
+
   if (abs(x) > FZ_ANALOG_THRESHOLD) {
-    // if (panX > m_bounds.x0) { // left bounds
-    //   if (x > 0) panX -= x/10;     // only going right allowed
-    // } else if (-panX > m_bounds.x1 - m_width) { // right bounds
-    //   if (x < 0) panX -= x/10;                       // only going left
-    // } else {        // inside box
-      
-    // }
-    // panX -= x/10000;
+    panX += x/FZ_ANALOG_SENSITIVITY;
+
+    if (panX > 0)
+      panX = 0;
+    else if (-panX > (right_bound + x/FZ_ANALOG_SENSITIVITY))
+      panX = -right_bound;
   }
 
   int bottom_bound = texture_height - DEFAULT_SCREEN_HEIGHT;
-  if (abs(y) > FZ_ANALOG_THRESHOLD) {  
-    // if (panY > m_bounds.y0) {
-    //   if (y > 0) panY -= y/10;
-    // } else if (-panY > m_bounds.y1 - m_height) {
-    //   if (y < 0) panY -= y/10;
-    // } else {
-      
-    // }
-    
+  if (abs(y) > FZ_ANALOG_THRESHOLD) {
+
     panY += y/FZ_ANALOG_SENSITIVITY;
 
     if (panY > 0)
