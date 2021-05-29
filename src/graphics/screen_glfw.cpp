@@ -326,13 +326,16 @@ struct CompareDirent {
 int dirContents(const char* path, std::vector<Dirent>& a) {
   for (const auto & entry : std::filesystem::directory_iterator(path)) {
     std::cout << entry.path() << std::endl;
-
     std::string filename(entry.path().filename());
 
-    // if (filename == std::string('.') || filename == std::string('..'))
-    //   continue;
+    int type;
 
-    a.push_back(Dirent(filename, FZ_STAT_IFREG, 0));
+    if (entry.is_regular_file())
+      type = FZ_STAT_IFREG;
+    else if (entry.is_directory())
+      type = FZ_STAT_IFDIR;
+
+    a.push_back(Dirent(filename, type, 0));
   }
 
   return 0;

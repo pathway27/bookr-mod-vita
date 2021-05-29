@@ -82,10 +82,14 @@ int FileChooser::update(unsigned int buttons) {
 	int* b = Screen::ctrlReps();
 	if (b[User::controls.select] == 1) {
 		if (dirFiles[selItem].stat & FZ_STAT_IFDIR ) {
+#ifdef __vita__
 			if (path == "/")
 				path = dirFiles[selItem].name;
 			else
 				path += "/" + dirFiles[selItem].name;
+#else
+			path += "/" + dirFiles[selItem].name;
+#endif
 			selItem = 0;
 			topItem = 0;
 			updateDirFiles();
