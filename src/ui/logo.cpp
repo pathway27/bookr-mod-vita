@@ -63,8 +63,8 @@ int Logo::update(unsigned int buttons) {
   return 0;
 }
 
-inline constexpr char *LOADING_TEXT = "Loading...";
-inline constexpr char *DEFAULT_TEXT = "Press Start";
+inline constexpr const char *LOADING_TEXT = "Loading...";
+inline constexpr const char *DEFAULT_TEXT = "Press Start";
 
 inline constexpr unsigned int LOGO_SIZE = 256;
 
@@ -86,7 +86,7 @@ void Logo::render() {
       glm::vec2(LOGO_SIZE, LOGO_SIZE));
   #endif
 
-  drawText(CENTER_X - 100, CENTER_Y + LOGO_SIZE + 10, BLACK, 1.0f, "TXT - PDF - CBZ - HTML - ePub - FB2");
+  drawText(CENTER_X - (Screen::WIDTH * 0.1), CENTER_Y + LOGO_SIZE + 10, BLACK, 1.0f, "TXT - PDF - CBZ - HTML - ePub - FB2");
 
   drawRectangle(Screen::WIDTH * 0.1, Screen::HEIGHT * 0.9, Screen::WIDTH * 0.8, Screen::HEIGHT * 0.08, GONDOLA);
 
@@ -101,7 +101,13 @@ void Logo::render() {
       bottom_text_color = ERROR_RED;
   }
 
-  drawText(CENTER_X + 30, Screen::HEIGHT * 0.93, bottom_text_color, 1.0f, bottom_text);
+  #ifdef __vita__
+    #define TEXT_HEIGHT_OFFSET 0.95
+  #else
+    #define TEXT_HEIGHT_OFFSET 0.925
+  #endif
+
+  drawText(CENTER_X + (Screen::WIDTH * 0.03), Screen::HEIGHT * TEXT_HEIGHT_OFFSET, bottom_text_color, 1.0f, bottom_text);
 
   #if DEBUG
     #include "bookrconfig.h"
