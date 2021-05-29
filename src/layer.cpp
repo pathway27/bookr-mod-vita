@@ -87,6 +87,11 @@ int Layer::textW(char* t, Font* font) {
 
 inline constexpr unsigned int LOGO_SIZE = 32;
 
+void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
+  drawMenu(title, triangleLabel, items, false);
+  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.14, BLACK, 1.0f, upperBreadCrumb.c_str());
+}
+
 void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {
   int scrY = 0;
   char *t = (char*)circleLabel.c_str();

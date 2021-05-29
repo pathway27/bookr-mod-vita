@@ -20,12 +20,12 @@ namespace bookr {
 
 FileChooser::FileChooser(string& t, int r) : title(t), ret(r) {
 	convertToVN = false;
-	if( r == BK_CMD_SET_FONT )
+
+	if (r == BK_CMD_SET_FONT)
 		path = User::options.lastFontFolder;
 	else
 		path = User::options.lastFolder;
 
-	path = Screen::basePath();
 	updateDirFiles();
 }
 
@@ -51,35 +51,36 @@ bool FileChooser::isConvertToVN() {
 
 void FileChooser::updateDirFiles() {
 	dirFiles.clear();
-	int err = Screen::dirContents((char*)path.c_str(), dirFiles);
-	if (err < 0) {
-		path = Screen::basePath();
-		Screen::dirContents((char*)path.c_str(), dirFiles);
-	}
-	if (dirFiles.size() == 0) {
-#ifdef __vita__
+	#ifdef __vita__
 		if (path == "/") {
 			dirFiles.push_back(Dirent("ux0:", 40755, 0));
 			dirFiles.push_back(Dirent("uma0:", 40755, 0));
 			dirFiles.push_back(Dirent("ur0:", 40755, 0));
 			dirFiles.push_back(Dirent("us0:", 40755, 0));
 			dirFiles.push_back(Dirent("ms0:", 40755, 0));
-		} else
-#endif
+			return;
+		} 
+	#endif
+
+	int err = Screen::dirContents((char*)path.c_str(), dirFiles);
+	if (err < 0) {
+		// path = Screen::basePath();
+		// Screen::dirContents((char*)path.c_str(), dirFiles);
+	}
+
+	if (dirFiles.size() == 0) {
 			dirFiles.push_back(Dirent("<Empty folder>", 0, 0));
 	}
-	if( ret == BK_CMD_SET_FONT )
-		User::options.lastFontFolder = path;
-	else
-		User::options.lastFolder = path;
+	// if (ret == BK_CMD_SET_FONT)
+	// 	User::options.lastFontFolder = path;
+	// else
+	User::options.lastFolder = path;
 }
 
 int FileChooser::update(unsigned int buttons) {
 	menuCursorUpdate(buttons, (int)dirFiles.size());
 	int* b = Screen::ctrlReps();
 	if (b[User::controls.select] == 1) {
-		//printf("selected %s\n", dirFiles[selItem].name.c_str());
-		//psp2shell_print("File Info: %i\n", dirFiles[selItem].stat);
 		if (dirFiles[selItem].stat & FZ_STAT_IFDIR ) {
 			if (path == "/")
 				path = dirFiles[selItem].name;
@@ -108,6 +109,12 @@ int FileChooser::update(unsigned int buttons) {
 		if (lastSlash != -1) {
 			path.resize(lastSlash);
 		}
+		#ifdef __vita__
+			else if ((path == "ux0:") || (path == "ur0:") ||
+			    (path == "us0:") || (path == "ms0:") ||
+					(path == "uma0:"))
+				path = "/";
+		#endif
 		#ifdef PSP
 			if (path == "")
 				path = "ms0:/";
@@ -115,16 +122,11 @@ int FileChooser::update(unsigned int buttons) {
 			if (path == "")
 				path = "/";
 		#endif
-		#ifdef __vita__
-			if ((path == "ux0:") || (path == "ur0:") ||
-			    (path == "us0:") || (path == "ms0:") ||
-					(path == "uma0:"))
-				path = "/";
-		#endif
 		selItem = 0;
 		topItem = 0;
 		updateDirFiles();
 	}
+
 	if (b[User::controls.cancel] == 1) {
 		return BK_CMD_CLOSE_TOP_LAYER;
 	}

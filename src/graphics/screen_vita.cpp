@@ -71,7 +71,7 @@ void open(int argc, char** argv) {
 
   pgf = vita2d_load_default_pgf();
 
-  psv_full_path = "/";
+  psv_full_path = "ux0:";
 
   struct SceIoStat st = {0};
   if (sceIoGetstat("ux0:data/Bookr", &st) == -1) {
@@ -426,19 +426,21 @@ int dirContents(const char* path, vector<Dirent>& a) {
   SceIoDirent *findData;
   findData = (SceIoDirent*)memalign(16, sizeof(SceIoDirent));	// dont ask me WHY...
   memset((void*)findData, 0, sizeof(SceIoDirent));
-  //a.push_back(Dirent("books/udhr.pdf", FZ_STAT_IFREG, 0));
-  //a.push_back(Dirent("books/1984.txt", FZ_STAT_IFREG, 587083));
+
   fd = sceIoDopen(path);
   if (fd < 0)
-      return -1;
+    return -1;
+
   while (sceIoDread(fd, findData) > 0) {
-      if (findData->d_name[0] != 0 && findData->d_name[0] != '.') {
-          a.push_back(Dirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
-      }
+    if (findData->d_name[0] != 0 && findData->d_name[0] != '.') {
+      a.push_back(Dirent(findData->d_name, findData->d_stat.st_mode, findData->d_stat.st_size));
+    }
   }
   sceIoDclose(fd);
   free(findData);
+
   sort(a.begin(), a.end(), CompareDirent());
+
   return 1;
 }
 

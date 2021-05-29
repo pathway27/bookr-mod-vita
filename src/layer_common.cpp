@@ -44,11 +44,6 @@ void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& ite
   drawMenu(title, triangleLabel, items, false);
 }
 
-void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
-  drawMenu(title, triangleLabel, items, false);
-  drawText(300, 83, BLACK, 1.0f, upperBreadCrumb.c_str());
-}
-
 static int countLines(string& t) {
   int lines = 1;
   char* c = (char*)t.c_str();
