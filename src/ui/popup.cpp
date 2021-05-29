@@ -30,13 +30,9 @@
 
 namespace bookr {
 
-Popup::Popup(int m, string t) : mode(m), text(t)
-{
+Popup::Popup(int m, string t) : mode(m), text(t) {}
 
-}
-
-Popup::~Popup() {
-}
+Popup::~Popup() {}
 
 int Popup::update(unsigned int buttons) {
 	int* b = Screen::ctrlReps();
@@ -71,14 +67,22 @@ void Popup::render() {
 	}
 
   // back
-  drawRectangle(Screen::WIDTH * 0.15, Screen::HEIGHT * 0.15, Screen::WIDTH * 0.70, Screen::HEIGHT * 0.80, bg1);
+  drawRectangle(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.05, Screen::WIDTH * 0.80, Screen::HEIGHT * 0.92, bg1);
 
   // title
-  drawRectangle(Screen::WIDTH * 0.16, Screen::HEIGHT * 0.17, Screen::WIDTH * 0.68, Screen::HEIGHT * 0.05, bg2);
-  drawText(Screen::WIDTH * 0.17, Screen::HEIGHT * 0.18, fg, 1.0f, title.c_str());
+  drawRectangle(Screen::WIDTH * 0.13, Screen::HEIGHT * 0.07, Screen::WIDTH * 0.78, Screen::HEIGHT * 0.05, bg2);
 
+	#ifdef __vita__
+		#define TITLE_TEXT_OFFSET Screen::HEIGHT * 0.11
+		#define BODY_TEXT_OFFSET Screen::HEIGHT * 0.17
+	#else
+		#define TITLE_TEXT_OFFSET Screen::HEIGHT * 0.08
+		#define BODY_TEXT_OFFSET Screen::HEIGHT * 0.15
+	#endif
+
+  drawText(Screen::WIDTH * 0.15, TITLE_TEXT_OFFSET, fg, 1.0f, title.c_str());
 	// body
-  drawText(Screen::WIDTH * 0.17, Screen::HEIGHT * 0.25, fg, 1.0f, text.c_str());
+  drawText(Screen::WIDTH * 0.15, BODY_TEXT_OFFSET, fg, 1.0f, text.c_str());
 }
 
 Popup* Popup::create(int m, string t) {

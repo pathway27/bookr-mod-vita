@@ -89,7 +89,7 @@ inline constexpr unsigned int LOGO_SIZE = 32;
 
 void Layer::drawMenu(string& title, string& triangleLabel, vector<MenuItem>& items, string& upperBreadCrumb) {
   drawMenu(title, triangleLabel, items, false);
-  drawText(Screen::WIDTH * 0.12, Screen::HEIGHT * 0.14, BLACK, 1.0f, upperBreadCrumb.c_str());
+  drawText(Screen::WIDTH * 0.22, Screen::HEIGHT * 0.14, BLACK, 1.0f, upperBreadCrumb.c_str());
 }
 
 void Layer::drawDialogFrame(string& title, string& triangleLabel, string& circleLabel, int flags) {

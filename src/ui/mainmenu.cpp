@@ -283,35 +283,38 @@ int MainMenu::updateMain(unsigned int buttons) {
 		}
 		if (selItem == MAIN_MENU_ITEM::ABOUT) {
 			std::string specific_text;
+			std::string extra;
 
 			#ifdef __vita__
-			 specific_text = "vita2d by xerpi under MIT\n\
-			  psp2shell by Cpasjuste under GPLv3\n\n\
+				extra = " Vita";
+			  specific_text = "	    vita2d by xerpi under MIT\n\
+			    psp2shell by Cpasjuste under GPLv3\n\n\
 			Thanks to:\n\
 			  Team Molecule for Henkaku\n\
 			  VITA SDK Contibutors\n\
 			  People on freenode#vitasdk#henkaku and Discord\n";
 			#elif defined(__switch__)
-				specific_text = "devkitpro\n";
-			else
-				specific_text = "learnopengl.com\n"
+				extra = "ern";
+				specific_text = "	    devkitpro\n";
+			#else
+				extra = "ern";
+				specific_text = "	    learnopengl.com\n";
 			#endif
 
 
-			popupText = "\
-			Bookr Mod Vita (" + std::string(GIT_VERSION) + ") - by pathway27 (Sreekara C.)\n\n\
-			IS A MODIFICATION OF THE ORIGINAL\n\
-			Bookr and bookr-mod - a document viewer for the Sony PSP\n\
-			  by Carlos and Edward\n\
-			  V8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\n\
-			  Modified for Official Firmware by the HomebrewStore Development Team\n\
-			AND VARIOUS OTHER FORKS\n\n\
-			This program is licensed under the terms of the GNU GPLv3+.\n\n\
-			This program uses the following libraries/projects:\n\
-			  MuPDF v" + FZ_VERSION + " by ArtifexSoftware under AGPL v3\n"
-			+ specific_text + "\nSpecial thanks to\nebraminio for help with harbuzz\n\
-				and you for using and keeping this going\n\n Report issues at https://github.com/pathway27/bookr-mod-vita\n";
-			popupMode = BKPOPUP_INFO;
+			popupText = "Bookr Mod" + extra + " (" + std::string(GIT_VERSION) + ") by pathway27 (Sreekara C.)\n\
+IS A MODIFICATION OF THE ORIGINAL\n\
+  Bookr and bookr-mod - a document viewer for the Sony PSP\n\
+  by Carlos and Edward\n\
+  V8.1 by Nguyen Chi Tam <nguyenchitam@gmail.com>\n\
+  Modified for Official Firmware by the HomebrewStore Development Team\n\
+  AND VARIOUS OTHER FORKS\n\n\
+This program is licensed under the terms of the GNU GPLv3+\n\n\
+This program uses the following libraries/projects:\n\
+	    MuPDF v" + FZ_VERSION + " by ArtifexSoftware under AGPL v3\n"
+		+ specific_text + "\nSpecial thanks to\n	    ebraminio for help with harbuzz\n\
+			and you for using and keeping this going\n\n Report issues at\n    https://github.com/pathway27/bookr-mod-vita\n";
+		popupMode = BKPOPUP_INFO;
 			return BK_CMD_MAINMENU_POPUP;
 		}
 		if (selItem == MAIN_MENU_ITEM::EXIT) {
