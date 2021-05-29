@@ -56,8 +56,18 @@ void FileChooser::updateDirFiles() {
 		path = Screen::basePath();
 		Screen::dirContents((char*)path.c_str(), dirFiles);
 	}
-	if (dirFiles.size() == 0)
-		dirFiles.push_back(Dirent("<Empty folder>", 0, 0));
+	if (dirFiles.size() == 0) {
+#ifdef __vita__
+		if (path == "/") {
+			dirFiles.push_back(Dirent("ux0:", 40755, 0));
+			dirFiles.push_back(Dirent("uma0:", 40755, 0));
+			dirFiles.push_back(Dirent("ur0:", 40755, 0));
+			dirFiles.push_back(Dirent("us0:", 40755, 0));
+			dirFiles.push_back(Dirent("ms0:", 40755, 0));
+		} else
+#endif
+			dirFiles.push_back(Dirent("<Empty folder>", 0, 0));
+	}
 	if( ret == BK_CMD_SET_FONT )
 		User::options.lastFontFolder = path;
 	else
@@ -71,7 +81,10 @@ int FileChooser::update(unsigned int buttons) {
 		//printf("selected %s\n", dirFiles[selItem].name.c_str());
 		//psp2shell_print("File Info: %i\n", dirFiles[selItem].stat);
 		if (dirFiles[selItem].stat & FZ_STAT_IFDIR ) {
-			path += "/" + dirFiles[selItem].name;
+			if (path == "/")
+				path = dirFiles[selItem].name;
+			else
+				path += "/" + dirFiles[selItem].name;
 			selItem = 0;
 			topItem = 0;
 			updateDirFiles();
@@ -100,6 +113,12 @@ int FileChooser::update(unsigned int buttons) {
 				path = "ms0:/";
 		#else
 			if (path == "")
+				path = "/";
+		#endif
+		#ifdef __vita__
+			if ((path == "ux0:") || (path == "ur0:") ||
+			    (path == "us0:") || (path == "ms0:") ||
+					(path == "uma0:"))
 				path = "/";
 		#endif
 		selItem = 0;

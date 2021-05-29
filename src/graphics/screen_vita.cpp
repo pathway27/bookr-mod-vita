@@ -71,7 +71,7 @@ void open(int argc, char** argv) {
 
   pgf = vita2d_load_default_pgf();
 
-  psv_full_path = "ux0:";
+  psv_full_path = "/";
 
   struct SceIoStat st = {0};
   if (sceIoGetstat("ux0:data/Bookr", &st) == -1) {
