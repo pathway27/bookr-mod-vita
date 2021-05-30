@@ -1,0 +1,45 @@
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: Debug
+      long: Emit debug information
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize generated code
+      buildType: Release
+
+platform:
+  default: desktop
+  choices:
+    desktop:
+      short: desktop
+      long: desktop
+      settings:
+        CMAKE_BINARY_DIR: "${workspaceFolder}/desktop/win32"
+        SREE_TEST: ON
+
+# engine:
+#   default: ogl
+#   choices:
+#     ogl:
+#       short: OpenGL
+#       long: OpenGL rendering
+#       settings:
+#         ENGINE: OpenGL
+#     d3d:
+#       short: Direct3D
+#       long: Direct3D rendering
+#       settings:
+#         ENGINE: Direct3D
+#     vulkan:
+#       short: Vulkan
+#       long: Vulkan rendering
+#       setting:
+#         ENGINE: Vulkan
+#     software:
+#       short: Software
+#       long: Software rendering
+#       setting:
+#         ENGINE: Software

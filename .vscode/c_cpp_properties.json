@@ -5,7 +5,10 @@
             "includePath": [
                 "/usr/local/include",
                 "/usr/include",
-                "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include",
+                "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include",
+                "/usr/local/Cellar/freetype/2.10.1/include",
+                "ext/glad/include",
+                "/usr/local/Cellar/freetype/2.10.1/include/freetype2",
                 "/usr/local/vitasdk/arm-vita-eabi/include",
                 "/usr/local/Cellar/glm/0.9.8.3/include/glm"
             ],
@@ -15,7 +18,7 @@
                 "path": [
                     "/usr/local/include",
                     "/usr/include",
-                    "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include",
+                    "/Applications/XCode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/usr/include",
                     "/usr/local/vitasdk/arm-vita-eabi/include",
                     "/usr/local/Cellar/glm/0.9.8.3/include/glm"
                 ]

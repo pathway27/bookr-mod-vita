@@ -1,0 +1,7 @@
+#ifdef __vita__
+#define DEFAULT_SCREEN_WIDTH 960
+#define DEFAULT_SCREEN_HEIGHT 544
+#else
+#define DEFAULT_SCREEN_WIDTH 1280
+#define DEFAULT_SCREEN_HEIGHT 720
+#endif

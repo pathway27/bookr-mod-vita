@@ -1,37 +1,60 @@
 # Motivations
 
-Learning C++  
-Programming the Vita  
-Porting experience  
-Graphics Programming
+In order of priority
 
+1. Graphics Programming
+2. Learning Embedded C/C++  
+3. Programming the Vita/Switch
+4. Porting Experience
 
-Note: I am a web developer professionally so besides my Uni. C++ I haven't used it much.
+Note: I'm a web developer professionally, so besides my university C++ projects, I haven't used it much.
 
 # Random Notes
 
 ## VITA Hardware
 
- CPU: ARM Cortex-A9 MPCore (32-bit armv7-a, 4 cores) 2GHz (NEON SIMD)  
- RAM: 512MB
- GPU: PowerVR SGX543MP4+ 128MB (4 cores)
-DISP: 5" 960x544 (16:9) OLED multi-touch @ 220ppi
- INP: Dual Touch Pads, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks
+| Type | Model |
+|------|-------|
+| CPU | ARM Cortex-A9 MPCore (32-bit armv7-a, 4 cores) 2GHz (NEON SIMD) |
+| RAM | 512MB |
+| GPU | PowerVR SGX543MP4+ 128MB (4 cores) |
+| DISPLAY | 5" 960x544 (16:9) OLED multi-touch @ 220ppi |
+| INPUT | Dual Touch Pads, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks |
 
-PSP  480x272 (16:9)
+### PSP in Comparison
+
+Purposely not targeting PSP for legacy reasons. This is just for reference since the codebase was originally for PSP.
+
+| Type | Model |
+|------|-------|
+| CPU | 20-333 MHz MIPS R4000x2 |
+| RAM | 32MB-64MB |
+| GPU | RE+SE-90nm 2MB (133Mhz) |
+| DISPLAY | 4.3" 480x272 (16:9) LCD 24bit @ 220ppi |
+| INPUT | D-pad, 16 Buttons, 2 Analog Sticks |
+
+## Switch Hardware
+
+| Type | Model |
+|------|-------|
+| CPU | Quad-core Cortex-A57 + Quad-core Cortex-A53 @ 1.02 GHz |
+| RAM | 4GB LPDDR4 |
+| GPU | Nvidia GM20B Maxwell-based GPU |
+| DISPLAY | 6.2-inch, 1280 × 720p LCD (237 ppi); Docked 1080p |
+| INPUT | 2 Wireless Joycons, Motion, Compass, D-pad, 16 Buttons, 2 Analog Sticks, Touchscreen |
 
 ## Directory Stucture
 
-The original bookr had all it's c files outside, i've tried to arrange them in folders so as not to get
-overwhelmed.
+The original bookr had all it's source files outside in the root directory.
+I've tried to arrange them in folders so as not to get overwhelmed.
 
 ```
-  data              - should have all images and external resources, should also subdivide into vita/psp
-  ext               - external libraries used statically by bookr
-  sce_sys           - vita resources, should refactor into data/vita
-  src               - main directory for c++ source files
-    filetypes       - classes for specific filetypes for books
-    graphics        - has main rendering, texture classes and shaders (eventually)
+  data          - should have all images and external resources, should also subdivide into vita/psp
+  ext           - external libraries used statically by bookr
+  sce_sys       - vita resources, should refactor into data/vita
+  src           - main directory for c++ source files
+    filetypes   - classes for specific filetypes for books
+    graphics    - has main rendering, texture classes and shaders (eventually)
 ```
 
 ## Licensing and Copyright
@@ -73,7 +96,7 @@ ln -s /System/Library/Frameworks/OpenGL.framework/Headers/ /usr/local/include/Op
 
 ## Going from GLUT to GLFW
 
-On macOS 10.9+ i get deprecation warnings for the system's GLUT, so swapping to GLFW (newest and more supported)
+On macOS 10.9+ i get deprecation warnings for the system's GLUT, so swapping to GLFW (newer and more supported)
 ```sh
 ... 17 other warnings
 src/graphics/fzscreenglut.cpp:183:2: warning: 'glutMainLoop' is deprecated: first deprecated in macOS 10.9
@@ -84,11 +107,29 @@ src/graphics/fzscreenglut.cpp:183:2: warning: 'glutMainLoop' is deprecated: firs
 extern void APIENTRY glutMainLoop(void) OPENGL_DEPRECATED(10_0, 10_9);
 ```
 
-## C++11
+NOTE: Now OpenGL is deprecated in favour of Metal on MacOS.
 
-The codebase is using more of the C subset than C++, maybe i can make it cleaner and learn the C++11 features too.  
-e.g. FZScreen is only using static functions to do everything, and look so many static global variables!
+## Data files on Platform
 
+We use have user.xml to store configuration info. This will be in:
+- vita: `ux0:data/Bookr`
+- switch: `./` - The SD card is automatically mounted as the default device, usable with standard stdio. SD root dir is located at "/" (also "sdmc:/" but normally using the latter isn't needed). The default current-working-directory when using relative paths is normally the directory where your application is located on the SD card.
+- desktop: `./`
+
+## C++17
+
+The codebase is using more of the C subset than C++, maybe I can make it cleaner and learn the C++17 features too.
+
+The versions on gcc/clang on platforms:
+
+| Platform  | Compiler Version |
+| ------------- | ------------- |
+| Switch  | GCC v10.1.0  |
+| Vita  | GCC v10.1.0  |
+| Mac | Clang 12 |
+| Windows | MSVC++  |
+
+All of them have complete C++17 support, so targeting that.
 
 ### Initalization
 
@@ -113,6 +154,7 @@ So it seems like most applications share the same paradigm of
 - while (not exiting app)
   - render/draw the "state" of the app (start draw, swap buffers, stop draw)
   - check user input
+  - change state based on user input
 
 - deinitalize display
 
@@ -127,17 +169,26 @@ Got a cool shader class so far.
 The general idea seems to be to read the file and initalise some structures it has defined and finally draw a page into a pixmap buffer. Then put the pixmap into a texture onto the GPU which you can render.
 
 
+### SDL
+
+I chose purposely to not use SDL so I could learn a low level graphics API. Funnily enough vita2d does somewhat abstract that, but the OpenGL on desktop and switch are what I wanted to learn, which really differs from the vita's graphics api (and the psp's).
+
+It's obvious however that I would be releasing features faster if I were using SDL, as the abstractions would take care of platform specific issues. It sometimes feels as if I am writing the SDL library (albiet a bad imitation) from scratch. But the bigger picture and a desire I still have is a 3D visualisation; i.e. of a bookshelf or library.
+
+I belive this is a difference between a file manager and an e-book reader.
+I want to take inspiration from [this](https://www.youtube.com/watch?v=wjXL5CmD5WU) for vita/switch.
+
 ### Bitwise Operations
 
 - "|=" - OR a |= b is a = a | b
 - "&=" - AND a &= b is a = a & b
 
-
 ## Style
 
 1. Use spaces instead of tabs
-2. 4 Spaces for normal indentation
-3. 2 Spaces for preprocessor indentation when required.
+2. 2 Spaces for normal indentation
+
+This will change to 4 spaces soon.
 
 ### Cmake Special Flags
 
@@ -150,7 +201,7 @@ make
 same for Debug # Adds -DDEBUG
 ```
 
-### Class Hierarchy
+### Old Class Hierarchy
 
 ```
 main .

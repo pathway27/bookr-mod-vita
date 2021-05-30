@@ -1,111 +1,95 @@
 /*
- * Bookr % VITA: document reader for the Sony PS Vita
- * Copyright (C) 2017 Sreekara C. (pathway27 at gmail dot com)
- *
+ * bookr-modern: a graphics based document reader for switch, vita and desktop
+ * Copyright (C) 2019 pathway27 (Sree)
  * IS A MODIFICATION OF THE ORIGINAL
- *
  * Bookr and bookr-mod for PSP
  * Copyright (C) 2005 Carlos Carrasco Martinez (carloscm at gmail dot com),
  *               2007 Christian Payeur (christian dot payeur at gmail dot com),
  *               2009 Nguyen Chi Tam (nguyenchitam at gmail dot com),
-
- * AND VARIOUS OTHER FORKS.
- * See Forks in the README for more info
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * AND VARIOUS OTHER FORKS, See Forks in README.md
+ * Licensed under GPLv3+, see LICENSE
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include "bookr.hpp"
+
 #include <iostream>
-#ifdef __vita__
-  #include <psp2/kernel/threadmgr.h>
-  #include <psp2/kernel/clib.h>
-#endif
 
-#include "graphics/fzscreen.h"
-#include "bkuser.h"
-#include "bklayer.h"
-#include "bklogo.h"
-#include "bkmainmenu.h"
-#include "bkpopup.h"
-#include "bkfilechooser.h"
-#include "bkdocument.h"
+#include "graphics/screen.hpp"
+#include "graphics/controls.hpp"
 
-// Double default 32MB
-int _newlib_heap_size_user = 64 * 1024 * 1024;
+//#include "user.hpp"
+//#include "layer.hpp"
+#include "ui/logo.hpp"
+#include "ui/mainmenu.hpp"
+#include "ui/popup.hpp"
+#include "ui/filechooser.hpp"
 
-int main(int argc, char* argv[]) {
-  BKDocument *documentLayer = 0; // file we're opening
-  FZScreen::open(argc, argv);    // GPU init and initalDraw
-  FZScreen::setupCtrl();         // initalise control sampling, TODO: put in ::open
+#include "document.hpp"
 
-  #ifdef DEBUG
-    printf("Debug Started: in main\n");
-  #endif
+namespace bookr {
 
-  BKUser::init();                // get app settings from user.xml
+static void command_handler(int command);
 
-  BKLayer::load();                       // make textures
-  bkLayers layers;                       // iterator over all gui obj. that are initalsed
-  BKFileChooser* fs = 0;                 // file chooser, only opens when Open File in mainmenu
-  BKMainMenu* mm = BKMainMenu::create(); // Main Menu, only opens when pressed start on opening screen
-  layers.push_back(BKLogo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
+static Layers layers;                 // iterator over all gui obj. that are initalsed
+static MainMenu *mm;                    // Main Menu, only opens when pressed start on opening screen
+static FileChooser *fs;                 // file chooser, only opens when Open File in mainmenu
+static Document *documentLayer;
+
+// Swapping buffers based on dirty variable feels dirty.
+static bool dirty = true;
+static bool exitApp = false;
+
+#include "utils/debug_vita.hpp"
+
+void initalise(int argc, char *argv[]) {
+  // #ifdef DEBUG
+  //   printf("Debug Started: in bookr::initalise\n");
+  // #endif
+  Screen::open(argc, argv);    // GPU init and initalDraw
+  Screen::setupCtrl();         // initalise control sampling, TODO: put in ::open
+  User::init(); // get app settings from user.xml
+
+  Layer::load();                       // make textures
+  mm = MainMenu::create(); // Main Menu, only opens when pressed start on opening screen
+  layers.push_back(Logo::create());    // Logo thats displayed with text at the back, first layer, then everything else draw on top
   layers.push_back(mm);                  // Main Menu
+}
 
-  // Swapping buffers based on dirty variable feels dirty.
-  bool dirty = true;
-  bool exitApp = false;
-  int reloadTimer = 0;
+void mainloop() {
+  #ifdef DEBUG
+    printf("bookr::mainloop\n");
+  #endif
   // Event Loop
-  while ( !exitApp )  {
+  while (!exitApp) {
     // draw state to back buffer and swap
     if (dirty) {
-      FZScreen::startDirectList();
-      bkLayersIt it(layers.begin());
-      bkLayersIt end(layers.end());
-      while (it != end) {
-          (*it)->render();
-          ++it;
-      }
-      FZScreen::endAndDisplayList();
-      FZScreen::swapBuffers();
+      Screen::startDirectList();
+      for (const auto &layer : layers)
+        layer->render();
+      Screen::endAndDisplayList();
+      Screen::swapBuffers();
     }
 
-    int buttons = FZScreen::readCtrl();
-
+    int buttons = Screen::readCtrl();
+    #ifdef DEBUG_BUTTONS
+      std::cout << "mainloop buttons " << buttons << std::endl;
+    #endif
     dirty = buttons != 0;
 
-    #if defined(MAC) || defined(WIN32)
-      if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
-        break;
-    #endif
 
     // // the last layer always owns the input focus
-    bkLayersIt it(layers.end());
-    --it;
+    auto &last_layer = layers.back();
     int command = 0;
 
-    if ((*it) == nullptr)
+    if (last_layer == nullptr)
       continue;
-    
+
     // These take up most of the stdout
     #ifdef DEBUG_BUTTONS
       printf("pre update-buttons\n");
     #endif
-    command = (*it)->update(buttons);
+
+    command = last_layer->update(buttons);
     if (command == BK_CMD_OPEN_FILE) {
       #ifdef DEBUG
         printf("Got BK_CMD_OPEN_FILE\n");
@@ -116,181 +100,193 @@ int main(int argc, char* argv[]) {
       printf("post update-buttons\n");
     #endif
     // dont proc events while in the reload timer
-    std::cout << command << std::endl;
 
-    // pusedo message passing
-    switch (command) {
-      case BK_CMD_MARK_DIRTY: {
-          dirty = true;
-          // mm->rebuildMenu();
-      } break;
-      case BK_CMD_CLOSE_TOP_LAYER: {
-          bkLayersIt it(layers.end());
-          --it;
-          (*it)->release();
-          layers.erase(it);
-
-          if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD) {
-            // repaint
-            dirty = true;
-          }
-      } break;
-      case BK_CMD_INVOKE_MENU: {
-          mm = BKMainMenu::create();
-          layers.push_back(mm);
-      } break;
-      case BK_CMD_MAINMENU_POPUP: {
-          layers.push_back(BKPopup::create(
-            mm->getPopupMode(),
-            mm->getPopupText())
-          );
-      } break;
-      case BK_CMD_EXIT: {
-          exitApp = true;
-          break;
-      }
-      case BK_CMD_INVOKE_OPEN_FILE: {
-          // add a file chooser layer
-          // string title("Open (use SQUARE to open Vietnamese chm/html)");
-          string title("Open File");
-          fs = BKFileChooser::create(title, BK_CMD_OPEN_FILE);
-          layers.push_back(fs);
-          break;
-      }
-      case BK_CMD_RELOAD:
-      case BK_CMD_OPEN_FILE: {
-        // open a file as a document
-        #ifdef DEBUG
-          printf("BK_CMD_OPEN_FILE\n");
-        #endif
-        string fileName; // this is being changed somewhere, don't trust it..
-        string fnCpy;
-
-        bool convertToVN = false;
-
-        if (command == BK_CMD_RELOAD) {
-          documentLayer->getFileName(fileName);
-          documentLayer = 0;
-        }
-        if (command == BK_CMD_OPEN_FILE) {
-          // open selected file
-          fs->getFullPath(fileName);
-          //convertToVN = fs->isConvertToVN();
-          fs = 0;
-          #ifdef DEBUG
-            printf("getFullPath %s\n", fileName.c_str());
-          #endif
-        }
-        fnCpy = string(fileName);
-        
-        // clear layers
-        #ifdef DEBUG
-          printf("getFullPath pre layer clear %s\n", fileName.c_str());
-        #endif
-        bkLayersIt it(layers.begin());
-        bkLayersIt end(layers.end());
-        while (it != end) {
-          (*it)->release();
-          ++it;
-        }
-        layers.clear();
-        #ifdef DEBUG
-          printf("getFullPath post layer clear %s\n", fileName.c_str());
-        #endif
-        // little hack to display a loading screen
-        BKLogo* l = BKLogo::create();
-        l->setLoading(true);
-        FZScreen::startDirectList();
-        l->render();
-        FZScreen::endAndDisplayList();
-        FZScreen::waitVblankStart();
-        FZScreen::swapBuffers();
-        // FZScreen::checkEvents();
-        l->release();
-        #ifdef DEBUG
-          printf("getFullPath copy %s\n", fnCpy.c_str());
-        #endif
-        #ifdef DEBUG
-          printf("BKLogo Created\n");
-          printf("Pre Document::create\n");
-        #endif
-        #ifdef DEBUG
-          printf("getFullPath %s\n", fileName.c_str());
-        #endif
-
-        const char *error;
-        // detect file type and add a new display layer
-        try {
-          #ifdef DEBUG
-            printf("getFullPath %s\n", fileName.c_str());
-          #endif
-          documentLayer = BKDocument::create(fnCpy.c_str());
-        }
-        catch (const char* e) {
-          error = e;
-          documentLayer = nullptr;
-        }
-        // specific create BKPDF::create
-        //   init mupdf vars
-        //   b->redrawBuffer(); sets bouncebuffer
-        #ifdef DEBUG
-          printf("Post Document::create\n");
-        #endif
-        if (documentLayer == nullptr) {
-          // error, back to logo screen
-          BKLogo* l = BKLogo::create();
-          l->setError(true, error);
-          // Still no way of getting exact error during file opening
-          // or during class init... maybe throw string and try and catch
-          layers.push_back(l);
-        } else {
-          // file loads ok, add the layer
-          layers.push_back(documentLayer);
-        }
-
-        // render document
-        // render filetype content i.e. bouncebuffer with FZScreen::copyImage
-        // wait for event, redraw bouncebuffer responding to events
-
-        // FZScreen::setSpeed(BKUser::options.pspSpeed);
-
-        dirty = true;
-        break;
-      }
-    }
-
-    #if defined(MAC) || defined(WIN32)
-      if (buttons == FZ_CTRL_LTRIGGER || FZScreen::isClosing())
-        break;
+    #ifdef DEBUG_BUTTONS
+      std::cout << "mainloop command: " << command << std::endl;
     #endif
+    // // pusedo message passing
+    command_handler(command);
+
+    if (Screen::isClosing())
+      break;
+
     #ifdef DEBUG
-      // printf("powerResumed %i\n", FZScreen::getSuspendSerial());
+      // printf("powerResumed %i\n", Screen::getSuspendSerial());
       // Quick close
       if ((buttons == (FZ_CTRL_LTRIGGER | FZ_CTRL_CIRCLE)) ||
-          FZScreen::isClosing())
-          break;
-      else {
-          FZScreen::checkEvents(buttons);
-      }
+          Screen::isClosing())
+        break;
+      // else
+      // Screen::checkEvents(buttons);
     #endif
   }
+}
 
+void cleanup() {
   #ifdef DEBUG
     printf("exiting...\n");
   #endif
 
-  // Get rid of all gui layers
-  bkLayersIt it(layers.begin());
-  bkLayersIt end(layers.end());
-  while (it != end) {
-    (*it)->release();
-    ++it;
+  for(auto &layer: layers) {
+    layer->release();
   }
   layers.clear();
 
-  FZScreen::close();    // deinit graphics layer
-  BKLayer::unload();    // free textures
-  FZScreen::exit();
+  Screen::close(); // deinit graphics layer
+  Layer::unload(); // free textures
+  Screen::exit();
+}
 
-  return 0;
+static void command_handler(int command) {
+  switch (command) {
+    case BK_CMD_MARK_DIRTY:
+    {
+      dirty = true;
+      // mm->rebuildMenu();
+      break;
+    }
+    case BK_CMD_CLOSE_TOP_LAYER:
+    {
+      layers.pop_back();
+
+      if (command == BK_CMD_CLOSE_TOP_LAYER_RELOAD)
+      {
+        // repaint
+        dirty = true;
+      }
+      break;
+    }
+    case BK_CMD_INVOKE_MENU:
+    {
+      mm = MainMenu::create();
+      layers.push_back(mm);
+      break;
+    }
+    case BK_CMD_MAINMENU_POPUP:
+    {
+      layers.push_back(
+        Popup::create(mm->getPopupMode(), mm->getPopupText())
+      );
+      break;
+    }
+    case BK_CMD_EXIT:
+    {
+      exitApp = true;
+      break;
+    }
+    case BK_CMD_INVOKE_OPEN_FILE:
+    {
+      // add a file chooser layer
+      string title("Open File");
+      fs = FileChooser::create(title, BK_CMD_OPEN_FILE);
+      layers.push_back(fs);
+      break;
+    }
+    case BK_CMD_RELOAD:
+    case BK_CMD_OPEN_FILE:
+    {
+      // open a file as a document
+      #ifdef DEBUG
+        printf("BK_CMD_OPEN_FILE\n");
+      #endif
+      string fileName; // this is being changed somewhere, don't trust it..
+      string fnCpy;
+
+      bool convertToVN = false;
+
+      if (command == BK_CMD_RELOAD)
+      {
+        documentLayer->getFileName(fileName);
+        documentLayer = 0;
+      }
+      if (command == BK_CMD_OPEN_FILE)
+      {
+        // open selected file
+        fs->getFullPath(fileName);
+        //convertToVN = fs->isConvertToVN();
+        fs = 0;
+        #ifdef DEBUG
+          printf("getFullPath %s\n", fileName.c_str());
+        #endif
+      }
+      fnCpy = string(fileName);
+
+      // clear layers
+      #ifdef DEBUG
+        printf("getFullPath pre layer clear %s\n", fileName.c_str());
+      #endif
+      for (const auto &layer : layers)
+        layer->release();
+      layers.clear();
+      #ifdef DEBUG
+        printf("getFullPath post layer clear %s\n", fileName.c_str());
+      #endif
+      // little hack to display a loading screen
+      Logo *l = Logo::create();
+      l->setLoading(true);
+      Screen::startDirectList();
+      l->render();
+      Screen::endAndDisplayList();
+      Screen::waitVblankStart();
+      Screen::swapBuffers();
+      // Screen::checkEvents();
+      l->release();
+      #ifdef DEBUG
+        printf("getFullPath copy %s\n", fnCpy.c_str());
+      #endif
+      #ifdef DEBUG
+        printf("BKLogo Created\n");
+        printf("Pre Document::create\n");
+      #endif
+      #ifdef DEBUG
+        printf("getFullPath %s\n", fileName.c_str());
+      #endif
+
+      const char *error;
+      // detect file type and add a new display layer
+      try
+      {
+        #ifdef DEBUG
+          printf("getFullPath %s\n", fileName.c_str());
+        #endif
+        documentLayer = Document::create(fnCpy.c_str());
+      }
+      catch (const char *e)
+      {
+        error = e;
+        documentLayer = nullptr;
+      }
+      // specific create BKPDF::create
+      //   init mupdf vars
+      //   b->redrawBuffer(); sets bouncebuffer
+      #ifdef DEBUG
+        printf("Post Document::create\n");
+      #endif
+      if (documentLayer == nullptr)
+      {
+        // error, back to logo screen
+        Logo *l = Logo::create();
+        l->setError(true, error);
+        // Still no way of getting exact error during file opening
+        // or during class init... maybe throw string and try and catch
+        layers.push_back(l);
+      }
+      else
+      {
+        // file loads ok, add the layer
+        layers.push_back(documentLayer);
+      }
+
+      // render document
+      // render filetype content i.e. bouncebuffer with Screen::copyImage
+      // wait for event, redraw bouncebuffer responding to events
+
+      // Screen::setSpeed(BKUser::options.pspSpeed);
+
+      dirty = true;
+      break;
+    }
+  }
+}
+
 }

@@ -2,7 +2,9 @@
 build
 Debug
 Release
+desktop
 .vs
+.ropeproject
 
 *.*o
 *.*lf
@@ -13,7 +15,11 @@ out/*
 
 bookr.glfw
 src/bookrconfig.h
+src/filetypes/palmdoc
 
-ext/
 html/
 latex/
+bkup/
+bookr/
+data/books/
+data/CVS/

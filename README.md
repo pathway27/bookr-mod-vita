@@ -29,19 +29,46 @@ Start - Show/Hide Menu
 
 ## Building
 
+
 ### For VITA (on *nix)
+
+
+MuPDF is built using cmake automatically.
 
 ```sh
 # Setup VITA development evironment: https://henkaku.xyz/developer/
 git clone --recursive https://github.com/pathway27/bookr-mod-vita
 # run pngquant on all your png images if not done already
-mkdir -p vita/Release && cd vita/Release
-make
+mkdir -p vita/Release && cd $_
+cmake ..
+make -j8
 # Install .vpk
 
 # For devs - replace with your VITA ftp ip (assumes vpk was installed once)
 export PSVITAIP=IP-HERE
 make send
+socat udp-recv:18194 stdout
+```
+
+### For Switch
+
+NOTE: You may need to build MuPDF manually.
+
+Install Devkitpro: https://devkitpro.org/wiki/Getting_Started#macOS
+
+Add it to PATH or your rc file and don't forget to source it.
+
+```sh
+# Setup devkitpro development evironment: 
+dkp-pacman -S switch-dev
+dkp-pacman -S switch-freetype switch-mesa switch-glad switch-glm
+
+mkdir -p switch/Release && cd $_
+cmake ..
+make
+export SWITCHIP=IP-HERE
+make send
+
 ```
 
 See [BUILDING.md](https://github.com/pathway27/bookr-mod-vita/blob/master/BUILDING.md) for OpenGL version.

@@ -1,10 +1,13 @@
-[submodule "ext/tinyxml2"]
-	path = ext/tinyxml2
-	url = https://github.com/pathway27/tinyxml2/
-	branch = cmake-bookr-fix
 [submodule "ext/SOIL"]
 	path = ext/SOIL
 	url = https://github.com/pathway27/SOIL/
 [submodule "ext/libvita2d"]
 	path = ext/libvita2d
 	url = https://github.com/pathway27/libvita2d
+[submodule "ext/stb"]
+	path = ext/stb
+	url = https://github.com/nothings/stb
+[submodule "ext/tinyxml2"]
+	path = ext/tinyxml2
+	url = https://github.com/pathway27/tinyxml2.git
+	branch = cmake-bookr-fix

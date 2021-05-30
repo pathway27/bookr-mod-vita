@@ -1,17 +1,19 @@
 ## This file is a quick tutorial on writing CMakeLists for targeting the Vita
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 include(ExternalProject)
 
+message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+
 # Use CMAKE_BINARY_DIR to determine target platform
-# Defaults to building for Vita
-IF(CMAKE_BINARY_DIR MATCHES desktop)
+# Defaults to building for Vita on *nix
+IF(CMAKE_BINARY_DIR MATCHES desktop OR CMAKE_BINARY_DIR MATCHES CMakeBuild)
   set(DESKTOP ON)
 ELSEIF(CMAKE_BINARY_DIR MATCHES switch)
   # TODO: move to toolchain file
   add_definitions(-DSWITCH)
   if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     if(DEFINED ENV{DEVKITPRO})
-      set(CMAKE_TOOLCHAIN_FILE "switch.toolchain.cmake" CACHE PATH "toolchain file")
+      set(CMAKE_TOOLCHAIN_FILE "cmake/switch.toolchain.cmake" CACHE PATH "toolchain file")
     else()
       message(FATAL_ERROR "Please define DEVKITPRO to point to your SDK path!")
     endif()
@@ -30,27 +32,41 @@ ELSE()
   endif()
 ENDIF()
 
-# Use CMAKE_BINARY_DIR Determine if release or debug variant
-# Defaults to Debug
-# TODO: This is bad apparently; but I prefer it rather than typing `cmake -DCMAKE_BUILD_TYPE=Release ..`
-IF(CMAKE_BINARY_DIR MATCHES Release)
-  set(CMAKE_BUILD_TYPE Release)
-ELSE(CMAKE_BINARY_DIR MATCHES Debug)
-  set(CMAKE_BUILD_TYPE Debug)
-ENDIF()
-
 ## Define project parameters here
 # Name of the project
 project(bookr-mod-vita)
 
-execute_process(COMMAND git describe --long
-  OUTPUT_VARIABLE GIT_VERSION)
+execute_process(
+  COMMAND git describe
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_VERSION
+)
 string(REGEX REPLACE "\n$" "" GIT_VERSION "${GIT_VERSION}")
 
 configure_file(
   "${CMAKE_SOURCE_DIR}/bookrconfig.h.in"
   "${CMAKE_BINARY_DIR}/bookrconfig.h"
 )
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+# Use CMAKE_BINARY_DIR Determine if release or debug variant
+# Defaults to Debug
+# TODO: This is bad apparently; but I prefer it rather than typing `cmake -DCMAKE_BUILD_TYPE=Release ..`
+IF(${CMAKE_BINARY_DIR} MATCHES "Release")
+  set(CMAKE_BUILD_TYPE Release)
+ELSE()
+  set(CMAKE_BUILD_TYPE Debug)
+ENDIF()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  get_cmake_property(_variableNames VARIABLES)
+  foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+  endforeach()
+  execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+ENDIF()
 
 # Debug CMAKE/ENV variables
 message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
@@ -66,79 +82,80 @@ ENDIF()
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 # Specific flags on Debug and Release
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG -DDEBUG_REFCOUNT")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -DDEBUG_REFCOUNT")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -DDEBUG")
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -O3")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
-# TODO: Move to ext folder?
-add_subdirectory("${CMAKE_SOURCE_DIR}/ext/tinyxml2")
+# tinyxml2
+set(TINYXML2_DIR "${CMAKE_SOURCE_DIR}/ext/tinyxml2" CACHE PATH "The path to the tinyxml2 library.")
 
-# turn images to binary with
-# https://beesbuzz.biz/blog/e/2014/07/31-embedding_binary_resources_with_cmake_and_c11.php
-FUNCTION(ADD_RESOURCES out_var)
-  SET(result)
-  FOREACH(in_f ${ARGN})
-    GET_FILENAME_COMPONENT(out_fn ${in_f} NAME_WE)
-    SET(out_f "${CMAKE_CURRENT_BINARY_DIR}/${out_fn}.o")
-    GET_FILENAME_COMPONENT(out_dir ${out_f} DIRECTORY)
-    ADD_CUSTOM_COMMAND(OUTPUT ${out_f}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${out_dir}
-      COMMAND ${CMAKE_LINKER} -r -b binary -o ${out_f} ${in_f}
-      DEPENDS ${in_f}
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      COMMENT "Building resource ${out_f}"
-      VERBATIM
-      )
-    LIST(APPEND result ${out_f})
-  ENDFOREACH()
-  SET(${out_var} "${result}" PARENT_SCOPE)
-ENDFUNCTION()
+option(BUILD_SHARED_LIBS "build as shared library" OFF)
+option(BUILD_STATIC_LIBS "build as static library" ON)
+add_subdirectory(${TINYXML2_DIR})
+
+include_directories(
+  ${TINYXML2_DIR}
+)
 
 file(GLOB res_files RELATIVE
   ${CMAKE_SOURCE_DIR}
-  sce_sys/icon0_t.png
+  data/logos/icon0_t.png
 
   # data/fonts/URW Gothic L Demi.ttf
   data/icons/*.png
+  data/fonts/NotoSans-Regular.ttf
 )
-add_resources(bk_resources ${res_files})
+
+file(GLOB shader_files RELATIVE
+  ${CMAKE_SOURCE_DIR}
+  src/graphics/shaders/*.vert
+  src/graphics/shaders/*.frag
+)
 
 set(COMMON_SRCS
+  src/main.cpp
   src/bookr.cpp
+  
   src/utils.cpp
-  src/graphics/fzscreencommon.cpp
+  src/graphics/screen_common.cpp
+  src/layer_common.cpp
 
-  src/bkuser.cpp
+  src/user.cpp
 
   #texture image refcounted
-  src/graphics/fzrefcount.cpp
-  src/graphics/fzimage.cpp
-  src/graphics/fztexture.cpp
+  src/graphics/refcount.cpp
+  src/graphics/image.cpp
 
-  src/graphics/fzinstreammem.cpp
-  
-  src/bklayervita.cpp
-  src/bklogo.cpp
-  src/bkmainmenu.cpp
-  src/bkpopup.cpp
-  src/bkfilechooser.cpp
+  src/graphics/instreammem.cpp
+  src/ui/logo.cpp
+  src/ui/mainmenu.cpp
+  src/ui/popup.cpp
+  src/ui/filechooser.cpp
 
-  
-  src/bkdocument.cpp
-  src/bkbookmark.cpp
-  src/filetypes/bkfancytext.cpp
-  src/filetypes/bkplaintext.cpp
+  src/bookmark.cpp
+  src/document.cpp
+  src/filetypes/fancytext.cpp
+  src/filetypes/mudocument.cpp
+  src/filetypes/plaintext.cpp
 )
 
-if (WIN32)
-  include(win.cmake)
-elseif(SWITCH)
-  include(switch.cmake)
-elseif(VITA)
-  include(vita.cmake)
-endif (WIN32)
+# TODO: Apparently this is bad
+if(DESKTOP)
+  add_definitions(-DDESKTOP)
+  if(WIN32)
+    include(cmake/win.cmake)
+  elseif(APPLE)
+    include(cmake/mac.cmake)
+  endif(WIN32)
+else()
+  if(SWITCH)
+    include(cmake/switch.cmake)
+  elseif(VITA)
+    include(cmake/vita.cmake)
+  endif (SWITCH)
+endif(DESKTOP)
