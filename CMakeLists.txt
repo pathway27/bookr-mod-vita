@@ -68,6 +68,17 @@ IF(CMAKE_BUILD_TYPE MATCHES Debug)
   execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
 ENDIF()
 
+# Debug CMAKE/ENV variables
+message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  get_cmake_property(_variableNames VARIABLES)
+  foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+  endforeach()
+  execute_process(COMMAND "${CMAKE_COMMAND}" "-E" "environment")
+ENDIF()
+
+
 ## Flags and includes for building
 # Note that we make sure not to overwrite previous flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
