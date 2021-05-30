@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  release:
+  repository_dispatch:
+    types: [run_build]
+
+jobs:
+  build:
+    name: ${{ matrix.config.target }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            target: "vita",
+            os: ubuntu-latest,
+            artifact: "bookr-mod-vita.vpk",
+          }
+        - {
+            target: "switch",
+            os: ubuntu-latest,
+            artifact: "bookr-modern.nro"
+          }
+        - {
+            target: "desktop",
+            os: macos-latest,
+            artifact: "bookr-mod-vita"
+          }
+
+    steps:
+      - name: Install dependencies for vita
+        if: startsWith(matrix.config.target, 'vita')
+        run: |
+          git clone https://github.com/vitasdk/vdpm
+          cd vdpm
+          ./bootstrap-vitasdk.sh
+          export VITASDK=/usr/local/vitasdk # define $VITASDK if you haven't already
+          export PATH=$VITASDK/bin:$PATH # add vitasdk tool to $PATH if you haven't already
+          echo VITASDK=$VITASDK >> $GITHUB_ENV
+          echo $PATH >> $GITHUB_PATH
+          ./install-all.sh
+
+      - name: Install dependencies for switch
+        if: startsWith(matrix.config.target, 'switch')
+        run: |
+          sudo apt-get update && \
+          sudo apt-get install -y --no-install-recommends apt-utils gdebi && \
+          sudo apt-get install -y --no-install-recommends sudo ca-certificates pkg-config curl wget bzip2 xz-utils make bsdtar doxygen gnupg && \
+          sudo apt-get install -y --no-install-recommends git git-restore-mtime && \
+          sudo apt-get install -y --no-install-recommends gdebi-core && \
+          sudo apt-get install -y --no-install-recommends cmake zip unzip && \
+          sudo apt-get clean
+
+          wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.amd64.deb && \
+            sudo gdebi -n devkitpro-pacman.amd64.deb && \
+            rm devkitpro-pacman.amd64.deb && \
+            sudo dkp-pacman -Scc --noconfirm
+
+          sudo dkp-pacman -Syyu --noconfirm switch-dev && \
+            sudo dkp-pacman -S --needed --noconfirm `dkp-pacman -Slq dkp-libs | grep '^switch-'` && \
+            sudo dkp-pacman -S --needed --noconfirm devkitARM && \
+            sudo dkp-pacman -Scc --noconfirm
+
+          export DEVKITPRO=/opt/devkitpro
+          export PATH=${DEVKITPRO}/tools/bin:$PATH
+
+          echo DEVKITPRO=$DEVKITPRO >> $GITHUB_ENV
+          echo $PATH >> $GITHUB_PATH
+
+      - name: Install dependencies for mac
+        if: startsWith(matrix.config.os, 'macos-latest')
+        run: |
+          brew install glm glfw glew
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Print env
+        run: |
+          echo github.event.action: ${{ github.event.action }}
+          echo github.event_name: ${{ github.event_name }}
+
+      - name: Build
+        env:
+          target: ${{ matrix.config.target }}
+        run: |
+          mkdir -p Release/${target}
+          cd Release/${target}
+          cmake ../..
+          make
+
+      - name: Upload
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.config.artifact }}
+          path: ./Release/${{ matrix.config.target }}/${{ matrix.config.artifact }}

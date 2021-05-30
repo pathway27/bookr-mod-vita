@@ -6,6 +6,23 @@ find_package(glew REQUIRED)
 find_package(glm REQUIRED)
 find_package(glfw3 REQUIRED)
 
+ExternalProject_Add(mupdf_lib
+  PREFIX "${CMAKE_SOURCE_DIR}/ext/mupdf-lib"
+  GIT_REPOSITORY https://github.com/pathway27/mupdf
+  GIT_TAG origin/1.18.0-vg-console
+  GIT_PROGRESS 1
+  #--Configure step-------------
+  # SOURCE_SUBDIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
+  CONFIGURE_COMMAND make generate
+  UPDATE_COMMAND ""
+  #--Build step-----------------
+  BUILD_COMMAND make build=release HAVE_X11=no HAVE_GLUT=no
+  BUILD_IN_SOURCE 1
+  #--Install step---------------
+  INSTALL_COMMAND ""
+)
+ExternalProject_Get_Property(mupdf_lib SOURCE_DIR)
+
 include_directories(
   "${FREETYPE_INCLUDE_DIRS}"
   "${GLM_INCLUDE_DIRS}"
@@ -16,8 +33,8 @@ include_directories(
 )
 
 link_directories(
-  "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
-  # "${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/build/release"
+  # "${CMAKE_SOURCE_DIR}/ext/mupdf/build/release"
+  "${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/build/release"
 )
 
 ## Build and link

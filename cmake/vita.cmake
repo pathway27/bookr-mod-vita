@@ -77,14 +77,12 @@ include_directories(
   "${SOURCE_DIR}/include"
 )
 
-
 # Add any additional library paths here
 # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
 link_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   "${SOURCE_DIR}/build/vita/release"
 )
-
 
 ## Build and link
 # Add all the files needed to compile here

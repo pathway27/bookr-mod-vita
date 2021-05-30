@@ -87,7 +87,7 @@ macro(switch_create_nro source)
   )
   # NACP
   add_custom_command(OUTPUT ${source}.nacp
-    COMMAND ${NACP_TOOL} --create "APP_TITLE" "SREE" "1.0.0" ${source}.nacp
+    COMMAND ${NACP_TOOL} --create "Bookr Modern" "pathway27" "1.0.0" ${source}.nacp
     DEPENDS ${source}
     COMMENT "Creating NACP ${source}"
   )

@@ -26,14 +26,29 @@ ENDFUNCTION()
 add_resources(bk_resources ${res_files})
 add_resources(bk_shaders ${shader_files})
 
+ExternalProject_Add(mupdf_lib
+  PREFIX "${CMAKE_SOURCE_DIR}/ext/mupdf-lib"
+  GIT_REPOSITORY https://github.com/pathway27/mupdf
+  GIT_TAG origin/1.18.0-vg-console
+  GIT_PROGRESS 1
+  #--Configure step-------------
+  # SOURCE_SUBDIR "${CMAKE_SOURCE_DIR}/ext/mupdf"
+  CONFIGURE_COMMAND make generate
+  UPDATE_COMMAND ""
+  #--Build step-----------------
+  BUILD_COMMAND make OS=switch prefix=/opt/devkitpro/devkitA64/aarch64-none-elf HAVE_X11=no HAVE_GLUT=no
+  BUILD_IN_SOURCE 1
+  #--Install step---------------
+  INSTALL_COMMAND ""
+)
+ExternalProject_Get_Property(mupdf_lib SOURCE_DIR)
+
 # Add any additional include paths here
 include_directories(
   ${CMAKE_BINARY_DIR}
   $ENV{DEVKITPRO}/libnx/include
   $ENV{DEVKITPRO}/portlibs/switch/include
   $ENV{DEVKITPRO}/portlibs/switch/include/freetype2
-  ${CMAKE_SOURCE_DIR}/ext/mupdf/include
-  ${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/include
   ${CMAKE_SOURCE_DIR}/ext/tinyxml2
   ${CMAKE_SOURCE_DIR}/ext/stb
   "${SOURCE_DIR}/include"
@@ -42,9 +57,8 @@ include_directories(
 # Add any additional library paths here
 # ${CMAKE_CURRENT_BINARY_DIR} lets you use any library currently being built
 link_directories(
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/ext/mupdf/build/switch/release
-  ${CMAKE_SOURCE_DIR}/ext/mupdf-lib/src/mupdf_lib/build/switch/release
+  ${CMAKE_CURRENT_BINARY_DIR}e
+  "${SOURCE_DIR}/build/switch/release"
 )
 
 add_executable(bookr-modern
@@ -68,6 +82,7 @@ add_executable(bookr-modern
   src/filetypes/mudocument.cpp
 )
 
+add_dependencies(bookr-modern mupdf_lib)
 set(OPENGL_opengl_LIBRARY EGL glapi drm_nouveau)
 add_definitions(-DUSE_GLAD=1)
 add_definitions(-DENABLE_NXLINK)
